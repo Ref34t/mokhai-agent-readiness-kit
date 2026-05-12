@@ -1,0 +1,38 @@
+# OS
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.phpintel/
+
+# Dependencies
+node_modules/
+vendor/
+
+# Build artifacts
+build/
+dist/
+*.zip
+*.tar.gz
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Testing
+coverage/
+.phpunit.result.cache
+.phpunit.cache/
+
+# PHPStan / static analysis
+.phpstan.cache/
+
+# Misc
+*.log
