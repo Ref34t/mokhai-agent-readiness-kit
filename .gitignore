@@ -4,7 +4,8 @@ Thumbs.db
 .AppleDouble
 .LSOverride
 
-# IDE
+# IDE / agent session state
+.claude/
 .idea/
 .vscode/
 *.swp
