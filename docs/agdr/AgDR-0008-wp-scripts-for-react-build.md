@@ -1,5 +1,5 @@
 ---
-id: AgDR-0007
+id: AgDR-0008
 timestamp: 2026-05-13T00:00:00Z
 agent: claude-opus-4-7
 model: claude-opus-4-7
@@ -8,7 +8,7 @@ trigger: ticket #4 (Context Profile admin screen) introduces the plugin's first 
 status: executed
 ---
 
-# AgDR-0007 — `@wordpress/scripts` for the React admin-UI build pipeline
+# AgDR-0008 — `@wordpress/scripts` for the React admin-UI build pipeline
 
 > In the context of needing a JS build pipeline for the Context Profile admin screen (the plugin's first React UI) and every downstream admin UI in v0.1.1+ (Context Score panel #10, Agent Activity #11, Bot Policy v0.1.1), facing the choice between adopting `@wordpress/scripts` (the WordPress core team's opinionated webpack wrapper), rolling our own webpack/vite config, or going build-step-free with native ES modules, I decided to adopt `@wordpress/scripts` as the sole devDependency for the JS pipeline (`build`, `start`, `lint:js`, `format` npm scripts) emitting to `build/admin/` with the generated `.asset.php` dependency manifest, to achieve a build pipeline that matches `WordPress/ai`'s shape (per AgDR-0004's positioning), produces a tiny bundle (6.78 KiB for the Context Profile UI), and integrates `@wordpress/components` / `@wordpress/element` / `@wordpress/i18n` without manually pinning their versions, accepting that we inherit a heavy node_modules footprint (~1.4k packages) on the dev path even though the runtime is React + a handful of WP packages.
 
