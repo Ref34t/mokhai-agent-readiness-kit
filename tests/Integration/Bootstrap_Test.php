@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration smoke test — verifies WP Context loads correctly inside the
+ * Integration smoke test — verifies AgentReady loads correctly inside the
  * WP test instance booted by wp-phpunit / wp-env.
  *
  * @package WPContext\Tests
@@ -31,7 +31,7 @@ final class Bootstrap_Test extends WP_UnitTestCase {
 	}
 
 	public function test_global_helper_is_available(): void {
-		self::assertTrue( function_exists( 'wp_context_has_ai_client' ) );
+		self::assertTrue( function_exists( 'agentready_has_ai_client' ) );
 	}
 
 	public function test_main_singleton_returns_consistent_instance(): void {

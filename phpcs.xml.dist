@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<ruleset name="WP Context — layered WordPress + Slevomat">
+<ruleset name="AgentReady — layered WordPress + Slevomat">
 	<description>
-		Coding-standard ruleset for WP Context. Layered per AgDR-0004:
+		Coding-standard ruleset for AgentReady. Layered per AgDR-0004:
 		WordPress-VIP-Go (strictest) → WordPress-Core → WordPress-Extra
 		→ PHPCompatibilityWP → Slevomat. Excluded sniffs are individually
 		justified inline with the AgDR reference.
@@ -51,8 +51,8 @@
 		<exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions"/>
 
 		<!--
-			VIP-Go flags get_option for performance; WP Context's options surface
-			is tiny (wp_context_settings + wp_context_version). Re-evaluate when
+			VIP-Go flags get_option for performance; AgentReady's options surface
+			is tiny (agentready_settings + agentready_version). Re-evaluate when
 			the option count grows.
 		-->
 		<exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions.cache_get_option"/>
@@ -84,12 +84,12 @@
 				<element value="wpctx"/>
 				<element value="WPContext"/>
 				<!--
-					wp_context_* is the canonical prefix for option keys (per #1
-					scaffold scope) AND for the global wp_context_has_ai_client()
-					helper named in ticket #2's AC. Keeping it on the prefix list
-					so both surfaces pass the strict global-naming sniff.
+					agentready_* is the prefix for option keys and the global
+					agentready_has_ai_client() helper after the #18 rename.
+					Internal namespace + constants (WPCTX_*, WPContext, wpctx_*)
+					stay — they're not user-facing per wp.org policy.
 				-->
-				<element value="wp_context"/>
+				<element value="agentready"/>
 			</property>
 		</properties>
 	</rule>
@@ -100,7 +100,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="wp-context"/>
+				<element value="agentready"/>
 			</property>
 		</properties>
 	</rule>
