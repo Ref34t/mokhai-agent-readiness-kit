@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// helpers.php is loaded by wp-context.php (post-version-gate) at runtime, not
+// helpers.php is loaded by agentready.php (post-version-gate) at runtime, not
 // via Composer autoload — load it manually here for the dev-tool check.
 require_once __DIR__ . '/../includes/Ai/helpers.php';
 
@@ -47,8 +47,8 @@ foreach ( $classes as $class ) {
 }
 
 // Also verify the global helper from includes/Ai/helpers.php is loaded.
-$helper_ok = function_exists( 'wp_context_has_ai_client' );
-fwrite( STDOUT, sprintf( "%-40s %s\n", 'wp_context_has_ai_client()', $helper_ok ? 'ok' : 'FAIL' ) );
+$helper_ok = function_exists( 'agentready_has_ai_client' );
+fwrite( STDOUT, sprintf( "%-40s %s\n", 'agentready_has_ai_client()', $helper_ok ? 'ok' : 'FAIL' ) );
 if ( ! $helper_ok ) {
 	$exit = 1;
 }

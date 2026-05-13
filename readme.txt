@@ -1,4 +1,4 @@
-=== WP Context ===
+=== AgentReady ===
 Contributors: 9hdigital
 Tags: ai, agents
 Requires at least: 7.0

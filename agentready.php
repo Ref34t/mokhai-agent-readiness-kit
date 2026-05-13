@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       WP Context
- * Plugin URI:        https://github.com/Ref34t/wp-context
- * Description:       Agent Readiness for WordPress: context, policy, audit, analytics. Makes WP sites readable, discoverable, governable, and measurable for AI agents.
+ * Plugin Name:       AgentReady
+ * Plugin URI:        https://github.com/Ref34t/agentready
+ * Description:       Agent Readiness for WordPress: context, policy, audit, analytics. Makes sites readable, discoverable, governable, and measurable for AI agents.
  * Version:           0.1.0-dev
  * Requires at least: 7.0
  * Requires PHP:      7.4
@@ -10,7 +10,7 @@
  * Author URI:        https://9hdigital.com
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       wp-context
+ * Text Domain:       agentready
  * Domain Path:       /languages
  *
  * @package WPContext

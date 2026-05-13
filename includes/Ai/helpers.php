@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 \defined( 'ABSPATH' ) || exit;
 
-if ( ! \function_exists( 'wp_context_has_ai_client' ) ) {
+if ( ! \function_exists( 'agentready_has_ai_client' ) ) {
 	/**
 	 * Whether the WP AI Client (shipped with WP core 7.0) is available
 	 * and configured at runtime.
@@ -21,7 +21,7 @@ if ( ! \function_exists( 'wp_context_has_ai_client' ) ) {
 	 * Mirrors `WPContext\Ai\Client_Wrapper::has_ai_client()` for callers
 	 * that prefer the WordPress functional idiom.
 	 */
-	function wp_context_has_ai_client(): bool {
+	function agentready_has_ai_client(): bool {
 		return \WPContext\Ai\Client_Wrapper::has_ai_client();
 	}
 }

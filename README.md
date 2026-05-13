@@ -1,4 +1,4 @@
-# WP Context
+# AgentReady
 
 > Agent Readiness for WordPress: context, policy, audit, analytics.
 

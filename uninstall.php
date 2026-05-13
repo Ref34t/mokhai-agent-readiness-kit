@@ -15,13 +15,13 @@ declare(strict_types=1);
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 /**
- * Single source-of-truth list of option keys WP Context owns.
+ * Single source-of-truth list of option keys AgentReady owns.
  *
  * Kept in sync with the Context Profile storage shape (#4 / AgDR-002).
  */
 $wpctx_options = array(
-	'wp_context_settings',
-	'wp_context_version',
+	'agentready_settings',
+	'agentready_version',
 );
 
 foreach ( $wpctx_options as $wpctx_option ) {

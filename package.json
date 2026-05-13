@@ -1,20 +1,20 @@
 {
-	"name": "wp-context",
+	"name": "agentready",
 	"private": true,
 	"version": "0.1.0-dev",
 	"description": "Agent Readiness for WordPress: context, policy, audit, analytics.",
 	"license": "GPL-2.0-or-later",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Ref34t/wp-context.git"
+		"url": "https://github.com/Ref34t/agentready.git"
 	},
 	"scripts": {
-		"makepot": "wp i18n make-pot . languages/wp-context.pot --domain=wp-context --exclude=vendor,node_modules,build,tests",
+		"makepot": "wp i18n make-pot . languages/agentready.pot --domain=agentready --exclude=vendor,node_modules,build,tests",
 		"wp-env": "wp-env",
 		"env:start": "wp-env start",
 		"env:stop": "wp-env stop",
 		"env:clean": "wp-env clean all",
-		"test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-context vendor/bin/phpunit"
+		"test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/agentready vendor/bin/phpunit"
 	},
 	"devDependencies": {
 		"@wordpress/env": "^10.0.0"
