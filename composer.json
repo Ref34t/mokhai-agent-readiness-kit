@@ -12,7 +12,10 @@
 	"autoload": {
 		"psr-4": {
 			"WPContext\\": "includes/"
-		}
+		},
+		"files": [
+			"includes/Ai/helpers.php"
+		]
 	},
 	"autoload-dev": {
 		"psr-4": {

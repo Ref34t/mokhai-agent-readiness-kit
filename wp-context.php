@@ -41,4 +41,12 @@ constants();
 
 require_once \WPCTX_DIR . 'vendor/autoload.php';
 
+// Runtime version-floor gate. Activation refusal lives in Requirements::check_activation
+// (wired through Main::on_activate); this branch handles the case where WP or PHP
+// fell below the floor AFTER activation — show an admin notice and don't boot.
+if ( ! Requirements::meets_wp_floor() || ! Requirements::meets_php_floor() ) {
+	Requirements::register_runtime_notice();
+	return;
+}
+
 Main::get_instance();
