@@ -162,7 +162,7 @@ final class Requirements {
 		// #4 (Profile screen) and #10 (Context Score Tools page); until they
 		// land, this notice stays off-screen, which is the correct degrade
 		// for the scaffold-only state.
-		$screen = \function_exists( '\get_current_screen' ) ? \get_current_screen() : null;
+		$screen = \function_exists( 'get_current_screen' ) ? \get_current_screen() : null;
 		if ( null === $screen || false === \strpos( (string) $screen->id, 'wp-context' ) ) {
 			return;
 		}

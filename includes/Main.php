@@ -76,9 +76,12 @@ final class Main {
 	 * file a migration ticket per `/migration` first.
 	 */
 	public function on_activate(): void {
-		// Requirements gate is implemented in #2 — until then the scaffold
-		// just records the installed version so #2 has something to read on
-		// upgrade-path tests.
+		// Requirements gate FIRST — refuses activation on WP < 7.0 / PHP < 7.4
+		// by calling deactivate_plugins() + wp_die(). If the gate refuses,
+		// execution stops inside wp_die() and the version-option write below
+		// never runs (correct: nothing was activated).
+		Requirements::check_activation();
+
 		if ( false === \get_option( 'wp_context_version' ) ) {
 			\add_option( 'wp_context_version', \WPCTX_VERSION, '', false );
 		} else {
