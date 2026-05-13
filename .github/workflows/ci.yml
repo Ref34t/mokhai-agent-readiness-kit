@@ -213,7 +213,10 @@ jobs:
         run: npx wp-env start
 
       - name: Run integration tests
-        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/wp-context "vendor/bin/phpunit --testsuite integration"
+        # bash -c wrapper avoids wp-env / docker-exec arg-splitting weirdness
+        # (the quoted form `"phpunit --testsuite integration"` would otherwise
+        # land in docker exec as one argv element and fail with ENOENT).
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/wp-context bash -c "vendor/bin/phpunit --testsuite integration"
 
       - name: Stop wp-env
         if: always()
