@@ -1,0 +1,35 @@
+{
+	"name": "ref34t/wp-context",
+	"description": "Agent Readiness for WordPress: context, policy, audit, analytics.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"php-stubs/wordpress-stubs": "^6.6"
+	},
+	"autoload": {
+		"psr-4": {
+			"WPContext\\": "includes/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"WPContext\\Tests\\": "tests/"
+		}
+	},
+	"config": {
+		"sort-packages": true,
+		"optimize-autoloader": true,
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"phpcs": "echo 'phpcs configured in #3' && exit 0",
+		"phpstan": "echo 'phpstan configured in #13' && exit 0",
+		"test": "echo 'phpunit configured in #3' && exit 0"
+	}
+}
