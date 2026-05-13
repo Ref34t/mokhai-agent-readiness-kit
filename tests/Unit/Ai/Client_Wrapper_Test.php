@@ -102,8 +102,19 @@ final class Client_Wrapper_Test extends TestCase {
 
 	// ----------------------------------------------------------------------
 	// Provider doubles
+	//
+	// Each helper returns an anonymous class that implements Provider AND
+	// exposes a public `$calls` counter. The PHPStan return type uses an
+	// intersection (`Provider&object{calls: int}`) so static analysis
+	// understands `$provider->calls` is a valid property access on the
+	// returned anonymous-class shape — the `Provider` interface alone
+	// doesn't define `$calls`, and adding it there would leak a test-only
+	// concern into production typing.
 	// ----------------------------------------------------------------------
 
+	/**
+	 * @return Provider&object{calls: int}
+	 */
 	private function success_provider( string $content ): Provider {
 		return new class( $content ) implements Provider {
 			public int $calls = 0;
@@ -120,6 +131,9 @@ final class Client_Wrapper_Test extends TestCase {
 		};
 	}
 
+	/**
+	 * @return Provider&object{calls: int}
+	 */
 	private function network_then_success_provider( string $second_content ): Provider {
 		return new class( $second_content ) implements Provider {
 			public int $calls = 0;
@@ -139,6 +153,9 @@ final class Client_Wrapper_Test extends TestCase {
 		};
 	}
 
+	/**
+	 * @return Provider&object{calls: int}
+	 */
 	private function always_network_provider(): Provider {
 		return new class implements Provider {
 			public int $calls = 0;
@@ -150,6 +167,9 @@ final class Client_Wrapper_Test extends TestCase {
 		};
 	}
 
+	/**
+	 * @return Provider&object{calls: int}
+	 */
 	private function always_rate_limit_provider(): Provider {
 		return new class implements Provider {
 			public int $calls = 0;

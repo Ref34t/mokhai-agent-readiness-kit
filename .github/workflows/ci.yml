@@ -85,7 +85,44 @@ jobs:
         run: cs2pr phpcs-report.xml
 
   # ---------------------------------------------------------------------------
-  # 3. wp.org Plugin Check Tool against WP trunk.
+  # 3. PHPStan static analysis at level 5 (AgDR-0007).
+  #    Catches the type-level bug class PHPCS does not see — null deref,
+  #    wrong arg types, missing returns, unreachable code. Uses
+  #    szepeviktor/phpstan-wordpress for WP-core type stubs. Runs at the
+  #    PHP 7.4 floor (matches the runtime contract the code must satisfy).
+  # ---------------------------------------------------------------------------
+  phpstan:
+    name: PHPStan (level 5)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP 7.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Composer cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: composer-${{ runner.os }}-7.4-${{ hashFiles('composer.lock') }}-${{ env.CACHE_DATE }}
+          restore-keys: |
+            composer-${{ runner.os }}-7.4-${{ hashFiles('composer.lock') }}-
+            composer-${{ runner.os }}-7.4-
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: Run PHPStan
+        run: composer phpstan
+
+  # ---------------------------------------------------------------------------
+  # 4. wp.org Plugin Check Tool against WP trunk.
   #    The gate for wp.org submission — must pass on every PR.
   # ---------------------------------------------------------------------------
   plugin-check:
@@ -117,10 +154,10 @@ jobs:
           # tests) aren't part of what would ship — exclude them so the scan
           # focuses on plugin runtime code. Mirrors WordPress/ai.
           exclude-directories: 'vendor,node_modules,tests,tools,.github,docs,languages'
-          exclude-files: '.gitignore,.gitattributes,.editorconfig,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpcs.xml.dist,phpunit.xml.dist'
+          exclude-files: '.gitignore,.gitattributes,.editorconfig,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpcs.xml.dist,phpstan-baseline.neon,phpstan.neon.dist,phpunit.xml.dist'
 
   # ---------------------------------------------------------------------------
-  # 4. PHPUnit unit suite — no wp-env, fast. Runs tests/Unit/* which use the
+  # 5. PHPUnit unit suite — no wp-env, fast. Runs tests/Unit/* which use the
   #    Provider test seam (AgDR-0003) + tests/Unit/wp-stubs.php and don't
   #    require WordPress to be loaded.
   # ---------------------------------------------------------------------------
@@ -158,7 +195,7 @@ jobs:
         run: vendor/bin/phpunit --testsuite unit --no-coverage
 
   # ---------------------------------------------------------------------------
-  # 5. PHPUnit integration suite — 4-cell matrix via wp-env.
+  # 6. PHPUnit integration suite — 4-cell matrix via wp-env.
   #    Runs tests/Integration/* which exercise the plugin against a real WP
   #    boot. See AgDR-0004 § "CI matrix shape" for why 4 cells and not 10.
   # ---------------------------------------------------------------------------
