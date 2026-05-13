@@ -56,6 +56,15 @@ final class Main {
 		\register_deactivation_hook( \WPCTX_FILE, array( $this, 'on_deactivate' ) );
 
 		\add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
+
+		// Soft-degrade notice on plugin admin pages when WP AI Client is
+		// unconfigured. See AgDR-0003 + ticket #2.
+		Requirements::register_ai_client_notice();
+
+		// Wire the deferred-retry cron handler. v0.1 ships a no-op handler;
+		// #6 / #8 / #11 attach their module-scoped re-generation logic onto
+		// the same action (Client_Wrapper::RETRY_ACTION).
+		\WPContext\Ai\Client_Wrapper::register_hooks();
 	}
 
 	/**
