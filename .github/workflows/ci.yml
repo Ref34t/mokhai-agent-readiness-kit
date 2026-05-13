@@ -154,7 +154,7 @@ jobs:
           # tests) aren't part of what would ship — exclude them so the scan
           # focuses on plugin runtime code. Mirrors WordPress/ai.
           exclude-directories: 'vendor,node_modules,tests,tools,.github,docs,languages'
-          exclude-files: '.gitignore,.gitattributes,.editorconfig,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpcs.xml.dist,phpunit.xml.dist'
+          exclude-files: '.gitignore,.gitattributes,.editorconfig,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpcs.xml.dist,phpstan-baseline.neon,phpstan.neon.dist,phpunit.xml.dist'
 
   # ---------------------------------------------------------------------------
   # 5. PHPUnit unit suite — no wp-env, fast. Runs tests/Unit/* which use the
