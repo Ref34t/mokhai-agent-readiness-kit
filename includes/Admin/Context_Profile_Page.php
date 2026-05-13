@@ -187,7 +187,7 @@ final class Context_Profile_Page {
 		\printf(
 			'<div class="notice notice-warning"><p>%1$s <code>%2$s</code></p></div>',
 			\esc_html__( 'AgentReady Context Profile UI bundle not found. Run:', 'agentready' ),
-			'npm install &amp;&amp; npm run build'
+			\esc_html( 'npm install && npm run build' )
 		);
 	}
 
