@@ -94,6 +94,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up PHP 7.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer:v2
+
+      - name: Install runtime Composer deps (no dev)
+        # The Plugin Check action loads the plugin inside a real WP install,
+        # which means wp-context.php's `require vendor/autoload.php` must
+        # find vendor/. vendor/ is gitignored; install it here. --no-dev
+        # keeps the install lean (matches what would ship to wp.org).
+        run: composer install --no-dev --no-progress --no-interaction --prefer-dist --optimize-autoloader
+
       - name: Plugin Check
         uses: wordpress/plugin-check-action@v1.1.5
         with:
