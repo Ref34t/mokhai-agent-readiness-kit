@@ -120,11 +120,50 @@ jobs:
           exclude-files: '.gitignore,.gitattributes,.editorconfig,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpcs.xml.dist,phpunit.xml.dist'
 
   # ---------------------------------------------------------------------------
-  # 4. PHPUnit — 4-cell matrix (PHP 7.4 + 8.1) × (WP 7.0 + trunk) via wp-env.
-  #    See AgDR-0004 § "CI matrix shape" for why 4 cells and not 10.
+  # 4. PHPUnit unit suite — no wp-env, fast. Runs tests/Unit/* which use the
+  #    Provider test seam (AgDR-0003) + tests/Unit/wp-stubs.php and don't
+  #    require WordPress to be loaded.
   # ---------------------------------------------------------------------------
-  phpunit:
-    name: PHPUnit (PHP ${{ matrix.php }} × WP ${{ matrix.wp }})
+  phpunit-unit:
+    name: PHPUnit unit (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+
+      - name: Composer cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: composer-${{ runner.os }}-${{ matrix.php }}-${{ hashFiles('composer.lock') }}-${{ env.CACHE_DATE }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ matrix.php }}-${{ hashFiles('composer.lock') }}-
+            composer-${{ runner.os }}-${{ matrix.php }}-
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit --testsuite unit --no-coverage
+
+  # ---------------------------------------------------------------------------
+  # 5. PHPUnit integration suite — 4-cell matrix via wp-env.
+  #    Runs tests/Integration/* which exercise the plugin against a real WP
+  #    boot. See AgDR-0004 § "CI matrix shape" for why 4 cells and not 10.
+  # ---------------------------------------------------------------------------
+  phpunit-integration:
+    name: PHPUnit integration (PHP ${{ matrix.php }} × WP ${{ matrix.wp }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -173,8 +212,8 @@ jobs:
           WP_ENV_PHP_VERSION: ${{ matrix.php }}
         run: npx wp-env start
 
-      - name: Run PHPUnit
-        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/wp-context vendor/bin/phpunit
+      - name: Run integration tests
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/wp-context "vendor/bin/phpunit --testsuite integration"
 
       - name: Stop wp-env
         if: always()
