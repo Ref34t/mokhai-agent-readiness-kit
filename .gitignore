@@ -27,6 +27,9 @@ dist/
 .env.*
 !.env.example
 
+# wp-env (PHPUnit harness — see #3)
+.wp-env/
+
 # Testing
 coverage/
 .phpunit.result.cache

@@ -1,0 +1,15 @@
+{
+	"name": "wp-context",
+	"private": true,
+	"version": "0.1.0-dev",
+	"description": "Agent Readiness for WordPress: context, policy, audit, analytics.",
+	"license": "GPL-2.0-or-later",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Ref34t/wp-context.git"
+	},
+	"scripts": {
+		"makepot": "wp i18n make-pot . languages/wp-context.pot --domain=wp-context --exclude=vendor,node_modules,build,tests"
+	},
+	"devDependencies": {}
+}
