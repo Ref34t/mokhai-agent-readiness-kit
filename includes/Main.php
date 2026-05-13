@@ -65,6 +65,13 @@ final class Main {
 		// #6 / #8 / #11 attach their module-scoped re-generation logic onto
 		// the same action (Client_Wrapper::RETRY_ACTION).
 		\WPContext\Ai\Client_Wrapper::register_hooks();
+
+		// Wire the Context Profile admin screen (#4 / AgDR-0002).
+		// Registers the Settings API option, the Tools → Context menu, and
+		// the admin-only asset enqueue. Front-end requests pay no cost —
+		// admin_init / admin_menu / admin_enqueue_scripts only fire in wp-admin.
+		\WPContext\Admin\Context_Profile_Settings::register_hooks();
+		\WPContext\Admin\Context_Profile_Page::register_hooks();
 	}
 
 	/**
