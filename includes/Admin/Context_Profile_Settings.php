@@ -73,9 +73,18 @@ final class Context_Profile_Settings {
 	 * Wire the WordPress hooks owned by this class.
 	 *
 	 * Called once from Main::register_hooks (added in #4's Main wiring).
+	 *
+	 * The post-save action (`agentready_context_profile_saved`) is dispatched
+	 * via `update_option_<key>` / `add_option_<key>` rather than from inside
+	 * `sanitize()`. The Settings API runs `sanitize_callback` BEFORE
+	 * `update_option()` writes the new value, so listeners that re-read via
+	 * `get_profile()` from inside `sanitize()` would observe the OLD value —
+	 * defeating the FR-1 keystone contract for #9 / #10 / #11.
 	 */
 	public static function register_hooks(): void {
 		\add_action( 'admin_init', array( self::class, 'register_setting' ) );
+		\add_action( 'update_option_' . self::OPTION_KEY, array( self::class, 'on_profile_updated' ), 10, 2 );
+		\add_action( 'add_option_' . self::OPTION_KEY, array( self::class, 'on_profile_added' ), 10, 2 );
 	}
 
 	/**
@@ -179,6 +188,12 @@ final class Context_Profile_Settings {
 	 * sanitiser with a capability check so a forged nonce / direct call from
 	 * a non-admin user cannot persist the option.
 	 *
+	 * NOTE: this method does NOT dispatch `agentready_context_profile_saved`.
+	 * The Settings API runs `sanitize_callback` BEFORE the write, so dispatching
+	 * here would expose listeners to the stale value via `get_profile()`. The
+	 * action fires from `on_profile_updated()` / `on_profile_added()`, which
+	 * run after WP's write completes — see {@see self::register_hooks()}.
+	 *
 	 * @param mixed $input Raw form input.
 	 *
 	 * @return array<string, mixed>
@@ -196,29 +211,59 @@ final class Context_Profile_Settings {
 			$input = array();
 		}
 
-		$sanitized = self::sanitize_internal( $input );
+		return self::sanitize_internal( $input );
+	}
 
-		// Dispatch the post-save action so #9 / #10 / #11 listeners (cache
-		// invalidation, Context Score recompute, LLM narrative regen) can
-		// react. Uses the previously-stored profile as the "old" value so
-		// listeners can diff (e.g. "did the exposed_cpts list change?").
-		$old = self::get_profile();
+	/**
+	 * Fires the post-save action after WP has written an updated option.
+	 *
+	 * Hooked to `update_option_agentready_context_profile`. Re-runs the
+	 * stored value through `migrate()` so the action payload matches what
+	 * downstream readers (via `get_profile()`) will observe — listeners
+	 * never see a half-migrated array.
+	 *
+	 * @param mixed $old_value Previous option value (raw, pre-migration).
+	 * @param mixed $value     New option value (raw, just-written, pre-migration).
+	 */
+	public static function on_profile_updated( $old_value, $value ): void {
+		$new = \is_array( $value ) ? self::migrate( $value ) : self::get_defaults();
+		$old = \is_array( $old_value ) ? self::migrate( $old_value ) : self::get_defaults();
 
 		/**
-		 * Fires after the Context Profile passes sanitisation but before
-		 * `update_option()` writes it. Listeners use this to invalidate
-		 * caches keyed on the prior exposure rules (#9), trigger a Context
-		 * Score recompute (#10), and regenerate the LLM score narrative
-		 * (#11). The action runs even when the new value equals the old
-		 * value — listeners that want to skip equal saves should diff
-		 * themselves.
+		 * Fires after the Context Profile has been written to the database.
 		 *
-		 * @param array<string, mixed> $sanitized The new profile about to be saved.
-		 * @param array<string, mixed> $old       The previous profile (defaulted).
+		 * Listeners (#9 cache invalidation, #10 Context Score recompute,
+		 * #11 LLM narrative regen) can safely call `Context_Profile_Settings::get_profile()`
+		 * from here and observe the new value. The action runs even when the
+		 * new value equals the old value — listeners that want to skip equal
+		 * saves should diff themselves.
+		 *
+		 * @param array<string, mixed> $new The newly-saved profile.
+		 * @param array<string, mixed> $old The previous profile (defaulted on first save).
 		 */
-		\do_action( 'agentready_context_profile_saved', $sanitized, $old );
+		\do_action( 'agentready_context_profile_saved', $new, $old );
+	}
 
-		return $sanitized;
+	/**
+	 * Fires the post-save action on the first write of the option.
+	 *
+	 * Hooked to `add_option_agentready_context_profile`. WP fires
+	 * `add_option_<key>` (not `update_option_<key>`) the very first time the
+	 * option is written, so without this hook the inaugural save would skip
+	 * the listener chain. Payload uses `get_defaults()` for the old value —
+	 * "old" is "what the system was implicitly showing pre-save."
+	 *
+	 * @param string $option Option name (`agentready_context_profile`).
+	 * @param mixed  $value  New option value (raw, just-written).
+	 */
+	public static function on_profile_added( $option, $value ): void {
+		unset( $option );
+
+		$new = \is_array( $value ) ? self::migrate( $value ) : self::get_defaults();
+		$old = self::get_defaults();
+
+		/** This filter is documented in Context_Profile_Settings::on_profile_updated() */
+		\do_action( 'agentready_context_profile_saved', $new, $old );
 	}
 
 	/**

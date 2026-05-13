@@ -9,8 +9,13 @@
  *   - Migration fills defaults for legacy stored profiles
  *   - Unknown keys in input are dropped
  *   - LLM toggles are coerced to bool
- *   - sanitize() dispatches agentready_context_profile_saved
+ *   - sanitize() does NOT dispatch agentready_context_profile_saved (action fires
+ *     from update_option_<key>/add_option_<key> listeners — post-write, never
+ *     pre-write — so listeners observe the new value via get_profile())
  *   - sanitize() refuses for users without manage_options
+ *   - register_hooks() wires update_option_<key> + add_option_<key>
+ *   - on_profile_updated() / on_profile_added() dispatch the action with
+ *     migrated payloads
  *
  * @package WPContext\Tests
  */
@@ -28,11 +33,12 @@ final class Context_Profile_Settings_Test extends TestCase {
 	protected function setUp(): void {
 		// Reset all stubbed WP globals between tests so cross-test leakage
 		// can't fake a passing assertion.
-		$GLOBALS['wpctx_test_post_types']    = array( 'post', 'page' );
-		$GLOBALS['wpctx_test_options']       = array();
-		$GLOBALS['wpctx_test_capabilities']  = array( 'manage_options' => true );
-		$GLOBALS['wpctx_test_did_action']    = array();
+		$GLOBALS['wpctx_test_post_types']     = array( 'post', 'page' );
+		$GLOBALS['wpctx_test_options']        = array();
+		$GLOBALS['wpctx_test_capabilities']   = array( 'manage_options' => true );
+		$GLOBALS['wpctx_test_did_action']     = array();
 		$GLOBALS['wpctx_test_active_plugins'] = array();
+		$GLOBALS['wpctx_test_added_actions']  = array();
 	}
 
 	// ----------------------------------------------------------------------
@@ -233,7 +239,11 @@ final class Context_Profile_Settings_Test extends TestCase {
 	// Action dispatch + capability gate
 	// ----------------------------------------------------------------------
 
-	public function test_sanitize_dispatches_saved_action_with_new_and_old(): void {
+	public function test_sanitize_does_not_dispatch_saved_action(): void {
+		// The action fires from update_option_<key>/add_option_<key> AFTER the
+		// write, never from inside sanitize() (which runs BEFORE the write).
+		// Dispatching here would expose listeners to the stale value via
+		// get_profile() — defeats the FR-1 keystone contract.
 		$GLOBALS['wpctx_test_options'][ Context_Profile_Settings::OPTION_KEY ] = array(
 			'exposed_cpts' => array( 'page' ),
 		);
@@ -244,11 +254,78 @@ final class Context_Profile_Settings_Test extends TestCase {
 			)
 		);
 
+		self::assertSame(
+			array(),
+			$GLOBALS['wpctx_test_did_action'],
+			'sanitize() must not dispatch agentready_context_profile_saved — the action lives on update_option_<key>/add_option_<key>.'
+		);
+	}
+
+	public function test_register_hooks_wires_post_write_dispatchers(): void {
+		Context_Profile_Settings::register_hooks();
+
+		$update_hooks = wpctx_test_get_added_actions_for( 'update_option_' . Context_Profile_Settings::OPTION_KEY );
+		$add_hooks    = wpctx_test_get_added_actions_for( 'add_option_' . Context_Profile_Settings::OPTION_KEY );
+
+		self::assertCount( 1, $update_hooks, 'update_option_<key> listener must be registered exactly once.' );
+		self::assertCount( 1, $add_hooks, 'add_option_<key> listener must be registered exactly once.' );
+
+		self::assertSame(
+			array( Context_Profile_Settings::class, 'on_profile_updated' ),
+			$update_hooks[0]['callback']
+		);
+		self::assertSame(
+			array( Context_Profile_Settings::class, 'on_profile_added' ),
+			$add_hooks[0]['callback']
+		);
+
+		// 2 accepted args so listeners can diff old vs new.
+		self::assertSame( 2, $update_hooks[0]['accepted_args'] );
+		self::assertSame( 2, $add_hooks[0]['accepted_args'] );
+	}
+
+	public function test_on_profile_updated_dispatches_action_with_migrated_payload(): void {
+		$old_raw = array( 'exposed_cpts' => array( 'page' ) );
+		$new_raw = array( 'exposed_cpts' => array( 'post' ) );
+
+		Context_Profile_Settings::on_profile_updated( $old_raw, $new_raw );
+
 		$dispatched = $GLOBALS['wpctx_test_did_action'];
 		self::assertCount( 1, $dispatched );
 		self::assertSame( 'agentready_context_profile_saved', $dispatched[0]['hook'] );
+
+		// New value (first arg) is the migrated profile — defaults merged in.
 		self::assertSame( array( 'post' ), $dispatched[0]['args'][0]['exposed_cpts'] );
+		self::assertSame( array( 'publish' ), $dispatched[0]['args'][0]['exposed_statuses'] );
+		self::assertTrue( $dispatched[0]['args'][0]['llm_cleanup_enabled'] );
+
+		// Old value (second arg) is the migrated previous profile.
 		self::assertSame( array( 'page' ), $dispatched[0]['args'][1]['exposed_cpts'] );
+	}
+
+	public function test_on_profile_added_dispatches_action_with_defaults_as_old(): void {
+		// First write — there is no prior stored value, so "old" must be the
+		// defaults (what the system was implicitly showing pre-save).
+		Context_Profile_Settings::on_profile_added(
+			Context_Profile_Settings::OPTION_KEY,
+			array( 'exposed_cpts' => array( 'post' ) )
+		);
+
+		$dispatched = $GLOBALS['wpctx_test_did_action'];
+		self::assertCount( 1, $dispatched );
+		self::assertSame( 'agentready_context_profile_saved', $dispatched[0]['hook'] );
+
+		self::assertSame( array( 'post' ), $dispatched[0]['args'][0]['exposed_cpts'] );
+		self::assertSame( Context_Profile_Settings::get_defaults(), $dispatched[0]['args'][1] );
+	}
+
+	public function test_on_profile_updated_handles_non_array_old_value(): void {
+		// Corrupt stored value should not fatal the listener chain.
+		Context_Profile_Settings::on_profile_updated( 'corrupted', array( 'exposed_cpts' => array( 'post' ) ) );
+
+		$dispatched = $GLOBALS['wpctx_test_did_action'];
+		self::assertCount( 1, $dispatched );
+		self::assertSame( Context_Profile_Settings::get_defaults(), $dispatched[0]['args'][1] );
 	}
 
 	public function test_sanitize_refuses_user_without_manage_options(): void {

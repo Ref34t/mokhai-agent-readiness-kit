@@ -47,13 +47,47 @@ if ( ! function_exists( 'wp_schedule_single_event' ) ) {
 	}
 }
 
+if ( ! isset( $GLOBALS['wpctx_test_added_actions'] ) ) {
+	$GLOBALS['wpctx_test_added_actions'] = array();
+}
+
 if ( ! function_exists( 'add_action' ) ) {
 	/**
-	 * Stub: record actions but don't dispatch. Tests that need dispatch
-	 * behaviour belong in the integration suite, not the unit suite.
+	 * Stub: record actions into $GLOBALS['wpctx_test_added_actions'] so tests
+	 * can assert that hooks were wired. Doesn't dispatch — tests that need
+	 * dispatch behaviour use the manual-callback pattern below or belong in
+	 * the integration suite.
 	 */
 	function add_action( string $hook, $callback, int $priority = 10, int $accepted_args = 1 ): bool {
+		$GLOBALS['wpctx_test_added_actions'][] = array(
+			'hook'          => $hook,
+			'callback'      => $callback,
+			'priority'      => $priority,
+			'accepted_args' => $accepted_args,
+		);
 		return true;
+	}
+}
+
+if ( ! function_exists( 'wpctx_test_get_added_actions_for' ) ) {
+	/**
+	 * Test helper: return every recorded add_action() entry for a given hook.
+	 *
+	 * Lives in the stubs file (not in a Test base class) so any unit test can
+	 * inspect hook registrations without re-instantiating WP's hook system.
+	 *
+	 * @param string $hook Hook name to filter on.
+	 *
+	 * @return array<int, array{hook: string, callback: mixed, priority: int, accepted_args: int}>
+	 */
+	function wpctx_test_get_added_actions_for( string $hook ): array {
+		$out = array();
+		foreach ( $GLOBALS['wpctx_test_added_actions'] as $entry ) {
+			if ( $entry['hook'] === $hook ) {
+				$out[] = $entry;
+			}
+		}
+		return $out;
 	}
 }
 

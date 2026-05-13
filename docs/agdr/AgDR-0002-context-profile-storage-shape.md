@@ -131,7 +131,7 @@ WPContext\Admin\Context_Profile_Settings::get_profile(): array
 
 returning the migrated + defaulted profile array. Modules NEVER call `get_option('agentready_context_profile')` directly — they go through the reader so future migrations / caching / instrumentation has a single chokepoint.
 
-The post-save action `do_action( 'agentready_context_profile_saved', $new_profile, $old_profile )` fires after a successful write. `#9` (cache invalidation), `#10` (Context Score recompute), and `#11` (LLM narrative regen) attach listeners on this action.
+The post-save action `do_action( 'agentready_context_profile_saved', $new_profile, $old_profile )` fires after a successful write. It is dispatched from listeners on WP's own `update_option_<key>` and `add_option_<key>` hooks — never from inside the `sanitize_callback`, which the Settings API runs BEFORE `update_option()` writes the new value. Listeners can therefore safely call `Context_Profile_Settings::get_profile()` from the action and observe the freshly-written profile. `#9` (cache invalidation), `#10` (Context Score recompute), and `#11` (LLM narrative regen) attach listeners on this action.
 
 ### What this AgDR explicitly does NOT decide
 
