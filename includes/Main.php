@@ -56,6 +56,15 @@ final class Main {
 		\register_deactivation_hook( \WPCTX_FILE, array( $this, 'on_deactivate' ) );
 
 		\add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
+
+		// Soft-degrade notice on plugin admin pages when WP AI Client is
+		// unconfigured. See AgDR-0003 + ticket #2.
+		Requirements::register_ai_client_notice();
+
+		// Wire the deferred-retry cron handler. v0.1 ships a no-op handler;
+		// #6 / #8 / #11 attach their module-scoped re-generation logic onto
+		// the same action (Client_Wrapper::RETRY_ACTION).
+		\WPContext\Ai\Client_Wrapper::register_hooks();
 	}
 
 	/**
@@ -67,9 +76,12 @@ final class Main {
 	 * file a migration ticket per `/migration` first.
 	 */
 	public function on_activate(): void {
-		// Requirements gate is implemented in #2 — until then the scaffold
-		// just records the installed version so #2 has something to read on
-		// upgrade-path tests.
+		// Requirements gate FIRST — refuses activation on WP < 7.0 / PHP < 7.4
+		// by calling deactivate_plugins() + wp_die(). If the gate refuses,
+		// execution stops inside wp_die() and the version-option write below
+		// never runs (correct: nothing was activated).
+		Requirements::check_activation();
+
 		if ( false === \get_option( 'wp_context_version' ) ) {
 			\add_option( 'wp_context_version', \WPCTX_VERSION, '', false );
 		} else {
