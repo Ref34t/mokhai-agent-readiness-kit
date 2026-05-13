@@ -49,4 +49,11 @@ if ( ! Requirements::meets_wp_floor() || ! Requirements::meets_php_floor() ) {
 	return;
 }
 
+// Load global-namespace helpers. Done here (not via Composer's `files:`
+// autoload) so PHPUnit / dev-tool autoload chains don't trip the `defined(
+// 'ABSPATH' ) || exit;` guard inside the helper file before they've had a
+// chance to define ABSPATH. See #15 and the test bootstrap for the
+// non-WP loading paths.
+require_once \WPCTX_DIR . 'includes/Ai/helpers.php';
+
 Main::get_instance();

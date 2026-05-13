@@ -9,7 +9,14 @@
 		"url": "https://github.com/Ref34t/wp-context.git"
 	},
 	"scripts": {
-		"makepot": "wp i18n make-pot . languages/wp-context.pot --domain=wp-context --exclude=vendor,node_modules,build,tests"
+		"makepot": "wp i18n make-pot . languages/wp-context.pot --domain=wp-context --exclude=vendor,node_modules,build,tests",
+		"wp-env": "wp-env",
+		"env:start": "wp-env start",
+		"env:stop": "wp-env stop",
+		"env:clean": "wp-env clean all",
+		"test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/wp-context vendor/bin/phpunit"
 	},
-	"devDependencies": {}
+	"devDependencies": {
+		"@wordpress/env": "^10.0.0"
+	}
 }

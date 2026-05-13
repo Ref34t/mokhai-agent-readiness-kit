@@ -23,9 +23,21 @@ final class Requirements {
 
 	/**
 	 * Whether the running WordPress version meets the hard floor.
+	 *
+	 * Pre-release suffixes (e.g. `7.0-alpha-12345`, `7.0-RC1`) are stripped
+	 * before comparison so a pre-GA build of WP 7.0 still counts as ">= 7.0".
+	 * PHP's version_compare treats `-alpha` as pre-release, so without this
+	 * the gate would refuse activation on WP 7.0 dev branches even though
+	 * those builds ARE the future 7.0 — and CI matrix cells running against
+	 * the 7.0-branch would fail every integration test.
+	 *
+	 * @param string|null $current_version Optional override for testing.
+	 *                                     Defaults to `get_bloginfo('version')`.
 	 */
-	public static function meets_wp_floor(): bool {
-		return \version_compare( \get_bloginfo( 'version' ), \WPCTX_REQUIRES_WP, '>=' );
+	public static function meets_wp_floor( ?string $current_version = null ): bool {
+		$version = $current_version ?? \get_bloginfo( 'version' );
+		$version = \preg_replace( '/[\-+].*$/', '', $version );
+		return \version_compare( $version, \WPCTX_REQUIRES_WP, '>=' );
 	}
 
 	/**
