@@ -1,0 +1,10 @@
+{
+  "intelephense.environment.phpVersion": "7.4.0",
+  "intelephense.environment.includePaths": [
+    "vendor/php-stubs/wordpress-stubs"
+  ],
+  "intelephense.completion.fullyQualifyGlobalConstantsAndFunctions": false,
+  "intelephense.diagnostics.undefinedFunctions": true,
+  "intelephense.diagnostics.undefinedConstants": true,
+  "intelephense.format.braces": "psr12"
+}
