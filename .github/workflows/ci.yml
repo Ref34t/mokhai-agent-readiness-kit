@@ -112,6 +112,12 @@ jobs:
         with:
           build-dir: '.'
           wp-version: 'trunk'
+          # Plugin Check scans the entire build-dir as if it were the wp.org
+          # zip. Repo-only files (CI config, lockfiles, dev tooling, dotfiles,
+          # tests) aren't part of what would ship — exclude them so the scan
+          # focuses on plugin runtime code. Mirrors WordPress/ai.
+          exclude-directories: 'vendor,node_modules,tests,tools,.github,docs,languages'
+          exclude-files: '.gitignore,.gitattributes,.editorconfig,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpcs.xml.dist,phpunit.xml.dist'
 
   # ---------------------------------------------------------------------------
   # 4. PHPUnit — 4-cell matrix (PHP 7.4 + 8.1) × (WP 7.0 + trunk) via wp-env.

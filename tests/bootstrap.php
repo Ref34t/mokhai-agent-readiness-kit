@@ -2,42 +2,36 @@
 /**
  * PHPUnit bootstrap.
  *
- * Loads the Composer autoloader and (for integration tests) the WP test
- * library shipped by wp-phpunit/wp-phpunit. Unit tests don't need WP — they
- * use the Provider injection seam from AgDR-0003 to test the wrapper without
- * loading WordPress core.
+ * Two execution paths:
  *
- * @package WPContext
+ * 1. **Integration** — WP_TESTS_DIR is set (inside wp-env's tests-cli).
+ *    wp-phpunit owns ABSPATH + the WP test bootstrap; we just hook
+ *    `muplugins_loaded` to require wp-context.php so the plugin runs inside
+ *    the WP test instance.
+ *
+ * 2. **Unit** — WP_TESTS_DIR is unset (running outside wp-env). Define a
+ *    stub ABSPATH, manually require the global helpers, load WP function
+ *    stubs from tests/Unit/wp-stubs.php. No WordPress is booted.
+ *
+ * The conditional ABSPATH define is load-bearing — in the integration path,
+ * wp-phpunit's bootstrap defines ABSPATH to the WP root (/var/www/html/).
+ * If we eagerly defined it here, wp-phpunit would see ABSPATH=plugin-dir
+ * and the subsequent `require ABSPATH . 'wp-settings.php'` would fail.
+ *
+ * @package WPContext\Tests
  */
 
 declare(strict_types=1);
 
-// ABSPATH stub for unit tests so the `defined('ABSPATH') || exit;` guards in
-// every includes/*.php (and the global helpers.php loaded via Composer's
-// `files:` autoload) don't terminate the test process. Matches the fix
-// landed in #15 for tools/autoload-check.php.
-//
-// MUST come before require autoload.php — Composer's `files:` autoload runs
-// during that require and the guarded files will exit if ABSPATH is unset.
-if ( ! defined( 'ABSPATH' ) ) {
-	define( 'ABSPATH', __DIR__ . '/../' );
-}
-
-// Composer autoload — required for every test type.
+// Composer autoload — required for every test type. Lazy autoloader; doesn't
+// touch ABSPATH-guarded files until a class is actually used.
 require __DIR__ . '/../vendor/autoload.php';
 
-// Global-namespace helpers — moved out of Composer's `files:` autoload to
-// avoid the `defined('ABSPATH') || exit;` guard tripping during PHPUnit's
-// own autoload chain (before our bootstrap can define ABSPATH). Safe to
-// require here because ABSPATH is defined just above.
-require __DIR__ . '/../includes/Ai/helpers.php';
-
-// Integration tests load the WP test library; unit tests don't.
 $tests_dir = getenv( 'WP_TESTS_DIR' );
 if ( $tests_dir && file_exists( $tests_dir . '/includes/functions.php' ) ) {
+	// Integration path — wp-phpunit owns ABSPATH.
 	require_once $tests_dir . '/includes/functions.php';
 
-	// Load the plugin into the WP test instance.
 	tests_add_filter(
 		'muplugins_loaded',
 		static function (): void {
@@ -47,10 +41,13 @@ if ( $tests_dir && file_exists( $tests_dir . '/includes/functions.php' ) ) {
 
 	require $tests_dir . '/includes/bootstrap.php';
 } else {
-	// Unit-test path: WP isn't loaded. Stub the handful of WP functions the
-	// production code reaches for, so unit tests can exercise the wrapper /
-	// retry logic without booting WordPress. Integration tests use the real
-	// functions inside wp-env. Each stub guards on function_exists so the
-	// bootstrap is idempotent across re-includes.
+	// Unit path — define ABSPATH stub before any guarded file is required.
+	if ( ! defined( 'ABSPATH' ) ) {
+		define( 'ABSPATH', __DIR__ . '/../' );
+	}
+
+	// helpers.php and includes/*.php all have `defined('ABSPATH') || exit;`
+	// guards. ABSPATH is defined above, so they load cleanly here.
+	require __DIR__ . '/../includes/Ai/helpers.php';
 	require __DIR__ . '/Unit/wp-stubs.php';
 }
