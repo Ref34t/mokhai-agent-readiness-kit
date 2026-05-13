@@ -25,10 +25,8 @@ namespace WPContext;
 /**
  * Define plugin-wide constants.
  *
- * Mirrors the bootstrap shape of WordPress/ai (the WP core team's AI plugin):
- * a namespaced constants() function called once at file load, before autoload
- * and bootstrap. Constants live in the global namespace by design so PHP code
- * outside the WPContext\ namespace can reference them without imports.
+ * Constants live in the global namespace by design so PHP code outside the
+ * WPContext\ namespace can reference them without imports.
  */
 function constants(): void {
 	\define( 'WPCTX_VERSION', '0.1.0-dev' );

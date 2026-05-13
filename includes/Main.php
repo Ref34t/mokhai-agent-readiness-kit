@@ -16,8 +16,7 @@ namespace WPContext;
  *
  * Owns the lifecycle hooks (activation / deactivation), wires the public
  * subsystems (Profile, Markdown, LlmsTxt, Audit, Admin, REST, CLI), and is
- * the single entry-point the main plugin file calls into. Mirrors the
- * Main::get_instance() pattern used by WordPress/ai.
+ * the single entry-point the main plugin file calls into.
  */
 final class Main {
 

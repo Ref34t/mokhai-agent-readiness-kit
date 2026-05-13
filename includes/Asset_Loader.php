@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace WPContext;
 
-defined( 'ABSPATH' ) || exit;
+\defined( 'ABSPATH' ) || exit;
 
 /**
  * Registers admin scripts and styles.
