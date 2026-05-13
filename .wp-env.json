@@ -3,7 +3,7 @@
 	"phpVersion": "7.4",
 	"plugins": ["."],
 	"mappings": {
-		"wp-content/plugins/wp-context": "."
+		"wp-content/plugins/agentready": "."
 	},
 	"config": {
 		"WP_DEBUG": true,

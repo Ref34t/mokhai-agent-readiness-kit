@@ -102,7 +102,7 @@ jobs:
 
       - name: Install runtime Composer deps (no dev)
         # The Plugin Check action loads the plugin inside a real WP install,
-        # which means wp-context.php's `require vendor/autoload.php` must
+        # which means agentready.php's `require vendor/autoload.php` must
         # find vendor/. vendor/ is gitignored; install it here. --no-dev
         # keeps the install lean (matches what would ship to wp.org).
         run: composer install --no-dev --no-progress --no-interaction --prefer-dist --optimize-autoloader
@@ -216,7 +216,7 @@ jobs:
         # bash -c wrapper avoids wp-env / docker-exec arg-splitting weirdness
         # (the quoted form `"phpunit --testsuite integration"` would otherwise
         # land in docker exec as one argv element and fail with ENOENT).
-        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/wp-context bash -c "vendor/bin/phpunit --testsuite integration"
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/agentready bash -c "vendor/bin/phpunit --testsuite integration"
 
       - name: Stop wp-env
         if: always()

@@ -82,10 +82,10 @@ final class Main {
 		// never runs (correct: nothing was activated).
 		Requirements::check_activation();
 
-		if ( false === \get_option( 'wp_context_version' ) ) {
-			\add_option( 'wp_context_version', \WPCTX_VERSION, '', false );
+		if ( false === \get_option( 'agentready_version' ) ) {
+			\add_option( 'agentready_version', \WPCTX_VERSION, '', false );
 		} else {
-			\update_option( 'wp_context_version', \WPCTX_VERSION, false );
+			\update_option( 'agentready_version', \WPCTX_VERSION, false );
 		}
 	}
 
@@ -107,7 +107,7 @@ final class Main {
 	 */
 	public function load_textdomain(): void {
 		\load_plugin_textdomain(
-			'wp-context',
+			'agentready',
 			false,
 			\dirname( \plugin_basename( \WPCTX_FILE ) ) . '/languages'
 		);
