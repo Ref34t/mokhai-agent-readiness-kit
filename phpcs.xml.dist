@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<ruleset name="WP Context — layered WordPress + Slevomat">
+	<description>
+		Coding-standard ruleset for WP Context. Layered per AgDR-0004:
+		WordPress-VIP-Go (strictest) → WordPress-Core → WordPress-Extra
+		→ PHPCompatibilityWP → Slevomat. Excluded sniffs are individually
+		justified inline with the AgDR reference.
+		Mirrors the WordPress/ai (the WP core team's AI plugin) phpcs.xml.dist.
+	</description>
+
+	<!-- ============================================================== -->
+	<!-- Files to scan                                                  -->
+	<!-- ============================================================== -->
+	<file>.</file>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/languages/*</exclude-pattern>
+
+	<!--
+		Tests + dev tools are NOT plugin runtime code. WP strict naming
+		(`WPCTX_*` prefix on globals, escaping rules, runtime config bans)
+		don't make sense for PHPUnit test files or autoload-verification
+		scripts. Each directory keeps its own conventions (PHPUnit style;
+		standard CLI script style) and is enforced by being unbroken in CI
+		(php -l + phpunit). The Plugin Check Tool action in CI focuses on
+		runtime plugin code, not tests/tools.
+	-->
+	<exclude-pattern>*/tests/*</exclude-pattern>
+	<exclude-pattern>*/tools/*</exclude-pattern>
+
+	<!-- ============================================================== -->
+	<!-- Runtime config                                                 -->
+	<!-- ============================================================== -->
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg value="ps"/>
+	<arg name="parallel" value="8"/>
+
+	<!-- ============================================================== -->
+	<!-- Layer 1 — WordPress-VIP-Go (strictest WP layer)                -->
+	<!-- ============================================================== -->
+	<rule ref="WordPress-VIP-Go">
+		<!--
+			VIP-Go forbids direct query construction; we don't write SQL at the
+			scaffold level — exclude until #4/#9 introduce real query code,
+			then re-enable per call site.
+		-->
+		<exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions"/>
+
+		<!--
+			VIP-Go flags get_option for performance; WP Context's options surface
+			is tiny (wp_context_settings + wp_context_version). Re-evaluate when
+			the option count grows.
+		-->
+		<exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions.cache_get_option"/>
+	</rule>
+
+	<!-- ============================================================== -->
+	<!-- Layer 2 — WordPress-Core                                        -->
+	<!-- ============================================================== -->
+	<rule ref="WordPress-Core"/>
+
+	<!-- ============================================================== -->
+	<!-- Layer 3 — WordPress-Extra (docblocks, file naming, etc.)        -->
+	<!-- ============================================================== -->
+	<rule ref="WordPress-Extra">
+		<!--
+			File-name rule expects class-foo.php; we use PSR-4 (Foo.php) per
+			AgDR-0001 (#1's scaffold decision). Conflicts directly.
+		-->
+		<exclude name="WordPress.Files.FileName"/>
+	</rule>
+
+	<!-- ============================================================== -->
+	<!-- Prefix lock — locked in #1 / AgDR-0004                          -->
+	<!-- ============================================================== -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="WPCTX"/>
+				<element value="wpctx"/>
+				<element value="WPContext"/>
+				<!--
+					wp_context_* is the canonical prefix for option keys (per #1
+					scaffold scope) AND for the global wp_context_has_ai_client()
+					helper named in ticket #2's AC. Keeping it on the prefix list
+					so both surfaces pass the strict global-naming sniff.
+				-->
+				<element value="wp_context"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- ============================================================== -->
+	<!-- Text-domain lock                                                -->
+	<!-- ============================================================== -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-context"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- ============================================================== -->
+	<!-- Layer 4 — PHPCompatibilityWP (PHP 7.4+ × WP 7.0+)               -->
+	<!-- ============================================================== -->
+	<config name="testVersion" value="7.4-"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- ============================================================== -->
+	<!-- Layer 5 — Slevomat (strict types + namespace hygiene)           -->
+	<!-- ============================================================== -->
+	<rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+		<properties>
+			<property name="declareOnFirstLine" value="false"/>
+			<property name="linesCountBeforeDeclare" value="1"/>
+			<property name="spacesCountAroundEqualsSign" value="0"/>
+		</properties>
+	</rule>
+
+	<rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
+		<properties>
+			<property name="searchAnnotations" value="true"/>
+		</properties>
+	</rule>
+</ruleset>

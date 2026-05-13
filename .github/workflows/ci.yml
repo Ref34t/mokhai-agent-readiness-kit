@@ -1,5 +1,8 @@
 name: CI
 
+# Per AgDR-0004: layered PHPCS + Plugin Check + 4-cell PHPUnit matrix, mirroring
+# the WordPress/ai plugin's CI shape (the WP core team's own AI plugin).
+
 on:
   push:
     branches: [main]
@@ -8,10 +11,20 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write   # cs2pr posts inline annotations on PR diff
+
+# Weekly cache stamp — busts caches every Monday so dep-resolver bugs surface
+# within a week instead of festering. Matches WordPress/ai's pattern.
+env:
+  CACHE_DATE: ${{ github.event.repository.updated_at }}
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # 1. PHP syntax sweep across the supported runtime range.
+  #    Cheap, parallel-friendly, catches broken code in any single PHP version.
+  # ---------------------------------------------------------------------------
   php-syntax:
-    name: PHP syntax check (PHP ${{ matrix.php }})
+    name: PHP syntax (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -26,7 +39,7 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer:v2
 
-      - name: PHP syntax check
+      - name: Syntax sweep
         run: |
           find . -name '*.php' \
             -not -path './vendor/*' \
@@ -35,13 +48,111 @@ jobs:
             -print0 \
             | xargs -0 -n1 -P4 php -l
 
-  plugin-check:
-    name: WP Plugin Check (informational)
+  # ---------------------------------------------------------------------------
+  # 2. PHPCS — layered WordPress rulesets per phpcs.xml.dist (AgDR-0004).
+  #    cs2pr converts PHPCS checkstyle output into inline PR annotations.
+  # ---------------------------------------------------------------------------
+  phpcs:
+    name: PHPCS (WordPress + Slevomat layered)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - name: Note
-        run: |
-          echo "WP Plugin Check Tool will be added once initial code lands."
-          echo "Target: clean pass before wp.org submission."
+
+      - name: Set up PHP 7.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer:v2, cs2pr
+
+      - name: Composer cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}-${{ env.CACHE_DATE }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}-
+            composer-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: Run PHPCS (report=checkstyle for cs2pr)
+        run: ./vendor/bin/phpcs --report=checkstyle --report-file=phpcs-report.xml || true
+
+      - name: cs2pr (inline annotations on PR diff)
+        run: cs2pr phpcs-report.xml
+
+  # ---------------------------------------------------------------------------
+  # 3. wp.org Plugin Check Tool against WP trunk.
+  #    The gate for wp.org submission — must pass on every PR.
+  # ---------------------------------------------------------------------------
+  plugin-check:
+    name: WP Plugin Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Plugin Check
+        uses: wordpress/plugin-check-action@v1.1.5
+        with:
+          build-dir: '.'
+          wp-version: 'trunk'
+
+  # ---------------------------------------------------------------------------
+  # 4. PHPUnit — 4-cell matrix (PHP 7.4 + 8.1) × (WP 7.0 + trunk) via wp-env.
+  #    See AgDR-0004 § "CI matrix shape" for why 4 cells and not 10.
+  # ---------------------------------------------------------------------------
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php }} × WP ${{ matrix.wp }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1']
+        wp: ['7.0', 'trunk']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+
+      - name: Composer cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: composer-${{ runner.os }}-${{ matrix.php }}-${{ hashFiles('composer.lock') }}-${{ env.CACHE_DATE }}
+          restore-keys: |
+            composer-${{ runner.os }}-${{ matrix.php }}-${{ hashFiles('composer.lock') }}-
+            composer-${{ runner.os }}-${{ matrix.php }}-
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      - name: Install wp-env
+        run: npm ci
+
+      - name: Start wp-env (WP ${{ matrix.wp }})
+        env:
+          WP_ENV_CORE: ${{ matrix.wp == 'trunk' && 'WordPress/WordPress#master' || format('WordPress/WordPress#{0}', matrix.wp) }}
+          WP_ENV_PHP_VERSION: ${{ matrix.php }}
+        run: npx wp-env start
+
+      - name: Run PHPUnit
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/wp-context vendor/bin/phpunit
+
+      - name: Stop wp-env
+        if: always()
+        run: npx wp-env stop || true
