@@ -110,13 +110,22 @@ function ContextProfileApp( { bootstrap } ) {
 		setProfile( ( prev ) => ( { ...prev, [ field ]: value } ) );
 	};
 
+	// Mirror of WP's wp_referer_field() — options.php reads this to redirect
+	// back to the calling screen with ?settings-updated=true, which is what
+	// triggers the "Settings saved." admin notice via settings_errors().
+	// Without it the user lands on raw /wp-admin/options.php with no feedback.
+	const referer =
+		typeof window !== 'undefined'
+			? window.location.pathname + window.location.search
+			: '';
+
 	return (
 		<form
 			action={ settings.optionsUrl }
 			method="post"
 			aria-label={ __( 'AgentReady Context Profile form', 'agentready' ) }
 		>
-			{ /* Settings API plumbing -- option_page + nonce + _wp_http_referer. */ }
+			{ /* Settings API plumbing — option_page + action + nonce + referer. */ }
 			<input
 				type="hidden"
 				name="option_page"
@@ -124,6 +133,7 @@ function ContextProfileApp( { bootstrap } ) {
 			/>
 			<input type="hidden" name="action" value="update" />
 			<input type="hidden" name="_wpnonce" value={ settings.nonce } />
+			<input type="hidden" name="_wp_http_referer" value={ referer } />
 
 			{ /* Whole profile encoded as one POST payload — keeps the
 			     sanitiser the only write path. schema_version is preserved
