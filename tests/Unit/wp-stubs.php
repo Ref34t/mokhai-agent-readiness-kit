@@ -160,7 +160,13 @@ if ( ! function_exists( 'current_user_can' ) ) {
 	/**
 	 * Stub: return capability from the per-test globals.
 	 */
-	function current_user_can( string $cap ): bool {
+	function current_user_can( string $cap, ...$args ): bool {
+		// $args is accepted but unused by the stub — WP's real signature is
+		// variadic (e.g. `current_user_can('edit_post', $post_id)`), and
+		// PHPStan picks the stub up as the function's source-of-truth signature
+		// since `tests/Unit/` is in the analyse paths. Keep this matching the
+		// WordPress core signature.
+		unset( $args );
 		return ! empty( $GLOBALS['wpctx_test_capabilities'][ $cap ] );
 	}
 }
