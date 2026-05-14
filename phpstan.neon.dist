@@ -10,10 +10,15 @@ includes:
     # WordPress core type stubs (WP_Query, WP_Post, hook signatures, common
     # globals). Provided by szepeviktor/phpstan-wordpress.
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
-    # Third-party stub gaps that can't be fixed from this repo. See the
-    # baseline file's own header for the policy. Code-level issues are
-    # fixed in code, never baselined.
-    - phpstan-baseline.neon
+    # NOTE: phpstan-baseline.neon was removed in #33. The baseline introduced
+    # in #26 captured a single regex for `add_action`/`add_filter` "result
+    # unused" — the refactor in #27 (which wrapped those calls in
+    # `register_hooks()` method bodies) made the rule no longer fire, and
+    # PHPStan 2.x's `reportUnmatchedIgnoredErrors: true` (default) flagged
+    # the stale entry as drift. The codebase now passes level 5 cleanly with
+    # zero baseline entries. If a future ticket re-introduces a third-party
+    # stub gap, add `phpstan-baseline.neon` back here and document each entry
+    # one-line per AgDR-0007's baseline policy.
 
 parameters:
     # Level 5 — catches null deref, wrong arg types, dead code, missing returns

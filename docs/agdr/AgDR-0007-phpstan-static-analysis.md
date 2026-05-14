@@ -76,3 +76,43 @@ Chosen: **Option A — PHPStan level 5 + szepeviktor/phpstan-wordpress as a dedi
 - AgDR: this file
 - PR: (linked here on creation)
 - Reference implementation we adapted (different level + scope): https://github.com/WordPress/ai/blob/trunk/phpstan.neon.dist
+
+---
+
+## Amendment — 2026-05-13 (issue #33)
+
+Two days after this AgDR landed, PR #27 (Context Profile admin) merged on top of #26 (this AgDR's PR). The PHPStan job on `main` immediately went red with **two** errors that exposed two implicit assumptions in the original decision. Both are policy-level observations worth folding back here rather than spinning a fresh AgDR — the conclusions reinforce the original posture rather than reverse it.
+
+### Observation 1 — the baseline can go stale from *good* refactors
+
+The original baseline (in PR #26) held a single regex covering bare-line `add_action()` / `add_filter()` / `register_*_hook()` calls. PR #27 introduced `Main::register_hooks()` / `Context_Profile_Page::register_hooks()` patterns that move those calls inside method bodies — the rule no longer fires for any path in `includes/`. PHPStan 2.x's default `reportUnmatchedIgnoredErrors: true` then flagged the baseline entry itself as drift.
+
+This is **working as designed**, not a regression. The "code fixes preferred over baseline" policy this AgDR established means baseline entries are debt that the codebase is expected to pay down over time. PHPStan's enforcement is what surfaces the moment that debt is paid. Keeping `reportUnmatchedIgnoredErrors: true` (the original choice) is the correct posture — flipping it to `false` would let stale entries accumulate silently.
+
+The mitigation, codified in #33, is to **delete the baseline file outright** when the last entry stops firing, AND remove the `phpstan-baseline.neon` line from `phpstan.neon.dist`'s `includes:` block. If a future ticket reintroduces a third-party stub gap, the baseline gets re-added with the one-line-comment policy already established in this AgDR.
+
+### Observation 2 — `require` paths that resolve at runtime need an indirection seam at analysis time
+
+PR #27 introduced `require WPCTX_DIR . 'build/admin/context-profile.asset.php'` for the `@wordpress/scripts` build artefact. The `build/` directory is gitignored (output of `npm run build`). The PHPStan CI job runs `composer install` + `composer phpstan` only — no Node, no build. PHPStan resolves `WPCTX_DIR` from the bootstrap file as a known constant string, follows the require path, finds the file missing on the analysis cell, and raises `require.fileNotFound`.
+
+The original AgDR didn't anticipate runtime-only artefacts in the analysed paths. The options were:
+
+| Option | Trade-off |
+|--------|-----------|
+| **A — Add Node + `npm run build` to the PHPStan CI job** | Rejected. Doubles job runtime (~30s npm install + ~10s build), adds Node setup to a PHP-only job, and couples analysis to a build step it logically doesn't need. |
+| **B — Defensive require + indirection seam (chosen)** | Wrap the require in an `is_readable()` ternary with a safe-default fallback array (matches Gutenberg / WP core convention for graceful first-boot degradation), AND route the path through a trivial identity function (`Context_Profile_Page::asset_path()`) so PHPStan cannot statically resolve the require target. PHPStan analyses the fallback array shape, never tries to follow the require, exits clean. |
+| C — `@phpstan-ignore-next-line` annotation on the require | Rejected — silences a real concern instead of structuring around it. Cheapest, worst signal. |
+| D — Commit a stub `*.asset.php` placeholder under `build/` | Rejected — pollutes the gitignored build/ directory with a tracked stub, and the stub's shape can silently diverge from the real `@wordpress/scripts` output. |
+
+Option B is now the convention for **any** runtime-only artefact required from PHP in this codebase. The defensive shape — `file_exists` short-circuit early, `is_readable + ?:` for the require, identity-function indirection on the path — has three benefits:
+
+1. **Runtime resilience.** A missing build artefact degrades to an empty `wp_enqueue_script` call with neutral defaults, instead of fatal-erroring.
+2. **Analysis-time soundness.** Both branches of the ternary resolve to a `[ 'dependencies' => array, 'version' => string ]` shape that PHPStan can reason about for downstream calls.
+3. **CI decoupling.** The PHPStan job stays Node-free, keeping the original "parallel ~30s job" posture from this AgDR's Consequences section.
+
+### What this amendment does NOT change
+
+- **The level (still 5).** The two errors were structural, not type-level.
+- **`reportUnmatchedIgnoredErrors: true`** stays the default. Catching baseline drift is the feature, not the bug.
+- **The baseline policy** (one-line comments per entry, code fixes preferred). Reinforced — the deletion-when-empty rule is just the natural endpoint of that policy.
+- **The "no `@phpstan-ignore`" rule.** Rejected at the time, rejected again here.
