@@ -231,3 +231,45 @@ if ( ! function_exists( 'wp_die' ) ) {
 		throw new RuntimeException( 'wp_die: ' . ( is_string( $message ) ? $message : '' ) );
 	}
 }
+
+if ( ! function_exists( 'apply_filters' ) ) {
+	/**
+	 * Stub: read from $GLOBALS['wpctx_test_filters'][$hook] (array of callables)
+	 * and return the last filter's value, or pass `$value` through if no
+	 * filters are registered.
+	 */
+	function apply_filters( string $hook, $value, ...$args ) {
+		$filters = $GLOBALS['wpctx_test_filters'][ $hook ] ?? array();
+		foreach ( $filters as $callback ) {
+			$value = $callback( $value, ...$args );
+		}
+		return $value;
+	}
+}
+
+if ( ! function_exists( 'add_filter' ) ) {
+	/**
+	 * Stub: append a filter callback to $GLOBALS['wpctx_test_filters'][$hook]
+	 * so a test can simulate filter behaviour without booting WP.
+	 */
+	function add_filter( string $hook, $callback, int $priority = 10, int $accepted_args = 1 ): bool {
+		$GLOBALS['wpctx_test_filters'][ $hook ][] = $callback;
+		return true;
+	}
+}
+
+if ( ! class_exists( 'WP_Post' ) ) {
+	/**
+	 * Minimal stub of WP_Post. Tests construct one with the properties they
+	 * need; missing properties stay null.
+	 */
+	class WP_Post {
+		public int $ID                 = 0;
+		public string $post_type       = 'post';
+		public string $post_status     = 'publish';
+		public string $post_password   = '';
+		public string $post_content    = '';
+		public string $post_title      = '';
+		public string $post_modified_gmt = '';
+	}
+}

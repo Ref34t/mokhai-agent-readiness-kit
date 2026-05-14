@@ -71,6 +71,11 @@ final class Main {
 		// admin_init / admin_menu / admin_enqueue_scripts only fire in wp-admin.
 		\WPContext\Admin\Context_Profile_Settings::register_hooks();
 		\WPContext\Admin\Context_Profile_Page::register_hooks();
+
+		// Wire the Markdown Views cache-invalidation hooks (#5 / AgDR-0011).
+		// `save_post`, `wp_trash_post`, `before_delete_post`, and
+		// `wp_after_insert_post` all funnel into Service::invalidate().
+		Markdown_Views\Service::register_hooks();
 	}
 
 	/**
