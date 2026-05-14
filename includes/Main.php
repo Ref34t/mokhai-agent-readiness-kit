@@ -49,13 +49,12 @@ final class Main {
 	 *
 	 * Subsystems (Profile, Markdown, LlmsTxt, Audit, Admin, REST, CLI) wire
 	 * their own hooks from their own bootstraps — Main only owns plugin-level
-	 * lifecycle and the i18n loader.
+	 * lifecycle. Translations are auto-loaded by wp.org under the plugin
+	 * slug since WP 4.6 (see AgDR-0009) — no manual loader registered here.
 	 */
 	private function register_hooks(): void {
 		\register_activation_hook( \WPCTX_FILE, array( $this, 'on_activate' ) );
 		\register_deactivation_hook( \WPCTX_FILE, array( $this, 'on_deactivate' ) );
-
-		\add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 
 		// Soft-degrade notice on plugin admin pages when WP AI Client is
 		// unconfigured. See AgDR-0003 + ticket #2.
@@ -107,16 +106,5 @@ final class Main {
 		// Transient cleanup hooks will be added by the modules that own them
 		// (Markdown views, llms.txt generator, Context Score). No transients
 		// exist yet in the scaffold.
-	}
-
-	/**
-	 * Load the plugin's translations.
-	 */
-	public function load_textdomain(): void {
-		\load_plugin_textdomain(
-			'agentready',
-			false,
-			\dirname( \plugin_basename( \WPCTX_FILE ) ) . '/languages'
-		);
 	}
 }
