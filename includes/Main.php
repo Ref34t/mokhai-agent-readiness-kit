@@ -92,6 +92,10 @@ final class Main {
 		// running under WP-CLI — the register() guard handles the runtime
 		// check so the regular page-load path pays zero cost.
 		\WPContext\Cli\Markdown_Views_Command::register();
+
+		// Wire the Gutenberg sidebar React panel (#5 / AgDR-0014). Enqueues
+		// only on block-editor screens via `enqueue_block_editor_assets`.
+		Markdown_Views\Sidebar_Assets::register_hooks();
 	}
 
 	/**
