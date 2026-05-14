@@ -11,7 +11,9 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       agentready
- * Domain Path:       /languages
+ *
+ * Translations: managed by wp.org under plugin slug 'agentready' (no manual
+ * textdomain loading needed since WP 4.6). See AgDR-0009.
  *
  * @package WPContext
  */
