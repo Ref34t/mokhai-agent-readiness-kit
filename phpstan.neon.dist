@@ -56,6 +56,12 @@ parameters:
     bootstrapFiles:
         - tests/phpstan-bootstrap.php
 
+    # WP-CLI class stubs — WP_CLI::add_command(), WP_CLI::error(), etc.
+    # WP-CLI ships outside WordPress core; the szepeviktor stubs don't cover
+    # it. Needed by includes/Cli/Markdown_Views_Command.php.
+    scanFiles:
+        - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
+
     # Treat docblock types as "could be wrong" — WP-core docblocks are not
     # always tight. Matches WordPress/ai's posture.
     treatPhpDocTypesAsCertain: false

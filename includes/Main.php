@@ -87,6 +87,11 @@ final class Main {
 		// reason for admin debugging (the public route stays uniformly 404
 		// per AgDR-0015).
 		Markdown_Views\Rest_Controller::register_hooks();
+
+		// Wire the WP-CLI command tree (#5 / AgDR-0014). No-op when not
+		// running under WP-CLI — the register() guard handles the runtime
+		// check so the regular page-load path pays zero cost.
+		\WPContext\Cli\Markdown_Views_Command::register();
 	}
 
 	/**
