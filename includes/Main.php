@@ -76,10 +76,13 @@ final class Main {
 	/**
 	 * Activation callback.
 	 *
-	 * Runs once when the plugin is activated. No schema changes here — the
-	 * Context Profile (#4 / AgDR-002) stores settings in a single versioned
-	 * wp_options entry. Future tickets that need a schema migration must
-	 * file a migration ticket per `/migration` first.
+	 * Runs once when the plugin is activated. The Context Profile (#4 /
+	 * AgDR-002) stores settings in a single versioned wp_options entry and
+	 * needs no schema. The Markdown Views cache (#5 / AgDR-0011) introduces
+	 * the first custom table — provisioned here via `dbDelta()` so the
+	 * activation is idempotent across re-activations and network activates
+	 * every site at once. Future schema changes go through a /migration
+	 * ticket per .claude/rules/workflow-gates.md Gate 3a.
 	 */
 	public function on_activate(): void {
 		// Requirements gate FIRST — refuses activation on WP < 7.0 / PHP < 7.4
@@ -93,6 +96,10 @@ final class Main {
 		} else {
 			\update_option( 'agentready_version', \WPCTX_VERSION, false );
 		}
+
+		// Markdown Views cache table (#5 / AgDR-0011). Multisite-aware:
+		// network activation provisions a per-site table on every site.
+		Markdown_Views\Schema::create_for_all_sites();
 	}
 
 	/**
