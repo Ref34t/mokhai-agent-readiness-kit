@@ -3,6 +3,7 @@
   "intelephense.environment.includePaths": [
     "vendor/php-stubs/wordpress-stubs"
   ],
+  "intelephense.files.maxSize": 6000000,
   "intelephense.completion.fullyQualifyGlobalConstantsAndFunctions": false,
   "intelephense.diagnostics.undefinedFunctions": true,
   "intelephense.diagnostics.undefinedConstants": true,
