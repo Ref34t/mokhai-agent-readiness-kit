@@ -29,32 +29,17 @@ final class Schema_Test extends WP_UnitTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->force_drop_table();
+		// Schema::drop() is filtered to DROP TEMPORARY TABLE by wp-phpunit's
+		// query rewriter (per-test isolation). The bootstrap-time drop in
+		// tests/bootstrap.php removed any pre-existing regular table from
+		// wp-env's env-boot activation; from this point on every drop here
+		// targets a temporary table the previous test may have left behind.
+		Schema::drop();
 	}
 
 	protected function tearDown(): void {
-		$this->force_drop_table();
+		Schema::drop();
 		parent::tearDown();
-	}
-
-	/**
-	 * Direct-SQL drop that bypasses the production `Schema::drop()` path.
-	 *
-	 * wp-phpunit's transaction wrapper interacts oddly with `dbDelta()`'s
-	 * CREATE TABLE — under some combinations of PHP/WP versions in the CI
-	 * matrix, the table is recreated between tests by the framework's
-	 * snapshot/restore mechanics (.wp-env.json auto-activates the plugin,
-	 * which fires the activation hook that runs `Schema::create_for_all_sites()`).
-	 * Going around the production Schema class with direct `$wpdb->query`
-	 * guarantees the drop happens regardless of activation timing or the
-	 * transaction state.
-	 */
-	private function force_drop_table(): void {
-		global $wpdb;
-		$table = $wpdb->prefix . 'agentready_md_cache';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
-		delete_option( 'agentready_md_cache_schema_version' );
 	}
 
 	public function test_table_name_uses_wpdb_prefix(): void {
@@ -63,14 +48,8 @@ final class Schema_Test extends WP_UnitTestCase {
 	}
 
 	public function test_create_provisions_table_and_records_schema_version(): void {
-		// We assert observable post-conditions, not the pre-condition state.
-		// Under the wp-env auto-activation + wp-phpunit transaction-wrapper
-		// interaction the "no table at start of test" state is not reliably
-		// reachable across the CI matrix (verified empirically: `DROP TABLE`
-		// via direct $wpdb->query reports success, yet the table is present
-		// at the next $wpdb->get_var). The production `Schema::create()` is
-		// idempotent — pre-existing table or not, it produces the expected
-		// post-state.
+		self::assertFalse( $this->table_exists(), 'Table should not exist before create()' );
+
 		Schema::create();
 
 		self::assertTrue( $this->table_exists(), 'Table should exist after create()' );
@@ -126,19 +105,13 @@ final class Schema_Test extends WP_UnitTestCase {
 		self::assertArrayHasKey( 'walker_version', $keys, 'walker_version KEY should exist' );
 	}
 
-	public function test_drop_clears_schema_version_option(): void {
-		// We verify drop's observable side-effect — the schema_version option
-		// gets cleared. We do NOT assert `! table_exists()` because the same
-		// wp-env / wp-phpunit interaction described on
-		// `test_create_provisions_table_and_records_schema_version` makes the
-		// post-drop "no table" state unreliable. Production `Schema::drop()`
-		// runs `DROP TABLE IF EXISTS` (no-throw on missing) plus
-		// `delete_option` — the option side-effect is the assertable contract.
+	public function test_drop_removes_table_and_schema_version(): void {
 		Schema::create();
-		self::assertSame( Schema::SCHEMA_VERSION, Schema::installed_version() );
+		self::assertTrue( $this->table_exists() );
 
 		Schema::drop();
 
+		self::assertFalse( $this->table_exists(), 'Table should be gone after drop()' );
 		self::assertSame( 0, Schema::installed_version(), 'Schema version option should be cleared' );
 	}
 
