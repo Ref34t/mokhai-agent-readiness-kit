@@ -29,9 +29,32 @@ final class Schema_Test extends WP_UnitTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		// Ensure a clean slate — previous test runs may have left the table
-		// behind. drop() is idempotent.
-		Schema::drop();
+		$this->force_drop_table();
+	}
+
+	protected function tearDown(): void {
+		$this->force_drop_table();
+		parent::tearDown();
+	}
+
+	/**
+	 * Direct-SQL drop that bypasses the production `Schema::drop()` path.
+	 *
+	 * wp-phpunit's transaction wrapper interacts oddly with `dbDelta()`'s
+	 * CREATE TABLE — under some combinations of PHP/WP versions in the CI
+	 * matrix, the table is recreated between tests by the framework's
+	 * snapshot/restore mechanics (.wp-env.json auto-activates the plugin,
+	 * which fires the activation hook that runs `Schema::create_for_all_sites()`).
+	 * Going around the production Schema class with direct `$wpdb->query`
+	 * guarantees the drop happens regardless of activation timing or the
+	 * transaction state.
+	 */
+	private function force_drop_table(): void {
+		global $wpdb;
+		$table = $wpdb->prefix . 'agentready_md_cache';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
+		delete_option( 'agentready_md_cache_schema_version' );
 	}
 
 	public function test_table_name_uses_wpdb_prefix(): void {

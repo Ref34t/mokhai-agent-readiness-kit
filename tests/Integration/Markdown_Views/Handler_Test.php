@@ -155,10 +155,13 @@ final class Handler_Test extends WP_UnitTestCase {
 		// Simulate the init hook by calling add_rewrite_rule directly.
 		Router::add_rewrite_rule();
 
+		// `add_rewrite_rule()` writes to `$wp_rewrite->extra_rules_top`. The
+		// `->rules` property is lazily built by `wp_rewrite_rules()` and is
+		// not populated synchronously when the rule is registered. Assert
+		// on the actual write target.
 		global $wp_rewrite;
-		$rules = (array) $wp_rewrite->rules;
+		$rules = (array) $wp_rewrite->extra_rules_top;
 
-		// The rule key is the regex; presence proves the rule is registered.
 		self::assertArrayHasKey( '^(.+)\.md/?$', $rules );
 		self::assertStringContainsString( 'agentready_md_request', $rules['^(.+)\.md/?$'] );
 	}
