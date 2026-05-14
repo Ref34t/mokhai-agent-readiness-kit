@@ -76,6 +76,11 @@ final class Main {
 		// `save_post`, `wp_trash_post`, `before_delete_post`, and
 		// `wp_after_insert_post` all funnel into Service::invalidate().
 		Markdown_Views\Service::register_hooks();
+
+		// Wire the public route (#5 / AgDR-0013): registers the rewrite rule
+		// + query var + template_redirect handler. Flush happens in
+		// on_activate() so the rule persists into the rewrite_rules option.
+		Markdown_Views\Router::register_hooks();
 	}
 
 	/**
@@ -105,18 +110,25 @@ final class Main {
 		// Markdown Views cache table (#5 / AgDR-0011). Multisite-aware:
 		// network activation provisions a per-site table on every site.
 		Markdown_Views\Schema::create_for_all_sites();
+
+		// Markdown Views rewrite rule (#5 / AgDR-0013). Persists the
+		// `^(.+)\.md/?$` rule into the rewrite_rules option so the public
+		// route survives to wp_loaded.
+		Markdown_Views\Router::flush_on_activation();
 	}
 
 	/**
 	 * Deactivation callback.
 	 *
-	 * Clears transient caches; does not touch persistent options (those are
-	 * removed by uninstall.php only). Re-activation should be cheap and
-	 * lossless.
+	 * Removes registered rewrite rules so the site reverts to vanilla
+	 * permalink behaviour, and clears transient caches owned by individual
+	 * modules. Persistent options (Context Profile, schema version, cache
+	 * rows) are preserved — only the explicit uninstall path removes them.
+	 * Re-activation should be cheap and lossless.
 	 */
 	public function on_deactivate(): void {
-		// Transient cleanup hooks will be added by the modules that own them
-		// (Markdown views, llms.txt generator, Context Score). No transients
-		// exist yet in the scaffold.
+		// Drop our `/path.md` rewrite by flushing without our init hook
+		// registered (deactivation has already unhooked the plugin).
+		Markdown_Views\Router::flush_on_deactivation();
 	}
 }
