@@ -81,6 +81,21 @@ final class Main {
 		// + query var + template_redirect handler. Flush happens in
 		// on_activate() so the rule persists into the rewrite_rules option.
 		Markdown_Views\Router::register_hooks();
+
+		// Wire the admin REST preview endpoint (#5 / AgDR-0014). Gated by
+		// edit_post capability on the specific post; surfaces the exposure
+		// reason for admin debugging (the public route stays uniformly 404
+		// per AgDR-0015).
+		Markdown_Views\Rest_Controller::register_hooks();
+
+		// Wire the WP-CLI command tree (#5 / AgDR-0014). No-op when not
+		// running under WP-CLI — the register() guard handles the runtime
+		// check so the regular page-load path pays zero cost.
+		\WPContext\Cli\Markdown_Views_Command::register();
+
+		// Wire the Gutenberg sidebar React panel (#5 / AgDR-0014). Enqueues
+		// only on block-editor screens via `enqueue_block_editor_assets`.
+		Markdown_Views\Sidebar_Assets::register_hooks();
 	}
 
 	/**

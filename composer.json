@@ -10,6 +10,7 @@
 		"automattic/vipwpcs": "^3.0",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"php-stubs/wordpress-stubs": "^6.6",
+		"php-stubs/wp-cli-stubs": "^2.12",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpstan/phpstan": "^2.1",
 		"phpunit/phpunit": "^9.6",
@@ -44,7 +45,7 @@
 	"scripts": {
 		"phpcs": "phpcs",
 		"phpcbf": "phpcbf",
-		"phpstan": "phpstan analyse --memory-limit=512M",
+		"phpstan": "phpstan analyse --memory-limit=1G",
 		"test": "phpunit",
 		"test:unit": "phpunit --testsuite unit",
 		"test:integration": "phpunit --testsuite integration"
