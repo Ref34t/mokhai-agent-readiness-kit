@@ -158,38 +158,47 @@ final class Context_Profile_Settings {
 	 * Strict-inherit single-source-of-truth API per AgDR-0012: every consumer
 	 * (Markdown Views, /llms.txt, /llms-full.txt, etc.) routes through this
 	 * method rather than re-implementing the rule. A false return must yield
-	 * a 404 in the consumer — never a partial content leak.
+	 * a 404 in the public consumer — never a partial content leak.
 	 *
-	 * Checks, in order:
-	 *  1. Post type is in the admin-curated `exposed_cpts` list.
-	 *  2. Post status is in `exposed_statuses` (defaults to `publish`).
-	 *  3. Post is not password-protected (exposing content publicly would
-	 *     defeat the password gate; this rule is hardcoded, not configurable).
-	 *  4. Post is not flagged noindex by an SEO plugin — delegated via the
-	 *     `agentready_post_is_noindexed` filter. v0.1 default returns false
-	 *     (everything is indexable); #12 (SEO coordination) layers in the
-	 *     real Yoast / Rank Math / AIOSEO detection.
+	 * For admin-only consumers (REST preview endpoint, Gutenberg sidebar)
+	 * that need the *reason* a post is hidden so the editor can fix it, use
+	 * {@see self::get_exposure_reason()} which returns one of: 'cpt',
+	 * 'status', 'password', 'noindex', or null on exposable.
 	 */
 	public static function is_url_exposable( \WP_Post $post ): bool {
+		return null === self::get_exposure_reason( $post );
+	}
+
+	/**
+	 * Return null if the post is exposable; otherwise a short reason code
+	 * naming the gate that denied it.
+	 *
+	 * Reason codes are stable strings safe to use as REST response values
+	 * and as i18n message keys. Order matches the gate order in
+	 * `is_url_exposable()`.
+	 *
+	 * @return string|null One of 'cpt' | 'status' | 'password' | 'noindex', or null.
+	 */
+	public static function get_exposure_reason( \WP_Post $post ): ?string {
 		$profile = self::get_profile();
 
 		if ( ! \in_array( $post->post_type, $profile['exposed_cpts'], true ) ) {
-			return false;
+			return 'cpt';
 		}
 
 		if ( ! \in_array( $post->post_status, $profile['exposed_statuses'], true ) ) {
-			return false;
+			return 'status';
 		}
 
 		if ( '' !== $post->post_password ) {
-			return false;
+			return 'password';
 		}
 
 		if ( self::is_noindexed( $post ) ) {
-			return false;
+			return 'noindex';
 		}
 
-		return true;
+		return null;
 	}
 
 	/**
