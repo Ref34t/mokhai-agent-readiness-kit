@@ -40,6 +40,43 @@ if ( $tests_dir && file_exists( $tests_dir . '/includes/functions.php' ) ) {
 	);
 
 	require $tests_dir . '/includes/bootstrap.php';
+
+	/*
+	 * Drop the agentready cache table created at wp-env env-boot.
+	 *
+	 * wp-env auto-activates this plugin during environment provisioning
+	 * (per `plugins: ["."]` in .wp-env.json). That activation runs
+	 * `Main::on_activate()` → `Schema::create_for_all_sites()` → emits
+	 * `CREATE TABLE wp_agentready_md_cache (...)` against the test database
+	 * WITHOUT the per-test query filter active. The result is a REGULAR
+	 * (non-temporary) table that persists across test classes.
+	 *
+	 * `WP_UnitTestCase_Base::set_up()` then adds two query filters via
+	 * `add_filter('query', '_create_temporary_tables')` /
+	 * `_drop_temporary_tables`. These rewrite every CREATE TABLE /
+	 * DROP TABLE to CREATE TEMPORARY TABLE / DROP TEMPORARY TABLE so each
+	 * test runs against its own session-scoped, transaction-friendly view.
+	 *
+	 * The cross-cut: tests asserting "the cache table is absent before
+	 * Schema::create()" fail because the pre-existing regular table is
+	 * always there, and the per-test DROP TABLE gets rewritten to
+	 * DROP TEMPORARY TABLE — which `IF EXISTS`-no-ops because the regular
+	 * table isn't a temporary table.
+	 *
+	 * Dropping the regular table HERE (after the wp-phpunit bootstrap but
+	 * before any test class's `set_up()` runs and adds the filters) clears
+	 * the env-boot residue exactly once. From that point on, every
+	 * Schema::create() inside a test runs as a temporary table and every
+	 * Schema::drop() drops it cleanly.
+	 *
+	 * See #39 for the full diagnosis chain.
+	 */
+	if ( isset( $GLOBALS['wpdb'] ) ) {
+		$wpdb_pre_test = $GLOBALS['wpdb'];
+		$wpdb_pre_test->query( 'DROP TABLE IF EXISTS ' . $wpdb_pre_test->prefix . 'agentready_md_cache' );
+		\delete_option( 'agentready_md_cache_schema_version' );
+		unset( $wpdb_pre_test );
+	}
 } else {
 	// Unit path — define ABSPATH stub before any guarded file is required.
 	if ( ! defined( 'ABSPATH' ) ) {
