@@ -71,15 +71,28 @@ final class Main {
 		// admin_init / admin_menu / admin_enqueue_scripts only fire in wp-admin.
 		\WPContext\Admin\Context_Profile_Settings::register_hooks();
 		\WPContext\Admin\Context_Profile_Page::register_hooks();
+
+		// Wire the Markdown Views cache-invalidation hooks (#5 / AgDR-0011).
+		// `save_post`, `wp_trash_post`, `before_delete_post`, and
+		// `wp_after_insert_post` all funnel into Service::invalidate().
+		Markdown_Views\Service::register_hooks();
+
+		// Wire the public route (#5 / AgDR-0013): registers the rewrite rule
+		// + query var + template_redirect handler. Flush happens in
+		// on_activate() so the rule persists into the rewrite_rules option.
+		Markdown_Views\Router::register_hooks();
 	}
 
 	/**
 	 * Activation callback.
 	 *
-	 * Runs once when the plugin is activated. No schema changes here — the
-	 * Context Profile (#4 / AgDR-002) stores settings in a single versioned
-	 * wp_options entry. Future tickets that need a schema migration must
-	 * file a migration ticket per `/migration` first.
+	 * Runs once when the plugin is activated. The Context Profile (#4 /
+	 * AgDR-002) stores settings in a single versioned wp_options entry and
+	 * needs no schema. The Markdown Views cache (#5 / AgDR-0011) introduces
+	 * the first custom table — provisioned here via `dbDelta()` so the
+	 * activation is idempotent across re-activations and network activates
+	 * every site at once. Future schema changes go through a /migration
+	 * ticket per .claude/rules/workflow-gates.md Gate 3a.
 	 */
 	public function on_activate(): void {
 		// Requirements gate FIRST — refuses activation on WP < 7.0 / PHP < 7.4
@@ -93,18 +106,29 @@ final class Main {
 		} else {
 			\update_option( 'agentready_version', \WPCTX_VERSION, false );
 		}
+
+		// Markdown Views cache table (#5 / AgDR-0011). Multisite-aware:
+		// network activation provisions a per-site table on every site.
+		Markdown_Views\Schema::create_for_all_sites();
+
+		// Markdown Views rewrite rule (#5 / AgDR-0013). Persists the
+		// `^(.+)\.md/?$` rule into the rewrite_rules option so the public
+		// route survives to wp_loaded.
+		Markdown_Views\Router::flush_on_activation();
 	}
 
 	/**
 	 * Deactivation callback.
 	 *
-	 * Clears transient caches; does not touch persistent options (those are
-	 * removed by uninstall.php only). Re-activation should be cheap and
-	 * lossless.
+	 * Removes registered rewrite rules so the site reverts to vanilla
+	 * permalink behaviour, and clears transient caches owned by individual
+	 * modules. Persistent options (Context Profile, schema version, cache
+	 * rows) are preserved — only the explicit uninstall path removes them.
+	 * Re-activation should be cheap and lossless.
 	 */
 	public function on_deactivate(): void {
-		// Transient cleanup hooks will be added by the modules that own them
-		// (Markdown views, llms.txt generator, Context Score). No transients
-		// exist yet in the scaffold.
+		// Drop our `/path.md` rewrite by flushing without our init hook
+		// registered (deactivation has already unhooked the plugin).
+		Markdown_Views\Router::flush_on_deactivation();
 	}
 }
