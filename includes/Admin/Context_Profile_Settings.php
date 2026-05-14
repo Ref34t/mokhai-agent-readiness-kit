@@ -125,7 +125,91 @@ final class Context_Profile_Settings {
 			'exposed_statuses'         => array( 'publish' ),
 			'llm_cleanup_enabled'      => true,
 			'llm_descriptions_enabled' => true,
+			// Per-module enable flags. Adding modules here is an additive
+			// schema change (legacy stored profiles default true via merge()).
+			'markdown_views_enabled'   => true,
 		);
+	}
+
+	/**
+	 * Resolve whether a per-module enable flag is on.
+	 *
+	 * Lookup convention: `{module}_enabled`. Unknown modules default true so
+	 * a feature that exists in code but isn't yet represented in the profile
+	 * schema is reachable until an admin actively opts out. The default is
+	 * compatible with the "soft disable" behaviour AgDR-0015 ships for #5 —
+	 * the handler still 404s when the toggle is off, but discovery of the
+	 * toggle's presence is decoupled from discovery of the module's code.
+	 */
+	public static function is_module_enabled( string $module ): bool {
+		$profile = self::get_profile();
+		$key     = $module . '_enabled';
+
+		if ( ! isset( $profile[ $key ] ) ) {
+			return true;
+		}
+
+		return (bool) $profile[ $key ];
+	}
+
+	/**
+	 * Decide whether a post may be exposed on agent-facing surfaces.
+	 *
+	 * Strict-inherit single-source-of-truth API per AgDR-0012: every consumer
+	 * (Markdown Views, /llms.txt, /llms-full.txt, etc.) routes through this
+	 * method rather than re-implementing the rule. A false return must yield
+	 * a 404 in the consumer — never a partial content leak.
+	 *
+	 * Checks, in order:
+	 *  1. Post type is in the admin-curated `exposed_cpts` list.
+	 *  2. Post status is in `exposed_statuses` (defaults to `publish`).
+	 *  3. Post is not password-protected (exposing content publicly would
+	 *     defeat the password gate; this rule is hardcoded, not configurable).
+	 *  4. Post is not flagged noindex by an SEO plugin — delegated via the
+	 *     `agentready_post_is_noindexed` filter. v0.1 default returns false
+	 *     (everything is indexable); #12 (SEO coordination) layers in the
+	 *     real Yoast / Rank Math / AIOSEO detection.
+	 */
+	public static function is_url_exposable( \WP_Post $post ): bool {
+		$profile = self::get_profile();
+
+		if ( ! \in_array( $post->post_type, $profile['exposed_cpts'], true ) ) {
+			return false;
+		}
+
+		if ( ! \in_array( $post->post_status, $profile['exposed_statuses'], true ) ) {
+			return false;
+		}
+
+		if ( '' !== $post->post_password ) {
+			return false;
+		}
+
+		if ( self::is_noindexed( $post ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Hook point for SEO plugins / #12 to declare a post as noindex.
+	 *
+	 * Default false — v0.1 does not detect noindex without a coordinated SEO
+	 * plugin layer. The filter is the supported extension surface.
+	 */
+	private static function is_noindexed( \WP_Post $post ): bool {
+		/**
+		 * Filter whether a post is considered noindex for agent-readiness purposes.
+		 *
+		 * #12 (Yoast / Rank Math / AIOSEO coordination) is the first hook
+		 * subscriber. Returning true causes `is_url_exposable()` to deny the
+		 * post regardless of CPT / status configuration.
+		 *
+		 * @param bool     $noindexed Default false.
+		 * @param \WP_Post $post      Post being evaluated.
+		 */
+		return (bool) \apply_filters( 'agentready_post_is_noindexed', false, $post );
 	}
 
 	/**
@@ -304,6 +388,17 @@ final class Context_Profile_Settings {
 
 		$out['llm_cleanup_enabled']      = ! empty( $input['llm_cleanup_enabled'] );
 		$out['llm_descriptions_enabled'] = ! empty( $input['llm_descriptions_enabled'] );
+
+		// Module enable flags follow a "default true, explicit false to disable"
+		// convention. If the key isn't present in input (e.g. a save coming
+		// from the legacy form that pre-dates this field, or from migrate()
+		// before a UI checkbox exists), we keep the default-true state. When
+		// the Phase-8 UI ships a real checkbox + hidden form marker, that
+		// path will set the key explicitly and this branch will respect the
+		// admin's choice.
+		$out['markdown_views_enabled'] = ! \array_key_exists( 'markdown_views_enabled', $input )
+			? true
+			: ! empty( $input['markdown_views_enabled'] );
 
 		// Unknown keys are dropped by virtue of not being copied into $out.
 
