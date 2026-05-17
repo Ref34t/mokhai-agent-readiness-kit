@@ -56,18 +56,24 @@ final class Client_Wrapper {
 	private const RETRY_DELAY_SECONDS = 300;
 
 	/**
-	 * Whether the WP AI Client (shipped with WP core 7.0) is available.
+	 * Whether the WP AI Client is available.
 	 *
-	 * Detection is deliberately permissive: presence of either the global
-	 * `wp_ai_client()` function OR the `WP_AI_Client` class is enough. The
-	 * WP AI Client surface is still firming up in core — the helper trades
-	 * a small chance of false-positive (class present but unconfigured) for
-	 * resilience across the WP 7.0 series. Callers receiving an unexpected
-	 * provider failure from a "configured" client will end up on the same
-	 * deferred-retry path, so the worst case is a wasted cron event.
+	 * Detection target is the `wp_ai_client_prompt()` entry point, which
+	 * ships in WP core 7.0+ natively and as a backport in the
+	 * `wordpress/wp-ai-client` package for 6.x. Earlier symbols
+	 * (`wp_ai_client()` function and `WP_AI_Client` class) were
+	 * pre-release names that did not survive into the final API and
+	 * are not consulted.
+	 *
+	 * A "configured" client may still fail at provider-call time if no
+	 * API credentials are saved or the chosen model is unavailable —
+	 * those failures route through `Wp_Ai_Client_Provider`'s WP_Error
+	 * classification and end up on the deferred-retry path. Detection
+	 * here is "the entry point is callable", not "a generation will
+	 * succeed".
 	 */
 	public static function has_ai_client(): bool {
-		return \function_exists( 'wp_ai_client' ) || \class_exists( '\WP_AI_Client' );
+		return \function_exists( 'wp_ai_client_prompt' );
 	}
 
 	/**
@@ -131,16 +137,11 @@ final class Client_Wrapper {
 	 * @return string The generated content.
 	 */
 	private static function call_provider( string $prompt, array $options, ?Provider $provider ): string {
-		if ( null !== $provider ) {
-			return $provider->generate( $prompt, $options );
+		if ( null === $provider ) {
+			$provider = new Wp_Ai_Client_Provider();
 		}
 
-		// Real WP AI Client integration lands in #6 when the first caller
-		// arrives. Until then, throw Network_Error so callers without an
-		// injected provider always end up on the deferred-retry path —
-		// matching the AgDR-0003 invariant that v0.1 ships the wrapper's
-		// retry logic but no live provider calls.
-		throw new Network_Error( 'WP AI Client integration pending (ticket #6).' );
+		return $provider->generate( $prompt, $options );
 	}
 
 	/**

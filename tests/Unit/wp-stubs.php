@@ -229,6 +229,15 @@ if ( ! function_exists( 'esc_html__' ) ) {
 	}
 }
 
+if ( ! function_exists( 'esc_html' ) ) {
+	/**
+	 * Stub: minimal HTML escape matching WP core behaviour.
+	 */
+	function esc_html( string $text ): string {
+		return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' );
+	}
+}
+
 if ( ! function_exists( 'wp_die' ) ) {
 	/**
 	 * Stub: throw a WP_Die exception so tests can assert on it.
@@ -261,6 +270,79 @@ if ( ! function_exists( 'add_filter' ) ) {
 	function add_filter( string $hook, $callback, int $priority = 10, int $accepted_args = 1 ): bool {
 		$GLOBALS['wpctx_test_filters'][ $hook ][] = $callback;
 		return true;
+	}
+}
+
+if ( ! function_exists( 'is_wp_error' ) ) {
+	/**
+	 * Stub: detect a stub WP_Error instance by class.
+	 *
+	 * @param mixed $thing
+	 */
+	function is_wp_error( $thing ): bool {
+		return $thing instanceof WP_Error;
+	}
+}
+
+if ( ! class_exists( 'WP_Error' ) ) {
+	/**
+	 * Minimal stub of WP_Error. Tests construct one with a code +
+	 * message; missing constructor args default to empty strings.
+	 */
+	class WP_Error {
+		/** @var string */
+		private $code;
+		/** @var string */
+		private $message;
+
+		/**
+		 * @param mixed $data
+		 */
+		public function __construct( string $code = '', string $message = '', $data = null ) {
+			$this->code    = $code;
+			$this->message = $message;
+			unset( $data );
+		}
+
+		public function get_error_code(): string {
+			return $this->code;
+		}
+
+		public function get_error_message(): string {
+			return $this->message;
+		}
+	}
+}
+
+if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
+	/**
+	 * Stub: returns a fluent test builder driven by
+	 * `$GLOBALS['wpctx_test_ai_response']`. Per-test the response is
+	 * either a string (success) or a `WP_Error` (failure). The builder
+	 * collects every `->using_*()` / `->as_*()` chain call into
+	 * `$GLOBALS['wpctx_test_ai_calls']` so tests can assert option
+	 * propagation.
+	 */
+	function wp_ai_client_prompt( string $prompt ): object {
+		$GLOBALS['wpctx_test_ai_calls'] = array(
+			array( 'method' => 'wp_ai_client_prompt', 'args' => array( $prompt ) ),
+		);
+
+		return new class {
+			/**
+			 * @param array<int, mixed> $args
+			 */
+			public function __call( string $name, array $args ) {
+				$GLOBALS['wpctx_test_ai_calls'][] = array( 'method' => $name, 'args' => $args );
+
+				if ( 'generate_text' === $name ) {
+					$response = $GLOBALS['wpctx_test_ai_response'] ?? '';
+					return $response;
+				}
+
+				return $this;
+			}
+		};
 	}
 }
 
