@@ -93,8 +93,19 @@ final class Service {
 			);
 		}
 
-		$hash   = self::content_hash( $post );
-		$cached = self::read_cache( (int) $post->ID, $hash );
+		$hash    = self::content_hash( $post );
+		$post_id = (int) $post->ID;
+
+		// Phase B per AgDR-0020: if a cleanup has been approved for the
+		// current content hash, serve the cleaned MD instead of the
+		// deterministic version. Cheap lookup — two post-meta reads.
+		// Falls through to the deterministic cache path otherwise.
+		$approved = Cleanup_Orchestrator::get_approved_output( $post_id, $hash );
+		if ( null !== $approved ) {
+			return $approved;
+		}
+
+		$cached = self::read_cache( $post_id, $hash );
 
 		if ( null !== $cached ) {
 			return $cached;
@@ -109,14 +120,13 @@ final class Service {
 		$conversion = Walker::convert( $html );
 		$md         = $conversion->get_markdown();
 
-		self::write_cache( (int) $post->ID, $hash, $conversion );
+		self::write_cache( $post_id, $hash, $conversion );
 
-		// Phase A scope per AgDR-0016/0017/0018: schedule async cleanup
-		// when the post is a page-builder export or scores below the
-		// configured threshold. The cleaned-MD output lands in
-		// post-meta and is NOT served on the public route in Phase A —
-		// the admin approve / regenerate UI ships in Phase B and is the
-		// gate that swaps deterministic for cleaned content.
+		// Schedule async cleanup when the post is a page-builder export
+		// or scores below the configured threshold. The cleaned-MD
+		// output lands in post-meta but is NOT served until the admin
+		// approves it via Phase B's UI (handled by the get_approved_output
+		// check at the top of this method).
 		if ( Cleanup_Orchestrator::should_clean( $post, $conversion, $hash ) ) {
 			Cleanup_Orchestrator::schedule( $post );
 		}
