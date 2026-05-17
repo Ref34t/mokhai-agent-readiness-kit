@@ -2,14 +2,18 @@
 /**
  * Unit tests for the HTML→MD walker.
  *
- * Two test surfaces:
+ * Three test surfaces:
  *
  * 1. Golden-file fixtures under tests/fixtures/html-to-md/. Each `*.html`
  *    has a paired `*.expected.md`. The data provider yields every pair;
- *    the test asserts `Walker::convert( html )` equals the expected MD.
+ *    the test asserts `Walker::convert( html )->get_markdown()` equals
+ *    the expected MD.
  * 2. Inline behavioural tests for edge cases (empty input, oversize,
  *    malformed HTML, depth limit, idempotence) that don't warrant a
  *    fixture file.
+ * 3. Quality-score assertions per AgDR-0017 — clean classic-editor
+ *    content scores high, page-builder soup scores low, signal keys
+ *    are stable.
  *
  * The walker is a pure function — these tests do not load WordPress.
  *
@@ -21,6 +25,7 @@ declare(strict_types=1);
 namespace WPContext\Tests\Unit\Markdown_Views;
 
 use PHPUnit\Framework\TestCase;
+use WPContext\Markdown_Views\Conversion_Result;
 use WPContext\Markdown_Views\Walker;
 
 final class Walker_Test extends TestCase {
@@ -60,25 +65,35 @@ final class Walker_Test extends TestCase {
 		$html     = (string) \file_get_contents( $html_path );
 		$expected = (string) \file_get_contents( $expected_path );
 
-		$actual = Walker::convert( $html );
+		$actual = Walker::convert( $html )->get_markdown();
 
 		self::assertSame( $expected, $actual );
 	}
 
-	public function test_empty_input_returns_empty_string(): void {
-		self::assertSame( '', Walker::convert( '' ) );
+	public function test_convert_returns_conversion_result(): void {
+		$result = Walker::convert( '<p>Hi.</p>' );
+		self::assertInstanceOf( Conversion_Result::class, $result );
 	}
 
-	public function test_input_over_size_limit_returns_empty_string(): void {
+	public function test_empty_input_returns_empty_markdown(): void {
+		$result = Walker::convert( '' );
+		self::assertSame( '', $result->get_markdown() );
+		self::assertSame( 100, $result->get_quality_score() );
+	}
+
+	public function test_input_over_size_limit_returns_empty_markdown(): void {
 		$oversize = \str_repeat( 'a', Walker::MAX_INPUT_BYTES + 1 );
-		self::assertSame( '', Walker::convert( $oversize ) );
+		$result   = Walker::convert( $oversize );
+		self::assertSame( '', $result->get_markdown() );
 	}
 
 	public function test_walker_is_idempotent_across_runs(): void {
-		$html = '<h1>Title</h1><p>Body with <em>emphasis</em>.</p>';
+		$html   = '<h1>Title</h1><p>Body with <em>emphasis</em>.</p>';
 		$first  = Walker::convert( $html );
 		$second = Walker::convert( $html );
-		self::assertSame( $first, $second, 'Same input must always produce same output' );
+		self::assertSame( $first->get_markdown(), $second->get_markdown() );
+		self::assertSame( $first->get_quality_score(), $second->get_quality_score() );
+		self::assertSame( $first->get_signals(), $second->get_signals() );
 	}
 
 	public function test_walker_version_is_set(): void {
@@ -86,35 +101,118 @@ final class Walker_Test extends TestCase {
 	}
 
 	public function test_malformed_html_does_not_throw(): void {
-		// Unclosed tags, mismatched nesting — libxml is forgiving. We don't
-		// promise specific output for malformed input, just that the call
-		// returns a string (the cache write path can't tolerate exceptions).
-		$result = Walker::convert( '<p>open<strong>and<em>nested</strong>only' );
-		self::assertStringContainsString( 'open', $result );
-		self::assertStringContainsString( 'nested', $result );
+		$md = Walker::convert( '<p>open<strong>and<em>nested</strong>only' )->get_markdown();
+		self::assertStringContainsString( 'open', $md );
+		self::assertStringContainsString( 'nested', $md );
 	}
 
 	public function test_walker_strips_gutenberg_block_comments(): void {
 		$html = "<!-- wp:paragraph -->\n<p>Hello.</p>\n<!-- /wp:paragraph -->";
-		$out  = Walker::convert( $html );
-		self::assertStringContainsString( 'Hello.', $out );
-		self::assertStringNotContainsString( 'wp:paragraph', $out );
-		self::assertStringNotContainsString( '<!--', $out );
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Hello.', $md );
+		self::assertStringNotContainsString( 'wp:paragraph', $md );
+		self::assertStringNotContainsString( '<!--', $md );
 	}
 
 	public function test_walker_strips_gallery_shortcode_residue(): void {
 		$html = '<p>Before [gallery ids="1,2,3"] after.</p>';
-		$out  = Walker::convert( $html );
-		self::assertStringContainsString( 'Before', $out );
-		self::assertStringContainsString( 'after.', $out );
-		self::assertStringNotContainsString( '[gallery', $out );
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Before', $md );
+		self::assertStringContainsString( 'after.', $md );
+		self::assertStringNotContainsString( '[gallery', $md );
 	}
 
 	public function test_walker_preserves_caption_text_strips_shortcode(): void {
 		$html = '[caption id="1" align="alignnone"]<img src="x.jpg" alt="" /> Caption text here[/caption]';
-		$out  = Walker::convert( $html );
-		self::assertStringContainsString( 'Caption text here', $out );
-		self::assertStringNotContainsString( '[caption', $out );
-		self::assertStringNotContainsString( '[/caption]', $out );
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Caption text here', $md );
+		self::assertStringNotContainsString( '[caption', $md );
+		self::assertStringNotContainsString( '[/caption]', $md );
+	}
+
+	public function test_score_is_high_on_clean_classic_post(): void {
+		$html = '<h1>A clean post</h1><p>One paragraph.</p><p>Another paragraph.</p>';
+		$result = Walker::convert( $html );
+		self::assertGreaterThanOrEqual( 85, $result->get_quality_score() );
+	}
+
+	public function test_score_is_lower_on_heavy_inline_style_soup(): void {
+		// Page-builder-style content: deeply nested wrapper divs, every
+		// paragraph carrying inline style + class attributes. The exact
+		// threshold this content lands below is calibration-dependent; the
+		// load-bearing assertion is that the score moves meaningfully
+		// downward from the clean-content baseline (test_score_is_high_*).
+		$nested = '<div class="a"><div class="b"><div class="c"><div class="d"><div class="e"><div class="f">';
+		$close  = '</div></div></div></div></div></div>';
+		$body   = '';
+		for ( $i = 0; $i < 20; $i++ ) {
+			$body .= '<div class="row" style="margin:0"><p style="color:red" class="x">Paragraph ' . $i . '</p></div>';
+		}
+		$html = $nested . $body . $close;
+
+		$score = Walker::convert( $html )->get_quality_score();
+		self::assertLessThan( 80, $score, 'Heavy inline-style + deep-div content must score below clean baseline' );
+	}
+
+	public function test_score_is_lower_when_shortcodes_survive(): void {
+		// Custom shortcodes the walker can't expand — caption/gallery are
+		// preprocessed out, but other shortcodes survive verbatim.
+		// 5+ shortcode tokens trigger the full -10 weight contribution.
+		$html  = '<p>Before [vc_row][vc_column][vc_btn title="X"][vc_text][vc_image][vc_col] after.</p>';
+		$score = Walker::convert( $html )->get_quality_score();
+		self::assertLessThan( 95, $score );
+	}
+
+	public function test_signals_array_has_stable_keys(): void {
+		$signals = Walker::convert( '<p>Body.</p>' )->get_signals();
+
+		$required_keys = array(
+			'tag_strip_rate',
+			'tag_strip_count',
+			'tag_total_count',
+			'orphan_inline_style_rate',
+			'orphan_inline_style_count',
+			'table_fragment_rate',
+			'table_fragment_count',
+			'table_total_count',
+			'deep_div_nesting_rate',
+			'deep_div_count',
+			'div_total_count',
+			'image_only_paragraph_rate',
+			'image_only_paragraph_count',
+			'paragraph_total_count',
+			'empty_line_run_rate',
+			'empty_line_run_count',
+			'shortcode_residue_rate',
+			'shortcode_residue_count',
+		);
+
+		foreach ( $required_keys as $key ) {
+			self::assertArrayHasKey( $key, $signals, "Missing stable signal key: $key" );
+		}
+	}
+
+	public function test_score_is_bounded_between_zero_and_one_hundred(): void {
+		// Adversarial pathological input — every signal at its max.
+		$noise = '<div class="x" style="y">' . \str_repeat( '<p style="z" class="q">[vc_btn]</p>', 50 ) . '</div>';
+		$html  = \str_repeat( $noise, 20 );
+
+		$score = Walker::convert( $html )->get_quality_score();
+		self::assertGreaterThanOrEqual( 0, $score );
+		self::assertLessThanOrEqual( 100, $score );
+	}
+
+	public function test_image_only_paragraph_signal_fires(): void {
+		$html    = '<p><img src="x.jpg" alt="alt"></p><p>Text para.</p>';
+		$signals = Walker::convert( $html )->get_signals();
+		self::assertSame( 2, $signals['paragraph_total_count'] );
+		self::assertSame( 1, $signals['image_only_paragraph_count'] );
+	}
+
+	public function test_deep_div_signal_fires_above_threshold(): void {
+		// 6 levels of div nesting — exceeds threshold of 4.
+		$html = '<div><div><div><div><div><div>Body</div></div></div></div></div></div>';
+		$signals = Walker::convert( $html )->get_signals();
+		self::assertGreaterThan( 0, $signals['deep_div_count'] );
 	}
 }

@@ -57,3 +57,24 @@ if ( is_readable( $wpctx_autoload ) ) {
 }
 
 unset( $wpctx_autoload );
+
+/*
+ * Delete every per-post cleanup-state meta key written by the
+ * Cleanup_Orchestrator (#6 / AgDR-0018). Skipping this would leave
+ * orphan rows in wp_postmeta after the rest of the plugin is gone.
+ *
+ * `delete_post_meta_by_key()` runs a single targeted DELETE per key
+ * (not a row-by-row loop) and is safe to call from uninstall context.
+ */
+$wpctx_cleanup_meta_keys = array(
+	'_agentready_md_cleanup_output',
+	'_agentready_md_cleanup_diagnostics',
+	'_agentready_md_cleanup_status',
+	'_agentready_md_cleanup_hash',
+);
+
+foreach ( $wpctx_cleanup_meta_keys as $wpctx_meta_key ) {
+	delete_post_meta_by_key( $wpctx_meta_key );
+}
+
+unset( $wpctx_cleanup_meta_keys, $wpctx_meta_key );

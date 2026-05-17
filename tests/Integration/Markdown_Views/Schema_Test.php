@@ -83,6 +83,27 @@ final class Schema_Test extends WP_UnitTestCase {
 		self::assertContains( 'markdown', $columns );
 		self::assertContains( 'generated_at', $columns );
 		self::assertContains( 'walker_version', $columns );
+		// SCHEMA_VERSION 2 additions per AgDR-0017 (#6).
+		self::assertContains( 'quality_score', $columns );
+		self::assertContains( 'signals', $columns );
+	}
+
+	public function test_quality_score_and_signals_are_nullable(): void {
+		global $wpdb;
+
+		Schema::create();
+		$table = Schema::table_name();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $wpdb->get_results( "DESCRIBE {$table}", ARRAY_A );
+
+		$nullable = array();
+		foreach ( $rows as $row ) {
+			$nullable[ $row['Field'] ] = 'YES' === $row['Null'];
+		}
+
+		self::assertTrue( $nullable['quality_score'] ?? false, 'quality_score must be NULL-able for v0.1.1 rows' );
+		self::assertTrue( $nullable['signals'] ?? false, 'signals must be NULL-able for v0.1.1 rows' );
 	}
 
 	public function test_table_has_expected_indexes(): void {

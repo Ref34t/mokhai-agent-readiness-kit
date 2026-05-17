@@ -189,7 +189,7 @@ final class Markdown_Views_Command {
 		// matches what would be served if the post were exposable.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$html = (string) \apply_filters( 'the_content', $post->post_content );
-		return \WPContext\Markdown_Views\Walker::convert( $html );
+		return \WPContext\Markdown_Views\Walker::convert( $html )->get_markdown();
 	}
 
 	/**

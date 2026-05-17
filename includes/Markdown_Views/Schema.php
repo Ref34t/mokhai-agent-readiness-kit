@@ -39,9 +39,13 @@ final class Schema {
 	 * pass through `dbDelta()` cleanly; destructive changes require a
 	 * `/migration` ticket per `.claude/rules/workflow-gates.md` Gate 3a.
 	 *
+	 * Bumped from 1 to 2 for AgDR-0017: adds `quality_score` and
+	 * `signals` columns so the Markdown Views LLM cleanup gate has the
+	 * walker's verdict + raw signal counts available without re-walking.
+	 *
 	 * @var int
 	 */
-	public const SCHEMA_VERSION = 1;
+	public const SCHEMA_VERSION = 2;
 
 	/**
 	 * Option key that stores the installed schema version, used to detect
@@ -88,12 +92,26 @@ final class Schema {
 		// dbDelta requires very specific SQL formatting — two spaces between
 		// PRIMARY KEY and the column list, KEY (not INDEX), each column on its
 		// own line. See https://developer.wordpress.org/reference/functions/dbdelta/.
+		//
+		// `quality_score` (TINYINT UNSIGNED NULL) holds the 0..100 verdict
+		// produced by the walker's signal pass per AgDR-0017. NULL is the
+		// transient state on rows written by SCHEMA_VERSION 1 — the walker
+		// version bump invalidates those rows on next read so the NULL
+		// resolves automatically.
+		//
+		// `signals` (LONGTEXT NULL) holds the JSON-encoded raw signal
+		// counts that contributed to the score. Used by the admin UI to
+		// explain *why* a post triggered cleanup without re-running the
+		// walker. Unbounded shape — future signal additions don't require
+		// further schema migrations.
 		$sql = "CREATE TABLE {$table} (
 			post_id BIGINT(20) UNSIGNED NOT NULL,
 			content_hash CHAR(40) NOT NULL,
 			markdown LONGTEXT NOT NULL,
 			generated_at DATETIME NOT NULL,
 			walker_version VARCHAR(20) NOT NULL,
+			quality_score TINYINT UNSIGNED NULL,
+			signals LONGTEXT NULL,
 			PRIMARY KEY  (post_id),
 			KEY content_hash (content_hash),
 			KEY walker_version (walker_version)
