@@ -96,6 +96,13 @@ final class Main {
 		// Wire the Gutenberg sidebar React panel (#5 / AgDR-0014). Enqueues
 		// only on block-editor screens via `enqueue_block_editor_assets`.
 		Markdown_Views\Sidebar_Assets::register_hooks();
+
+		// Wire the Markdown Views LLM cleanup cron handler (#6 / AgDR-0016-18).
+		// Schedule decisions happen in Service::get_markdown_for_post; the
+		// SCHEDULE_ACTION cron event fires the orchestrator's async cleanup
+		// run. Service::register_hooks above also clears cleanup state on
+		// post-edit lifecycle events.
+		Markdown_Views\Cleanup_Orchestrator::register_hooks();
 	}
 
 	/**

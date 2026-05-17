@@ -57,6 +57,14 @@ final class Service {
 		\add_action( 'wp_trash_post', array( self::class, 'invalidate' ), 10, 1 );
 		\add_action( 'before_delete_post', array( self::class, 'invalidate' ), 10, 1 );
 		\add_action( 'wp_after_insert_post', array( self::class, 'invalidate' ), 10, 1 );
+
+		// AgDR-0016/0017/0018: post-edit lifecycle also clears LLM-cleanup
+		// state. The orchestrator's cleanup output is tied to the same
+		// content-hash semantics as the cache row.
+		\add_action( 'save_post', array( Cleanup_Orchestrator::class, 'invalidate' ), 10, 1 );
+		\add_action( 'wp_trash_post', array( Cleanup_Orchestrator::class, 'invalidate' ), 10, 1 );
+		\add_action( 'before_delete_post', array( Cleanup_Orchestrator::class, 'invalidate' ), 10, 1 );
+		\add_action( 'wp_after_insert_post', array( Cleanup_Orchestrator::class, 'invalidate' ), 10, 1 );
 	}
 
 	/**
@@ -97,12 +105,54 @@ final class Service {
 		// converting to MD. The PrefixAllGlobals sniff only applies to hooks
 		// our plugin DEFINES, not core hooks we CONSUME.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$html = (string) \apply_filters( 'the_content', $post->post_content );
-		$md   = Walker::convert( $html );
+		$html       = (string) \apply_filters( 'the_content', $post->post_content );
+		$conversion = Walker::convert( $html );
+		$md         = $conversion->get_markdown();
 
-		self::write_cache( (int) $post->ID, $hash, $md );
+		self::write_cache( (int) $post->ID, $hash, $conversion );
+
+		// Phase A scope per AgDR-0016/0017/0018: schedule async cleanup
+		// when the post is a page-builder export or scores below the
+		// configured threshold. The cleaned-MD output lands in
+		// post-meta and is NOT served on the public route in Phase A —
+		// the admin approve / regenerate UI ships in Phase B and is the
+		// gate that swaps deterministic for cleaned content.
+		if ( Cleanup_Orchestrator::should_clean( $post, $conversion, $hash ) ) {
+			Cleanup_Orchestrator::schedule( $post );
+		}
 
 		return $md;
+	}
+
+	/**
+	 * Public re-runner used by the cleanup orchestrator's cron handler.
+	 * Returns a fresh `Conversion_Result` for the post, or null if the
+	 * post is no longer eligible for Markdown Views (module disabled,
+	 * not exposable, walker rejected the input). The orchestrator
+	 * needs this to re-check eligibility at run time, not just at
+	 * schedule time.
+	 */
+	public static function regenerate_conversion_for( \WP_Post $post ): ?Conversion_Result {
+		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
+			return null;
+		}
+
+		if ( ! Context_Profile_Settings::is_url_exposable( $post ) ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$html = (string) \apply_filters( 'the_content', $post->post_content );
+		return Walker::convert( $html );
+	}
+
+	/**
+	 * Expose the content hash used for cache validation so the cleanup
+	 * orchestrator can correlate its post-meta output with the cache row
+	 * it was generated against.
+	 */
+	public static function current_content_hash( \WP_Post $post ): string {
+		return self::content_hash( $post );
 	}
 
 	/**
@@ -180,9 +230,15 @@ final class Service {
 	/**
 	 * Persist a freshly-generated MD row. `REPLACE` semantics: a row with
 	 * the same `post_id` is overwritten in place (the PK is `post_id`).
+	 * Stores the quality score and JSON-encoded signal map alongside the
+	 * markdown per AgDR-0017 — these feed the cleanup-trigger decision
+	 * and the admin "why did this trigger cleanup" panel without
+	 * re-running the walker.
 	 */
-	private static function write_cache( int $post_id, string $hash, string $markdown ): void {
+	private static function write_cache( int $post_id, string $hash, Conversion_Result $conversion ): void {
 		global $wpdb;
+
+		$signals_json = (string) \wp_json_encode( $conversion->get_signals() );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->replace(
@@ -190,11 +246,13 @@ final class Service {
 			array(
 				'post_id'        => $post_id,
 				'content_hash'   => $hash,
-				'markdown'       => $markdown,
+				'markdown'       => $conversion->get_markdown(),
 				'generated_at'   => \current_time( 'mysql', true ),
 				'walker_version' => Walker::WALKER_VERSION,
+				'quality_score'  => $conversion->get_quality_score(),
+				'signals'        => $signals_json,
 			),
-			array( '%d', '%s', '%s', '%s', '%s' )
+			array( '%d', '%s', '%s', '%s', '%s', '%d', '%s' )
 		);
 	}
 }

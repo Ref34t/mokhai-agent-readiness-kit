@@ -42,9 +42,15 @@ final class Walker {
 	 * Output-version tag stamped on each cache row. Bump when a change to
 	 * this class would produce different MD for the same HTML.
 	 *
+	 * Bumped from '1' to '2' for AgDR-0017: the quality-score addition
+	 * does not change MD output, but extending the cache schema with
+	 * `quality_score` and `signals` columns means pre-bump rows have
+	 * NULL in those fields. Invalidating lazily forces a rewrite that
+	 * populates them.
+	 *
 	 * @var string
 	 */
-	public const WALKER_VERSION = '1';
+	public const WALKER_VERSION = '2';
 
 	/**
 	 * Hard upper bound on input size in bytes. Defends against pathological
@@ -64,42 +70,117 @@ final class Walker {
 	public const MAX_DEPTH = 64;
 
 	/**
+	 * Per-signal score weights summing to 100. See AgDR-0017. The shape
+	 * is the durable contract; values here are tunable constants.
+	 *
+	 * @var array<string, int>
+	 */
+	private const QUALITY_WEIGHTS = array(
+		'tag_strip_rate'            => 25,
+		'orphan_inline_style_rate'  => 20,
+		'table_fragment_rate'       => 15,
+		'deep_div_nesting_rate'     => 10,
+		'image_only_paragraph_rate' => 10,
+		'empty_line_run_rate'       => 10,
+		'shortcode_residue_rate'    => 10,
+	);
+
+	/**
+	 * Source-element depth above which a `<div>` is considered "deeply
+	 * nested" for the deep_div_nesting signal. Page-builders routinely
+	 * produce 6–10 levels; classic-editor content rarely exceeds 3.
+	 *
+	 * @var int
+	 */
+	private const DEEP_DIV_DEPTH_THRESHOLD = 4;
+
+	/**
+	 * Style-attr count per kB of MD output at which the orphan-inline-style
+	 * rate hits 1.0. Calibrated to typical Elementor output.
+	 *
+	 * @var float
+	 */
+	private const ORPHAN_STYLE_NORMALISATION = 10.0;
+
+	/**
+	 * Per-convert counter bag. Reset at the start of every `convert()`
+	 * call; never read after `convert()` returns. Walker is not
+	 * reentrant (no caller invokes `convert()` from inside `convert()`),
+	 * so the static lifetime is safe.
+	 *
+	 * @var array<string, int>
+	 */
+	private static $counters = array();
+
+	/**
 	 * Convert an HTML string to Markdown.
 	 *
-	 * Returns an empty string for empty input or input that exceeds
-	 * `MAX_INPUT_BYTES`. Never throws — the caller is the cache write
-	 * path and must produce a string.
+	 * Returns an empty `Conversion_Result` for empty input or input that
+	 * exceeds `MAX_INPUT_BYTES`. Never throws — the caller is the cache
+	 * write path and must produce a result.
 	 */
-	public static function convert( string $html ): string {
+	public static function convert( string $html ): Conversion_Result {
+		self::reset_counters();
+
 		if ( '' === $html ) {
-			return '';
+			return self::empty_result();
 		}
 
 		if ( \strlen( $html ) > self::MAX_INPUT_BYTES ) {
-			return '';
+			return self::empty_result();
 		}
 
 		$prepared = self::preprocess( $html );
 
 		if ( '' === $prepared ) {
-			return '';
+			return self::empty_result();
 		}
 
 		$dom = self::load_dom( $prepared );
 
 		if ( null === $dom ) {
-			return '';
+			return self::empty_result();
 		}
 
 		$body = self::body_node( $dom );
 
 		if ( null === $body ) {
-			return '';
+			return self::empty_result();
 		}
 
-		$md = self::render_children( $body, 0 );
+		$md = self::postprocess( self::render_children( $body, 0 ) );
 
-		return self::postprocess( $md );
+		$signals = self::derive_signals( $md );
+		$score   = self::compute_score( $signals );
+
+		return new Conversion_Result( $md, $score, $signals );
+	}
+
+	/**
+	 * Reset per-call counters. Each entry is documented inline at the
+	 * point where it's incremented.
+	 */
+	private static function reset_counters(): void {
+		self::$counters = array(
+			'tag_total'            => 0, // every DOMElement we visit
+			'tag_empty_output'     => 0, // elements whose handler emitted nothing
+			'orphan_inline_style'  => 0, // elements carrying inline style or class attributes
+			'div_total'            => 0, // every div visited
+			'deep_div'             => 0, // divs at depth above the configured threshold
+			'paragraph_total'      => 0, // every paragraph visited
+			'image_only_paragraph' => 0, // paragraphs containing only an image
+			'table_total'          => 0, // every table visited
+			'table_fragment'       => 0, // tables with missing header or mismatched columns
+		);
+	}
+
+	/**
+	 * Zero-score, zero-signal result for the degenerate-input cases
+	 * (empty / oversize / unparseable). 100 means "no issues" — there
+	 * are literally no signals firing on empty input.
+	 */
+	private static function empty_result(): Conversion_Result {
+		return new Conversion_Result( '', 100, self::derive_signals( '' ) );
 	}
 
 	/**
@@ -205,7 +286,11 @@ final class Walker {
 	}
 
 	/**
-	 * Dispatch a single node to its handler.
+	 * Dispatch a single node to its handler. Signal accumulation hangs
+	 * off this central point: every visited element increments
+	 * `tag_total`, has its style/class attrs measured, and contributes
+	 * to depth-aware `<div>` counts. Per-handler counters (paragraphs,
+	 * tables) fire inside their own render methods.
 	 */
 	private static function render_node( \DOMNode $node, int $depth ): string {
 		if ( $node instanceof \DOMText ) {
@@ -216,8 +301,40 @@ final class Walker {
 			return '';
 		}
 
+		++self::$counters['tag_total'];
+
+		// Count orphan inline styles / classes — MD has no concept of
+		// either, so every occurrence is "lost" to the output.
+		if ( $node->hasAttribute( 'style' ) || $node->hasAttribute( 'class' ) ) {
+			++self::$counters['orphan_inline_style'];
+		}
+
 		$tag = \strtolower( $node->nodeName );
 
+		if ( 'div' === $tag ) {
+			++self::$counters['div_total'];
+			if ( $depth > self::DEEP_DIV_DEPTH_THRESHOLD ) {
+				++self::$counters['deep_div'];
+			}
+		}
+
+		$result = self::dispatch( $node, $tag, $depth );
+
+		if ( '' === $result ) {
+			++self::$counters['tag_empty_output'];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * The original render_node switch lives here; render_node wraps it
+	 * with counter accumulation. Keeping them separate keeps the
+	 * per-tag dispatch readable.
+	 *
+	 * @param \DOMElement $node
+	 */
+	private static function dispatch( \DOMElement $node, string $tag, int $depth ): string {
 		switch ( $tag ) {
 			case 'h1':
 			case 'h2':
@@ -363,16 +480,17 @@ final class Walker {
 	}
 
 	private static function render_paragraph( \DOMElement $node, int $depth ): string {
+		++self::$counters['paragraph_total'];
+
+		$image_only = self::contains_only_image( $node );
+		if ( $image_only ) {
+			++self::$counters['image_only_paragraph'];
+		}
+
 		$inner = \trim( self::render_children( $node, $depth ) );
 
 		if ( '' === $inner ) {
 			return '';
-		}
-
-		// WP often wraps a single <img> in a <p>. Promote the image so it
-		// renders as a block-level figure-like fragment.
-		if ( self::contains_only_image( $node ) ) {
-			return "\n\n" . $inner . "\n\n";
 		}
 
 		return "\n\n" . $inner . "\n\n";
@@ -601,7 +719,11 @@ final class Walker {
 	}
 
 	private static function render_table( \DOMElement $node ): string {
-		$rows = array();
+		++self::$counters['table_total'];
+
+		$rows          = array();
+		$has_thead     = false;
+		$column_counts = array();
 
 		foreach ( $node->getElementsByTagName( 'tr' ) as $tr ) {
 			$cells = array();
@@ -613,16 +735,28 @@ final class Walker {
 				if ( 'th' !== $cell_tag && 'td' !== $cell_tag ) {
 					continue;
 				}
+				if ( 'th' === $cell_tag ) {
+					$has_thead = true;
+				}
 				$cells[] = \trim( \preg_replace( '/\s+/u', ' ', $cell->textContent ) ?? '' );
 			}
 
 			if ( array() !== $cells ) {
-				$rows[] = $cells;
+				$rows[]          = $cells;
+				$column_counts[] = \count( $cells );
 			}
 		}
 
 		if ( array() === $rows ) {
+			++self::$counters['table_fragment'];
 			return '';
+		}
+
+		// Table is "fragmented" if it has no header row OR its row widths
+		// disagree. Either signal usually means a builder produced soup
+		// that the walker had to guess column counts for.
+		if ( ! $has_thead || \count( \array_unique( $column_counts ) ) > 1 ) {
+			++self::$counters['table_fragment'];
 		}
 
 		$columns   = \count( $rows[0] );
@@ -644,5 +778,93 @@ final class Walker {
 		}
 
 		return "\n\n" . \implode( "\n", $lines ) . "\n\n";
+	}
+
+	/**
+	 * Build the signals map from the accumulated counters plus post-walk
+	 * inspection of the final MD output (empty-line runs, shortcode
+	 * residue — these are properties of the output, not the walk).
+	 */
+	private static function derive_signals( string $md ): array {
+		$tag_total       = self::$counters['tag_total'];
+		$tag_strip_count = self::$counters['tag_empty_output'];
+		$tag_strip_rate  = $tag_total > 0 ? $tag_strip_count / $tag_total : 0.0;
+
+		$div_total      = self::$counters['div_total'];
+		$deep_div_count = self::$counters['deep_div'];
+		$deep_div_rate  = $div_total > 0 ? $deep_div_count / $div_total : 0.0;
+
+		$paragraph_total  = self::$counters['paragraph_total'];
+		$image_only_count = self::$counters['image_only_paragraph'];
+		$image_only_rate  = $paragraph_total > 0 ? $image_only_count / $paragraph_total : 0.0;
+
+		$table_total         = self::$counters['table_total'];
+		$table_fragment      = self::$counters['table_fragment'];
+		$table_fragment_rate = $table_total > 0 ? $table_fragment / $table_total : 0.0;
+
+		// Orphan inline-style normalisation: count per kB of MD output, with
+		// the calibration constant capping the rate at 1.0.
+		$orphan_style_count = self::$counters['orphan_inline_style'];
+		$md_kb              = \max( 1.0, \strlen( $md ) / 1024.0 );
+		$orphan_style_rate  = \min( 1.0, ( $orphan_style_count / $md_kb ) / self::ORPHAN_STYLE_NORMALISATION );
+
+		// Post-walk MD inspection: runs of 3+ blank lines.
+		$empty_run_match = \preg_match_all( "/(\n[ \t]*){3,}/", $md );
+		$empty_run_count = false === $empty_run_match ? 0 : $empty_run_match;
+		$empty_run_rate  = \min( 1.0, $empty_run_count / 10.0 );
+
+		// Post-walk MD inspection: bare shortcode tokens that survived the
+		// walker (the preprocess strips caption/gallery; anything else
+		// that survives is residue we couldn't expand).
+		$shortcode_match = \preg_match_all( '/\[[a-z][a-z0-9_-]*[\s\]\/]/i', $md );
+		$shortcode_count = false === $shortcode_match ? 0 : $shortcode_match;
+		$shortcode_rate  = \min( 1.0, $shortcode_count / 5.0 );
+
+		return array(
+			'tag_strip_rate'             => $tag_strip_rate,
+			'tag_strip_count'            => $tag_strip_count,
+			'tag_total_count'            => $tag_total,
+			'orphan_inline_style_rate'   => $orphan_style_rate,
+			'orphan_inline_style_count'  => $orphan_style_count,
+			'table_fragment_rate'        => $table_fragment_rate,
+			'table_fragment_count'       => $table_fragment,
+			'table_total_count'          => $table_total,
+			'deep_div_nesting_rate'      => $deep_div_rate,
+			'deep_div_count'             => $deep_div_count,
+			'div_total_count'            => $div_total,
+			'image_only_paragraph_rate'  => $image_only_rate,
+			'image_only_paragraph_count' => $image_only_count,
+			'paragraph_total_count'      => $paragraph_total,
+			'empty_line_run_rate'        => $empty_run_rate,
+			'empty_line_run_count'       => $empty_run_count,
+			'shortcode_residue_rate'     => $shortcode_rate,
+			'shortcode_residue_count'    => $shortcode_count,
+		);
+	}
+
+	/**
+	 * Apply the weighted formula from AgDR-0017. Floor at 0, ceiling at
+	 * 100. Result is the cleanup-trigger signal: < threshold → enqueue
+	 * cleanup, >= threshold → ship deterministic.
+	 *
+	 * @param array<string, int|float> $signals
+	 */
+	private static function compute_score( array $signals ): int {
+		$score = 100.0;
+
+		foreach ( self::QUALITY_WEIGHTS as $signal_key => $weight ) {
+			$rate   = isset( $signals[ $signal_key ] ) ? (float) $signals[ $signal_key ] : 0.0;
+			$score -= $weight * $rate;
+		}
+
+		if ( $score < 0.0 ) {
+			return 0;
+		}
+
+		if ( $score > 100.0 ) {
+			return 100;
+		}
+
+		return (int) \round( $score );
 	}
 }
