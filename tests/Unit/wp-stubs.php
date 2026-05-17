@@ -264,6 +264,21 @@ if ( ! function_exists( 'add_filter' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_strip_all_tags' ) ) {
+	/**
+	 * Stub: drop tags + collapse whitespace. Matches WP core behaviour
+	 * closely enough for the Cleanup_Guard's allowlist build.
+	 */
+	function wp_strip_all_tags( string $text, bool $remove_breaks = false ): string {
+		$text = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', $text ) ?? $text;
+		$text = strip_tags( $text );
+		if ( $remove_breaks ) {
+			$text = preg_replace( '/[\r\n\t ]+/', ' ', $text ) ?? $text;
+		}
+		return trim( $text );
+	}
+}
+
 if ( ! class_exists( 'WP_Post' ) ) {
 	/**
 	 * Minimal stub of WP_Post. Tests construct one with the properties they
