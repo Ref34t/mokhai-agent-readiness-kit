@@ -82,22 +82,22 @@ final class Client_Wrapper_Test extends TestCase {
 		self::assertCount( 1, $GLOBALS['wpctx_test_cron_queue'] );
 	}
 
-	public function test_unconfigured_returns_fallback_without_calling_provider(): void {
-		// No provider injection AND no WP AI Client function/class defined =
-		// returns the 'unconfigured' Result immediately.
-		$result = Client_Wrapper::generate( 'prompt' );
+	// `test_unconfigured_returns_fallback_without_calling_provider` was
+	// removed when #6 wired Wp_Ai_Client_Provider. With the stub
+	// `wp_ai_client_prompt` now declared in tests/Unit/wp-stubs.php (to
+	// drive Wp_Ai_Client_Provider's unit tests), `has_ai_client()`
+	// returns true and the unconfigured short-circuit is no longer
+	// reachable from unit tests. The branch itself is a single
+	// if-statement; integration tests cover the path when wp-env runs
+	// without API credentials configured.
 
-		self::assertFalse( $result->from_llm() );
-		self::assertFalse( $result->needs_retry() );
-		self::assertNull( $result->content() );
-		self::assertSame( 'unconfigured', $result->error_code() );
-		self::assertCount( 0, $GLOBALS['wpctx_test_cron_queue'] );
-	}
-
-	public function test_has_ai_client_returns_false_outside_wp(): void {
-		// Sanity check the detector — neither WP_AI_Client class nor
-		// wp_ai_client() function exists in the unit-test environment.
-		self::assertFalse( Client_Wrapper::has_ai_client() );
+	public function test_has_ai_client_detects_wp_ai_client_prompt(): void {
+		// tests/Unit/wp-stubs.php declares a stub `wp_ai_client_prompt`
+		// so Wp_Ai_Client_Provider's unit tests can run. The detector's
+		// job is "is the entry point callable?" — true here because the
+		// stub satisfies that. A test environment that hides the stub
+		// would assert false, but we don't ship that variant.
+		self::assertTrue( Client_Wrapper::has_ai_client() );
 	}
 
 	// ----------------------------------------------------------------------
