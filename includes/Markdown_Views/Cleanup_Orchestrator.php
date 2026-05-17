@@ -168,18 +168,71 @@ PROMPT;
 	 * Queue an async cleanup run. Idempotent — won't double-queue an
 	 * identical (post_id) event already pending in cron.
 	 *
-	 * Records `pending` state on post-meta so admin UI can show
+	 * The `max_per_run` Context-Profile setting caps the number of
+	 * cleanup events allowed to be pending in cron at once. If the cap
+	 * is hit, scheduling silently skips and the post stays unflagged —
+	 * the next cache miss or `save_post` will re-evaluate. This is the
+	 * v0.1 backstop against an unbounded LLM-cost spike on sites with
+	 * many low-score posts; production data drives whether the
+	 * batched-cron alternative ships in v0.1.x.
+	 *
+	 * Records `pending` state on post-meta so the admin UI can show
 	 * "cleanup queued" without a separate cron-introspection call.
 	 */
 	public static function schedule( \WP_Post $post ): void {
 		$post_id = (int) $post->ID;
 		$args    = array( $post_id );
 
-		if ( false === \wp_next_scheduled( self::SCHEDULE_ACTION, $args ) ) {
-			\wp_schedule_single_event( \time() + 1, self::SCHEDULE_ACTION, $args );
+		if ( false !== \wp_next_scheduled( self::SCHEDULE_ACTION, $args ) ) {
+			// Already pending for this post — refresh the status marker and
+			// exit; the existing cron event will fire normally.
+			\update_post_meta( $post_id, self::META_KEY_STATUS, 'pending' );
+			return;
 		}
 
+		if ( self::pending_count() >= Context_Profile_Settings::get_md_cleanup_max_per_run() ) {
+			// Cap reached. Don't schedule, don't flag the post. Next cache
+			// miss / save_post for this post will retry the eligibility
+			// check; if other pending events have drained by then we
+			// schedule normally.
+			return;
+		}
+
+		\wp_schedule_single_event( \time() + 1, self::SCHEDULE_ACTION, $args );
 		\update_post_meta( $post_id, self::META_KEY_STATUS, 'pending' );
+	}
+
+	/**
+	 * Count cleanup-orchestrator events currently pending in the WP
+	 * cron array. O(n) over the cron array but the array is small on
+	 * every site we care about. Uses the underscored
+	 * `_get_cron_array()` because there is no public API for
+	 * by-hook counting; the function is part of WP's stable surface
+	 * (used by Action Scheduler, WP-CLI, and every cron-management
+	 * plugin) and has never moved across the 5.x / 6.x line.
+	 */
+	private static function pending_count(): int {
+		if ( ! \function_exists( '_get_cron_array' ) ) {
+			return 0;
+		}
+
+		$cron = \_get_cron_array();
+
+		if ( ! \is_array( $cron ) ) {
+			return 0;
+		}
+
+		$count = 0;
+		foreach ( $cron as $hooks ) {
+			if ( ! \is_array( $hooks ) ) {
+				continue;
+			}
+			if ( isset( $hooks[ self::SCHEDULE_ACTION ] ) && \is_array( $hooks[ self::SCHEDULE_ACTION ] ) ) {
+				$count += \count( $hooks[ self::SCHEDULE_ACTION ] );
+			}
+		}
+
+		return $count;
 	}
 
 	/**
