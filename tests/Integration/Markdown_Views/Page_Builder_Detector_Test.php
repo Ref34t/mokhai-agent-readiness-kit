@@ -16,8 +16,26 @@ namespace WPContext\Tests\Integration\Markdown_Views;
 
 use WP_UnitTestCase;
 use WPContext\Markdown_Views\Page_Builder_Detector;
+use WPContext\Markdown_Views\Schema;
 
 final class Page_Builder_Detector_Test extends WP_UnitTestCase {
+
+	/**
+	 * Provision the cache table so the `save_post` hook chain (Service +
+	 * Cleanup_Orchestrator invalidators registered globally by Main) can
+	 * run without emitting a `Table doesn't exist` warning that PHPUnit
+	 * would otherwise convert to a risky-test failure. Matches the
+	 * Service_Test pattern.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		Schema::create();
+	}
+
+	protected function tearDown(): void {
+		Schema::drop();
+		parent::tearDown();
+	}
 
 	/**
 	 * @return iterable<string, array{0: string, 1: mixed, 2: string}>
