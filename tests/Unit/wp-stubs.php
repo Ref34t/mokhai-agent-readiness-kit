@@ -361,6 +361,52 @@ if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_text_field' ) ) {
+	/**
+	 * Stub: collapse whitespace, strip tags. Matches the real function's
+	 * behaviour closely enough for unit-test purposes.
+	 */
+	function sanitize_text_field( string $value ): string {
+		$value = strip_tags( $value );
+		$value = preg_replace( '/[\r\n\t]+/', ' ', $value );
+		$value = is_string( $value ) ? trim( $value ) : '';
+		return preg_replace( '/\s+/', ' ', (string) $value ) ?? '';
+	}
+}
+
+if ( ! function_exists( 'esc_url_raw' ) ) {
+	/**
+	 * Stub: scheme allowlist check + trim. Real function does more
+	 * normalisation, but for unit-test purposes we only need to verify
+	 * that the scheme guard works and known schemes pass through.
+	 *
+	 * @param string|null   $url      URL to validate.
+	 * @param string[]|null $protocols Allowed schemes (e.g. ['http','https','mailto']).
+	 */
+	function esc_url_raw( $url, $protocols = null ): string {
+		if ( ! is_string( $url ) ) {
+			return '';
+		}
+		$url = trim( $url );
+		if ( '' === $url ) {
+			return '';
+		}
+		$allowed = is_array( $protocols ) ? $protocols : array( 'http', 'https' );
+		$scheme  = '';
+		if ( preg_match( '#^([a-zA-Z][a-zA-Z0-9+.-]*):#', $url, $m ) ) {
+			$scheme = strtolower( $m[1] );
+		}
+		if ( '' === $scheme ) {
+			// Schemeless — treat as relative path; not a valid editorial URL.
+			return '';
+		}
+		if ( ! in_array( $scheme, $allowed, true ) ) {
+			return '';
+		}
+		return $url;
+	}
+}
+
 if ( ! function_exists( 'wp_json_encode' ) ) {
 	/**
 	 * Stub: delegate to PHP's json_encode. The real wp_json_encode adds
