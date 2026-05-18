@@ -295,6 +295,16 @@ final class Cleanup_Rest_Controller {
 	 * with the cache-table row's quality_score + signals + deterministic
 	 * markdown so the UI gets everything in one round-trip.
 	 *
+	 * Read-only by contract: this function MUST NOT mutate state.
+	 * Earlier versions delegated to `Service::get_markdown_for_post()`
+	 * for the deterministic markdown, but that path's natural side
+	 * effect is to schedule cleanup when `should_clean()` returns true
+	 * — so every GET would flip a `done` cleanup back to `pending` on
+	 * a site with cleanup enabled. We now read the cache row directly
+	 * for both the markdown and the score/signals; if there's no cache
+	 * row yet (post never read on the public route), deterministic
+	 * returns empty and the UI shows just the cleanup state.
+	 *
 	 * @return array<string, mixed>
 	 */
 	private static function build_state_response( \WP_Post $post ): array {
@@ -302,17 +312,15 @@ final class Cleanup_Rest_Controller {
 
 		$state = Cleanup_Orchestrator::get_state( $post_id );
 
-		$deterministic  = '';
-		$quality_score  = null;
-		$signals        = null;
-		$service_result = Service::get_markdown_for_post( $post );
-
-		if ( \is_string( $service_result ) ) {
-			$deterministic = $service_result;
-		}
+		$deterministic = '';
+		$quality_score = null;
+		$signals       = null;
 
 		$cache_row = self::cache_row_for_post( $post_id );
 		if ( null !== $cache_row ) {
+			if ( isset( $cache_row['markdown'] ) && \is_string( $cache_row['markdown'] ) ) {
+				$deterministic = $cache_row['markdown'];
+			}
 			if ( isset( $cache_row['quality_score'] ) && \is_numeric( $cache_row['quality_score'] ) ) {
 				$quality_score = (int) $cache_row['quality_score'];
 			}
@@ -336,8 +344,8 @@ final class Cleanup_Rest_Controller {
 	}
 
 	/**
-	 * Read the cache row for a post (quality_score + signals). Returns
-	 * null on miss.
+	 * Read the cache row for a post (markdown + quality_score + signals).
+	 * Returns null on miss. Pure read; never mutates state.
 	 *
 	 * @return array<string, mixed>|null
 	 */
@@ -350,7 +358,7 @@ final class Cleanup_Rest_Controller {
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT quality_score, signals FROM {$table} WHERE post_id = %d",
+				"SELECT markdown, quality_score, signals FROM {$table} WHERE post_id = %d",
 				$post_id
 			),
 			\ARRAY_A

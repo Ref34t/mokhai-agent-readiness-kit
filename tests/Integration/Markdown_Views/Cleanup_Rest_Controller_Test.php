@@ -243,6 +243,31 @@ final class Cleanup_Rest_Controller_Test extends WP_UnitTestCase {
 		self::assertSame( 403, $response->get_status() );
 	}
 
+	public function test_get_does_not_mutate_cleanup_state(): void {
+		// Regression guard for the bug fixed in c301434+follow-up: when
+		// `build_state_response` called `Service::get_markdown_for_post`,
+		// its should_clean-then-schedule side effect flipped a `done`
+		// state to `pending` on every GET. The handler must be a pure
+		// read on the cleanup post-meta keys.
+		\wp_set_current_user( $this->make_admin() );
+		$post_id = $this->seed_done_post();
+
+		$req = new WP_REST_Request(
+			'GET',
+			'/' . Cleanup_Rest_Controller::NAMESPACE . Cleanup_Rest_Controller::ROUTE_STATE
+		);
+		$req->set_query_params( array( 'post' => $post_id ) );
+
+		\rest_do_request( $req );
+
+		// Status must still be `done` after the GET — no mutation.
+		self::assertSame(
+			Cleanup_Orchestrator::STATUS_DONE,
+			Cleanup_Orchestrator::get_status( $post_id ),
+			'GET endpoint must not mutate cleanup state.'
+		);
+	}
+
 	public function test_invalid_post_id_returns_400(): void {
 		\wp_set_current_user( $this->make_admin() );
 
