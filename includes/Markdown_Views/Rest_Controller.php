@@ -170,7 +170,11 @@ final class Rest_Controller {
 			);
 		}
 
-		$result = Service::get_markdown_for_post( $post );
+		// Admin REST preview is read-only — pass `false` so the
+		// cache-miss path doesn't schedule cleanup as a side effect.
+		// Otherwise every editor page-load would flip a `done` cleanup
+		// to `pending`.
+		$result = Service::get_markdown_for_post( $post, false );
 
 		if ( \is_wp_error( $result ) ) {
 			// Defence-in-depth: Service should not return WP_Error here since
