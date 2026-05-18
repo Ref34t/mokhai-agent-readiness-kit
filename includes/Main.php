@@ -134,6 +134,12 @@ final class Main {
 		// via user-meta. Detection is cached in a 5-minute transient,
 		// invalidated by activate/deactivate hooks.
 		LlmsTxt\Conflict_Notice::register_hooks();
+
+		// Wire the editorial-entries Settings API (#7 Phase C / AgDR-0025).
+		// Registers `agentready_llms_txt_editorial` and fires
+		// `agentready_llms_txt_editorial_saved` on save — Service::register_hooks
+		// above already subscribes that action to its regen-schedule path.
+		LlmsTxt\Editorial_Settings::register_hooks();
 	}
 
 	/**

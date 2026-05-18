@@ -98,12 +98,28 @@ final class Context_Profile_Page {
 				aria-label="<?php \esc_attr_e( 'AgentReady Context Profile editor', 'agentready' ); ?>"
 			></div>
 
+			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — editorial entries', 'agentready' ); ?></h2>
+			<p class="description">
+				<?php
+				\esc_html_e(
+					'Hand-curated entries published in /llms.txt alongside the auto-listed posts above. Each entry has a title, URL, optional description, and a section heading.',
+					'agentready'
+				);
+				?>
+			</p>
+
+			<div
+				id="agentready-llms-txt-editorial-root"
+				role="region"
+				aria-label="<?php \esc_attr_e( 'AgentReady LLMs Index editorial entries editor', 'agentready' ); ?>"
+			></div>
+
 			<noscript>
 				<div class="notice notice-warning">
 					<p>
 						<?php
 						\esc_html_e(
-							'The Context Profile editor requires JavaScript. Enable JavaScript and reload this page.',
+							'The Context Profile editor and LLMs Index editor both require JavaScript. Enable JavaScript and reload this page.',
 							'agentready'
 						);
 						?>
@@ -194,6 +210,88 @@ final class Context_Profile_Page {
 				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
 			);
 		}
+
+		self::enqueue_llms_txt_editorial_assets();
+	}
+
+	/**
+	 * Enqueue the LLMs Index editorial-entries React bundle alongside the
+	 * Context Profile editor (#7 Phase C / AgDR-0025).
+	 *
+	 * Same defensive `*.asset.php` shape as the Context Profile enqueue —
+	 * a missing build artefact degrades to an empty-deps fallback so the
+	 * page still loads from a source checkout. The page-level missing-build
+	 * notice is rendered by `render_missing_build_notice` for the Context
+	 * Profile path; the editorial path inherits that signal (if Context
+	 * Profile's build is missing, the editorial build will be too).
+	 */
+	private static function enqueue_llms_txt_editorial_assets(): void {
+		$asset_file = \WPCTX_DIR . 'build/admin/llms-txt-editorial.asset.php';
+		$script_url = \WPCTX_URL . 'build/admin/llms-txt-editorial.js';
+		$style_url  = \WPCTX_URL . 'build/admin/llms-txt-editorial.css';
+
+		if ( ! \file_exists( $asset_file ) ) {
+			// No editorial-bundle build yet — Context Profile's
+			// `render_missing_build_notice` has already surfaced the issue
+			// for the larger bundle; we don't double-notice.
+			return;
+		}
+
+		$resolved_asset = self::asset_path( $asset_file );
+		$asset          = \is_readable( $resolved_asset )
+			? require $resolved_asset
+			: array(
+				'dependencies' => array(),
+				'version'      => \WPCTX_VERSION,
+			);
+
+		\wp_enqueue_script(
+			'agentready-llms-txt-editorial',
+			$script_url,
+			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
+			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
+			true
+		);
+
+		\wp_add_inline_script(
+			'agentready-llms-txt-editorial',
+			'window.agentreadyLlmsTxtEditorial = ' . \wp_json_encode( self::editorial_bootstrap_data() ) . ';',
+			'before'
+		);
+
+		\wp_set_script_translations(
+			'agentready-llms-txt-editorial',
+			'agentready',
+			\WPCTX_DIR . 'languages'
+		);
+
+		if ( \file_exists( \WPCTX_DIR . 'build/admin/llms-txt-editorial.css' ) ) {
+			\wp_enqueue_style(
+				'agentready-llms-txt-editorial',
+				$style_url,
+				array( 'wp-components' ),
+				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
+			);
+		}
+	}
+
+	/**
+	 * Inline bootstrap payload for the editorial-entries React UI.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function editorial_bootstrap_data(): array {
+		$settings = \WPContext\LlmsTxt\Editorial_Settings::get_settings();
+
+		return array(
+			'entries'      => $settings['entries'],
+			'sections'     => \WPContext\LlmsTxt\Editorial_Settings::SECTIONS,
+			'option_group' => \WPContext\LlmsTxt\Editorial_Settings::OPTION_GROUP,
+			'option_key'   => \WPContext\LlmsTxt\Editorial_Settings::OPTION_KEY,
+			'nonce'        => \wp_create_nonce( \WPContext\LlmsTxt\Editorial_Settings::OPTION_GROUP . '-options' ),
+			'options_url'  => \admin_url( 'options.php' ),
+			'page_url'     => \admin_url( 'tools.php?page=' . self::PAGE_SLUG ),
+		);
 	}
 
 	/**
