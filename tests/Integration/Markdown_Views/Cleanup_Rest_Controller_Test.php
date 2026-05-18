@@ -30,7 +30,13 @@ final class Cleanup_Rest_Controller_Test extends WP_UnitTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		Schema::create();
-		Cleanup_Rest_Controller::register_routes();
+
+		// The REST routes are registered via the production hook chain
+		// (Main::register_hooks → Cleanup_Rest_Controller::register_hooks
+		// → add_action('rest_api_init', ...)). Calling register_routes()
+		// directly here would re-register OUTSIDE the rest_api_init
+		// action, which triggers `_doing_it_wrong()` per WP 5.1+ — the
+		// wp-phpunit framework captures that notice and fails the test.
 
 		// Profile setup: module enabled, post exposable.
 		\update_option(
@@ -48,6 +54,7 @@ final class Cleanup_Rest_Controller_Test extends WP_UnitTestCase {
 
 	protected function tearDown(): void {
 		Schema::drop();
+		\wp_set_current_user( 0 );
 		parent::tearDown();
 	}
 
