@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace WPContext\Cli;
 
+use WPContext\LlmsTxt\Conflict_Notice;
 use WPContext\LlmsTxt\Service;
 
 \defined( 'ABSPATH' ) || exit;
@@ -83,10 +84,11 @@ final class Llms_Txt_Command {
 	public function status( array $args, array $assoc_args ): void {
 		unset( $args );
 
-		$cache    = Service::get_cache_payload();
-		$lock     = \get_transient( Service::REGEN_LOCK_TRANSIENT );
-		$debounce = \wp_next_scheduled( Service::REGEN_ACTION );
-		$daily    = \wp_next_scheduled( Service::DAILY_REGEN_ACTION );
+		$cache     = Service::get_cache_payload();
+		$lock      = \get_transient( Service::REGEN_LOCK_TRANSIENT );
+		$debounce  = \wp_next_scheduled( Service::REGEN_ACTION );
+		$daily     = \wp_next_scheduled( Service::DAILY_REGEN_ACTION );
+		$conflicts = Conflict_Notice::get_conflicts();
 
 		$fields = array(
 			'cache_populated'      => null === $cache ? 'no' : 'yes',
@@ -106,6 +108,7 @@ final class Llms_Txt_Command {
 			'next_daily_regen'     => false !== $daily
 				? \gmdate( 'c', (int) $daily )
 				: '(none scheduled)',
+			'conflicts_detected'   => (string) count( $conflicts ),
 		);
 
 		if ( isset( $assoc_args['porcelain'] ) ) {
