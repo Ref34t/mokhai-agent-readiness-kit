@@ -31,17 +31,37 @@ use WPContext\Ai\Client_Wrapper;
  * Static orchestrator. No instance state — every method is callable
  * from anywhere in the plugin lifecycle (hooks, REST, CLI).
  *
- * State machine for a post's cleanup attempt, recorded in post-meta:
+ * State machine for a post's cleanup attempt, recorded in post-meta
+ * (see AgDR-0020 for Phase B's extension with approval states):
  *
- *   (no key)  → cleanup not attempted
- *   'pending' → scheduled; cron event queued
- *   'done'    → cleanup ran, guard passed, output stored under META_KEY_OUTPUT
+ *   (no key)    → cleanup not attempted
+ *   'pending'   → scheduled; cron event queued
+ *   'done'      → cleanup ran, guard passed, output stored under
+ *                  META_KEY_OUTPUT. Public route still serves
+ *                  deterministic until admin approves.
+ *   'approved'  → admin approved the cleanup. Public route serves
+ *                  cleaned MD when content hash still matches.
+ *   'rejected'  → admin rejected the cleanup. Sticky for current
+ *                  content hash; on edit the hash changes and a
+ *                  fresh cleanup runs.
  *   'needs-retry' → provider error OR guard kill-switch fired; will be
  *                    re-scheduled on next save_post or admin "regenerate"
- *   'failed'  → permanent failure (e.g. cleanup disabled mid-run);
- *                manual recovery required
+ *   'failed'    → permanent failure (e.g. cleanup disabled mid-run);
+ *                  manual recovery required via Regenerate
  */
 final class Cleanup_Orchestrator {
+
+	/**
+	 * Status constants. The string values match the existing post-meta
+	 * stored by Phase A; new values (`approved`, `rejected`) introduced
+	 * in Phase B per AgDR-0020.
+	 */
+	public const STATUS_PENDING     = 'pending';
+	public const STATUS_DONE        = 'done';
+	public const STATUS_APPROVED    = 'approved';
+	public const STATUS_REJECTED    = 'rejected';
+	public const STATUS_NEEDS_RETRY = 'needs-retry';
+	public const STATUS_FAILED      = 'failed';
 
 	/**
 	 * WP Cron action fired by `schedule()` and handled by `run_cleanup()`.
@@ -186,7 +206,7 @@ PROMPT;
 		if ( false !== \wp_next_scheduled( self::SCHEDULE_ACTION, $args ) ) {
 			// Already pending for this post — refresh the status marker and
 			// exit; the existing cron event will fire normally.
-			\update_post_meta( $post_id, self::META_KEY_STATUS, 'pending' );
+			\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_PENDING );
 			return;
 		}
 
@@ -199,7 +219,7 @@ PROMPT;
 		}
 
 		\wp_schedule_single_event( \time() + 1, self::SCHEDULE_ACTION, $args );
-		\update_post_meta( $post_id, self::META_KEY_STATUS, 'pending' );
+		\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_PENDING );
 	}
 
 	/**
@@ -251,7 +271,7 @@ PROMPT;
 		// schedule time may have been edited, had cleanup disabled, etc.
 		$conversion = Service::regenerate_conversion_for( $post );
 		if ( null === $conversion ) {
-			\update_post_meta( $post_id, self::META_KEY_STATUS, 'failed' );
+			\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_FAILED );
 			return;
 		}
 
@@ -274,7 +294,7 @@ PROMPT;
 					'attempted_at' => \current_time( 'mysql', true ),
 				)
 			);
-			\update_post_meta( $post_id, self::META_KEY_STATUS, $result->needs_retry() ? 'needs-retry' : 'failed' );
+			\update_post_meta( $post_id, self::META_KEY_STATUS, $result->needs_retry() ? self::STATUS_NEEDS_RETRY : self::STATUS_FAILED );
 			return;
 		}
 
@@ -297,14 +317,14 @@ PROMPT;
 			$diagnostics['stage']      = 'guard';
 			$diagnostics['error_code'] = 'kill_switch';
 			self::record_diagnostic( $post_id, $diagnostics );
-			\update_post_meta( $post_id, self::META_KEY_STATUS, 'needs-retry' );
+			\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_NEEDS_RETRY );
 			return;
 		}
 
 		\update_post_meta( $post_id, self::META_KEY_OUTPUT, $guard->get_filtered_markdown() );
 		\update_post_meta( $post_id, self::META_KEY_OUTPUT_HASH, $content_hash );
 		self::record_diagnostic( $post_id, $diagnostics );
-		\update_post_meta( $post_id, self::META_KEY_STATUS, 'done' );
+		\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_DONE );
 	}
 
 	/**
@@ -317,18 +337,157 @@ PROMPT;
 	}
 
 	/**
-	 * Read the cleaned markdown for `$post_id` if its stored hash
-	 * matches `$content_hash` (i.e. the cleanup is still fresh for the
-	 * current content). Returns null otherwise — Phase B's served-MD
-	 * swap reads through this method.
+	 * Read the cleaned markdown for `$post_id` when it has been
+	 * **approved** by an admin AND the stored hash matches the current
+	 * content hash. The Service public-route handler calls this to
+	 * decide whether to swap deterministic for cleaned output.
+	 *
+	 * Returns null when:
+	 *   - no cleanup output exists for this post
+	 *   - the stored hash doesn't match `$content_hash` (post edited)
+	 *   - status is anything other than `approved` (still pending /
+	 *     done-not-yet-approved / rejected / failed / needs-retry)
 	 */
-	public static function get_fresh_output( int $post_id, string $content_hash ): ?string {
-		if ( ! self::has_fresh_cleanup( $post_id, $content_hash ) ) {
+	public static function get_approved_output( int $post_id, string $content_hash ): ?string {
+		$stored_hash = \get_post_meta( $post_id, self::META_KEY_OUTPUT_HASH, true );
+
+		if ( ! \is_string( $stored_hash ) || $stored_hash !== $content_hash ) {
+			return null;
+		}
+
+		if ( self::STATUS_APPROVED !== self::get_status( $post_id ) ) {
 			return null;
 		}
 
 		$value = \get_post_meta( $post_id, self::META_KEY_OUTPUT, true );
 		return \is_string( $value ) && '' !== $value ? $value : null;
+	}
+
+	/**
+	 * Transition a `done` cleanup to `approved`. The next public-route
+	 * read on this post will serve the cleaned MD via
+	 * `get_approved_output()`.
+	 *
+	 * @return bool True on a real transition, false on idempotent no-op
+	 *              (already approved). Throws a runtime exception if
+	 *              called from an invalid base state — callers (the REST
+	 *              handler) translate that into 409 Conflict.
+	 *
+	 * @throws \RuntimeException When the post has no `done` cleanup to
+	 *                            approve.
+	 */
+	public static function approve( int $post_id ): bool {
+		$status = self::get_status( $post_id );
+
+		if ( self::STATUS_APPROVED === $status ) {
+			return false;
+		}
+
+		if ( self::STATUS_DONE !== $status ) {
+			throw new \RuntimeException(
+				\esc_html( \sprintf( 'Cannot approve cleanup in state "%s"; expected "done".', $status ) )
+			);
+		}
+
+		\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_APPROVED );
+		return true;
+	}
+
+	/**
+	 * Transition a `done` cleanup to `rejected`. Sticky for the current
+	 * content hash — on the next edit the hash changes and the orchestrator
+	 * invalidates everything, giving the admin a fresh decision.
+	 *
+	 * @return bool True on a real transition, false on idempotent no-op
+	 *              (already rejected).
+	 *
+	 * @throws \RuntimeException When the post has no `done` cleanup to
+	 *                            reject.
+	 */
+	public static function reject( int $post_id ): bool {
+		$status = self::get_status( $post_id );
+
+		if ( self::STATUS_REJECTED === $status ) {
+			return false;
+		}
+
+		if ( self::STATUS_DONE !== $status ) {
+			throw new \RuntimeException(
+				\esc_html( \sprintf( 'Cannot reject cleanup in state "%s"; expected "done".', $status ) )
+			);
+		}
+
+		\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_REJECTED );
+		return true;
+	}
+
+	/**
+	 * Hard reset: invalidate the existing cleanup output + schedule a
+	 * fresh cron run. Callable from any state — used by the admin
+	 * "Regenerate" button to force a re-clean (typically after a
+	 * `needs-retry` or `failed` outcome, but also valid from `done` /
+	 * `approved` / `rejected` if the admin wants a do-over without
+	 * editing the post).
+	 *
+	 * Idempotent: if a cleanup is already `pending`, returns false and
+	 * leaves the existing cron event alone.
+	 *
+	 * @return bool True on a real reschedule, false if already pending.
+	 */
+	public static function regenerate( \WP_Post $post ): bool {
+		$post_id = (int) $post->ID;
+
+		if ( self::STATUS_PENDING === self::get_status( $post_id ) ) {
+			return false;
+		}
+
+		self::invalidate( $post_id );
+		self::schedule( $post );
+		return true;
+	}
+
+	/**
+	 * Read the full cleanup state blob for a post — used by the REST
+	 * GET endpoint to drive the sidebar UI. Returns the cleaned MD,
+	 * diagnostics, status, and hash in one shot so the UI doesn't need
+	 * per-field round-trips.
+	 *
+	 * The deterministic MD and quality_score/signals are NOT included
+	 * here; the REST handler joins those in from `Service` (which owns
+	 * the cache table) — keeps this orchestrator focused on its own
+	 * post-meta keys.
+	 *
+	 * @return array{
+	 *   status: string,
+	 *   content_hash: string,
+	 *   cleaned_markdown: ?string,
+	 *   diagnostics: ?array<string, mixed>
+	 * }
+	 */
+	public static function get_state( int $post_id ): array {
+		$status = self::get_status( $post_id );
+
+		$stored_hash = \get_post_meta( $post_id, self::META_KEY_OUTPUT_HASH, true );
+		$hash        = \is_string( $stored_hash ) ? $stored_hash : '';
+
+		$cleaned = \get_post_meta( $post_id, self::META_KEY_OUTPUT, true );
+		$cleaned = \is_string( $cleaned ) && '' !== $cleaned ? $cleaned : null;
+
+		$diagnostics_raw = \get_post_meta( $post_id, self::META_KEY_DIAGNOSTICS, true );
+		$diagnostics     = null;
+		if ( \is_string( $diagnostics_raw ) && '' !== $diagnostics_raw ) {
+			$decoded = \json_decode( $diagnostics_raw, true );
+			if ( \is_array( $decoded ) ) {
+				$diagnostics = $decoded;
+			}
+		}
+
+		return array(
+			'status'           => $status,
+			'content_hash'     => $hash,
+			'cleaned_markdown' => $cleaned,
+			'diagnostics'      => $diagnostics,
+		);
 	}
 
 	/**
@@ -344,8 +503,17 @@ PROMPT;
 	}
 
 	/**
-	 * True when a cleanup has previously succeeded on the post AND its
-	 * recorded content hash matches the current content hash.
+	 * True when a cleanup attempt has reached a terminal-or-actioned
+	 * state for the current content hash. Used by `should_clean()` to
+	 * skip re-scheduling when:
+	 *   - `done`     — output ready, awaiting admin decision
+	 *   - `approved` — output endorsed, serving cleaned MD
+	 *   - `rejected` — output declined; sticky until the post edit
+	 *                  changes the hash
+	 *
+	 * `pending` is excluded — that's already-running; `needs-retry` /
+	 * `failed` are excluded — those WANT another scheduled run on the
+	 * next trigger.
 	 */
 	private static function has_fresh_cleanup( int $post_id, string $content_hash ): bool {
 		$stored_hash = \get_post_meta( $post_id, self::META_KEY_OUTPUT_HASH, true );
@@ -354,7 +522,11 @@ PROMPT;
 			return false;
 		}
 
-		return 'done' === self::get_status( $post_id );
+		$status = self::get_status( $post_id );
+
+		return self::STATUS_DONE === $status
+			|| self::STATUS_APPROVED === $status
+			|| self::STATUS_REJECTED === $status;
 	}
 
 	/**

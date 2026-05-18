@@ -103,6 +103,11 @@ final class Main {
 		// run. Service::register_hooks above also clears cleanup state on
 		// post-edit lifecycle events.
 		Markdown_Views\Cleanup_Orchestrator::register_hooks();
+
+		// Wire the Phase-B admin REST surface for cleanup actions
+		// (#6 / AgDR-0020). Four routes under agentready/v1/markdown-views/cleanup/*,
+		// each gated by edit_post on the target post.
+		Markdown_Views\Cleanup_Rest_Controller::register_hooks();
 	}
 
 	/**
