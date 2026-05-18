@@ -101,6 +101,10 @@ final class Main {
 		// check so the regular page-load path pays zero cost.
 		\WPContext\Cli\Markdown_Views_Command::register();
 
+		// Wire the LLMs Index WP-CLI command tree (#7 / AgDR-0022).
+		// Same register() guard pattern as Markdown_Views_Command above.
+		\WPContext\Cli\Llms_Txt_Command::register();
+
 		// Wire the Gutenberg sidebar React panel (#5 / AgDR-0014). Enqueues
 		// only on block-editor screens via `enqueue_block_editor_assets`.
 		Markdown_Views\Sidebar_Assets::register_hooks();
@@ -116,6 +120,14 @@ final class Main {
 		// (#6 / AgDR-0020). Four routes under agentready/v1/markdown-views/cleanup/*,
 		// each gated by edit_post on the target post.
 		Markdown_Views\Cleanup_Rest_Controller::register_hooks();
+
+		// Wire the LLMs Index module (#7 / AgDR-0021-0023). Router owns the
+		// `/llms.txt` rewrite + template_redirect dispatch; Service owns the
+		// regen-on-save / regen-on-profile-change / regen-on-editorial-change
+		// hooks plus the debounced single-event scheduling and the daily
+		// cron backstop.
+		LlmsTxt\Router::register_hooks();
+		LlmsTxt\Service::register_hooks();
 	}
 
 	/**
@@ -150,6 +162,18 @@ final class Main {
 		// `^(.+)\.md/?$` rule into the rewrite_rules option so the public
 		// route survives to wp_loaded.
 		Markdown_Views\Router::flush_on_activation();
+
+		// LLMs Index rewrite rule + daily backstop + initial cache
+		// population (#7 / AgDR-0021-0023). The rewrite flush below
+		// persists `^llms\.txt/?$` into rewrite_rules. Daily backstop
+		// fires once per day so the cached body never sits stale
+		// longer than 24 h even if a hook is missed. Initial sync
+		// regen ensures a fresh install serves an empty document on
+		// the first crawl (rather than triggering regen-under-lock
+		// on the first agent fetch).
+		LlmsTxt\Router::flush_on_activation();
+		LlmsTxt\Service::schedule_daily_regen();
+		LlmsTxt\Service::regen_sync();
 	}
 
 	/**
@@ -165,5 +189,12 @@ final class Main {
 		// Drop our `/path.md` rewrite by flushing without our init hook
 		// registered (deactivation has already unhooked the plugin).
 		Markdown_Views\Router::flush_on_deactivation();
+
+		// Drop the `/llms.txt` rewrite and clear the scheduled cron
+		// events (debounced single-event + daily backstop). The cached
+		// body in wp_options survives — it'll be re-served verbatim if
+		// the plugin is reactivated. Full purge happens on uninstall.
+		LlmsTxt\Router::flush_on_deactivation();
+		LlmsTxt\Service::clear_scheduled_regens();
 	}
 }
