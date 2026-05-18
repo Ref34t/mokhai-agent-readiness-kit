@@ -9,8 +9,8 @@
 		"url": "https://github.com/Ref34t/agentready.git"
 	},
 	"scripts": {
-		"build": "wp-scripts build src/admin/context-profile/index.js --output-path=build/admin --output-filename=context-profile.js && wp-scripts build src/admin/markdown-views-sidebar/index.js --output-path=build/admin --output-filename=markdown-views-sidebar.js",
-		"start": "wp-scripts start src/admin/context-profile/index.js --output-path=build/admin --output-filename=context-profile.js",
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
 		"lint:js": "wp-scripts lint-js src",
 		"format": "wp-scripts format src",
 		"makepot": "wp i18n make-pot . languages/agentready.pot --domain=agentready --exclude=vendor,node_modules,build,tests",

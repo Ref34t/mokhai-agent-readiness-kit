@@ -347,11 +347,18 @@ final class Service {
 	}
 
 	/**
-	 * Resolve the editorial entries — empty in Phase A; Phase C wires the
-	 * admin UI that populates `agentready_llms_txt_editorial`.
+	 * Resolve the editorial entries for the Composer.
 	 *
-	 * Reading the option now (with a sensible default) means Phase C ships
-	 * by changing only the writer; this reader keeps working.
+	 * Phase C (AgDR-0025) introduces the versioned shape
+	 * `{schema_version: 1, entries: [...]}` written by
+	 * `Editorial_Settings::sanitize`. Phase A shipped this method against
+	 * the bare-list shape; both are accepted to avoid breaking fixtures or
+	 * `wp option update` calls made before Phase C landed.
+	 *
+	 * The Composer expects each entry to carry `title`, `url`, optional
+	 * `description`, optional `section`. The `Custom`-section escape hatch
+	 * (per AgDR-0025) substitutes the entry's `section_label` for the
+	 * `section` value before handing off.
 	 *
 	 * @return array<int, array{title: string, url: string, description?: string, section?: string}>
 	 */
@@ -361,8 +368,12 @@ final class Service {
 			return array();
 		}
 
+		$raw_entries = isset( $stored['entries'] ) && is_array( $stored['entries'] )
+			? $stored['entries']
+			: $stored;
+
 		$out = array();
-		foreach ( $stored as $row ) {
+		foreach ( $raw_entries as $row ) {
 			if ( ! is_array( $row ) ) {
 				continue;
 			}
@@ -378,9 +389,17 @@ final class Service {
 			if ( isset( $row['description'] ) && '' !== (string) $row['description'] ) {
 				$entry['description'] = (string) $row['description'];
 			}
-			if ( isset( $row['section'] ) && '' !== (string) $row['section'] ) {
-				$entry['section'] = (string) $row['section'];
+
+			$section_label = '';
+			if ( isset( $row['section'] ) && 'Custom' === (string) $row['section'] ) {
+				$section_label = isset( $row['section_label'] ) ? (string) $row['section_label'] : '';
+			} elseif ( isset( $row['section'] ) && '' !== (string) $row['section'] ) {
+				$section_label = (string) $row['section'];
 			}
+			if ( '' !== $section_label ) {
+				$entry['section'] = $section_label;
+			}
+
 			$out[] = $entry;
 		}
 		return $out;
