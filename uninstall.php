@@ -24,6 +24,11 @@ $wpctx_options = array(
 	'agentready_settings',
 	'agentready_version',
 	'agentready_md_cache_schema_version',
+	// LLMs Index (#7 / AgDR-0022). Cache option and editorial entries
+	// (the editorial option is written by Phase C; listing it here
+	// up-front so the uninstall path stays coherent across phases).
+	'agentready_llms_txt_cache',
+	'agentready_llms_txt_editorial',
 );
 
 foreach ( $wpctx_options as $wpctx_option ) {
@@ -35,6 +40,14 @@ foreach ( $wpctx_options as $wpctx_option ) {
 }
 
 unset( $wpctx_options, $wpctx_option );
+
+/*
+ * Drop the LLMs Index regen-lock transient (#7 / AgDR-0022).
+ * Stale lock on uninstall is benign (the cache option is already
+ * deleted above) but explicit cleanup keeps the wp_options /
+ * wp_options table footprint zero after uninstall.
+ */
+delete_transient( 'agentready_llms_txt_regen_lock' );
 
 /*
  * Drop the Markdown Views cache table on uninstall (#5 / AgDR-0011).
