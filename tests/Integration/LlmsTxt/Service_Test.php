@@ -108,6 +108,38 @@ final class Service_Test extends WP_UnitTestCase {
 		$this->assertSame( "# Cached\n", $body );
 	}
 
+	public function test_get_composed_body_treats_stale_schema_version_as_miss(): void {
+		// Cache payload from a hypothetical future format (schema_version = 99).
+		// Reader can't trust the shape, so it should regen instead of
+		// returning the stored body. AgDR-0022 § "Schema version field".
+		update_option(
+			Service::CACHE_OPTION,
+			array(
+				'schema_version' => 99,
+				'body'           => "# Stale\n",
+				'generated_at'   => '2026-01-01T00:00:00+00:00',
+				'entry_count'    => 0,
+			),
+			'no'
+		);
+
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'Fresh after stale',
+				'post_status' => 'publish',
+			)
+		);
+
+		$body = Service::get_composed_body();
+
+		$this->assertStringNotContainsString( 'Stale', $body );
+		$this->assertStringContainsString( 'Fresh after stale', $body );
+
+		$payload = Service::get_cache_payload();
+		$this->assertIsArray( $payload );
+		$this->assertSame( Service::CACHE_SCHEMA_VERSION, $payload['schema_version'] );
+	}
+
 	public function test_get_composed_body_regenerates_on_miss(): void {
 		self::factory()->post->create(
 			array(

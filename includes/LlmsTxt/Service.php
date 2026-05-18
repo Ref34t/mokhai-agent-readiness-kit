@@ -137,17 +137,40 @@ final class Service {
 	 * Public reader used by `Router` and the WP-CLI status command.
 	 *
 	 * Cache hit: returns the cached body string.
-	 * Cache miss: runs the synchronous regen under lock; returns the fresh
-	 *             body, or an empty string when another process holds the lock.
+	 * Cache miss (or stale schema_version): runs the synchronous regen
+	 *   under lock; returns the fresh body, or an empty string when another
+	 *   process holds the lock.
+	 *
+	 * Unknown `schema_version` is treated as a miss (AgDR-0022 §
+	 * "Schema version field") — a future format change can read the
+	 * stale payload, decide it can't trust the shape, and force a regen
+	 * rather than crashing on an unexpected key.
 	 */
 	public static function get_composed_body(): string {
 		$cache = \get_option( self::CACHE_OPTION, null );
 
-		if ( is_array( $cache ) && isset( $cache['body'] ) ) {
+		if ( self::is_valid_cache_payload( $cache ) ) {
 			return (string) $cache['body'];
 		}
 
 		return self::regen_under_lock();
+	}
+
+	/**
+	 * Validate that a stored cache payload is the shape this reader can
+	 * trust. Treats missing/extra/mismatched `schema_version` as a miss.
+	 *
+	 * @param mixed $cache Raw `get_option` result.
+	 */
+	private static function is_valid_cache_payload( $cache ): bool {
+		if ( ! is_array( $cache ) ) {
+			return false;
+		}
+		if ( ! isset( $cache['body'] ) ) {
+			return false;
+		}
+		$version = isset( $cache['schema_version'] ) ? (int) $cache['schema_version'] : 0;
+		return self::CACHE_SCHEMA_VERSION === $version;
 	}
 
 	/**
