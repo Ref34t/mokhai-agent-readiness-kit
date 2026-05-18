@@ -233,6 +233,19 @@ registerPlugin( 'agentready-md-preview', {
 } );
 
 /**
+ * Threshold (ms) beyond which a `pending` cleanup is considered
+ * "stuck" — i.e. WP cron hasn't fired the scheduled event. On a
+ * low-traffic site WP cron doesn't fire without page-visits, so a
+ * cleanup can sit pending indefinitely with no visible cause. After
+ * this threshold the panel surfaces a help line explaining why.
+ *
+ * Per ticket #53: 60 seconds is short enough that real-traffic sites
+ * almost never see the hint (their cleanup transitions on the next
+ * pageview), long enough that fast-cron transitions don't surface it.
+ */
+const STUCK_PENDING_THRESHOLD_MS = 60000;
+
+/**
  * Convert a cleanup-status code to a user-facing label + Notice variant.
  *
  * Status codes come from Cleanup_Orchestrator (AgDR-0020):
@@ -309,6 +322,14 @@ function MarkdownCleanupPanel() {
 	const [ actionInFlight, setActionInFlight ] = useState( null );
 	const [ state, setState ] = useState( null );
 	const [ error, setError ] = useState( null );
+	// Timestamp (ms) when the panel first observed status=pending in
+	// the current run. Cleared when status transitions away. Used by
+	// the stuck-pending UX hint per ticket #53.
+	const [ pendingSince, setPendingSince ] = useState( null );
+	// Tick counter that bumps every 5s while pending, so the
+	// "stuck > N seconds" derived value re-evaluates and the hint
+	// appears without needing a state transition to trigger a re-render.
+	const [ tick, setTick ] = useState( 0 );
 
 	const loadState = useCallback( async () => {
 		if ( ! postId ) {
@@ -349,9 +370,28 @@ function MarkdownCleanupPanel() {
 			return undefined;
 		}
 
-		const id = setInterval( loadState, 5000 );
+		const id = setInterval( () => {
+			loadState();
+			// Bump the tick so the "stuck > 60s" derived value is
+			// re-evaluated on every poll even when the REST response
+			// is unchanged.
+			setTick( ( t ) => t + 1 );
+		}, 5000 );
 		return () => clearInterval( id );
 	}, [ state, loadState ] );
+
+	// Track when `pending` first appeared so the stuck-pending hint
+	// (ticket #53) can fire after a configurable threshold without
+	// triggering on transient pending states.
+	useEffect( () => {
+		if ( state && state.status === 'pending' ) {
+			if ( pendingSince === null ) {
+				setPendingSince( Date.now() );
+			}
+		} else if ( pendingSince !== null ) {
+			setPendingSince( null );
+		}
+	}, [ state, pendingSince ] );
 
 	const runAction = useCallback(
 		async ( route ) => {
@@ -407,6 +447,15 @@ function MarkdownCleanupPanel() {
 	const hasCleaned = state && state.cleaned_markdown;
 	const canApproveReject = status === 'done';
 	const canRegenerate = status && status !== 'pending';
+	// Derived from `pendingSince` + `tick` — re-evaluates on every poll.
+	// `tick` is in the dep chain implicitly via the re-render trigger.
+	const stuckPending =
+		status === 'pending' &&
+		pendingSince !== null &&
+		Date.now() - pendingSince > STUCK_PENDING_THRESHOLD_MS;
+	// Reference `tick` so eslint doesn't flag it as unused even though
+	// its only purpose is to force a re-render.
+	void tick;
 
 	return (
 		<PluginDocumentSettingPanel
@@ -426,6 +475,23 @@ function MarkdownCleanupPanel() {
 			>
 				{ badge.label }
 			</Notice>
+
+			{ stuckPending && (
+				<p
+					style={ {
+						marginTop: '8px',
+						fontSize: '11px',
+						color: '#6b6b6b',
+						lineHeight: '1.45',
+					} }
+					className="agentready-md-cleanup__stuck-hint"
+				>
+					{ __(
+						'Cleanup is queued but waiting for WordPress cron. WP cron only fires on page visits — on a low-traffic site this can take a few minutes. Visiting any page on the site (or running `wp cron event run agentready_md_cleanup_run` via WP-CLI) will trigger it immediately.',
+						'agentready'
+					) }
+				</p>
+			) }
 
 			{ state && state.quality_score !== null && (
 				<p style={ { marginTop: '8px', fontSize: '12px' } }>
