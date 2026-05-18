@@ -146,4 +146,74 @@ final class Schema_Test extends WP_UnitTestCase {
 		\delete_option( Schema::SCHEMA_VERSION_OPTION );
 		self::assertSame( 0, Schema::installed_version() );
 	}
+
+	public function test_maybe_upgrade_recreates_dropped_column_on_stale_version(): void {
+		global $wpdb;
+
+		Schema::create();
+		self::assertSame( Schema::SCHEMA_VERSION, Schema::installed_version() );
+
+		// Simulate the pre-#52 upgrade scenario:
+		//   1. User was on a version whose schema only had the v0.1
+		//      columns (no `quality_score`).
+		//   2. A plugin update bumped SCHEMA_VERSION but the
+		//      activation hook didn't re-fire — `Schema::create()`
+		//      never ran, so the DB column is missing while the code
+		//      expects it.
+		//
+		// We reproduce that by dropping the column manually AND
+		// rolling the schema-version option back to 1.
+		$table = Schema::table_name();
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "ALTER TABLE {$table} DROP COLUMN quality_score" );
+		\update_option( Schema::SCHEMA_VERSION_OPTION, 1, false );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$columns_before = $wpdb->get_col( "DESCRIBE {$table}" );
+		self::assertNotContains(
+			'quality_score',
+			$columns_before,
+			'precondition: quality_score must be missing before maybe_upgrade runs'
+		);
+
+		Schema::maybe_upgrade();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$columns_after = $wpdb->get_col( "DESCRIBE {$table}" );
+		self::assertContains(
+			'quality_score',
+			$columns_after,
+			'maybe_upgrade must add the missing column via dbDelta'
+		);
+		self::assertSame(
+			Schema::SCHEMA_VERSION,
+			Schema::installed_version(),
+			'maybe_upgrade must bump the installed-version option to the current SCHEMA_VERSION'
+		);
+	}
+
+	public function test_maybe_upgrade_is_a_no_op_when_already_current(): void {
+		Schema::create();
+		$version_before = Schema::installed_version();
+		self::assertSame( Schema::SCHEMA_VERSION, $version_before );
+
+		// Track wpdb queries to confirm maybe_upgrade is cheap when
+		// already current — single option read, no dbDelta call.
+		Schema::maybe_upgrade();
+
+		self::assertSame( Schema::SCHEMA_VERSION, Schema::installed_version() );
+	}
+
+	public function test_maybe_upgrade_creates_table_when_never_installed(): void {
+		// Fresh state: drop everything, then call maybe_upgrade. Since
+		// installed_version is 0 < SCHEMA_VERSION, the upgrade path
+		// runs `create()` which provisions the table.
+		Schema::drop();
+		self::assertFalse( $this->table_exists() );
+
+		Schema::maybe_upgrade();
+
+		self::assertTrue( $this->table_exists() );
+		self::assertSame( Schema::SCHEMA_VERSION, Schema::installed_version() );
+	}
 }

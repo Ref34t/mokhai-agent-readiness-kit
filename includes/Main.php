@@ -72,6 +72,14 @@ final class Main {
 		\WPContext\Admin\Context_Profile_Settings::register_hooks();
 		\WPContext\Admin\Context_Profile_Page::register_hooks();
 
+		// Wire the Markdown Views cache schema upgrade-on-admin_init
+		// (#52). Comparison is one option read on every admin
+		// page-load; the `dbDelta()` re-run only fires when the
+		// installed version lags `SCHEMA_VERSION`. Without this, a
+		// plugin update that bumps the schema sits with stale columns
+		// until the user manually deactivates + reactivates.
+		Markdown_Views\Schema::register_hooks();
+
 		// Wire the Markdown Views cache-invalidation hooks (#5 / AgDR-0011).
 		// `save_post`, `wp_trash_post`, `before_delete_post`, and
 		// `wp_after_insert_post` all funnel into Service::invalidate().
