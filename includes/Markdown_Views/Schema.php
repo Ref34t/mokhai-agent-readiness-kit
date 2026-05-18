@@ -77,6 +77,40 @@ final class Schema {
 	}
 
 	/**
+	 * Wire the schema-related WordPress hooks. Called once from
+	 * `Main::register_hooks()`.
+	 *
+	 * Currently registers a single `admin_init` listener for
+	 * `maybe_upgrade()` — the missing-piece counterpart to the
+	 * activation-hook create. Without this, users who upgrade
+	 * agentready from one version to a later one (any schema bump)
+	 * keep running against the old columns until they manually
+	 * deactivate + reactivate. See ticket #52.
+	 */
+	public static function register_hooks(): void {
+		\add_action( 'admin_init', array( self::class, 'maybe_upgrade' ) );
+	}
+
+	/**
+	 * Re-run `dbDelta()` when the installed schema version lags the
+	 * current `SCHEMA_VERSION`. Skipped when up-to-date so the typical
+	 * admin page-load pays just one cheap option read.
+	 *
+	 * Multisite behaviour: runs for the **current site only**. The
+	 * activation-time `create_for_all_sites()` provisions every site at
+	 * once; here, the lazy upgrade catches a site as soon as an admin
+	 * loads any admin page on it. Iterating `get_sites()` on every
+	 * admin_init across the network is unacceptably expensive.
+	 */
+	public static function maybe_upgrade(): void {
+		if ( self::installed_version() >= self::SCHEMA_VERSION ) {
+			return;
+		}
+
+		self::create();
+	}
+
+	/**
 	 * Create (or upgrade) the cache table for the current site.
 	 *
 	 * Idempotent via `dbDelta()`: safe to call repeatedly. Writes the
