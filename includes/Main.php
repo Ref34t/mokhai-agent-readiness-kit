@@ -128,6 +128,12 @@ final class Main {
 		// cron backstop.
 		LlmsTxt\Router::register_hooks();
 		LlmsTxt\Service::register_hooks();
+
+		// Wire the LLMs Index conflict notice (#7 Phase B / AgDR-0024).
+		// Renders on Plugins screen + Tools → Context. Per-user dismissal
+		// via user-meta. Detection is cached in a 5-minute transient,
+		// invalidated by activate/deactivate hooks.
+		LlmsTxt\Conflict_Notice::register_hooks();
 	}
 
 	/**

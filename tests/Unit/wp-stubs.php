@@ -361,6 +361,21 @@ if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_json_encode' ) ) {
+	/**
+	 * Stub: delegate to PHP's json_encode. The real wp_json_encode adds
+	 * UTF-8 fallback handling but tests don't exercise that branch.
+	 *
+	 * @param mixed $value Value to encode.
+	 * @param int   $options json_encode flags.
+	 * @param int   $depth   Max depth.
+	 * @return string|false
+	 */
+	function wp_json_encode( $value, int $options = 0, int $depth = 512 ) {
+		return json_encode( $value, $options, $depth );
+	}
+}
+
 if ( ! class_exists( 'WP_Post' ) ) {
 	/**
 	 * Minimal stub of WP_Post. Tests construct one with the properties they
