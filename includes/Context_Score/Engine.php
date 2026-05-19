@@ -241,8 +241,16 @@ final class Engine {
 			$reasons[] = sprintf( 'Detected SEO plugin (%s) — structured data is likely being emitted.', $plugin );
 			$value     = 100;
 		} else {
-			$reasons[] = 'No SEO plugin detected — install Yoast, Rank Math, or AIOSEO to emit structured data alongside agent-facing content.';
-			$value     = 30;
+			// AgentReady does not yet emit structured data natively (planned
+			// for v0.1.x — see the Schema_Emitter follow-up issue). Until
+			// then, a generic SEO plugin fills the gap; the reason names the
+			// gap rather than instructing the operator to install one, so
+			// the message stays compatible with the native emitter landing
+			// later. The 60-point value reflects "missing capability, not
+			// configuration error" — softer than the 30 the engine started
+			// with, which read as a Critical-class signal in the admin UI.
+			$reasons[] = 'No structured data detected on this site. AgentReady will emit JSON-LD natively in a future release; until then, exposed content reaches agents without schema metadata.';
+			$value     = 60;
 		}
 
 		return array(
