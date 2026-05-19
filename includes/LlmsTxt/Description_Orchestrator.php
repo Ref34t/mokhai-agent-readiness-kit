@@ -1,0 +1,558 @@
+<?php
+/**
+ * LLM-powered entry-description orchestrator per AgDR-0027 / AgDR-0028.
+ *
+ * Async per-post pipeline: `save_post` (or WP-CLI backfill) → cron event
+ * → `Client_Wrapper::generate()` with a cheap-tier-friendly prompt →
+ * post-meta cache. The read-side filter `Description_Filter` reads the
+ * cached value at /llms.txt compose time; nothing here blocks regen.
+ *
+ * @package WPContext
+ */
+
+declare(strict_types=1);
+
+namespace WPContext\LlmsTxt;
+
+use WPContext\Admin\Context_Profile_Settings;
+use WPContext\Ai\Client_Wrapper;
+
+\defined( 'ABSPATH' ) || exit;
+
+/**
+ * Static orchestrator. Mirrors `Markdown_Views\Cleanup_Orchestrator`'s
+ * public-surface shape: `schedule`, `run`, `regenerate`, `invalidate`,
+ * `get_status`. Differs from Cleanup_Orchestrator in two ways:
+ *
+ *   1. No approval state machine. Descriptions are short factual
+ *      sentences with a 160-char cap; approval ceremony isn't worth
+ *      the UI complexity. See AgDR-0027 § "Status state machine".
+ *   2. Two disjoint meta keys for storage: `_auto` (LLM) and
+ *      `_manual` (admin override, written by Phase B). Stickiness
+ *      is structural — neither writer touches the other's slot.
+ */
+final class Description_Orchestrator {
+
+	/**
+	 * Status state machine. See AgDR-0027 for the full lifecycle.
+	 *
+	 * @var string
+	 */
+	public const STATUS_PENDING     = 'pending';
+	public const STATUS_DONE        = 'done';
+	public const STATUS_NEEDS_RETRY = 'needs-retry';
+	public const STATUS_FAILED      = 'failed';
+
+	/**
+	 * Cron action fired by `schedule()` and handled by `run()`.
+	 *
+	 * @var string
+	 */
+	public const SCHEDULE_ACTION = 'agentready_llms_description_run';
+
+	/**
+	 * LLM-generated description. Regen-overwritable. Empty key when no
+	 * successful LLM run has produced an output for this post.
+	 *
+	 * @var string
+	 */
+	public const META_KEY_AUTO = '_agentready_llms_description_auto';
+
+	/**
+	 * Admin-set description. Sticky — never overwritten by the
+	 * orchestrator. Phase B's editorial UI writes this slot; Phase A
+	 * only reads it (to skip scheduling when it's set).
+	 *
+	 * @var string
+	 */
+	public const META_KEY_MANUAL = '_agentready_llms_description_manual';
+
+	/**
+	 * The `post_modified_gmt` value at the time the `_auto` slot was
+	 * generated. Phase B compares this against the current
+	 * `post_modified_gmt` to mark stale descriptions; Phase A reads it
+	 * inside `should_schedule()` to skip re-generation when the cache
+	 * is still fresh.
+	 *
+	 * @var string
+	 */
+	public const META_KEY_GENERATED_FOR_MODIFIED = '_agentready_llms_description_generated_for_modified_gmt';
+
+	/**
+	 * Status meta key — see state machine constants above.
+	 *
+	 * @var string
+	 */
+	public const META_KEY_STATUS = '_agentready_llms_description_status';
+
+	/**
+	 * JSON diagnostic blob from the most recent attempt: attempted_at,
+	 * error code (if any), output length.
+	 *
+	 * @var string
+	 */
+	public const META_KEY_DIAGNOSTICS = '_agentready_llms_description_diagnostics';
+
+	/**
+	 * Output character ceiling. Matches `Entry_Source::normalise_description`
+	 * so the cached value can be served verbatim without re-truncation.
+	 *
+	 * @var int
+	 */
+	public const MAX_OUTPUT_CHARS = 160;
+
+	/**
+	 * Maximum input-excerpt length the prompt builder strips down to.
+	 * 500 chars covers the topical-signal a one-sentence summary needs
+	 * without bloating the prompt for backfill at scale.
+	 *
+	 * @var int
+	 */
+	private const MAX_EXCERPT_CHARS = 500;
+
+	/**
+	 * Sentinel the model emits when the input has no extractable topic.
+	 * See AgDR-0028 § "EMPTY sentinel".
+	 *
+	 * @var string
+	 */
+	private const EMPTY_SENTINEL = 'EMPTY';
+
+	/**
+	 * System prompt — see AgDR-0028 for the full rationale.
+	 *
+	 * @var string
+	 */
+	private const DESCRIPTION_SYSTEM_PROMPT = <<<'PROMPT'
+You write one-sentence descriptions for an /llms.txt index that AI agents
+scan to decide which pages to read.
+
+Rules:
+- Output ONE factual sentence.
+- Maximum 160 characters.
+- Use only information present in the input.
+- No marketing language. No first-person. No hedging ("might be", "seems
+  to"). No emoji. No preamble (do not start with "This page", "Here is",
+  "Description:", etc.).
+- If the input is empty or has no extractable topic, output the word
+  EMPTY.
+
+Output the sentence itself with no quotation marks, no Markdown, no
+labels.
+PROMPT;
+
+	/**
+	 * User-prompt sprintf template — three placeholders in this order:
+	 * title, URL, excerpt.
+	 *
+	 * @var string
+	 */
+	private const DESCRIPTION_USER_TEMPLATE = <<<'PROMPT'
+Title: %1$s
+URL: %2$s
+Excerpt (may be truncated):
+%3$s
+PROMPT;
+
+	/**
+	 * Preamble prefixes the model occasionally emits despite the
+	 * system-prompt instruction. Stripped (case-insensitive) at the start
+	 * of the output in `normalise_output`. Order matters — longer
+	 * matches first so "This page is" wins over "This".
+	 *
+	 * @var array<int, string>
+	 */
+	private const PREAMBLE_PREFIXES = array(
+		'description:',
+		'summary:',
+		'this page is about',
+		'this page describes',
+		'this page',
+		'here is a description of',
+		'here is',
+	);
+
+	/**
+	 * Wire the cron handler + save_post listener. Called from
+	 * `Main::register_hooks()`.
+	 */
+	public static function register_hooks(): void {
+		\add_action( self::SCHEDULE_ACTION, array( self::class, 'run' ), 10, 1 );
+		\add_action( 'save_post', array( self::class, 'on_save_post' ), 30, 2 );
+		\add_action( 'wp_trash_post', array( self::class, 'on_trash_post' ), 10, 1 );
+		\add_action( 'before_delete_post', array( self::class, 'on_trash_post' ), 10, 1 );
+	}
+
+	/**
+	 * `save_post` listener: schedule a description job when the post is
+	 * eligible and the cache is missing or stale.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post object.
+	 */
+	public static function on_save_post( int $post_id, \WP_Post $post ): void {
+		if ( \wp_is_post_autosave( $post_id ) || \wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		if ( ! self::should_schedule( $post ) ) {
+			return;
+		}
+
+		self::schedule( $post );
+	}
+
+	/**
+	 * Trash / delete listener: clear stored meta so a re-published post
+	 * later doesn't surface a description generated for the old content
+	 * via stale meta.
+	 *
+	 * @param int $post_id Post ID being trashed / deleted.
+	 */
+	public static function on_trash_post( int $post_id ): void {
+		self::invalidate( $post_id );
+	}
+
+	/**
+	 * Eligibility check at schedule time. The same predicate runs again
+	 * inside `run()` — a post that was eligible at schedule time may have
+	 * been edited / had the toggle flipped before the cron tick fires.
+	 *
+	 * Returns true when:
+	 *   - LLM descriptions toggle is on
+	 *   - WP AI Client is available
+	 *   - Post type + status are in the Context Profile exposure set
+	 *   - Post is exposable per is_url_exposable (password / noindex gates)
+	 *   - No `_manual` description (sticky admin override wins)
+	 *   - Either `_auto` is empty OR `_generated_for_modified_gmt` is older
+	 *     than the post's current `post_modified_gmt` (stale → regen)
+	 */
+	public static function should_schedule( \WP_Post $post ): bool {
+		$profile = Context_Profile_Settings::get_profile();
+
+		if ( empty( $profile['llm_descriptions_enabled'] ) ) {
+			return false;
+		}
+
+		if ( ! Client_Wrapper::has_ai_client() ) {
+			return false;
+		}
+
+		$cpts = isset( $profile['exposed_cpts'] ) && \is_array( $profile['exposed_cpts'] )
+			? $profile['exposed_cpts']
+			: array();
+		if ( ! \in_array( $post->post_type, $cpts, true ) ) {
+			return false;
+		}
+
+		$statuses = isset( $profile['exposed_statuses'] ) && \is_array( $profile['exposed_statuses'] )
+			? $profile['exposed_statuses']
+			: array( 'publish' );
+		if ( ! \in_array( $post->post_status, $statuses, true ) ) {
+			return false;
+		}
+
+		if ( ! Context_Profile_Settings::is_url_exposable( $post ) ) {
+			return false;
+		}
+
+		$post_id = (int) $post->ID;
+
+		$manual = \get_post_meta( $post_id, self::META_KEY_MANUAL, true );
+		if ( \is_string( $manual ) && '' !== \trim( $manual ) ) {
+			return false;
+		}
+
+		$auto = \get_post_meta( $post_id, self::META_KEY_AUTO, true );
+		if ( ! \is_string( $auto ) || '' === \trim( $auto ) ) {
+			return true;
+		}
+
+		$generated_for = \get_post_meta( $post_id, self::META_KEY_GENERATED_FOR_MODIFIED, true );
+		$current_mod   = (string) $post->post_modified_gmt;
+
+		if ( ! \is_string( $generated_for ) || '' === $generated_for ) {
+			return true;
+		}
+
+		return $generated_for < $current_mod;
+	}
+
+	/**
+	 * Queue an async description job. Idempotent — doesn't double-queue
+	 * an identical event already pending.
+	 *
+	 * The cap re-uses `markdown_views_cleanup_max_per_run` per AgDR-0027
+	 * § "Cap + back-pressure" — single operator-facing tuning surface for
+	 * both LLM workloads in v0.1.
+	 */
+	public static function schedule( \WP_Post $post ): void {
+		$post_id = (int) $post->ID;
+		$args    = array( $post_id );
+
+		if ( false !== \wp_next_scheduled( self::SCHEDULE_ACTION, $args ) ) {
+			\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_PENDING );
+			return;
+		}
+
+		if ( self::pending_count() >= Context_Profile_Settings::get_md_cleanup_max_per_run() ) {
+			return;
+		}
+
+		\wp_schedule_single_event( \time() + 1, self::SCHEDULE_ACTION, $args );
+		\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_PENDING );
+	}
+
+	/**
+	 * Count description-orchestrator events currently pending in cron.
+	 * Same shape as `Cleanup_Orchestrator::pending_count`.
+	 */
+	private static function pending_count(): int {
+		if ( ! \function_exists( '_get_cron_array' ) ) {
+			return 0;
+		}
+
+		$cron = \_get_cron_array();
+
+		if ( ! \is_array( $cron ) ) {
+			return 0;
+		}
+
+		$count = 0;
+		foreach ( $cron as $hooks ) {
+			if ( ! \is_array( $hooks ) ) {
+				continue;
+			}
+			if ( isset( $hooks[ self::SCHEDULE_ACTION ] ) && \is_array( $hooks[ self::SCHEDULE_ACTION ] ) ) {
+				$count += \count( $hooks[ self::SCHEDULE_ACTION ] );
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Cron handler. Runs the LLM call, post-processes, persists. Catches
+	 * everything — a cron handler must not throw.
+	 *
+	 * @param int $post_id Post ID provided as the cron-event argument.
+	 */
+	public static function run( int $post_id ): void {
+		$post = \get_post( $post_id );
+
+		if ( ! $post instanceof \WP_Post ) {
+			return;
+		}
+
+		// Re-check eligibility at run time — toggle may have flipped,
+		// post may have been edited, manual description may have been set.
+		if ( ! self::should_schedule( $post ) ) {
+			\delete_post_meta( $post_id, self::META_KEY_STATUS );
+			return;
+		}
+
+		$prompt = self::build_user_prompt( $post );
+		// `temperature` deliberately omitted — OpenAI reasoning models
+		// (o1 / o3 family) reject the parameter with a 400. `max_tokens`
+		// set to 200 to give reasoning-class models headroom for internal
+		// reasoning tokens; a chat-class model still emits a single tight
+		// sentence within this budget. See AgDR-0028 § "Options passed to
+		// Client_Wrapper::generate".
+		$result = Client_Wrapper::generate(
+			$prompt,
+			array(
+				'system'     => self::DESCRIPTION_SYSTEM_PROMPT,
+				'max_tokens' => 200,
+			)
+		);
+
+		if ( null !== $result->error_code() ) {
+			self::record_diagnostic(
+				$post_id,
+				array(
+					'stage'        => 'provider',
+					'error_code'   => $result->error_code(),
+					'attempted_at' => \current_time( 'mysql', true ),
+				)
+			);
+			\update_post_meta(
+				$post_id,
+				self::META_KEY_STATUS,
+				$result->needs_retry() ? self::STATUS_NEEDS_RETRY : self::STATUS_FAILED
+			);
+			return;
+		}
+
+		$normalised = self::normalise_output( (string) $result->content() );
+
+		if ( null === $normalised ) {
+			self::record_diagnostic(
+				$post_id,
+				array(
+					'stage'        => 'post_process',
+					'error_code'   => 'empty_or_sentinel',
+					'attempted_at' => \current_time( 'mysql', true ),
+				)
+			);
+			\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_FAILED );
+			return;
+		}
+
+		\update_post_meta( $post_id, self::META_KEY_AUTO, $normalised );
+		\update_post_meta( $post_id, self::META_KEY_GENERATED_FOR_MODIFIED, (string) $post->post_modified_gmt );
+		self::record_diagnostic(
+			$post_id,
+			array(
+				'attempted_at' => \current_time( 'mysql', true ),
+				'output_chars' => \strlen( $normalised ),
+			)
+		);
+		\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_DONE );
+	}
+
+	/**
+	 * Hard reset: clear the `_auto` slot + schedule a fresh cron run.
+	 * `_manual` is preserved — admin overrides survive regenerate.
+	 *
+	 * Idempotent: returns false when a cron event for this post is
+	 * already pending.
+	 */
+	public static function regenerate( \WP_Post $post ): bool {
+		$post_id = (int) $post->ID;
+
+		if ( self::STATUS_PENDING === self::get_status( $post_id ) ) {
+			return false;
+		}
+
+		\delete_post_meta( $post_id, self::META_KEY_AUTO );
+		\delete_post_meta( $post_id, self::META_KEY_GENERATED_FOR_MODIFIED );
+		\delete_post_meta( $post_id, self::META_KEY_DIAGNOSTICS );
+		\delete_post_meta( $post_id, self::META_KEY_STATUS );
+
+		self::schedule( $post );
+		return true;
+	}
+
+	/**
+	 * Resolve the cached description for /llms.txt rendering. Single
+	 * read path for `Description_Filter`.
+	 *
+	 * Resolution order:
+	 *   1. `_manual` (sticky admin override)
+	 *   2. `_auto` (LLM cache)
+	 *   3. empty string — caller falls through to excerpt fallback
+	 */
+	public static function get_cached_description( int $post_id ): string {
+		$manual = \get_post_meta( $post_id, self::META_KEY_MANUAL, true );
+		if ( \is_string( $manual ) && '' !== \trim( $manual ) ) {
+			return \trim( $manual );
+		}
+
+		$auto = \get_post_meta( $post_id, self::META_KEY_AUTO, true );
+		if ( \is_string( $auto ) && '' !== \trim( $auto ) ) {
+			return \trim( $auto );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Read the stored status, or '' if no attempt has been made.
+	 */
+	public static function get_status( int $post_id ): string {
+		$value = \get_post_meta( $post_id, self::META_KEY_STATUS, true );
+		return \is_string( $value ) ? $value : '';
+	}
+
+	/**
+	 * Clear all orchestrator-owned meta for a post. Manual descriptions
+	 * are ALSO cleared — invalidate is called from trash / delete, where
+	 * the post is going away entirely.
+	 */
+	public static function invalidate( int $post_id ): void {
+		\delete_post_meta( $post_id, self::META_KEY_AUTO );
+		\delete_post_meta( $post_id, self::META_KEY_MANUAL );
+		\delete_post_meta( $post_id, self::META_KEY_GENERATED_FOR_MODIFIED );
+		\delete_post_meta( $post_id, self::META_KEY_STATUS );
+		\delete_post_meta( $post_id, self::META_KEY_DIAGNOSTICS );
+	}
+
+	/**
+	 * Build the user-prompt body. Public so the WP-CLI command can show
+	 * what the LLM will see when an operator is debugging.
+	 */
+	public static function build_user_prompt( \WP_Post $post ): string {
+		$title   = (string) \get_the_title( $post );
+		$url     = (string) \get_permalink( $post );
+		$content = \wp_strip_all_tags( (string) $post->post_content );
+
+		$excerpt = \trim( $content );
+		if ( \strlen( $excerpt ) > self::MAX_EXCERPT_CHARS ) {
+			$excerpt = \rtrim( \substr( $excerpt, 0, self::MAX_EXCERPT_CHARS - 1 ) ) . '…';
+		}
+
+		return \sprintf( self::DESCRIPTION_USER_TEMPLATE, $title, $url, $excerpt );
+	}
+
+	/**
+	 * Apply the AgDR-0028 post-processing pipeline to raw LLM output.
+	 * Public so unit tests can pin the pipeline without an LLM call.
+	 *
+	 * Returns null when the output is empty or the EMPTY sentinel —
+	 * orchestrator treats null as `failed`, filter falls through to
+	 * excerpt.
+	 */
+	public static function normalise_output( string $raw ): ?string {
+		$text = \trim( $raw );
+
+		// Strip preamble prefixes case-insensitively. Loop until none
+		// match — model occasionally stacks ("Summary: This page…").
+		// Bounded to 5 iterations as defence against a pathological
+		// cycle-shaped output (each iteration strips ≥ 1 byte off a
+		// finite string, but the bound makes the termination explicit
+		// for static analysers + future maintainers).
+		$max_iterations = 5;
+		$changed        = true;
+		while ( $changed && $max_iterations-- > 0 ) {
+			$changed = false;
+			foreach ( self::PREAMBLE_PREFIXES as $prefix ) {
+				$prefix_len = \strlen( $prefix );
+				if ( $prefix_len > \strlen( $text ) ) {
+					continue;
+				}
+				if ( 0 === \strcasecmp( \substr( $text, 0, $prefix_len ), $prefix ) ) {
+					$text    = \ltrim( \substr( $text, $prefix_len ) );
+					$changed = true;
+					break;
+				}
+			}
+		}
+
+		// Defence-in-depth: strip tags in case the model wrapped output.
+		$text = \wp_strip_all_tags( $text );
+
+		// Collapse internal whitespace (incl. newlines) to single spaces.
+		$collapsed = \preg_replace( '/\s+/', ' ', $text );
+		$text      = \is_string( $collapsed ) ? \trim( $collapsed ) : '';
+
+		if ( '' === $text || 0 === \strcasecmp( $text, self::EMPTY_SENTINEL ) ) {
+			return null;
+		}
+
+		// Truncation at 157 + ellipsis matches Entry_Source::normalise_description.
+		if ( \strlen( $text ) > self::MAX_OUTPUT_CHARS ) {
+			$text = \rtrim( \substr( $text, 0, self::MAX_OUTPUT_CHARS - 3 ) ) . '...';
+		}
+
+		return $text;
+	}
+
+	/**
+	 * Persist the diagnostic blob (JSON-encoded).
+	 *
+	 * @param array<string, mixed> $diagnostics
+	 */
+	private static function record_diagnostic( int $post_id, array $diagnostics ): void {
+		\update_post_meta( $post_id, self::META_KEY_DIAGNOSTICS, (string) \wp_json_encode( $diagnostics ) );
+	}
+}
