@@ -422,6 +422,198 @@ if ( ! function_exists( 'wp_json_encode' ) ) {
 	}
 }
 
+if ( ! isset( $GLOBALS['wpctx_test_bloginfo'] ) ) {
+	$GLOBALS['wpctx_test_bloginfo'] = array(
+		'name'        => 'Test Site',
+		'description' => 'Just another WordPress site',
+		'language'    => 'en-US',
+	);
+}
+
+if ( ! function_exists( 'get_bloginfo' ) ) {
+	/**
+	 * Stub: read from $GLOBALS['wpctx_test_bloginfo'].
+	 *
+	 * Tests can override individual fields by mutating the global directly.
+	 *
+	 * Return type is intentionally omitted: szepeviktor/phpstan-wordpress
+	 * models get_bloginfo() as a broader union (the real function can
+	 * return values shaped by the requested field). Tightening the stub
+	 * to `: string` would invalidate defensive `is_string()` checks
+	 * elsewhere in the codebase.
+	 */
+	function get_bloginfo( string $field = 'name', string $filter = 'raw' ) {
+		unset( $filter );
+		$values = $GLOBALS['wpctx_test_bloginfo'];
+		return array_key_exists( $field, $values ) ? (string) $values[ $field ] : '';
+	}
+}
+
+if ( ! isset( $GLOBALS['wpctx_test_home_url'] ) ) {
+	$GLOBALS['wpctx_test_home_url'] = 'https://example.test';
+}
+
+if ( ! function_exists( 'home_url' ) ) {
+	/**
+	 * Stub: concatenate the per-test base URL with the supplied path. The
+	 * real home_url() does scheme + permalink normalisation; the unit tests
+	 * here only care about the path stitching.
+	 */
+	function home_url( string $path = '', $scheme = null ) {
+		unset( $scheme );
+		$base = rtrim( (string) $GLOBALS['wpctx_test_home_url'], '/' );
+		if ( '' === $path ) {
+			return $base;
+		}
+		return $base . '/' . ltrim( $path, '/' );
+	}
+}
+
+if ( ! isset( $GLOBALS['wpctx_test_query_context'] ) ) {
+	$GLOBALS['wpctx_test_query_context'] = array(
+		'is_singular_type' => '', // '' | 'post' | 'page' | …
+		'is_front_page'    => false,
+		'queried_object_id' => 0,
+	);
+}
+
+if ( ! function_exists( 'is_singular' ) ) {
+	/**
+	 * Stub: matches when the test's `is_singular_type` is in $post_types
+	 * (or when $post_types is empty and any type is set).
+	 *
+	 * @param string|string[] $post_types Post type or list of types to match.
+	 */
+	function is_singular( $post_types = '' ): bool {
+		$type = (string) ( $GLOBALS['wpctx_test_query_context']['is_singular_type'] ?? '' );
+		if ( '' === $type ) {
+			return false;
+		}
+		if ( '' === $post_types || array() === $post_types ) {
+			return true;
+		}
+		$types = is_array( $post_types ) ? $post_types : array( $post_types );
+		return in_array( $type, $types, true );
+	}
+}
+
+if ( ! function_exists( 'is_front_page' ) ) {
+	function is_front_page(): bool {
+		return ! empty( $GLOBALS['wpctx_test_query_context']['is_front_page'] );
+	}
+}
+
+if ( ! function_exists( 'get_queried_object_id' ) ) {
+	function get_queried_object_id(): int {
+		return (int) ( $GLOBALS['wpctx_test_query_context']['queried_object_id'] ?? 0 );
+	}
+}
+
+if ( ! isset( $GLOBALS['wpctx_test_posts'] ) ) {
+	$GLOBALS['wpctx_test_posts'] = array();
+}
+
+if ( ! function_exists( 'get_post' ) ) {
+	/**
+	 * Stub: return whichever WP_Post stub the test stored at
+	 * $GLOBALS['wpctx_test_posts'][$id]. When no $id is supplied, fall
+	 * back to the queried-object id.
+	 *
+	 * @param int|null $post_id Post ID to fetch.
+	 */
+	function get_post( $post_id = null ) {
+		$id = null === $post_id
+			? (int) ( $GLOBALS['wpctx_test_query_context']['queried_object_id'] ?? 0 )
+			: (int) $post_id;
+		return $GLOBALS['wpctx_test_posts'][ $id ] ?? null;
+	}
+}
+
+if ( ! function_exists( 'get_permalink' ) ) {
+	/**
+	 * Stub: home_url() + '?p=<id>' so tests can assert a permalink-like
+	 * string is composed without booting the rewrite engine.
+	 *
+	 * @param int|\WP_Post $post Post id or post object.
+	 */
+	function get_permalink( $post = 0 ) {
+		$id = is_object( $post ) ? (int) $post->ID : (int) $post;
+		if ( 0 === $id ) {
+			$id = (int) ( $GLOBALS['wpctx_test_query_context']['queried_object_id'] ?? 0 );
+		}
+		return home_url( '/?p=' . $id );
+	}
+}
+
+if ( ! function_exists( 'get_the_title' ) ) {
+	/**
+	 * Stub: read post title off the stored WP_Post stub.
+	 *
+	 * @param int|\WP_Post $post Post id or post object.
+	 */
+	function get_the_title( $post = 0 ) {
+		$resolved = is_object( $post ) ? $post : ( $GLOBALS['wpctx_test_posts'][ (int) $post ] ?? null );
+		if ( ! is_object( $resolved ) ) {
+			return '';
+		}
+		return isset( $resolved->post_title ) ? (string) $resolved->post_title : '';
+	}
+}
+
+if ( ! function_exists( 'get_post_time' ) ) {
+	/**
+	 * Stub: returns a fixed ISO timestamp the test can assert against,
+	 * driven by the post's `post_date_gmt` field. The real WP signature is
+	 * `( $format, $gmt = false, $post = null, $translate = false )`.
+	 *
+	 * @param string       $format   Date format spec (e.g. 'c').
+	 * @param bool         $gmt      Whether to use GMT.
+	 * @param int|\WP_Post $post     Post id or post object.
+	 */
+	function get_post_time( $format = 'U', $gmt = false, $post = 0 ) {
+		unset( $gmt );
+		$resolved = is_object( $post ) ? $post : ( $GLOBALS['wpctx_test_posts'][ (int) $post ] ?? null );
+		if ( ! is_object( $resolved ) ) {
+			return false;
+		}
+		$raw = $resolved->post_date_gmt ?? '2026-01-01T00:00:00+00:00';
+		if ( 'c' === $format || 'U' === $format ) {
+			return (string) $raw;
+		}
+		return (string) $raw;
+	}
+}
+
+if ( ! function_exists( 'get_post_modified_time' ) ) {
+	/**
+	 * Stub: see get_post_time. Reads `post_modified_gmt` instead.
+	 *
+	 * @param int|\WP_Post $post Post id or post object.
+	 */
+	function get_post_modified_time( $format = 'U', $gmt = false, $post = 0 ) {
+		unset( $gmt );
+		$resolved = is_object( $post ) ? $post : ( $GLOBALS['wpctx_test_posts'][ (int) $post ] ?? null );
+		if ( ! is_object( $resolved ) ) {
+			return false;
+		}
+		$raw = $resolved->post_modified_gmt ?? '2026-01-01T00:00:00+00:00';
+		return (string) $raw;
+	}
+}
+
+if ( ! function_exists( 'wp_unslash' ) ) {
+	/**
+	 * Stub: WP's wp_unslash strips slashes added by magic_quotes-style
+	 * input handling. For unit-test inputs we just return the value.
+	 *
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	function wp_unslash( $value ) {
+		return $value;
+	}
+}
+
 if ( ! class_exists( 'WP_Post' ) ) {
 	/**
 	 * Minimal stub of WP_Post. Tests construct one with the properties they
@@ -434,6 +626,7 @@ if ( ! class_exists( 'WP_Post' ) ) {
 		public string $post_password   = '';
 		public string $post_content    = '';
 		public string $post_title      = '';
+		public string $post_date_gmt   = '';
 		public string $post_modified_gmt = '';
 	}
 }
