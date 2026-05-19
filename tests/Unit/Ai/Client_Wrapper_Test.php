@@ -20,6 +20,7 @@ namespace WPContext\Tests\Unit\Ai;
 use PHPUnit\Framework\TestCase;
 use WPContext\Ai\Client_Wrapper;
 use WPContext\Ai\Network_Error;
+use WPContext\Ai\Permanent_Error;
 use WPContext\Ai\Provider;
 use WPContext\Ai\Rate_Limit_Error;
 use WPContext\Ai\Result;
@@ -80,6 +81,19 @@ final class Client_Wrapper_Test extends TestCase {
 		self::assertSame( 'rate_limit', $result->error_code() );
 		self::assertSame( 1, $provider->calls, 'rate_limit must not trigger in-request retry' );
 		self::assertCount( 1, $GLOBALS['wpctx_test_cron_queue'] );
+	}
+
+	public function test_permanent_error_returns_immediately_without_retry_or_queue(): void {
+		$provider = $this->always_permanent_provider();
+
+		$result = Client_Wrapper::generate( 'prompt', array(), $provider );
+
+		self::assertFalse( $result->from_llm() );
+		self::assertFalse( $result->needs_retry(), 'permanent errors must NOT mark needs-retry' );
+		self::assertNull( $result->content() );
+		self::assertSame( 'permanent', $result->error_code() );
+		self::assertSame( 1, $provider->calls, 'permanent errors must not trigger in-request retry' );
+		self::assertCount( 0, $GLOBALS['wpctx_test_cron_queue'], 'permanent errors must not queue a deferred retry' );
 	}
 
 	// `test_unconfigured_returns_fallback_without_calling_provider` was
@@ -177,6 +191,20 @@ final class Client_Wrapper_Test extends TestCase {
 			public function generate( string $prompt, array $options = array() ): string {
 				++$this->calls;
 				throw new Rate_Limit_Error( 'throttled' );
+			}
+		};
+	}
+
+	/**
+	 * @return Provider&object{calls: int}
+	 */
+	private function always_permanent_provider(): Provider {
+		return new class implements Provider {
+			public int $calls = 0;
+
+			public function generate( string $prompt, array $options = array() ): string {
+				++$this->calls;
+				throw new Permanent_Error( 'bad request 400' );
 			}
 		};
 	}
