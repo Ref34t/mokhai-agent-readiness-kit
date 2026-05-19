@@ -235,21 +235,27 @@ final class Engine {
 	private static function score_schema_coverage( array $signals ): array {
 		$schema  = self::array_at( $signals, 'schema' );
 		$plugin  = (string) ( $schema['seo_plugin'] ?? '' );
+		$native  = ! empty( $schema['native_emit_enabled'] );
 		$reasons = array();
 
 		if ( '' !== $plugin ) {
 			$reasons[] = sprintf( 'Detected SEO plugin (%s) — structured data is likely being emitted.', $plugin );
 			$value     = 100;
+		} elseif ( $native ) {
+			// Native gap-fill emitter is on via Context Profile (#73 /
+			// AgDR-0034). AgentReady is emitting WebSite + Organization
+			// + per-content JSON-LD on wp_head — same schema_coverage
+			// outcome as a third-party SEO plugin, without the
+			// disclaimer that drove ticket #73.
+			$reasons[] = 'AgentReady is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin.';
+			$value     = 100;
 		} else {
-			// AgentReady does not yet emit structured data natively (planned
-			// for v0.1.x — see the Schema_Emitter follow-up issue). Until
-			// then, a generic SEO plugin fills the gap; the reason names the
-			// gap rather than instructing the operator to install one, so
-			// the message stays compatible with the native emitter landing
-			// later. The 60-point value reflects "missing capability, not
-			// configuration error" — softer than the 30 the engine started
-			// with, which read as a Critical-class signal in the admin UI.
-			$reasons[] = 'No structured data detected on this site. AgentReady will emit JSON-LD natively in a future release; until then, exposed content reaches agents without schema metadata.';
+			// Neither path active. Reason text points operators at the
+			// concrete one-click action ("enable Schema emission in
+			// Context Profile") rather than the v0.1 disclaimer that
+			// PR #72 shipped — now that #73 has landed, native emission
+			// is real and reachable, not a future-tense promise.
+			$reasons[] = 'No structured data detected on this site. Enable Schema emission in the Context Profile to have AgentReady emit native JSON-LD, or rely on a third-party SEO plugin.';
 			$value     = 60;
 		}
 
@@ -257,7 +263,8 @@ final class Engine {
 			'value'   => self::clamp( $value ),
 			'weight'  => self::WEIGHTS['schema_coverage'],
 			'signals' => array(
-				'seo_plugin' => $plugin,
+				'seo_plugin'          => $plugin,
+				'native_emit_enabled' => $native,
 			),
 			'reasons' => $reasons,
 		);

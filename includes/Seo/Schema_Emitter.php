@@ -20,6 +20,7 @@ namespace WPContext\Seo;
 
 \defined( 'ABSPATH' ) || exit;
 
+use WPContext\Admin\Context_Profile_Settings;
 use WPContext\Admin\Schema_Coordination_Detector;
 
 /**
@@ -89,6 +90,11 @@ final class Schema_Emitter {
 	 * @param string $posture_slug Slug returned by Schema_Coordination_Detector.
 	 */
 	public static function render_for_posture( string $posture_slug ): void {
+		$profile = Context_Profile_Settings::get_profile();
+		if ( empty( $profile['schema_emit_enabled'] ) ) {
+			return;
+		}
+
 		// Hook name resolves to `agentready_schema_emit` — the constant is
 		// prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
@@ -199,7 +205,10 @@ final class Schema_Emitter {
 
 	/**
 	 * Build a `WebPage` node — applies on `is_singular('page')` or
-	 * `is_front_page()`. Returns null otherwise.
+	 * `is_front_page()`. Per-content emission is gated by Context Profile's
+	 * `exposed_cpts` + `exposed_statuses`: a page that isn't exposed to
+	 * agents shouldn't be exposed in schema either (#73 / AgDR-0034).
+	 * Returns null when neither precondition holds.
 	 *
 	 * @return array<string, mixed>|null
 	 */
@@ -208,6 +217,14 @@ final class Schema_Emitter {
 		$is_page       = \function_exists( 'is_singular' ) && \is_singular( 'page' );
 
 		if ( ! $is_front_page && ! $is_page ) {
+			return null;
+		}
+
+		// Singular pages additionally gate on exposed_cpts + exposed_statuses.
+		// The front page in latest-posts mode has no queried WP_Post — we
+		// treat it as site-identity-class (no per-content gate) so the home
+		// URL gets a WebPage node even before any page is exposed.
+		if ( $is_page && ! self::current_post_is_exposed() ) {
 			return null;
 		}
 
@@ -225,10 +242,11 @@ final class Schema_Emitter {
 	}
 
 	/**
-	 * Build an `Article` node — applies on `is_singular('post')`. Returns
-	 * null otherwise. `headline`, `datePublished`, and `dateModified` are
-	 * derived from the current `WP_Post`; `mainEntityOfPage` points at
-	 * the canonical permalink.
+	 * Build an `Article` node — applies on `is_singular('post')` and only
+	 * when the resolved post's type + status are present in Context
+	 * Profile's exposed lists (#73 / AgDR-0034). `headline`,
+	 * `datePublished`, and `dateModified` are derived from the current
+	 * `WP_Post`; `mainEntityOfPage` points at the canonical permalink.
 	 *
 	 * @return array<string, mixed>|null
 	 */
@@ -239,6 +257,10 @@ final class Schema_Emitter {
 
 		$post = \get_post();
 		if ( ! $post instanceof \WP_Post ) {
+			return null;
+		}
+
+		if ( ! self::post_is_exposed( $post ) ) {
 			return null;
 		}
 
@@ -257,6 +279,42 @@ final class Schema_Emitter {
 			'mainEntityOfPage' => array( '@id' => $url . '#webpage' ),
 			'url'              => $url,
 		);
+	}
+
+	/**
+	 * Resolve the queried post and check exposure against the Context
+	 * Profile lists. Helper for the per-content node builders that need
+	 * the singular WP_Post via the global query.
+	 */
+	private static function current_post_is_exposed(): bool {
+		$post = \get_post();
+		if ( ! $post instanceof \WP_Post ) {
+			return false;
+		}
+		return self::post_is_exposed( $post );
+	}
+
+	/**
+	 * Compare a post's `post_type` + `post_status` against the Context
+	 * Profile allowlists. Returns true when both pass — the exposure
+	 * model the rest of agentready honours (#73 AC #2).
+	 */
+	private static function post_is_exposed( \WP_Post $post ): bool {
+		$profile  = Context_Profile_Settings::get_profile();
+		$cpts     = isset( $profile['exposed_cpts'] ) && \is_array( $profile['exposed_cpts'] )
+			? $profile['exposed_cpts']
+			: array();
+		$statuses = isset( $profile['exposed_statuses'] ) && \is_array( $profile['exposed_statuses'] )
+			? $profile['exposed_statuses']
+			: array();
+
+		if ( ! \in_array( $post->post_type, $cpts, true ) ) {
+			return false;
+		}
+		if ( ! \in_array( $post->post_status, $statuses, true ) ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**

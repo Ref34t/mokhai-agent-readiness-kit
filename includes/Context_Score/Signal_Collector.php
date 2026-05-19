@@ -178,11 +178,17 @@ final class Signal_Collector {
 	 * @return array<string, mixed>
 	 */
 	private static function schema_signals(): array {
-		$detect = Schema_Coordination_Detector::detect();
-		$slug   = (string) ( $detect['posture'] ?? Schema_Coordination_Detector::POSTURE_NONE );
+		$detect  = Schema_Coordination_Detector::detect();
+		$slug    = (string) ( $detect['posture'] ?? Schema_Coordination_Detector::POSTURE_NONE );
+		$profile = Context_Profile_Settings::get_profile();
 
 		return array(
-			'seo_plugin' => Schema_Coordination_Detector::POSTURE_NONE === $slug ? '' : $slug,
+			'seo_plugin'          => Schema_Coordination_Detector::POSTURE_NONE === $slug ? '' : $slug,
+			// Native JSON-LD emission opt-in (#73 / AgDR-0034). When true, the
+			// score engine credits schema_coverage even with no SEO plugin
+			// active. Read live from the Profile rather than persisted in
+			// `seo_plugin`'s slug space so the two signals stay independent.
+			'native_emit_enabled' => ! empty( $profile['schema_emit_enabled'] ),
 		);
 	}
 

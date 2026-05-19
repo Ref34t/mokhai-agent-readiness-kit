@@ -50,6 +50,17 @@ final class Schema_Emitter_Test extends TestCase {
 			'description' => 'Just another WordPress site',
 			'language'    => 'en-US',
 		);
+
+		// Default to the opted-in Profile state with `post` + `page` exposed
+		// + `publish` status — the unit tests assert the gating logic, not
+		// the safe-by-default behaviour, which is covered by the explicit
+		// "profile off" / "post not exposed" tests below.
+		$GLOBALS['wpctx_test_options']['agentready_context_profile'] = array(
+			'schema_version'      => 1,
+			'schema_emit_enabled' => true,
+			'exposed_cpts'        => array( 'post', 'page' ),
+			'exposed_statuses'    => array( 'publish' ),
+		);
 	}
 
 	public function test_register_hooks_wires_wp_head_at_priority_ten(): void {
@@ -178,6 +189,79 @@ final class Schema_Emitter_Test extends TestCase {
 		$output = $this->capture_render( 'none' );
 
 		self::assertSame( '', $output, 'agentready_schema_emit=false should suppress emission.' );
+	}
+
+	public function test_render_emits_nothing_when_profile_toggle_is_off(): void {
+		$GLOBALS['wpctx_test_options']['agentready_context_profile']['schema_emit_enabled'] = false;
+
+		$output = $this->capture_render( 'none' );
+
+		self::assertSame( '', $output, 'schema_emit_enabled=false must suppress emission regardless of posture.' );
+	}
+
+	public function test_render_omits_article_node_when_post_type_not_exposed(): void {
+		// Profile only exposes 'page' — a singular post should not get its
+		// Article node, but the site-identity nodes still render.
+		$GLOBALS['wpctx_test_options']['agentready_context_profile']['exposed_cpts'] = array( 'page' );
+
+		$post                = new WP_Post();
+		$post->ID            = 42;
+		$post->post_type     = 'post';
+		$post->post_status   = 'publish';
+		$post->post_title    = 'Hidden';
+
+		$GLOBALS['wpctx_test_posts'][42]                          = $post;
+		$GLOBALS['wpctx_test_query_context']['is_singular_type']  = 'post';
+		$GLOBALS['wpctx_test_query_context']['queried_object_id'] = 42;
+
+		$output = $this->capture_render( 'none' );
+		$json   = $this->extract_json( $output );
+		$types  = $this->collect_types( $json );
+
+		self::assertContains( 'WebSite', $types );
+		self::assertContains( 'Organization', $types );
+		self::assertNotContains( 'Article', $types, 'Article must not emit when post_type is outside exposed_cpts.' );
+	}
+
+	public function test_render_omits_article_node_when_post_status_not_exposed(): void {
+		// Profile exposes 'publish' only — a draft singular post must not
+		// emit its Article node.
+		$post                = new WP_Post();
+		$post->ID            = 99;
+		$post->post_type     = 'post';
+		$post->post_status   = 'draft';
+		$post->post_title    = 'Unpublished';
+
+		$GLOBALS['wpctx_test_posts'][99]                          = $post;
+		$GLOBALS['wpctx_test_query_context']['is_singular_type']  = 'post';
+		$GLOBALS['wpctx_test_query_context']['queried_object_id'] = 99;
+
+		$output = $this->capture_render( 'none' );
+		$json   = $this->extract_json( $output );
+		$types  = $this->collect_types( $json );
+
+		self::assertNotContains( 'Article', $types );
+	}
+
+	public function test_render_omits_webpage_node_when_page_status_not_exposed(): void {
+		$post                = new WP_Post();
+		$post->ID            = 17;
+		$post->post_type     = 'page';
+		$post->post_status   = 'private';
+		$post->post_title    = 'Internal';
+
+		$GLOBALS['wpctx_test_posts'][17]                          = $post;
+		$GLOBALS['wpctx_test_query_context']['is_singular_type']  = 'page';
+		$GLOBALS['wpctx_test_query_context']['queried_object_id'] = 17;
+
+		$output = $this->capture_render( 'none' );
+		$json   = $this->extract_json( $output );
+		$types  = $this->collect_types( $json );
+
+		self::assertNotContains( 'WebPage', $types );
+		// Site identity still emits — the page's exposure only gates the
+		// per-content node.
+		self::assertContains( 'WebSite', $types );
 	}
 
 	public function test_filter_can_enrich_the_node_list(): void {
