@@ -323,6 +323,37 @@ function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
+				header={ __( 'Schema emission', 'agentready' ) }
+				className="agentready-context-profile-panel"
+			>
+				<PanelBody opened>
+					<PanelRow>
+						<ToggleControl
+							label={ __(
+								'Emit native JSON-LD on the front-end',
+								'agentready'
+							) }
+							help={ __(
+								'When on, AgentReady emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin.',
+								'agentready'
+							) }
+							checked={ profile.schema_emit_enabled }
+							onChange={ ( on ) =>
+								updateField( 'schema_emit_enabled', on )
+							}
+						/>
+						{ profile.schema_emit_enabled && (
+							<input
+								type="hidden"
+								name={ `${ settings.optionKey }[schema_emit_enabled]` }
+								value="1"
+							/>
+						) }
+					</PanelRow>
+				</PanelBody>
+			</Panel>
+
+			<Panel
 				header={ __( 'LLM features', 'agentready' ) }
 				className="agentready-context-profile-panel"
 			>

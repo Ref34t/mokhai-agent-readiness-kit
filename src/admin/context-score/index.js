@@ -809,6 +809,7 @@ function SchemaCoordinationPanel( { coordination } ) {
 		? coordination.filled
 		: [];
 	const emitting = coordination.emitting !== false;
+	const profileOptIn = coordination.profileOptIn === true;
 	const hasPlugin = posture !== 'none' && posture !== '';
 
 	return (
@@ -818,19 +819,25 @@ function SchemaCoordinationPanel( { coordination } ) {
 				title={ __( 'Schema coordination', 'agentready' ) }
 			>
 				<p style={ { marginTop: 0 } }>
-					{ hasPlugin
-						? sprintf(
-								/* translators: %s: SEO plugin name */
-								__(
-									'%s is active. AgentReady defers JSON-LD coordination to it and only fills schema types it does not already provide.',
-									'agentready'
-								),
-								label
-						  )
-						: __(
-								'No SEO plugin detected. AgentReady emits a minimal baseline schema set (site identity + content type) on the front-end.',
+					{ hasPlugin &&
+						sprintf(
+							/* translators: %s: SEO plugin name */
+							__(
+								'%s is active. AgentReady defers JSON-LD coordination to it and only fills schema types it does not already provide.',
 								'agentready'
-						  ) }
+							),
+							label
+						) }
+					{ ! hasPlugin && profileOptIn &&
+						__(
+							'No SEO plugin detected. AgentReady is emitting a minimal baseline schema set (site identity + content type) on the front-end.',
+							'agentready'
+						) }
+					{ ! hasPlugin && ! profileOptIn &&
+						__(
+							'No SEO plugin detected and Schema emission is off in Context Profile. AgentReady is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage.',
+							'agentready'
+						) }
 				</p>
 				<div
 					style={ {
@@ -891,12 +898,18 @@ function SchemaCoordinationPanel( { coordination } ) {
 						{ __( 'Emission on wp_head', 'agentready' ) }
 					</div>
 					<div>
-						{ emitting
-							? __( 'Enabled', 'agentready' )
-							: __(
-									'Suppressed by agentready_schema_emit filter',
-									'agentready'
-							  ) }
+						{ emitting &&
+							__( 'Enabled', 'agentready' ) }
+						{ ! emitting && ! profileOptIn &&
+							__(
+								'Off — toggle in Context Profile → Schema emission',
+								'agentready'
+							) }
+						{ ! emitting && profileOptIn &&
+							__(
+								'Suppressed by agentready_schema_emit filter',
+								'agentready'
+							) }
 					</div>
 				</div>
 			</PanelBody>

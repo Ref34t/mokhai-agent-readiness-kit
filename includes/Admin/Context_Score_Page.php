@@ -266,16 +266,24 @@ final class Context_Score_Page {
 		// Hook name resolves to `agentready_schema_emit` — the constant is
 		// prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
-		$emitting = \apply_filters( Schema_Emitter::FILTER_EMIT_DECISION, true );
+		$filter_allows = false !== \apply_filters( Schema_Emitter::FILTER_EMIT_DECISION, true );
+
+		// As of #73 / AgDR-0034, emission is gated by the Context Profile
+		// toggle first, then by the per-request filter. The "emitting"
+		// boolean reflects the AND of both.
+		$profile          = Context_Profile_Settings::get_profile();
+		$profile_opted_in = ! empty( $profile['schema_emit_enabled'] );
+		$emitting         = $profile_opted_in && $filter_allows;
 
 		return array(
-			'posture'     => $slug,
-			'label'       => (string) ( $posture['label'] ?? '' ),
-			'detectedVia' => (string) ( $posture['detected_via'] ?? '' ),
-			'baseline'    => $baseline,
-			'deferred'    => $deferred,
-			'filled'      => $gap,
-			'emitting'    => false !== $emitting,
+			'posture'      => $slug,
+			'label'        => (string) ( $posture['label'] ?? '' ),
+			'detectedVia'  => (string) ( $posture['detected_via'] ?? '' ),
+			'baseline'     => $baseline,
+			'deferred'     => $deferred,
+			'filled'       => $gap,
+			'emitting'     => $emitting,
+			'profileOptIn' => $profile_opted_in,
 		);
 	}
 }

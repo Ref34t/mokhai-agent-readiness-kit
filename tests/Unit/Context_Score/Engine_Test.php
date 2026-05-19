@@ -184,6 +184,53 @@ final class Engine_Test extends TestCase {
 		$this->assertGreaterThan( $without, $with );
 	}
 
+	public function test_schema_coverage_rewards_native_emit_when_no_seo_plugin(): void {
+		// #73 / AgDR-0034: native emission is on par with a third-party SEO
+		// plugin for schema_coverage credit.
+		$result = Engine::compute(
+			array(
+				'schema' => array(
+					'seo_plugin'          => '',
+					'native_emit_enabled' => true,
+				),
+			)
+		)['sub_scores']['schema_coverage'];
+
+		$this->assertSame( 100, $result['value'] );
+		$this->assertNotEmpty( $result['reasons'] );
+		$this->assertStringContainsString( 'native JSON-LD', $result['reasons'][0] );
+	}
+
+	public function test_schema_coverage_60_when_no_seo_plugin_and_no_native_emit(): void {
+		$result = Engine::compute(
+			array(
+				'schema' => array(
+					'seo_plugin'          => '',
+					'native_emit_enabled' => false,
+				),
+			)
+		)['sub_scores']['schema_coverage'];
+
+		$this->assertSame( 60, $result['value'] );
+		$this->assertStringContainsString( 'Enable Schema emission', $result['reasons'][0] );
+	}
+
+	public function test_schema_coverage_seo_plugin_credit_wins_when_both_present(): void {
+		// Defensive: if both signals fire, the SEO-plugin branch wins (it
+		// emits richer schema than agentready's v0.1 baseline).
+		$result = Engine::compute(
+			array(
+				'schema' => array(
+					'seo_plugin'          => 'yoast',
+					'native_emit_enabled' => true,
+				),
+			)
+		)['sub_scores']['schema_coverage'];
+
+		$this->assertSame( 100, $result['value'] );
+		$this->assertStringContainsString( 'yoast', $result['reasons'][0] );
+	}
+
 	public function test_exposure_safety_full_credit_when_publish_only_and_cpts_set(): void {
 		$signals = array(
 			'profile' => array(
