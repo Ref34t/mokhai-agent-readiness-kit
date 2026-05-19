@@ -507,8 +507,13 @@ PROMPT;
 
 		// Strip preamble prefixes case-insensitively. Loop until none
 		// match — model occasionally stacks ("Summary: This page…").
-		$changed = true;
-		while ( $changed ) {
+		// Bounded to 5 iterations as defence against a pathological
+		// cycle-shaped output (each iteration strips ≥ 1 byte off a
+		// finite string, but the bound makes the termination explicit
+		// for static analysers + future maintainers).
+		$max_iterations = 5;
+		$changed        = true;
+		while ( $changed && $max_iterations-- > 0 ) {
 			$changed = false;
 			foreach ( self::PREAMBLE_PREFIXES as $prefix ) {
 				$prefix_len = \strlen( $prefix );
