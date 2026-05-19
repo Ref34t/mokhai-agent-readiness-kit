@@ -27,22 +27,29 @@ namespace WPContext\Ai;
  * max_tokens), terminates with `generate_text()`, and translates the
  * outcome to either a plain string return or a thrown error.
  *
- * Error-classification heuristic for v0.1: the WP AI Client returns
- * `WP_Error` with a coarse code (`prompt_builder_error` /
- * `prompt_prevented`) plus the underlying provider's message string.
- * We pattern-match common rate-limit indicators ("rate limit", "429",
- * "quota") on the message to classify as `Rate_Limit_Error`; everything
- * else maps to `Network_Error`, which queues a deferred retry — the
- * safe default. Finer-grained classification (auth errors, content
- * filter rejections, etc.) lands as v0.1.x once production traffic
- * shows which message shapes need distinct handling.
+ * Error-classification heuristic: the WP AI Client returns `WP_Error`
+ * with a coarse code (`prompt_builder_error` / `prompt_prevented`) plus
+ * the underlying provider's message string. We pattern-match in order
+ * on lowercased message substring:
+ *
+ *   1. Rate-limit markers (`rate limit`, `429`, `quota`, …) →
+ *      `Rate_Limit_Error` → deferred retry.
+ *   2. Permanent-error markers (HTTP `400`/`401`/`403`/`404`/`415`/`422`
+ *      plus phrases like `bad request`, `unauthorized`, `forbidden`,
+ *      `not found`, `unprocessable`) → `Permanent_Error` → no retry.
+ *   3. Fallthrough → `Network_Error` → immediate retry + deferred retry
+ *      (5xx, network outage, unknown).
+ *
+ * Rate-limit is checked first because `429` is itself a 4xx status code;
+ * routing it via the rate-limit branch preserves the existing
+ * deferred-retry contract. See AgDR-0019 (original two-class scheme)
+ * and AgDR-0026 (this three-class extension).
  */
 final class Wp_Ai_Client_Provider implements Provider {
 
 	/**
 	 * Message-substring patterns (case-insensitive) that classify an
-	 * outcome as a rate-limit. Anything not matching here falls through
-	 * to `Network_Error` and the deferred-retry path.
+	 * outcome as a rate-limit — the wrapper queues a deferred retry.
 	 *
 	 * @var array<int, string>
 	 */
@@ -54,6 +61,31 @@ final class Wp_Ai_Client_Provider implements Provider {
 		'quota',
 		'too many requests',
 		'exceeded',
+	);
+
+	/**
+	 * Message-substring patterns (case-insensitive) that classify an
+	 * outcome as permanent — re-sending the same payload will fail
+	 * identically, so the wrapper returns immediately without queuing a
+	 * retry. HTTP-status substrings dominate; phrase markers cover the
+	 * cases where a provider returns a textual message without echoing
+	 * the numeric status code. See AgDR-0026 for the rationale on
+	 * excluding the bare word `invalid`.
+	 *
+	 * @var array<int, string>
+	 */
+	private const PERMANENT_ERROR_MARKERS = array(
+		'400',
+		'401',
+		'403',
+		'404',
+		'415',
+		'422',
+		'bad request',
+		'unauthorized',
+		'forbidden',
+		'not found',
+		'unprocessable',
 	);
 
 	/**
@@ -74,8 +106,9 @@ final class Wp_Ai_Client_Provider implements Provider {
 	 *
 	 * @param array<string, mixed> $options
 	 *
-	 * @throws Network_Error    On any non-rate-limit failure.
-	 * @throws Rate_Limit_Error On a rate-limit / quota outcome.
+	 * @throws Network_Error    On 5xx / network / unknown failures (retryable).
+	 * @throws Rate_Limit_Error On a rate-limit / quota outcome (deferred retry).
+	 * @throws Permanent_Error  On a 4xx parameter-validation / auth / not-found outcome (no retry).
 	 */
 	public function generate( string $prompt, array $options = array() ): string {
 		if ( ! \function_exists( 'wp_ai_client_prompt' ) ) {
@@ -115,6 +148,7 @@ final class Wp_Ai_Client_Provider implements Provider {
 	 *
 	 * @throws Network_Error
 	 * @throws Rate_Limit_Error
+	 * @throws Permanent_Error
 	 */
 	private function throw_for_wp_error( \WP_Error $error ): void {
 		// Defensive escape: provider error messages can contain
@@ -126,9 +160,19 @@ final class Wp_Ai_Client_Provider implements Provider {
 		$raw   = (string) $error->get_error_message();
 		$lower = \strtolower( $raw );
 
+		// Rate-limit MUST be checked before permanent: `429` is a 4xx
+		// status code, and the rate-limit branch is the only one that
+		// queues a deferred retry — collapsing it into Permanent_Error
+		// would silently drop the retry path.
 		foreach ( self::RATE_LIMIT_MARKERS as $marker ) {
 			if ( false !== \strpos( $lower, $marker ) ) {
 				throw new Rate_Limit_Error( \esc_html( $raw ) );
+			}
+		}
+
+		foreach ( self::PERMANENT_ERROR_MARKERS as $marker ) {
+			if ( false !== \strpos( $lower, $marker ) ) {
+				throw new Permanent_Error( \esc_html( $raw ) );
 			}
 		}
 

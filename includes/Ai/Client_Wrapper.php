@@ -19,16 +19,20 @@ namespace WPContext\Ai;
 /**
  * Static facade over WP AI Client.
  *
- * Three failure modes are encoded in the Result's error_code:
+ * Four failure modes are encoded in the Result's error_code:
  *   - 'unconfigured'  — WP AI Client unavailable; caller gets the
  *                       deterministic fallback path.
  *   - 'network'       — first attempt network error AND immediate retry
  *                       also failed; a deferred retry is queued.
  *   - 'rate_limit'    — provider rate-limited; deferred retry queued.
+ *   - 'permanent'     — 4xx response (parameter validation, auth,
+ *                       not-found); re-sending the same payload would
+ *                       fail identically, so no retry is attempted and
+ *                       no cron event is queued. See AgDR-0026.
  *
- * In all failure paths the caller receives `$result->needs_retry() === true`
- * (except 'unconfigured', which is the steady-state degrade) so it can mark
- * the post / score row as needs-retry.
+ * `$result->needs_retry()` is true for 'network' and 'rate_limit', false for
+ * 'unconfigured' and 'permanent' — the latter two are steady-state degrades
+ * the operator must fix before generation succeeds.
  */
 final class Client_Wrapper {
 
@@ -107,6 +111,12 @@ final class Client_Wrapper {
 				self::queue_deferred_retry( $prompt, $options );
 				return new Result( false, true, null, 'rate_limit' );
 
+			} catch ( Permanent_Error $e ) {
+				// 4xx — retry would re-send the same payload and fail
+				// identically. No in-request retry, no deferred queue,
+				// no needs-retry flag. See AgDR-0026.
+				return new Result( false, false, null, 'permanent' );
+
 			} catch ( Network_Error $e ) {
 				$last_error = 'network';
 				// Loop continues — immediate retry within the same request.
@@ -131,8 +141,9 @@ final class Client_Wrapper {
 	 * @param array         $options  Options.
 	 * @param Provider|null $provider Injected provider, or null for the real client.
 	 *
-	 * @throws Network_Error    On transient network failure.
-	 * @throws Rate_Limit_Error On provider rate-limit.
+	 * @throws Network_Error    On transient network failure (retryable).
+	 * @throws Rate_Limit_Error On provider rate-limit (deferred retry).
+	 * @throws Permanent_Error  On a non-retryable 4xx failure.
 	 *
 	 * @return string The generated content.
 	 */
