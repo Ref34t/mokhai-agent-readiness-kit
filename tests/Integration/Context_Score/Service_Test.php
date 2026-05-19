@@ -1,0 +1,238 @@
+<?php
+/**
+ * Integration tests for WPContext\Context_Score\Service.
+ *
+ * Runs inside the wp-phpunit test instance so we exercise real options,
+ * cron registration, and the `agentready_context_profile_saved` action
+ * dispatch path. Covers AgDR-0030's cache contract and recompute triggers.
+ *
+ * @package WPContext\Tests
+ */
+
+declare(strict_types=1);
+
+namespace WPContext\Tests\Integration\Context_Score;
+
+use WP_UnitTestCase;
+use WPContext\Admin\Context_Profile_Settings;
+use WPContext\Context_Score\Engine;
+use WPContext\Context_Score\Service;
+use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+
+final class Service_Test extends WP_UnitTestCase {
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		// The Signal_Collector reads from the Markdown Views cache table;
+		// the wp-env bootstrap drops it between suites, so recreate it.
+		Markdown_Views_Schema::create();
+
+		Service::invalidate();
+
+		// Reset the profile to a known shape FIRST so the resulting
+		// `agentready_context_profile_saved` settles into a known state…
+		update_option(
+			Context_Profile_Settings::OPTION_KEY,
+			array_merge(
+				Context_Profile_Settings::get_defaults(),
+				array(
+					'exposed_cpts'     => array( 'post' ),
+					'exposed_statuses' => array( 'publish' ),
+				)
+			)
+		);
+
+		// …THEN clear any recompute scheduled by the profile-save listener
+		// so each test starts from a deterministic "no recompute pending"
+		// state.
+		wp_clear_scheduled_hook( Service::RECOMPUTE_ACTION );
+		wp_clear_scheduled_hook( Service::DAILY_RECOMPUTE_ACTION );
+	}
+
+	protected function tearDown(): void {
+		Service::invalidate();
+		wp_clear_scheduled_hook( Service::RECOMPUTE_ACTION );
+		wp_clear_scheduled_hook( Service::DAILY_RECOMPUTE_ACTION );
+
+		Markdown_Views_Schema::drop();
+
+		parent::tearDown();
+	}
+
+	public function test_get_breakdown_returns_null_when_no_cache(): void {
+		$this->assertNull( Service::get_breakdown() );
+	}
+
+	public function test_recompute_now_writes_cache_with_required_fields(): void {
+		$payload = Service::recompute_now();
+
+		$this->assertIsArray( $payload );
+		$this->assertSame( Service::CACHE_SCHEMA_VERSION, $payload['schema_version'] );
+		$this->assertArrayHasKey( 'computed_at', $payload );
+		$this->assertArrayHasKey( 'recompute_duration_ms', $payload );
+		$this->assertArrayHasKey( 'overall', $payload );
+		$this->assertArrayHasKey( 'sub_scores', $payload );
+		$this->assertIsInt( $payload['overall'] );
+		$this->assertGreaterThanOrEqual( 0, $payload['overall'] );
+		$this->assertLessThanOrEqual( 100, $payload['overall'] );
+
+		foreach ( array_keys( Engine::WEIGHTS ) as $name ) {
+			$this->assertArrayHasKey( $name, $payload['sub_scores'], "missing sub-score: {$name}" );
+		}
+	}
+
+	public function test_recompute_now_persists_to_option(): void {
+		Service::recompute_now();
+
+		$stored = get_option( Service::CACHE_OPTION );
+
+		$this->assertIsArray( $stored );
+		$this->assertSame( Service::CACHE_SCHEMA_VERSION, $stored['schema_version'] );
+	}
+
+	public function test_get_breakdown_returns_cached_payload(): void {
+		$written = Service::recompute_now();
+
+		$read = Service::get_breakdown();
+
+		$this->assertIsArray( $read );
+		$this->assertSame( $written['overall'], $read['overall'] );
+		$this->assertSame( $written['sub_scores'], $read['sub_scores'] );
+	}
+
+	public function test_get_breakdown_treats_unknown_schema_version_as_miss(): void {
+		// Plant a stale payload with the wrong schema_version. The reader
+		// should treat it as a miss — same defensive pattern AgDR-0022 uses
+		// for the /llms.txt cache.
+		update_option(
+			Service::CACHE_OPTION,
+			array(
+				'schema_version' => 99,
+				'overall'        => 50,
+				'sub_scores'     => array(),
+			),
+			false
+		);
+
+		$this->assertNull( Service::get_breakdown() );
+	}
+
+	public function test_invalidate_drops_cached_payload(): void {
+		Service::recompute_now();
+		$this->assertNotNull( Service::get_breakdown() );
+
+		Service::invalidate();
+
+		$this->assertNull( Service::get_breakdown() );
+	}
+
+	public function test_schedule_recompute_registers_a_cron_event(): void {
+		$this->assertFalse( wp_next_scheduled( Service::RECOMPUTE_ACTION ) );
+
+		Service::schedule_recompute();
+
+		$scheduled = wp_next_scheduled( Service::RECOMPUTE_ACTION );
+		$this->assertNotFalse( $scheduled );
+		$this->assertGreaterThanOrEqual( time() + Service::DEBOUNCE_DELAY - 1, (int) $scheduled );
+	}
+
+	public function test_schedule_recompute_coalesces_within_debounce_window(): void {
+		Service::schedule_recompute();
+		$first = wp_next_scheduled( Service::RECOMPUTE_ACTION );
+
+		// Second call within the same debounce window should find the
+		// existing event and noop.
+		Service::schedule_recompute();
+		$second = wp_next_scheduled( Service::RECOMPUTE_ACTION );
+
+		$this->assertSame( $first, $second );
+	}
+
+	public function test_profile_saved_action_schedules_a_recompute(): void {
+		// Fire the action directly with the listener path the Main bootstrap
+		// already wired (Service::register_hooks runs at plugin boot).
+		do_action( 'agentready_context_profile_saved', array(), array() );
+
+		$scheduled = wp_next_scheduled( Service::RECOMPUTE_ACTION );
+		$this->assertNotFalse( $scheduled );
+	}
+
+	public function test_schedule_daily_recompute_registers_a_daily_event(): void {
+		wp_clear_scheduled_hook( Service::DAILY_RECOMPUTE_ACTION );
+
+		Service::schedule_daily_recompute();
+
+		$this->assertNotFalse( wp_next_scheduled( Service::DAILY_RECOMPUTE_ACTION ) );
+	}
+
+	public function test_schedule_daily_recompute_is_idempotent(): void {
+		wp_clear_scheduled_hook( Service::DAILY_RECOMPUTE_ACTION );
+
+		Service::schedule_daily_recompute();
+		$first = wp_next_scheduled( Service::DAILY_RECOMPUTE_ACTION );
+
+		Service::schedule_daily_recompute();
+		$second = wp_next_scheduled( Service::DAILY_RECOMPUTE_ACTION );
+
+		$this->assertSame( $first, $second );
+	}
+
+	public function test_clear_scheduled_recomputes_removes_both_events(): void {
+		Service::schedule_recompute();
+		Service::schedule_daily_recompute();
+
+		$this->assertNotFalse( wp_next_scheduled( Service::RECOMPUTE_ACTION ) );
+		$this->assertNotFalse( wp_next_scheduled( Service::DAILY_RECOMPUTE_ACTION ) );
+
+		Service::clear_scheduled_recomputes();
+
+		$this->assertFalse( wp_next_scheduled( Service::RECOMPUTE_ACTION ) );
+		$this->assertFalse( wp_next_scheduled( Service::DAILY_RECOMPUTE_ACTION ) );
+	}
+
+	public function test_recompute_reflects_profile_changes(): void {
+		Service::recompute_now();
+		$before = Service::get_breakdown();
+
+		// Change the profile to expose more CPTs. Discoverability should
+		// move up because the "exposed_cpts non-empty" gate stays satisfied
+		// AND the larger configuration is more likely to populate /llms.txt
+		// — but the score-floor assertions below don't depend on signs of
+		// movement, just that recompute observes the new state.
+		update_option(
+			Context_Profile_Settings::OPTION_KEY,
+			array_merge(
+				Context_Profile_Settings::get_defaults(),
+				array(
+					'exposed_cpts'     => array( 'post', 'page' ),
+					'exposed_statuses' => array( 'publish' ),
+				)
+			)
+		);
+
+		Service::recompute_now();
+		$after = Service::get_breakdown();
+
+		$this->assertIsArray( $before );
+		$this->assertIsArray( $after );
+		// computed_at should advance (the second recompute happens after the
+		// first; even on a fast machine, gmdate('c') changes monotonically
+		// or stays equal — never goes backwards).
+		$this->assertGreaterThanOrEqual( $before['computed_at'], $after['computed_at'] );
+		$this->assertSame(
+			2,
+			$after['sub_scores']['discoverability']['signals']['exposed_cpts_count']
+		);
+	}
+
+	public function test_recompute_completes_within_phase_a_budget(): void {
+		// AC: < 10s on ≤ 1000-post sites. Empty test environment is well
+		// under that; the test asserts the budget envelope, not the floor.
+		Service::recompute_now();
+		$payload = Service::get_breakdown();
+
+		$this->assertIsArray( $payload );
+		$this->assertLessThan( 10_000, (int) $payload['recompute_duration_ms'] );
+	}
+}
