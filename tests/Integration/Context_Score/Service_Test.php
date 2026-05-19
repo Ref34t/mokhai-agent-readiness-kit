@@ -82,6 +82,35 @@ final class Service_Test extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_recompute_now_attaches_a_narrative_with_one_pair_per_sub_score(): void {
+		$payload = Service::recompute_now();
+
+		$this->assertArrayHasKey( 'narrative', $payload, 'narrative slot is missing — #11 / AgDR-0032 contract broken.' );
+		$this->assertIsArray( $payload['narrative'] );
+
+		$narrative = $payload['narrative'];
+		$this->assertArrayHasKey( 'mode', $narrative );
+		$this->assertArrayHasKey( 'degraded', $narrative );
+		$this->assertArrayHasKey( 'sub_scores', $narrative );
+		$this->assertContains(
+			$narrative['mode'],
+			array( 'llm', 'rule_based', 'mixed' ),
+			'narrative.mode must be one of llm | rule_based | mixed'
+		);
+
+		foreach ( array_keys( Engine::WEIGHTS ) as $name ) {
+			$this->assertArrayHasKey( $name, $narrative['sub_scores'], "narrative missing pair for {$name}" );
+			$entry = $narrative['sub_scores'][ $name ];
+			$this->assertIsArray( $entry );
+			$this->assertArrayHasKey( 'why', $entry );
+			$this->assertArrayHasKey( 'fix', $entry );
+			$this->assertArrayHasKey( 'source', $entry );
+			$this->assertContains( $entry['source'], array( 'llm', 'rule_based' ) );
+			$this->assertNotSame( '', trim( (string) $entry['why'] ) );
+			$this->assertNotSame( '', trim( (string) $entry['fix'] ) );
+		}
+	}
+
 	public function test_recompute_now_persists_to_option(): void {
 		Service::recompute_now();
 

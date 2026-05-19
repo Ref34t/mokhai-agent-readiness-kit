@@ -162,6 +162,22 @@ final class Site_Health {
 			)
 			: \__( 'Open the AgentReady Context Score admin page for the full breakdown.', 'agentready' );
 
+		// When the worst sub-score has an LLM narrative attached (#11 /
+		// AgDR-0032), surface its one-line "why" so Site Health and the
+		// React panel tell the same story. Rule-based lines are
+		// intentionally NOT surfaced here — Site Health already names
+		// the sub-score, and stacking a deterministic template on top
+		// would just repeat that information.
+		if ( '' !== $worst_name ) {
+			$narrative_line = self::llm_narrative_why_for( $breakdown, $worst_name );
+			if ( '' !== $narrative_line ) {
+				$description .= ' ' . \wp_kses(
+					$narrative_line,
+					array()
+				);
+			}
+		}
+
 		return self::result_payload( $status, $badge, $label, $description, $panel_url );
 	}
 
@@ -239,6 +255,36 @@ final class Site_Health {
 		}
 
 		return $best_name;
+	}
+
+	/**
+	 * Pull the LLM-sourced "why" line for the named sub-score, if one is
+	 * cached on the score-record. Returns '' when no narrative is present
+	 * or the line came from the deterministic fallback (Site Health's own
+	 * description already covers the deterministic case).
+	 *
+	 * @param array<string, mixed> $breakdown The cached score-record.
+	 * @param string               $name      Sub-score machine name.
+	 *
+	 * @return string The plain-text "why" line, or '' to skip the append.
+	 */
+	private static function llm_narrative_why_for( array $breakdown, string $name ): string {
+		$narrative  = isset( $breakdown['narrative'] ) && \is_array( $breakdown['narrative'] )
+			? $breakdown['narrative']
+			: array();
+		$sub_scores = isset( $narrative['sub_scores'] ) && \is_array( $narrative['sub_scores'] )
+			? $narrative['sub_scores']
+			: array();
+
+		$entry = isset( $sub_scores[ $name ] ) && \is_array( $sub_scores[ $name ] )
+			? $sub_scores[ $name ]
+			: array();
+		if ( ( $entry['source'] ?? '' ) !== 'llm' ) {
+			return '';
+		}
+
+		$why = isset( $entry['why'] ) && \is_string( $entry['why'] ) ? $entry['why'] : '';
+		return \trim( $why );
 	}
 
 	/**

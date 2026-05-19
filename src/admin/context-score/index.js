@@ -51,6 +51,37 @@ const SUB_SCORE_LABELS = {
 	md_conversion_quality: __( 'Markdown conversion quality', 'agentready' ),
 };
 
+// Human-readable labels for the narrative.degraded_reason vocabulary
+// emitted by Narrative_Generator (#11 / AgDR-0032). The reason names
+// the failure class so the operator can act — `unconfigured` points at
+// AI Client setup, `rate_limit` says "try again later", etc.
+const DEGRADED_REASON_LABELS = {
+	unconfigured: __(
+		'AI Client is not configured. Narrative is using deterministic templates.',
+		'agentready'
+	),
+	rate_limit: __(
+		'AI provider rate-limited the request. Narrative is using deterministic templates; the next recompute will retry.',
+		'agentready'
+	),
+	network_error: __(
+		'AI provider was unreachable. Narrative is using deterministic templates; the next recompute will retry.',
+		'agentready'
+	),
+	permanent_error: __(
+		'AI provider rejected the request (configuration issue). Narrative is using deterministic templates.',
+		'agentready'
+	),
+	parse_error: __(
+		'AI response could not be parsed. Narrative is using deterministic templates.',
+		'agentready'
+	),
+	budget_exceeded: __(
+		'AI generation exceeded the 10-second budget. Narrative is using deterministic templates.',
+		'agentready'
+	),
+};
+
 function readBootstrap() {
 	if ( typeof window === 'undefined' ) {
 		return null;
@@ -60,6 +91,49 @@ function readBootstrap() {
 		return null;
 	}
 	return data;
+}
+
+function narrativeFor( breakdown, name ) {
+	if (
+		! breakdown ||
+		! breakdown.narrative ||
+		! breakdown.narrative.sub_scores
+	) {
+		return null;
+	}
+	const entry = breakdown.narrative.sub_scores[ name ];
+	if ( ! entry || typeof entry !== 'object' ) {
+		return null;
+	}
+	return {
+		why: typeof entry.why === 'string' ? entry.why : '',
+		fix: typeof entry.fix === 'string' ? entry.fix : '',
+		source: entry.source === 'llm' ? 'llm' : 'rule_based',
+	};
+}
+
+function SourceBadge( { source } ) {
+	const isLlm = source === 'llm';
+	const label = isLlm
+		? __( 'AI-generated', 'agentready' )
+		: __( 'Rule-based', 'agentready' );
+	return (
+		<span
+			style={ {
+				display: 'inline-block',
+				marginLeft: '8px',
+				padding: '1px 6px',
+				borderRadius: '8px',
+				fontSize: '11px',
+				fontWeight: 500,
+				lineHeight: 1.4,
+				color: isLlm ? '#0a4b78' : '#555',
+				background: isLlm ? '#dbeafe' : '#eee',
+			} }
+		>
+			{ label }
+		</span>
+	);
 }
 
 function statusBucket( overall ) {
@@ -198,6 +272,19 @@ function OverallCard( {
 
 	const overall = Number( breakdown.overall || 0 );
 	const bucket = statusBucket( overall );
+	const narrative =
+		breakdown.narrative && typeof breakdown.narrative === 'object'
+			? breakdown.narrative
+			: null;
+	const degraded = narrative && narrative.degraded === true;
+	const degradedReason = degraded ? narrative.degraded_reason : null;
+	const degradedMessage =
+		degradedReason && DEGRADED_REASON_LABELS[ degradedReason ]
+			? DEGRADED_REASON_LABELS[ degradedReason ]
+			: __(
+					'Narrative is using deterministic templates.',
+					'agentready'
+			  );
 
 	return (
 		<Panel>
@@ -208,6 +295,11 @@ function OverallCard( {
 				{ flash && (
 					<Notice status={ flash.type } onRemove={ onDismissFlash }>
 						{ flash.message }
+					</Notice>
+				) }
+				{ degraded && (
+					<Notice status="warning" isDismissible={ false }>
+						{ degradedMessage }
 					</Notice>
 				) }
 				<div
@@ -342,6 +434,7 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 					Array.isArray( sub.reasons ) && sub.reasons.length > 0
 						? String( sub.reasons[ 0 ] )
 						: '',
+				narrative: narrativeFor( breakdown, name ),
 				_leverage: leverage( sub ),
 			} ) )
 			.sort( ( a, b ) => b._leverage - a._leverage );
@@ -422,14 +515,50 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 												) }
 											</span>
 										</div>
-										<div
-											style={ {
-												color: '#444',
-												fontSize: '13px',
-											} }
-										>
-											{ row.reason }
-										</div>
+										{ row.narrative ? (
+											<>
+												<div
+													style={ {
+														color: '#222',
+														fontSize: '13px',
+														marginBottom: '4px',
+													} }
+												>
+													{ row.narrative.why }
+													<SourceBadge
+														source={
+															row.narrative
+																.source
+														}
+													/>
+												</div>
+												<div
+													style={ {
+														color: '#555',
+														fontSize: '13px',
+														fontStyle: 'italic',
+													} }
+												>
+													{ sprintf(
+														/* translators: %s: one-line fix suggestion. */
+														__(
+															'Fix: %s',
+															'agentready'
+														),
+														row.narrative.fix
+													) }
+												</div>
+											</>
+										) : (
+											<div
+												style={ {
+													color: '#444',
+													fontSize: '13px',
+												} }
+											>
+												{ row.reason }
+											</div>
+										) }
 									</div>
 									{ action && (
 										<div>
@@ -472,6 +601,7 @@ function SubScoreBreakdown( { breakdown } ) {
 						sub.signals && typeof sub.signals === 'object'
 							? sub.signals
 							: {};
+					const narrative = narrativeFor( breakdown, name );
 					return (
 						<div
 							key={ name }
@@ -518,6 +648,41 @@ function SubScoreBreakdown( { breakdown } ) {
 									SUB_SCORE_LABELS[ name ] || name
 								) }
 							/>
+							{ narrative && (
+								<div
+									style={ {
+										marginTop: '8px',
+										paddingBottom: '8px',
+										borderBottom: '1px dashed #ddd',
+									} }
+								>
+									<div
+										style={ {
+											color: '#222',
+											fontSize: '13px',
+										} }
+									>
+										{ narrative.why }
+										<SourceBadge
+											source={ narrative.source }
+										/>
+									</div>
+									<div
+										style={ {
+											color: '#555',
+											fontSize: '13px',
+											fontStyle: 'italic',
+											marginTop: '2px',
+										} }
+									>
+										{ sprintf(
+											/* translators: %s: one-line fix suggestion. */
+											__( 'Fix: %s', 'agentready' ),
+											narrative.fix
+										) }
+									</div>
+								</div>
+							) }
 							{ reasons.length > 0 && (
 								<ul style={ { margin: '8px 0 0 18px' } }>
 									{ reasons.map( ( reason, idx ) => (
