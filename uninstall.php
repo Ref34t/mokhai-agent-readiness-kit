@@ -31,8 +31,9 @@ unset( $wpctx_autoload );
  * Single source-of-truth list of option keys AgentReady owns.
  *
  * Kept in sync with the Context Profile storage shape (#4 / AgDR-002),
- * the Markdown Views cache schema (#5 / AgDR-0011), and the LLMs Index
- * cache + editorial entries (#7 / AgDR-0022).
+ * the Markdown Views cache schema (#5 / AgDR-0011), the LLMs Index
+ * cache + editorial entries (#7 / AgDR-0022), and the Context Score
+ * cache (#9 / AgDR-0030).
  */
 $wpctx_options = array(
 	'agentready_settings',
@@ -40,6 +41,7 @@ $wpctx_options = array(
 	'agentready_md_cache_schema_version',
 	'agentready_llms_txt_cache',
 	'agentready_llms_txt_editorial',
+	'agentready_context_score_cache',
 );
 
 /*
