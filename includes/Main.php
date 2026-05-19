@@ -105,6 +105,10 @@ final class Main {
 		// Same register() guard pattern as Markdown_Views_Command above.
 		\WPContext\Cli\Llms_Txt_Command::register();
 
+		// Wire the LLMs Index description-backfill WP-CLI command tree
+		// (#8 / AgDR-0027). Mounted at `wp agentready llms-txt descriptions`.
+		\WPContext\Cli\Llms_Txt_Descriptions_Command::register();
+
 		// Wire the Gutenberg sidebar React panel (#5 / AgDR-0014). Enqueues
 		// only on block-editor screens via `enqueue_block_editor_assets`.
 		Markdown_Views\Sidebar_Assets::register_hooks();
@@ -140,6 +144,12 @@ final class Main {
 		// `agentready_llms_txt_editorial_saved` on save — Service::register_hooks
 		// above already subscribes that action to its regen-schedule path.
 		LlmsTxt\Editorial_Settings::register_hooks();
+
+		// Wire the LLM-powered entry description pipeline (#8 / AgDR-0027 / AgDR-0028).
+		// Orchestrator schedules + runs per-post cron jobs; Filter subscribes to
+		// Entry_Source::DESCRIPTION_FILTER so /llms.txt compose serves the cache.
+		LlmsTxt\Description_Orchestrator::register_hooks();
+		LlmsTxt\Description_Filter::register_hooks();
 	}
 
 	/**
