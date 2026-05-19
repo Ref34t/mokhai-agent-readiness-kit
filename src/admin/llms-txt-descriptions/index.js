@@ -25,6 +25,14 @@ import { __, sprintf } from '@wordpress/i18n';
 const MOUNT_SELECTOR = '#agentready-llms-txt-descriptions-root';
 const BOOTSTRAP_KEY = 'agentreadyLlmsTxtDescriptions';
 
+// Poll cadence for rows in `pending` status. Re-fetches the whole page
+// (not a per-row GET) every PENDING_POLL_INTERVAL_MS while at least one
+// row is pending. STUCK_PENDING_THRESHOLD_MS is the dwell time after
+// which the UI surfaces "wp-cron hasn't fired yet" — mirrors the
+// 60s hint pattern PR #55 added for the Markdown Views cleanup flow.
+const PENDING_POLL_INTERVAL_MS = 4000;
+const STUCK_PENDING_THRESHOLD_MS = 60000;
+
 const STATUS_FILTERS = [
 	{ value: 'any', label: __( 'All entries', 'agentready' ) },
 	{ value: 'missing', label: __( 'Missing (no description)', 'agentready' ) },
@@ -106,6 +114,15 @@ function DescriptionRow( {
 		`/${ bootstrap.restNamespace }${ bootstrap.restBase }/${ row.post_id }${ suffix }`;
 
 	const isBusy = pendingAction === row.post_id;
+	const isManual = row.source === 'manual';
+	const regenDisabledReason = isManual
+		? __(
+				'Manual override is sticky. Use "Clear manual" first to regenerate.',
+				'agentready'
+		  )
+		: ! bootstrap.llmAvailable
+		? __( 'WP AI Client is not configured.', 'agentready' )
+		: null;
 
 	const saveManual = useCallback( async () => {
 		setPendingAction( row.post_id );
@@ -213,9 +230,15 @@ function DescriptionRow( {
 						<Button variant="tertiary" onClick={ () => setEditing( true ) } disabled={ isBusy }>
 							{ __( 'Edit', 'agentready' ) }
 						</Button>
-						<Button variant="tertiary" onClick={ regen } disabled={ isBusy || ! bootstrap.llmAvailable }>
-							{ __( 'Regenerate', 'agentready' ) }
-						</Button>
+						<span title={ regenDisabledReason || undefined }>
+							<Button
+								variant="tertiary"
+								onClick={ regen }
+								disabled={ isBusy || regenDisabledReason !== null }
+							>
+								{ __( 'Regenerate', 'agentready' ) }
+							</Button>
+						</span>
 					</div>
 				) }
 				{ editing && (
@@ -249,6 +272,14 @@ function DescriptionsTable() {
 	const [ pendingAction, setPendingAction ] = useState( null );
 	const [ bulkBusy, setBulkBusy ] = useState( false );
 	const [ flash, setFlash ] = useState( null );
+	// Tracks when polling first observed a pending row in the current page.
+	// Reset to null whenever every row clears `pending`. The stuck-pending
+	// banner reads this to compute dwell time vs STUCK_PENDING_THRESHOLD_MS.
+	const [ pendingStartedAt, setPendingStartedAt ] = useState( null );
+	// Forces the stuck-pending banner to re-render once the dwell window
+	// expires — without a tick the component would keep showing the old
+	// "polling…" state until the next data refresh.
+	const [ , setNowTick ] = useState( Date.now() );
 
 	const fetchPage = useCallback( async () => {
 		if ( ! bootstrap ) {
@@ -288,6 +319,42 @@ function DescriptionsTable() {
 	useEffect( () => {
 		fetchPage();
 	}, [ fetchPage ] );
+
+	// Track whether the current page has any pending row.
+	const hasPending = data.items.some(
+		( row ) => row.status === 'pending'
+	);
+
+	// Manage the `pendingStartedAt` lifecycle: start when we first see a
+	// pending row, clear when none remain. Independent of the polling
+	// interval so a single batch lifecycle drives both the spinner and
+	// the stuck-pending banner.
+	useEffect( () => {
+		if ( hasPending && pendingStartedAt === null ) {
+			setPendingStartedAt( Date.now() );
+		} else if ( ! hasPending && pendingStartedAt !== null ) {
+			setPendingStartedAt( null );
+		}
+	}, [ hasPending, pendingStartedAt ] );
+
+	// Poll the page while any row is pending. Stops as soon as cron drains
+	// the queue and every row settles into done/failed/needs-retry.
+	useEffect( () => {
+		if ( ! hasPending ) {
+			return undefined;
+		}
+		const id = setInterval( () => {
+			fetchPage();
+			// Also tick the "now" state so the banner threshold check
+			// re-evaluates on schedule, not only on the next fetchPage.
+			setNowTick( Date.now() );
+		}, PENDING_POLL_INTERVAL_MS );
+		return () => clearInterval( id );
+	}, [ hasPending, fetchPage ] );
+
+	const stuckPending =
+		pendingStartedAt !== null &&
+		Date.now() - pendingStartedAt > STUCK_PENDING_THRESHOLD_MS;
 
 	const handleRowUpdated = useCallback( ( updated ) => {
 		setData( ( prev ) => ( {
@@ -414,6 +481,24 @@ function DescriptionsTable() {
 			{ flash && (
 				<Notice status={ flash.type } onRemove={ () => setFlash( null ) }>
 					{ flash.message }
+				</Notice>
+			) }
+
+			{ hasPending && ! stuckPending && (
+				<Notice status="info" isDismissible={ false }>
+					{ __(
+						'Refreshing while cron processes the queued jobs…',
+						'agentready'
+					) }
+				</Notice>
+			) }
+
+			{ stuckPending && (
+				<Notice status="warning" isDismissible={ false }>
+					{ __(
+						'Description jobs have been pending for over 60 seconds. WP cron fires on every front-end page hit — load any post in another tab, or run "wp cron event run --due-now" from the command line to drain the queue.',
+						'agentready'
+					) }
 				</Notice>
 			) }
 
