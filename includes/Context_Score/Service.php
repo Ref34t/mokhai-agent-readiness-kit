@@ -63,9 +63,14 @@ final class Service {
 	 * is the on-disk schema version — they happen to track 1:1 in v0.1 but
 	 * are separated so a future change to one doesn't force the other.
 	 *
+	 * Version history:
+	 *   1 — initial shape from #9 / AgDR-0030 (overall + sub_scores).
+	 *   2 — adds the LLM narrative slot from #11 / AgDR-0032. Old payloads
+	 *       read as null and trigger a fresh recompute on first access.
+	 *
 	 * @var int
 	 */
-	public const CACHE_SCHEMA_VERSION = 1;
+	public const CACHE_SCHEMA_VERSION = 2;
 
 	/**
 	 * Wire the WordPress hooks owned by this service.
@@ -146,6 +151,13 @@ final class Service {
 		$signals   = Signal_Collector::collect();
 		$breakdown = Engine::compute( $signals );
 
+		// Narrative is generated against the just-computed breakdown so the
+		// LLM (or rule-based fallback) and the numeric breakdown can never
+		// drift apart inside a single cache row. The generator absorbs all
+		// failure modes — LLM unavailable, rate-limited, parse failure,
+		// budget overrun — and always returns a usable shape per AgDR-0032.
+		$narrative = Narrative_Generator::generate( $breakdown );
+
 		$duration_ms = (int) max( 0, ( (int) ( \microtime( true ) * 1_000_000 ) - $start_us ) / 1000 );
 
 		$payload = array(
@@ -154,6 +166,7 @@ final class Service {
 			'recompute_duration_ms' => $duration_ms,
 			'overall'               => (int) $breakdown['overall'],
 			'sub_scores'            => $breakdown['sub_scores'],
+			'narrative'             => $narrative,
 		);
 
 		\update_option( self::CACHE_OPTION, $payload, 'no' );
