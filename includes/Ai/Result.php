@@ -24,7 +24,7 @@ namespace WPContext\Ai;
  *   - `$result->content()`     — the LLM-produced string, or null if the
  *                               caller must use its deterministic fallback.
  *   - `$result->error_code()`  — one of 'unconfigured' | 'rate_limit' |
- *                               'network' | 'unknown' | null.
+ *                               'permanent' | 'network' | 'unknown' | null.
  *
  * PHP 7.4 floor (per ticket #1 / AgDR-0001) — readonly properties (PHP 8.1)
  * are not available, so immutability is enforced by private properties and

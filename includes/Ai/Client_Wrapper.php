@@ -141,8 +141,9 @@ final class Client_Wrapper {
 	 * @param array         $options  Options.
 	 * @param Provider|null $provider Injected provider, or null for the real client.
 	 *
-	 * @throws Network_Error    On transient network failure.
-	 * @throws Rate_Limit_Error On provider rate-limit.
+	 * @throws Network_Error    On transient network failure (retryable).
+	 * @throws Rate_Limit_Error On provider rate-limit (deferred retry).
+	 * @throws Permanent_Error  On a non-retryable 4xx failure.
 	 *
 	 * @return string The generated content.
 	 */
