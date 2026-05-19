@@ -177,6 +177,14 @@ final class Main {
 		Context_Score\Rest_Controller::register_hooks();
 		\WPContext\Admin\Context_Score_Page::register_hooks();
 		Context_Score\Site_Health::register_hooks();
+
+		// Wire the gap-fill JSON-LD emitter (#12 / AgDR-0033). Runs on
+		// `wp_head` priority 10. When any of Yoast / Rank Math / AIOSEO is
+		// detected the gap is empty and the emitter is a no-op — wp.org
+		// Plugin Check stays free of duplicate-schema warnings. When no
+		// SEO plugin is active, AgentReady emits a minimal baseline
+		// (WebSite + Organization + WebPage/Article).
+		Seo\Schema_Emitter::register_hooks();
 	}
 
 	/**
@@ -229,6 +237,15 @@ final class Main {
 		// never sits stale longer than 24h, even if `agentready_context_profile_saved`
 		// never fires (which is the steady-state on a quiet site).
 		Context_Score\Service::schedule_daily_recompute();
+
+		// SEO plugin detection at activation time (#12 AC #1). Stores the
+		// detected posture in a non-autoload diagnostic option so the
+		// admin Context Score panel has a posture to render even before
+		// the first front-end request. Runtime reads stay live via
+		// `Schema_Coordination_Detector::detect()` — this is purely a
+		// post-activation snapshot.
+		$posture = \WPContext\Admin\Schema_Coordination_Detector::detect();
+		\update_option( 'agentready_seo_posture_last_seen', $posture, false );
 	}
 
 	/**

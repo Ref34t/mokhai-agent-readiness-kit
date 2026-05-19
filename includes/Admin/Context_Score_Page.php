@@ -22,6 +22,8 @@ namespace WPContext\Admin;
 use WPContext\Context_Score\Engine;
 use WPContext\Context_Score\Rest_Controller;
 use WPContext\Context_Score\Service;
+use WPContext\Seo\Plugin_Coverage;
+use WPContext\Seo\Schema_Emitter;
 
 /**
  * Tools → Context Score page bootstrap.
@@ -226,13 +228,54 @@ final class Context_Score_Page {
 	 */
 	private static function bootstrap_data(): array {
 		return array(
-			'restNamespace'    => Rest_Controller::NAMESPACE,
-			'restBase'         => Rest_Controller::ROUTE_BASE,
-			'restNonce'        => \wp_create_nonce( 'wp_rest' ),
-			'profilePageUrl'   => \admin_url( 'tools.php?page=' . Context_Profile_Page::PAGE_SLUG ),
-			'siteHealthUrl'    => \admin_url( 'site-health.php' ),
-			'weights'          => Engine::WEIGHTS,
-			'initialBreakdown' => Service::get_breakdown(),
+			'restNamespace'      => Rest_Controller::NAMESPACE,
+			'restBase'           => Rest_Controller::ROUTE_BASE,
+			'restNonce'          => \wp_create_nonce( 'wp_rest' ),
+			'profilePageUrl'     => \admin_url( 'tools.php?page=' . Context_Profile_Page::PAGE_SLUG ),
+			'siteHealthUrl'      => \admin_url( 'site-health.php' ),
+			'weights'            => Engine::WEIGHTS,
+			'initialBreakdown'   => Service::get_breakdown(),
+			'schemaCoordination' => self::schema_coordination_payload(),
+		);
+	}
+
+	/**
+	 * Build the schema-coordination payload exposed to the React panel
+	 * (#12 / AgDR-0033).
+	 *
+	 * Surfaces the detected SEO plugin posture and the per-type
+	 * deference matrix so the agency lead can see at a glance:
+	 *   - Which schema types are deferred to the active SEO plugin
+	 *   - Which schema types AgentReady fills (gap-fill, empty by default)
+	 *   - Whether emission is suppressed by the `agentready_schema_emit` filter
+	 *
+	 * The values are computed at render time — same approach as the live
+	 * detect() call on the Profile page — so a freshly-activated SEO
+	 * plugin reflects without a recompute.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function schema_coordination_payload(): array {
+		$posture = Schema_Coordination_Detector::detect();
+		$slug    = (string) ( $posture['posture'] ?? Schema_Coordination_Detector::POSTURE_NONE );
+
+		$baseline = Plugin_Coverage::baseline_types();
+		$gap      = Plugin_Coverage::compute_gap( $slug );
+		$deferred = Plugin_Coverage::compute_deferred( $slug );
+
+		// Hook name resolves to `agentready_schema_emit` — the constant is
+		// prefixed; phpcs can't see through the constant ref.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
+		$emitting = \apply_filters( Schema_Emitter::FILTER_EMIT_DECISION, true );
+
+		return array(
+			'posture'     => $slug,
+			'label'       => (string) ( $posture['label'] ?? '' ),
+			'detectedVia' => (string) ( $posture['detected_via'] ?? '' ),
+			'baseline'    => $baseline,
+			'deferred'    => $deferred,
+			'filled'      => $gap,
+			'emitting'    => false !== $emitting,
 		);
 	}
 }

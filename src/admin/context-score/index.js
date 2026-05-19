@@ -755,6 +755,155 @@ function SubScoreBreakdown( { breakdown } ) {
 	);
 }
 
+// Posture slug → human-readable label. Mirrors Schema_Coordination_Detector
+// signatures so a posture coming back from the server always resolves.
+const POSTURE_LABELS = {
+	yoast: __( 'Yoast SEO', 'agentready' ),
+	rank_math: __( 'Rank Math', 'agentready' ),
+	aioseo: __( 'All in One SEO', 'agentready' ),
+};
+
+function TypeChip( { children, tone } ) {
+	const palette =
+		tone === 'deferred'
+			? { color: '#0a4b78', background: '#dbeafe' }
+			: { color: '#553a00', background: '#fff4cd' };
+	return (
+		<span
+			style={ {
+				display: 'inline-block',
+				marginRight: '6px',
+				marginBottom: '4px',
+				padding: '2px 8px',
+				borderRadius: '10px',
+				fontSize: '12px',
+				fontWeight: 500,
+				color: palette.color,
+				background: palette.background,
+			} }
+		>
+			{ children }
+		</span>
+	);
+}
+
+// Schema Coordination panel (#12 / AgDR-0033). Documents which JSON-LD
+// types are deferred to the active SEO plugin and which (if any)
+// AgentReady fills via gap-fill. Static info — no mutations from this
+// surface; the matrix is read-only state.
+function SchemaCoordinationPanel( { coordination } ) {
+	if ( ! coordination || typeof coordination !== 'object' ) {
+		return null;
+	}
+	const posture = String( coordination.posture || 'none' );
+	const label =
+		POSTURE_LABELS[ posture ] ||
+		( coordination.label ? String( coordination.label ) : '' );
+	const baseline = Array.isArray( coordination.baseline )
+		? coordination.baseline
+		: [];
+	const deferred = Array.isArray( coordination.deferred )
+		? coordination.deferred
+		: [];
+	const filled = Array.isArray( coordination.filled )
+		? coordination.filled
+		: [];
+	const emitting = coordination.emitting !== false;
+	const hasPlugin = posture !== 'none' && posture !== '';
+
+	return (
+		<Panel>
+			<PanelBody
+				initialOpen={ false }
+				title={ __( 'Schema coordination', 'agentready' ) }
+			>
+				<p style={ { marginTop: 0 } }>
+					{ hasPlugin
+						? sprintf(
+								/* translators: %s: SEO plugin name */
+								__(
+									'%s is active. AgentReady defers JSON-LD coordination to it and only fills schema types it does not already provide.',
+									'agentready'
+								),
+								label
+						  )
+						: __(
+								'No SEO plugin detected. AgentReady emits a minimal baseline schema set (site identity + content type) on the front-end.',
+								'agentready'
+						  ) }
+				</p>
+				<div
+					style={ {
+						display: 'grid',
+						gridTemplateColumns: 'minmax(160px, max-content) 1fr',
+						rowGap: '8px',
+						columnGap: '12px',
+						fontSize: '13px',
+					} }
+				>
+					<div style={ { color: '#555', fontWeight: 600 } }>
+						{ __( 'Baseline types', 'agentready' ) }
+					</div>
+					<div>
+						{ baseline.length > 0
+							? baseline.join( ', ' )
+							: __( '(none)', 'agentready' ) }
+					</div>
+
+					<div style={ { color: '#555', fontWeight: 600 } }>
+						{ __( 'Deferred to plugin', 'agentready' ) }
+					</div>
+					<div>
+						{ deferred.length === 0 && (
+							<span style={ { color: '#777' } }>
+								{ __( '(none)', 'agentready' ) }
+							</span>
+						) }
+						{ deferred.map( ( type ) => (
+							<TypeChip key={ type } tone="deferred">
+								{ type }
+							</TypeChip>
+						) ) }
+					</div>
+
+					<div style={ { color: '#555', fontWeight: 600 } }>
+						{ __( 'Filled by AgentReady', 'agentready' ) }
+					</div>
+					<div>
+						{ filled.length === 0 && (
+							<span style={ { color: '#777' } }>
+								{ hasPlugin
+									? __(
+											'(none — every baseline type is covered by the active SEO plugin)',
+											'agentready'
+									  )
+									: __( '(none)', 'agentready' ) }
+							</span>
+						) }
+						{ filled.map( ( type ) => (
+							<TypeChip key={ type } tone="filled">
+								{ type }
+							</TypeChip>
+						) ) }
+					</div>
+
+					<div style={ { color: '#555', fontWeight: 600 } }>
+						{ __( 'Emission on wp_head', 'agentready' ) }
+					</div>
+					<div>
+						{ emitting
+							? __( 'Enabled', 'agentready' )
+							: __(
+									'Suppressed by agentready_schema_emit filter',
+									'agentready'
+							  ) }
+					</div>
+				</div>
+			</PanelBody>
+		</Panel>
+	);
+}
+
 function ContextScorePanel() {
 	const bootstrap = readBootstrap();
 	const [ breakdown, setBreakdown ] = useState(
@@ -877,6 +1026,9 @@ function ContextScorePanel() {
 			<WhatsMissing
 				breakdown={ breakdown }
 				profilePageUrl={ bootstrap.profilePageUrl }
+			/>
+			<SchemaCoordinationPanel
+				coordination={ bootstrap.schemaCoordination }
 			/>
 			<SubScoreBreakdown breakdown={ breakdown } />
 		</div>
