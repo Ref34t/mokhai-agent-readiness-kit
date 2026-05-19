@@ -1,0 +1,237 @@
+<?php
+/**
+ * WP-side signal collector for the Context Score (#9 / AgDR-0030).
+ *
+ * Bridges WordPress state (Context Profile, /llms.txt cache, MD cache
+ * aggregates, SEO plugin posture, AI client config) into the pure
+ * `Engine`'s input shape. Every WP call lives here so the engine itself
+ * has zero WordPress dependencies and can be unit-tested standalone.
+ *
+ * @package WPContext
+ */
+
+declare(strict_types=1);
+
+namespace WPContext\Context_Score;
+
+use WPContext\Admin\Context_Profile_Settings;
+use WPContext\Admin\Schema_Coordination_Detector;
+use WPContext\Ai\Client_Wrapper;
+use WPContext\LlmsTxt\Conflict_Detector;
+use WPContext\LlmsTxt\Entry_Source;
+use WPContext\LlmsTxt\Service as Llms_Txt_Service;
+use WPContext\Markdown_Views\Schema as Md_Schema;
+
+\defined( 'ABSPATH' ) || exit;
+
+/**
+ * Gather the signal bundle that `Engine::compute()` expects.
+ *
+ * One public entry point — `Signal_Collector::collect(): array`. Returns the
+ * shape documented in AgDR-0030 § "Pure engine pattern".
+ */
+final class Signal_Collector {
+
+	/**
+	 * Build the signals array from current WP state.
+	 *
+	 * Safe to call repeatedly — the MD aggregate SQL query is a single
+	 * indexed aggregate against the cache table, and every other read is
+	 * either the options cache (Context Profile, LLMs Index cache) or a
+	 * cheap function-exists check (AI client).
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function collect(): array {
+		$profile = Context_Profile_Settings::get_profile();
+
+		return array(
+			'profile'      => self::profile_signals( $profile ),
+			'llms_txt'     => self::llms_txt_signals(),
+			'md_cache'     => self::md_cache_signals( Context_Profile_Settings::get_md_cleanup_threshold() ),
+			'schema'       => self::schema_signals(),
+			'ai_client'    => self::ai_client_signals(),
+			'descriptions' => self::description_signals(),
+		);
+	}
+
+	/**
+	 * Reduce the Context Profile to the slice the engine reads.
+	 *
+	 * @param array<string, mixed> $profile
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function profile_signals( array $profile ): array {
+		$cpts     = isset( $profile['exposed_cpts'] ) && is_array( $profile['exposed_cpts'] )
+			? array_values( array_map( 'strval', $profile['exposed_cpts'] ) )
+			: array();
+		$statuses = isset( $profile['exposed_statuses'] ) && is_array( $profile['exposed_statuses'] )
+			? array_values( array_map( 'strval', $profile['exposed_statuses'] ) )
+			: array( 'publish' );
+
+		return array(
+			'exposed_cpts'                     => $cpts,
+			'exposed_statuses'                 => $statuses,
+			'llm_cleanup_enabled'              => (bool) ( $profile['llm_cleanup_enabled'] ?? false ),
+			'llm_descriptions_enabled'         => (bool) ( $profile['llm_descriptions_enabled'] ?? false ),
+			'markdown_views_cleanup_threshold' => Context_Profile_Settings::get_md_cleanup_threshold(),
+		);
+	}
+
+	/**
+	 * Read the cached /llms.txt payload + conflict detection.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function llms_txt_signals(): array {
+		$cache = Llms_Txt_Service::get_cache_payload();
+
+		return array(
+			'cache_populated' => null !== $cache && isset( $cache['body'] ) && '' !== (string) $cache['body'],
+			'entry_count'     => null !== $cache && isset( $cache['entry_count'] )
+				? (int) $cache['entry_count']
+				: 0,
+			'body_bytes'      => null !== $cache && isset( $cache['body'] )
+				? strlen( (string) $cache['body'] )
+				: 0,
+			'conflicts'       => Conflict_Detector::detect(),
+		);
+	}
+
+	/**
+	 * Aggregate the Markdown Views cache table in one indexed query.
+	 *
+	 * Returns zero-counts when the table doesn't exist yet (fresh activation,
+	 * pre-#5 install).
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function md_cache_signals( int $threshold ): array {
+		global $wpdb;
+
+		$table = Md_Schema::table_name();
+
+		// Defensive: if the cache table hasn't been provisioned, return
+		// zero-counts rather than letting wpdb emit a "no such table" warning.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+		if ( $table !== $table_exists ) {
+			return array(
+				'rows_total'           => 0,
+				'rows_with_score'      => 0,
+				'mean_quality'         => 0.0,
+				'rows_above_threshold' => 0,
+				'cleanup_threshold'    => $threshold,
+			);
+		}
+
+		// One indexed aggregate over the cache table. `quality_score` is
+		// nullable on rows written before AgDR-0017 — those count toward
+		// `rows_total` but not `rows_with_score`. The walker-version bump
+		// invalidates pre-#6 rows on next read, so the null state is
+		// transient.
+		//
+		// Table name is interpolated from `Markdown_Views\Schema::table_name()`,
+		// which is built from `$wpdb->prefix` plus a hardcoded suffix —
+		// trusted source, not user input. Same disable-pattern used by
+		// `Markdown_Views\Service::read_cache()` (AgDR-0011).
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT
+					COUNT(*) AS rows_total,
+					SUM(CASE WHEN quality_score IS NOT NULL THEN 1 ELSE 0 END) AS rows_with_score,
+					AVG(quality_score) AS mean_quality,
+					SUM(CASE WHEN quality_score IS NOT NULL AND quality_score >= %d THEN 1 ELSE 0 END) AS rows_above_threshold
+				FROM {$table}",
+				$threshold
+			),
+			\ARRAY_A
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		if ( ! is_array( $row ) ) {
+			return array(
+				'rows_total'           => 0,
+				'rows_with_score'      => 0,
+				'mean_quality'         => 0.0,
+				'rows_above_threshold' => 0,
+				'cleanup_threshold'    => $threshold,
+			);
+		}
+
+		return array(
+			'rows_total'           => (int) ( $row['rows_total'] ?? 0 ),
+			'rows_with_score'      => (int) ( $row['rows_with_score'] ?? 0 ),
+			'mean_quality'         => (float) ( $row['mean_quality'] ?? 0.0 ),
+			'rows_above_threshold' => (int) ( $row['rows_above_threshold'] ?? 0 ),
+			'cleanup_threshold'    => $threshold,
+		);
+	}
+
+	/**
+	 * Resolve the SEO plugin posture. `null` when no recognised plugin is
+	 * active (so the engine's `seo_plugin` signal stays empty string instead
+	 * of the literal `'none'` slug — keeps fixture comparisons simpler).
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function schema_signals(): array {
+		$detect = Schema_Coordination_Detector::detect();
+		$slug   = (string) ( $detect['posture'] ?? Schema_Coordination_Detector::POSTURE_NONE );
+
+		return array(
+			'seo_plugin' => Schema_Coordination_Detector::POSTURE_NONE === $slug ? '' : $slug,
+		);
+	}
+
+	/**
+	 * Resolve AI client posture. `has_ai_client()` is the same probe the
+	 * existing degrade-silently codepaths use (#6 / #8) so the score and the
+	 * runtime behaviour agree.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function ai_client_signals(): array {
+		return array(
+			'configured' => Client_Wrapper::has_ai_client(),
+		);
+	}
+
+	/**
+	 * Count exposed entries and how many have a curated description.
+	 *
+	 * Re-uses `Entry_Source::get_sections()` so the count matches the actual
+	 * /llms.txt output — anything that's a "real" agent-facing entry counts,
+	 * anything filtered out (password-protected, noindex, draft when not
+	 * exposed) doesn't.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function description_signals(): array {
+		$sections         = Entry_Source::get_sections();
+		$total            = 0;
+		$with_description = 0;
+
+		foreach ( $sections as $section ) {
+			if ( ! is_array( $section ) || ! isset( $section['entries'] ) || ! is_array( $section['entries'] ) ) {
+				continue;
+			}
+			foreach ( $section['entries'] as $entry ) {
+				if ( ! is_array( $entry ) ) {
+					continue;
+				}
+				++$total;
+				if ( isset( $entry['description'] ) && '' !== (string) $entry['description'] ) {
+					++$with_description;
+				}
+			}
+		}
+
+		return array(
+			'total_entries'            => $total,
+			'entries_with_description' => $with_description,
+		);
+	}
+}

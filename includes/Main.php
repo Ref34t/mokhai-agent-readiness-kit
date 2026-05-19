@@ -157,6 +157,14 @@ final class Main {
 		// gated by manage_options (same as the rest of the Context
 		// Profile screen).
 		LlmsTxt\Descriptions_Rest_Controller::register_hooks();
+
+		// Wire the Context Score engine (#9 / AgDR-0030). Service owns the
+		// cache option, the daily cron backstop, and the debounced
+		// recompute on `agentready_context_profile_saved`. The WP-CLI
+		// command exposes the breakdown as JSON (`wp agentready
+		// context-score audit`).
+		Context_Score\Service::register_hooks();
+		\WPContext\Cli\Context_Score_Command::register();
 	}
 
 	/**
@@ -203,6 +211,12 @@ final class Main {
 		LlmsTxt\Router::flush_on_activation();
 		LlmsTxt\Service::schedule_daily_regen();
 		LlmsTxt\Service::regen_sync();
+
+		// Context Score daily cron backstop (#9 / AgDR-0030). Mirrors the
+		// LlmsTxt daily regen — fires once per day so the cached breakdown
+		// never sits stale longer than 24h, even if `agentready_context_profile_saved`
+		// never fires (which is the steady-state on a quiet site).
+		Context_Score\Service::schedule_daily_recompute();
 	}
 
 	/**
@@ -225,5 +239,9 @@ final class Main {
 		// the plugin is reactivated. Full purge happens on uninstall.
 		LlmsTxt\Router::flush_on_deactivation();
 		LlmsTxt\Service::clear_scheduled_regens();
+
+		// Context Score cron cleanup (#9 / AgDR-0030). Cached breakdown
+		// in wp_options is preserved per AgDR-0015 — only uninstall purges.
+		Context_Score\Service::clear_scheduled_recomputes();
 	}
 }
