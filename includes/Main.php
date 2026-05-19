@@ -165,6 +165,18 @@ final class Main {
 		// context-score audit`).
 		Context_Score\Service::register_hooks();
 		\WPContext\Cli\Context_Score_Command::register();
+
+		// Wire the Context Score admin surface (#10 / AgDR-0031). The
+		// REST controller serves the cached breakdown to the React UI
+		// and exposes the synchronous recompute endpoint backing the
+		// "Recompute now" button. The Admin page owns the Tools menu
+		// entry and the bundle enqueue. Site_Health registers a single
+		// direct test on `site_status_tests` so WP core Site Health
+		// surfaces the score without recomputing on the Site Health
+		// page itself.
+		Context_Score\Rest_Controller::register_hooks();
+		\WPContext\Admin\Context_Score_Page::register_hooks();
+		Context_Score\Site_Health::register_hooks();
 	}
 
 	/**

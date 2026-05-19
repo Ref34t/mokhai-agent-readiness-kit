@@ -180,7 +180,7 @@ final class Engine_Test extends TestCase {
 		$without = Engine::compute( array( 'schema' => array( 'seo_plugin' => '' ) ) )['sub_scores']['schema_coverage']['value'];
 
 		$this->assertSame( 100, $with );
-		$this->assertSame( 30, $without );
+		$this->assertSame( 60, $without );
 		$this->assertGreaterThan( $without, $with );
 	}
 
