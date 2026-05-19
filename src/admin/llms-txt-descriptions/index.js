@@ -281,11 +281,17 @@ function DescriptionsTable() {
 	// "polling…" state until the next data refresh.
 	const [ , setNowTick ] = useState( Date.now() );
 
-	const fetchPage = useCallback( async () => {
+	// `silent` skips the loading toggle so the 4s poll re-fetches don't
+	// flicker the table by swapping content for the Spinner on every tick.
+	// Initial mount + filter changes call without `silent` so the
+	// first-paint spinner still appears.
+	const fetchPage = useCallback( async ( { silent = false } = {} ) => {
 		if ( ! bootstrap ) {
 			return;
 		}
-		setLoading( true );
+		if ( ! silent ) {
+			setLoading( true );
+		}
 		try {
 			const params = new URLSearchParams( {
 				paged: String( page ),
@@ -312,7 +318,9 @@ function DescriptionsTable() {
 				message: err.message || __( 'Failed to load descriptions.', 'agentready' ),
 			} );
 		} finally {
-			setLoading( false );
+			if ( ! silent ) {
+				setLoading( false );
+			}
 		}
 	}, [ bootstrap, page, perPage, cpt, status ] );
 
@@ -337,24 +345,28 @@ function DescriptionsTable() {
 		}
 	}, [ hasPending, pendingStartedAt ] );
 
-	// Poll the page while any row is pending. Stops as soon as cron drains
-	// the queue and every row settles into done/failed/needs-retry.
-	useEffect( () => {
-		if ( ! hasPending ) {
-			return undefined;
-		}
-		const id = setInterval( () => {
-			fetchPage();
-			// Also tick the "now" state so the banner threshold check
-			// re-evaluates on schedule, not only on the next fetchPage.
-			setNowTick( Date.now() );
-		}, PENDING_POLL_INTERVAL_MS );
-		return () => clearInterval( id );
-	}, [ hasPending, fetchPage ] );
-
 	const stuckPending =
 		pendingStartedAt !== null &&
 		Date.now() - pendingStartedAt > STUCK_PENDING_THRESHOLD_MS;
+
+	// Poll the page while any row is pending — but stop once we've
+	// crossed the stuck-pending threshold. After 60s of pending dwell
+	// the operator clearly needs to act (drain cron manually); hammering
+	// the REST endpoint at 4s cadence after that point burns cycles for
+	// nothing. The stuck-pending banner exposes a "Check again now"
+	// button so the operator can manually re-poll after their drain.
+	useEffect( () => {
+		if ( ! hasPending || stuckPending ) {
+			return undefined;
+		}
+		const id = setInterval( () => {
+			fetchPage( { silent: true } );
+			// Tick "now" so the threshold check re-evaluates on schedule
+			// rather than waiting for the next fetchPage to land.
+			setNowTick( Date.now() );
+		}, PENDING_POLL_INTERVAL_MS );
+		return () => clearInterval( id );
+	}, [ hasPending, stuckPending, fetchPage ] );
 
 	const handleRowUpdated = useCallback( ( updated ) => {
 		setData( ( prev ) => ( {
@@ -495,10 +507,23 @@ function DescriptionsTable() {
 
 			{ stuckPending && (
 				<Notice status="warning" isDismissible={ false }>
-					{ __(
-						'Description jobs have been pending for over 60 seconds. WP cron fires on every front-end page hit — load any post in another tab, or run "wp cron event run --due-now" from the command line to drain the queue.',
-						'agentready'
-					) }
+					<p style={ { margin: 0 } }>
+						{ __(
+							'Description jobs have been pending for over 60 seconds. WP cron fires on every front-end page hit — load any post in another tab, or run "wp cron event run --due-now" from the command line to drain the queue. Auto-refresh has paused.',
+							'agentready'
+						) }
+					</p>
+					<p style={ { margin: '8px 0 0 0' } }>
+						<Button
+							variant="secondary"
+							onClick={ () => {
+								setPendingStartedAt( null );
+								fetchPage();
+							} }
+						>
+							{ __( 'Check again now', 'agentready' ) }
+						</Button>
+					</p>
 				</Notice>
 			) }
 
