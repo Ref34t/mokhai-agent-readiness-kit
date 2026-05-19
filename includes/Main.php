@@ -150,6 +150,13 @@ final class Main {
 		// Entry_Source::DESCRIPTION_FILTER so /llms.txt compose serves the cache.
 		LlmsTxt\Description_Orchestrator::register_hooks();
 		LlmsTxt\Description_Filter::register_hooks();
+
+		// Wire the Phase B admin REST surface for description state +
+		// inline edit + per-post regen + bulk-regen-stale (#8 / AgDR-0029).
+		// Five routes under agentready/v1/llms-txt/descriptions/*, all
+		// gated by manage_options (same as the rest of the Context
+		// Profile screen).
+		LlmsTxt\Descriptions_Rest_Controller::register_hooks();
 	}
 
 	/**

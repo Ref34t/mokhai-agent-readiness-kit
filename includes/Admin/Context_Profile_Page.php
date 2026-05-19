@@ -114,6 +114,22 @@ final class Context_Profile_Page {
 				aria-label="<?php \esc_attr_e( 'AgentReady LLMs Index editorial entries editor', 'agentready' ); ?>"
 			></div>
 
+			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — auto-generated descriptions', 'agentready' ); ?></h2>
+			<p class="description">
+				<?php
+				\esc_html_e(
+					'One-line descriptions for the auto-listed entries above, generated via the configured LLM and cached on post meta. Edit any description inline to set a sticky manual override that survives regeneration.',
+					'agentready'
+				);
+				?>
+			</p>
+
+			<div
+				id="agentready-llms-txt-descriptions-root"
+				role="region"
+				aria-label="<?php \esc_attr_e( 'AgentReady LLM-powered /llms.txt entry descriptions', 'agentready' ); ?>"
+			></div>
+
 			<noscript>
 				<div class="notice notice-warning">
 					<p>
@@ -212,6 +228,7 @@ final class Context_Profile_Page {
 		}
 
 		self::enqueue_llms_txt_editorial_assets();
+		self::enqueue_llms_txt_descriptions_assets();
 	}
 
 	/**
@@ -273,6 +290,82 @@ final class Context_Profile_Page {
 				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
 			);
 		}
+	}
+
+	/**
+	 * Enqueue the LLM-powered descriptions React bundle alongside the
+	 * Context Profile editor (#8 Phase B / AgDR-0029).
+	 *
+	 * Same defensive `*.asset.php` shape as the other two bundles — a
+	 * missing build artefact degrades to an empty-deps fallback so the
+	 * page still loads from a source checkout.
+	 */
+	private static function enqueue_llms_txt_descriptions_assets(): void {
+		$asset_file = \WPCTX_DIR . 'build/admin/llms-txt-descriptions.asset.php';
+		$script_url = \WPCTX_URL . 'build/admin/llms-txt-descriptions.js';
+		$style_url  = \WPCTX_URL . 'build/admin/llms-txt-descriptions.css';
+
+		if ( ! \file_exists( $asset_file ) ) {
+			return;
+		}
+
+		$resolved_asset = self::asset_path( $asset_file );
+		$asset          = \is_readable( $resolved_asset )
+			? require $resolved_asset
+			: array(
+				'dependencies' => array(),
+				'version'      => \WPCTX_VERSION,
+			);
+
+		\wp_enqueue_script(
+			'agentready-llms-txt-descriptions',
+			$script_url,
+			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
+			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
+			true
+		);
+
+		\wp_add_inline_script(
+			'agentready-llms-txt-descriptions',
+			'window.agentreadyLlmsTxtDescriptions = ' . \wp_json_encode( self::descriptions_bootstrap_data() ) . ';',
+			'before'
+		);
+
+		\wp_set_script_translations(
+			'agentready-llms-txt-descriptions',
+			'agentready',
+			\WPCTX_DIR . 'languages'
+		);
+
+		if ( \file_exists( \WPCTX_DIR . 'build/admin/llms-txt-descriptions.css' ) ) {
+			\wp_enqueue_style(
+				'agentready-llms-txt-descriptions',
+				$style_url,
+				array( 'wp-components' ),
+				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
+			);
+		}
+	}
+
+	/**
+	 * Inline bootstrap payload for the descriptions React UI.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function descriptions_bootstrap_data(): array {
+		$profile = \WPContext\Admin\Context_Profile_Settings::get_profile();
+		$exposed = isset( $profile['exposed_cpts'] ) && \is_array( $profile['exposed_cpts'] )
+			? \array_values( \array_filter( $profile['exposed_cpts'], 'is_string' ) )
+			: array();
+
+		return array(
+			'restNamespace' => \WPContext\LlmsTxt\Descriptions_Rest_Controller::NAMESPACE,
+			'restBase'      => \WPContext\LlmsTxt\Descriptions_Rest_Controller::ROUTE_BASE,
+			'restNonce'     => \wp_create_nonce( 'wp_rest' ),
+			'exposedCpts'   => $exposed,
+			'enabled'       => ! empty( $profile['llm_descriptions_enabled'] ),
+			'llmAvailable'  => \WPContext\Ai\Client_Wrapper::has_ai_client(),
+		);
 	}
 
 	/**

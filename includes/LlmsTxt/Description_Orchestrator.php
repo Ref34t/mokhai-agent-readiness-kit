@@ -411,6 +411,58 @@ PROMPT;
 	}
 
 	/**
+	 * True when the post has an `_auto` cache AND its
+	 * `_generated_for_modified_gmt` is older than the post's current
+	 * `post_modified_gmt`. Pure read — Phase B / AgDR-0029 surfaces this
+	 * to the admin UI as the "stale" badge + filter.
+	 *
+	 * Returns false for posts that have never been generated — those are
+	 * "missing", not "stale". Callers that need both should also inspect
+	 * the orchestrator's status / `get_cached_description()` result.
+	 */
+	public static function is_stale( \WP_Post $post ): bool {
+		$auto = \get_post_meta( (int) $post->ID, self::META_KEY_AUTO, true );
+		if ( ! \is_string( $auto ) || '' === \trim( $auto ) ) {
+			return false;
+		}
+
+		$generated_for = \get_post_meta( (int) $post->ID, self::META_KEY_GENERATED_FOR_MODIFIED, true );
+		if ( ! \is_string( $generated_for ) || '' === $generated_for ) {
+			// Treat unbookmarked `_auto` as stale — invariant violation
+			// caused by an external write; the safe move is to regen.
+			return true;
+		}
+
+		return $generated_for < (string) $post->post_modified_gmt;
+	}
+
+	/**
+	 * Set the sticky admin-override `_manual` slot. Single write path so
+	 * the REST controller, WP-CLI, and any future programmatic surface all
+	 * share sanitisation + truncation.
+	 *
+	 * Empty / whitespace-only input is treated as "clear" — same as
+	 * `clear_manual()`. Trimmed, tag-stripped, truncated to MAX_OUTPUT_CHARS.
+	 */
+	public static function set_manual( int $post_id, string $description ): void {
+		$cleaned = self::normalise_output( $description );
+		if ( null === $cleaned ) {
+			self::clear_manual( $post_id );
+			return;
+		}
+
+		\update_post_meta( $post_id, self::META_KEY_MANUAL, $cleaned );
+	}
+
+	/**
+	 * Delete the `_manual` slot. The next /llms.txt regen falls back to
+	 * `_auto` (or excerpt, if `_auto` is empty too).
+	 */
+	public static function clear_manual( int $post_id ): void {
+		\delete_post_meta( $post_id, self::META_KEY_MANUAL );
+	}
+
+	/**
 	 * Hard reset: clear the `_auto` slot + schedule a fresh cron run.
 	 * `_manual` is preserved — admin overrides survive regenerate.
 	 *
