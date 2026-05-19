@@ -125,6 +125,13 @@ final class Context_Profile_Settings {
 			'exposed_statuses'                   => array( 'publish' ),
 			'llm_cleanup_enabled'                => true,
 			'llm_descriptions_enabled'           => true,
+			// Native JSON-LD emission opt-in (#73 / AgDR-0034). Default
+			// false: FR-9 safe-by-default. Operator flips this on to
+			// satisfy Context Score's schema_coverage without a third-
+			// party SEO plugin. Site-identity nodes always emit when on;
+			// per-content nodes additionally gate on exposed_cpts /
+			// exposed_statuses.
+			'schema_emit_enabled'                => false,
 			// Per-module enable flags. Adding modules here is an additive
 			// schema change (legacy stored profiles default true via merge()).
 			'markdown_views_enabled'             => true,
@@ -441,6 +448,13 @@ final class Context_Profile_Settings {
 
 		$out['llm_cleanup_enabled']      = ! empty( $input['llm_cleanup_enabled'] );
 		$out['llm_descriptions_enabled'] = ! empty( $input['llm_descriptions_enabled'] );
+
+		// Native JSON-LD emission opt-in (#73 / AgDR-0034). Inverted form of
+		// the markdown_views_enabled pattern below: default FALSE, set only
+		// when the input explicitly says so. Legacy profiles that pre-date
+		// the field merge() to false via get_defaults() and stay safe-by-
+		// default. Operators opt in from the Profile UI.
+		$out['schema_emit_enabled'] = ! empty( $input['schema_emit_enabled'] );
 
 		// Module enable flags follow a "default true, explicit false to disable"
 		// convention. If the key isn't present in input (e.g. a save coming
