@@ -50,7 +50,7 @@ final class Walker {
 	 *
 	 * @var string
 	 */
-	public const WALKER_VERSION = '2';
+	public const WALKER_VERSION = '3';
 
 	/**
 	 * Hard upper bound on input size in bytes. Defends against pathological
@@ -523,8 +523,41 @@ final class Walker {
 			return $node->textContent;
 		}
 
-		$content = $node->textContent;
-		return '`' . $content . '`';
+		return self::fence_inline_code( $node->textContent );
+	}
+
+	/**
+	 * Pick a backtick fence long enough not to collide with backticks inside
+	 * `$content`, per CommonMark §6.3. The fence length is `max_run + 1`
+	 * where `max_run` is the longest run of consecutive backticks inside
+	 * the content. When the content begins or ends with a backtick, a
+	 * single padding space is inserted on the inside of each fence to
+	 * disambiguate (#38 / CommonMark "code spans" rule).
+	 *
+	 * Empty content keeps the single-backtick fence — there's nothing to
+	 * collide with.
+	 */
+	private static function fence_inline_code( string $content ): string {
+		if ( '' === $content ) {
+			return '``';
+		}
+
+		$max_run = 0;
+		if ( \preg_match_all( '/`+/', $content, $matches ) ) {
+			foreach ( $matches[0] as $run ) {
+				$len = \strlen( $run );
+				if ( $len > $max_run ) {
+					$max_run = $len;
+				}
+			}
+		}
+
+		$fence = \str_repeat( '`', $max_run + 1 );
+		$pad   = ( 0 === \strncmp( $content, '`', 1 ) || '`' === \substr( $content, -1 ) )
+			? ' '
+			: '';
+
+		return $fence . $pad . $content . $pad . $fence;
 	}
 
 	private static function render_pre( \DOMElement $node ): string {
@@ -562,7 +595,7 @@ final class Walker {
 			$inner = $href;
 		}
 
-		return '[' . $inner . '](' . $href . ')';
+		return '[' . self::escape_link_text( $inner ) . '](' . self::escape_link_url( $href ) . ')';
 	}
 
 	private static function render_image( \DOMElement $node ): string {
@@ -573,7 +606,43 @@ final class Walker {
 			return '';
 		}
 
-		return '![' . $alt . '](' . $src . ')';
+		return '![' . self::escape_link_text( $alt ) . '](' . self::escape_link_url( $src ) . ')';
+	}
+
+	/**
+	 * Backslash-escape `]` (and `[`) in the text segment of a Markdown link
+	 * / image construct so an unescaped bracket can't terminate the link
+	 * early (#37). CommonMark §6.6 specifies that `[`, `]`, and `\` are
+	 * the link-text delimiters that need escaping; we escape all three for
+	 * symmetry with `escape_link_url`.
+	 */
+	private static function escape_link_text( string $text ): string {
+		return \strtr(
+			$text,
+			array(
+				'\\' => '\\\\',
+				'['  => '\\[',
+				']'  => '\\]',
+			)
+		);
+	}
+
+	/**
+	 * Backslash-escape `)` in the URL segment of a Markdown link / image
+	 * construct so a literal `)` can't terminate the URL early (#37).
+	 * CommonMark allows percent-encoding too — backslash-escaping is the
+	 * narrower change and keeps the URL human-readable. Backslashes
+	 * themselves are escaped first so we don't double-escape paths that
+	 * already contain `\`.
+	 */
+	private static function escape_link_url( string $url ): string {
+		return \strtr(
+			$url,
+			array(
+				'\\' => '\\\\',
+				')'  => '\\)',
+			)
+		);
 	}
 
 	private static function render_list( \DOMElement $node, string $tag, int $depth, int $indent ): string {
