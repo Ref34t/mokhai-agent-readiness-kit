@@ -28,8 +28,9 @@ interface Provider {
 	 * @param string $prompt  The prompt to send.
 	 * @param array  $options Provider-specific options.
 	 *
-	 * @throws Network_Error    On transient network failure.
-	 * @throws Rate_Limit_Error On provider rate-limit.
+	 * @throws Network_Error    On transient network failure (retryable).
+	 * @throws Rate_Limit_Error On provider rate-limit (deferred retry).
+	 * @throws Permanent_Error  On a non-retryable 4xx failure (parameter validation, auth, not-found, etc.).
 	 *
 	 * @return string The generated content.
 	 */

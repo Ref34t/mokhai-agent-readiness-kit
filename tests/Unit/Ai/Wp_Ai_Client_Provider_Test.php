@@ -22,6 +22,7 @@ namespace WPContext\Tests\Unit\Ai;
 
 use PHPUnit\Framework\TestCase;
 use WPContext\Ai\Network_Error;
+use WPContext\Ai\Permanent_Error;
 use WPContext\Ai\Rate_Limit_Error;
 use WPContext\Ai\Wp_Ai_Client_Provider;
 use WP_Error;
@@ -89,6 +90,67 @@ final class Wp_Ai_Client_Provider_Test extends TestCase {
 		$GLOBALS['wpctx_test_ai_response'] = new WP_Error( 'prompt_builder_error', '' );
 
 		$this->expectException( Network_Error::class );
+		( new Wp_Ai_Client_Provider() )->generate( 'prompt', array() );
+	}
+
+	/**
+	 * @return iterable<string, array{0: string}>
+	 */
+	public function permanent_error_marker_provider(): iterable {
+		yield '400 bad request (OpenAI repro)' => array( "Bad Request (400) - Invalid 'max_output_tokens': integer below minimum value." );
+		yield '401 unauthorized'               => array( 'Unauthorized (401) — invalid API key.' );
+		yield '403 forbidden'                  => array( 'Forbidden (403): account suspended.' );
+		yield '404 not found'                  => array( 'Not Found (404): model gpt-9-omega does not exist.' );
+		yield '415 unsupported media'          => array( 'Unsupported Media Type (415).' );
+		yield '422 unprocessable'              => array( 'Unprocessable Entity (422): malformed request body.' );
+		yield 'bare bad request phrase'        => array( 'bad request — see API docs.' );
+		yield 'bare unauthorized phrase'       => array( 'request was unauthorized.' );
+		yield 'bare unprocessable phrase'      => array( 'unprocessable entity for the given schema.' );
+	}
+
+	/**
+	 * @dataProvider permanent_error_marker_provider
+	 */
+	public function test_4xx_markers_classify_as_permanent_error( string $message ): void {
+		$GLOBALS['wpctx_test_ai_response'] = new WP_Error( 'prompt_builder_error', $message );
+
+		$this->expectException( Permanent_Error::class );
+		( new Wp_Ai_Client_Provider() )->generate( 'prompt', array() );
+	}
+
+	/**
+	 * @return iterable<string, array{0: string}>
+	 */
+	public function retryable_error_marker_provider(): iterable {
+		yield '500 internal server error' => array( 'Internal Server Error (500): something broke upstream.' );
+		yield '502 bad gateway'            => array( 'Bad Gateway (502).' );
+		yield '503 service unavailable'    => array( 'Service Unavailable (503): retry shortly.' );
+		yield '504 gateway timeout'        => array( 'Gateway Timeout (504).' );
+		yield 'plain connection refused'   => array( 'Connection refused — provider unreachable.' );
+		yield 'tls handshake'              => array( 'TLS handshake failed.' );
+	}
+
+	/**
+	 * @dataProvider retryable_error_marker_provider
+	 */
+	public function test_5xx_and_network_messages_still_classify_as_network_error( string $message ): void {
+		$GLOBALS['wpctx_test_ai_response'] = new WP_Error( 'prompt_builder_error', $message );
+
+		$this->expectException( Network_Error::class );
+		( new Wp_Ai_Client_Provider() )->generate( 'prompt', array() );
+	}
+
+	public function test_429_with_404_substring_still_classifies_as_rate_limit(): void {
+		// Defensive regression guard: rate-limit markers MUST be checked
+		// before permanent markers because `429` is a 4xx status code.
+		// A provider message that happens to mention both must route
+		// through Rate_Limit_Error (retryable), never Permanent_Error.
+		$GLOBALS['wpctx_test_ai_response'] = new WP_Error(
+			'prompt_builder_error',
+			'HTTP 429 Too Many Requests; previously got 404 on the same endpoint.'
+		);
+
+		$this->expectException( Rate_Limit_Error::class );
 		( new Wp_Ai_Client_Provider() )->generate( 'prompt', array() );
 	}
 
