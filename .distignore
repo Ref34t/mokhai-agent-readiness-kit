@@ -42,9 +42,10 @@ phpstan.neon.dist
 phpstan-baseline.neon
 phpunit.xml.dist
 
-# Node lockfiles — pre-built artefacts already live in build/
+# Node lockfiles + dev build config — pre-built artefacts already live in build/
 package.json
 package-lock.json
+webpack.config.js
 
 # Repo README — wp.org listing reads readme.txt; README.md is for GitHub
 README.md
