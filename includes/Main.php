@@ -106,7 +106,7 @@ final class Main {
 		\WPContext\Cli\Llms_Txt_Command::register();
 
 		// Wire the LLMs Index description-backfill WP-CLI command tree
-		// (#8 / AgDR-0027). Mounted at `wp agentready llms-txt descriptions`.
+		// (#8 / AgDR-0027). Mounted at `wp agent-ready llms-txt descriptions`.
 		\WPContext\Cli\Llms_Txt_Descriptions_Command::register();
 
 		// Wire the Gutenberg sidebar React panel (#5 / AgDR-0014). Enqueues
@@ -121,7 +121,7 @@ final class Main {
 		Markdown_Views\Cleanup_Orchestrator::register_hooks();
 
 		// Wire the Phase-B admin REST surface for cleanup actions
-		// (#6 / AgDR-0020). Four routes under agentready/v1/markdown-views/cleanup/*,
+		// (#6 / AgDR-0020). Four routes under agent-ready/v1/markdown-views/cleanup/*,
 		// each gated by edit_post on the target post.
 		Markdown_Views\Cleanup_Rest_Controller::register_hooks();
 
@@ -153,7 +153,7 @@ final class Main {
 
 		// Wire the Phase B admin REST surface for description state +
 		// inline edit + per-post regen + bulk-regen-stale (#8 / AgDR-0029).
-		// Five routes under agentready/v1/llms-txt/descriptions/*, all
+		// Five routes under agent-ready/v1/llms-txt/descriptions/*, all
 		// gated by manage_options (same as the rest of the Context
 		// Profile screen).
 		LlmsTxt\Descriptions_Rest_Controller::register_hooks();

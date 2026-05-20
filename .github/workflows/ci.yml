@@ -139,7 +139,7 @@ jobs:
 
       - name: Install runtime Composer deps (no dev)
         # The Plugin Check action loads the plugin inside a real WP install,
-        # which means agentready.php's `require vendor/autoload.php` must
+        # which means agent-ready.php's `require vendor/autoload.php` must
         # find vendor/. vendor/ is gitignored; install it here. --no-dev
         # keeps the install lean (matches what would ship to wp.org).
         run: composer install --no-dev --no-progress --no-interaction --prefer-dist --optimize-autoloader
@@ -253,7 +253,7 @@ jobs:
         # bash -c wrapper avoids wp-env / docker-exec arg-splitting weirdness
         # (the quoted form `"phpunit --testsuite integration"` would otherwise
         # land in docker exec as one argv element and fail with ENOENT).
-        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/agentready bash -c "vendor/bin/phpunit --testsuite integration"
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/agent-ready bash -c "vendor/bin/phpunit --testsuite integration"
 
       - name: Stop wp-env
         if: always()
@@ -294,7 +294,7 @@ jobs:
 
       - name: Inspect ZIP structure
         run: |
-          ZIP=$(ls -1 dist/agentready-*.zip | head -n1)
+          ZIP=$(ls -1 dist/agent-ready-*.zip | head -n1)
           echo "Built: $ZIP"
           unzip -l "$ZIP" | head -20
           echo ""
@@ -302,29 +302,27 @@ jobs:
 
       - name: Verify ZIP excludes dev paths
         run: |
-          ZIP=$(ls -1 dist/agentready-*.zip | head -n1)
+          ZIP=$(ls -1 dist/agent-ready-*.zip | head -n1)
           # Paths that MUST NOT appear inside the ZIP — mirrors `.distignore`.
           # Any of these slipping through means a regression in either the
           # exclude list or rsync invocation in tools/build-zip.sh.
           BANNED=(
-            'agentready/\.claude/'
-            'agentready/\.github/'
-            'agentready/tests/'
-            'agentready/tools/'
-            'agentready/docs/'
-            'agentready/src/'
-            'agentready/node_modules/'
-            'agentready/assets/'
-            'agentready/composer\.json'
-            'agentready/composer\.lock'
-            'agentready/package\.json'
-            'agentready/package-lock\.json'
-            'agentready/webpack\.config\.js'
-            'agentready/README\.md'
-            'agentready/\.distignore'
-            'agentready/phpcs\.xml\.dist'
-            'agentready/phpstan\.neon\.dist'
-            'agentready/phpunit\.xml\.dist'
+            'agent-ready/\.claude/'
+            'agent-ready/\.github/'
+            'agent-ready/tests/'
+            'agent-ready/tools/'
+            'agent-ready/docs/'
+            'agent-ready/src/'
+            'agent-ready/node_modules/'
+            'agent-ready/assets/'
+            'agent-ready/package\.json'
+            'agent-ready/package-lock\.json'
+            'agent-ready/webpack\.config\.js'
+            'agent-ready/README\.md'
+            'agent-ready/\.distignore'
+            'agent-ready/phpcs\.xml\.dist'
+            'agent-ready/phpstan\.neon\.dist'
+            'agent-ready/phpunit\.xml\.dist'
           )
           fail=0
           for p in "${BANNED[@]}"; do
@@ -337,15 +335,15 @@ jobs:
 
       - name: Verify required paths present
         run: |
-          ZIP=$(ls -1 dist/agentready-*.zip | head -n1)
+          ZIP=$(ls -1 dist/agent-ready-*.zip | head -n1)
           REQUIRED=(
-            'agentready/agentready\.php'
-            'agentready/readme\.txt'
-            'agentready/LICENSE'
-            'agentready/uninstall\.php'
-            'agentready/includes/Main\.php'
-            'agentready/build/admin/'
-            'agentready/vendor/autoload\.php'
+            'agent-ready/agent-ready\.php'
+            'agent-ready/readme\.txt'
+            'agent-ready/LICENSE'
+            'agent-ready/uninstall\.php'
+            'agent-ready/includes/Main\.php'
+            'agent-ready/build/admin/'
+            'agent-ready/vendor/autoload\.php'
           )
           fail=0
           for p in "${REQUIRED[@]}"; do
@@ -358,7 +356,7 @@ jobs:
 
       - name: Verify ZIP size under wp.org 10 MB ceiling
         run: |
-          ZIP=$(ls -1 dist/agentready-*.zip | head -n1)
+          ZIP=$(ls -1 dist/agent-ready-*.zip | head -n1)
           SIZE=$(stat -c%s "$ZIP")
           MB=$(awk "BEGIN{printf \"%.2f\", $SIZE/1048576}")
           echo "ZIP size: $MB MB ($SIZE bytes)"
@@ -370,6 +368,6 @@ jobs:
       - name: Upload built ZIP as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: agentready-zip
-          path: dist/agentready-*.zip
+          name: agent-ready-zip
+          path: dist/agent-ready-*.zip
           retention-days: 7

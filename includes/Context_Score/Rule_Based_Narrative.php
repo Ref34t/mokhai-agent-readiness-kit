@@ -123,42 +123,42 @@ final class Rule_Based_Narrative {
 
 		if ( $value >= 100 ) {
 			return array(
-				'why' => \__( 'Working well — /llms.txt is populated and exposed CPTs are configured, so agents can find the content surface.', 'agentready' ),
-				'fix' => \__( 'Keep the Context Profile in sync as new CPTs are added.', 'agentready' ),
+				'why' => \__( 'Working well — /llms.txt is populated and exposed CPTs are configured, so agents can find the content surface.', 'agent-ready' ),
+				'fix' => \__( 'Keep the Context Profile in sync as new CPTs are added.', 'agent-ready' ),
 			);
 		}
 
 		if ( $conflicted ) {
 			return array(
-				'why' => \__( 'Another plugin is overriding the /llms.txt rewrite rule, so agents may hit a stale index.', 'agentready' ),
-				'fix' => \__( 'Deactivate the conflicting plugin or move it after Agent Ready in load order, then re-test /llms.txt.', 'agentready' ),
+				'why' => \__( 'Another plugin is overriding the /llms.txt rewrite rule, so agents may hit a stale index.', 'agent-ready' ),
+				'fix' => \__( 'Deactivate the conflicting plugin or move it after Agent Ready in load order, then re-test /llms.txt.', 'agent-ready' ),
 			);
 		}
 
 		if ( ! $cache_pop ) {
 			return array(
-				'why' => \__( 'The /llms.txt cache is empty, so agents have nothing to discover at the site root.', 'agentready' ),
-				'fix' => \__( 'Open the Context Profile and save it to seed /llms.txt, or run wp agentready llms-txt regen.', 'agentready' ),
+				'why' => \__( 'The /llms.txt cache is empty, so agents have nothing to discover at the site root.', 'agent-ready' ),
+				'fix' => \__( 'Open the Context Profile and save it to seed /llms.txt, or run wp agent-ready llms-txt regen.', 'agent-ready' ),
 			);
 		}
 
 		if ( $cpts_count <= 0 ) {
 			return array(
-				'why' => \__( 'No post types are exposed to agents, so /llms.txt has no surface to advertise.', 'agentready' ),
-				'fix' => \__( 'Open the Context Profile and add at least one post type to Exposed CPTs.', 'agentready' ),
+				'why' => \__( 'No post types are exposed to agents, so /llms.txt has no surface to advertise.', 'agent-ready' ),
+				'fix' => \__( 'Open the Context Profile and add at least one post type to Exposed CPTs.', 'agent-ready' ),
 			);
 		}
 
 		if ( $entry_count <= 0 ) {
 			return array(
-				'why' => \__( 'Exposed CPTs are configured but no published entries are reaching /llms.txt yet.', 'agentready' ),
-				'fix' => \__( 'Publish at least one entry in an exposed CPT and run wp agentready llms-txt regen.', 'agentready' ),
+				'why' => \__( 'Exposed CPTs are configured but no published entries are reaching /llms.txt yet.', 'agent-ready' ),
+				'fix' => \__( 'Publish at least one entry in an exposed CPT and run wp agent-ready llms-txt regen.', 'agent-ready' ),
 			);
 		}
 
 		return array(
-			'why' => \__( 'Partial — the index is populated but at least one discoverability signal is below target.', 'agentready' ),
-			'fix' => \__( 'Open the Context Profile and review Exposed CPTs and /llms.txt entry coverage.', 'agentready' ),
+			'why' => \__( 'Partial — the index is populated but at least one discoverability signal is below target.', 'agent-ready' ),
+			'fix' => \__( 'Open the Context Profile and review Exposed CPTs and /llms.txt entry coverage.', 'agent-ready' ),
 		);
 	}
 
@@ -172,15 +172,15 @@ final class Rule_Based_Narrative {
 
 		if ( $value >= 100 ) {
 			return array(
-				'why' => \__( 'Working well — every exposed entry has a curated description for agents to read.', 'agentready' ),
-				'fix' => \__( 'Review descriptions on newly published entries during regular editorial passes.', 'agentready' ),
+				'why' => \__( 'Working well — every exposed entry has a curated description for agents to read.', 'agent-ready' ),
+				'fix' => \__( 'Review descriptions on newly published entries during regular editorial passes.', 'agent-ready' ),
 			);
 		}
 
 		if ( $total <= 0 ) {
 			return array(
-				'why' => \__( 'No exposed entries — there is nothing for agents to read yet.', 'agentready' ),
-				'fix' => \__( 'Add at least one post type to Exposed CPTs in the Context Profile and publish a post.', 'agentready' ),
+				'why' => \__( 'No exposed entries — there is nothing for agents to read yet.', 'agent-ready' ),
+				'fix' => \__( 'Add at least one post type to Exposed CPTs in the Context Profile and publish a post.', 'agent-ready' ),
 			);
 		}
 
@@ -188,20 +188,20 @@ final class Rule_Based_Narrative {
 			return array(
 				'why' => \sprintf(
 					/* translators: %d: description-coverage percentage. */
-					\__( 'Critical — only %d%% of exposed entries have a curated description.', 'agentready' ),
+					\__( 'Critical — only %d%% of exposed entries have a curated description.', 'agent-ready' ),
 					$coverage
 				),
-				'fix' => \__( 'Enable LLM descriptions in the Context Profile and run wp agentready llms-txt descriptions backfill.', 'agentready' ),
+				'fix' => \__( 'Enable LLM descriptions in the Context Profile and run wp agent-ready llms-txt descriptions backfill.', 'agent-ready' ),
 			);
 		}
 
 		return array(
 			'why' => \sprintf(
 				/* translators: %d: description-coverage percentage. */
-				\__( 'Partial — %d%% of exposed entries have a curated description; the rest fall back to the excerpt.', 'agentready' ),
+				\__( 'Partial — %d%% of exposed entries have a curated description; the rest fall back to the excerpt.', 'agent-ready' ),
 				$coverage
 			),
-			'fix' => \__( 'Run wp agentready llms-txt descriptions backfill to fill the gaps.', 'agentready' ),
+			'fix' => \__( 'Run wp agent-ready llms-txt descriptions backfill to fill the gaps.', 'agent-ready' ),
 		);
 	}
 
@@ -216,16 +216,16 @@ final class Rule_Based_Narrative {
 			return array(
 				'why' => \sprintf(
 					/* translators: %s: detected SEO plugin name. */
-					\__( 'Working well — an SEO plugin (%s) is emitting structured data alongside published content.', 'agentready' ),
+					\__( 'Working well — an SEO plugin (%s) is emitting structured data alongside published content.', 'agent-ready' ),
 					$plugin
 				),
-				'fix' => \__( 'Audit JSON-LD output on key landing pages once per release.', 'agentready' ),
+				'fix' => \__( 'Audit JSON-LD output on key landing pages once per release.', 'agent-ready' ),
 			);
 		}
 
 		return array(
-			'why' => \__( 'No structured data was detected. Exposed content reaches agents without schema metadata for now.', 'agentready' ),
-			'fix' => \__( 'Agent Ready will emit JSON-LD natively in a future release; until then, an SEO plugin can fill the gap.', 'agentready' ),
+			'why' => \__( 'No structured data was detected. Exposed content reaches agents without schema metadata for now.', 'agent-ready' ),
+			'fix' => \__( 'Agent Ready will emit JSON-LD natively in a future release; until then, an SEO plugin can fill the gap.', 'agent-ready' ),
 		);
 	}
 
@@ -239,8 +239,8 @@ final class Rule_Based_Narrative {
 
 		if ( $value >= 100 ) {
 			return array(
-				'why' => \__( 'Working well — only published content is exposed and Exposed CPTs are configured explicitly.', 'agentready' ),
-				'fix' => \__( 'Re-audit Exposed Statuses when new post statuses are introduced by other plugins.', 'agentready' ),
+				'why' => \__( 'Working well — only published content is exposed and Exposed CPTs are configured explicitly.', 'agent-ready' ),
+				'fix' => \__( 'Re-audit Exposed Statuses when new post statuses are introduced by other plugins.', 'agent-ready' ),
 			);
 		}
 
@@ -248,23 +248,23 @@ final class Rule_Based_Narrative {
 			return array(
 				'why' => \sprintf(
 					/* translators: %d: count of non-publish statuses currently exposed. */
-					\__( '%d non-publish status is exposed to agents, which can leak unpublished content.', 'agentready' ),
+					\__( '%d non-publish status is exposed to agents, which can leak unpublished content.', 'agent-ready' ),
 					$risky
 				),
-				'fix' => \__( 'Open the Context Profile and reduce Exposed Statuses to publish only.', 'agentready' ),
+				'fix' => \__( 'Open the Context Profile and reduce Exposed Statuses to publish only.', 'agent-ready' ),
 			);
 		}
 
 		if ( $cpts_count <= 0 ) {
 			return array(
-				'why' => \__( 'No CPTs are exposed, which is safe by default but means agents will find nothing.', 'agentready' ),
-				'fix' => \__( 'Open the Context Profile and add at least one post type to Exposed CPTs.', 'agentready' ),
+				'why' => \__( 'No CPTs are exposed, which is safe by default but means agents will find nothing.', 'agent-ready' ),
+				'fix' => \__( 'Open the Context Profile and add at least one post type to Exposed CPTs.', 'agent-ready' ),
 			);
 		}
 
 		return array(
-			'why' => \__( 'Partial — at least one exposure signal is below target.', 'agentready' ),
-			'fix' => \__( 'Open the Context Profile and review Exposed CPTs and Exposed Statuses.', 'agentready' ),
+			'why' => \__( 'Partial — at least one exposure signal is below target.', 'agent-ready' ),
+			'fix' => \__( 'Open the Context Profile and review Exposed CPTs and Exposed Statuses.', 'agent-ready' ),
 		);
 	}
 
@@ -282,16 +282,16 @@ final class Rule_Based_Narrative {
 		if ( $value >= 100 ) {
 			return array(
 				'why' => $wants_llm
-					? \__( 'Working well — the AI Client is configured and the enabled LLM features have a backend to call.', 'agentready' )
-					: \__( 'Working well — LLM features are off, so no AI Client is required.', 'agentready' ),
-				'fix' => \__( 'Re-run this check after toggling any LLM feature in the Context Profile.', 'agentready' ),
+					? \__( 'Working well — the AI Client is configured and the enabled LLM features have a backend to call.', 'agent-ready' )
+					: \__( 'Working well — LLM features are off, so no AI Client is required.', 'agent-ready' ),
+				'fix' => \__( 'Re-run this check after toggling any LLM feature in the Context Profile.', 'agent-ready' ),
 			);
 		}
 
 		if ( $wants_llm && ! $client_cfg ) {
 			return array(
-				'why' => \__( 'LLM features are enabled but the AI Client is unconfigured, so those features silently degrade.', 'agentready' ),
-				'fix' => \__( 'Configure the AI Client in WordPress Settings, or disable the LLM toggles in the Context Profile.', 'agentready' ),
+				'why' => \__( 'LLM features are enabled but the AI Client is unconfigured, so those features silently degrade.', 'agent-ready' ),
+				'fix' => \__( 'Configure the AI Client in WordPress Settings, or disable the LLM toggles in the Context Profile.', 'agent-ready' ),
 			);
 		}
 
@@ -299,16 +299,16 @@ final class Rule_Based_Narrative {
 			return array(
 				'why' => \sprintf(
 					/* translators: %d: number of detected /llms.txt conflicts. */
-					\__( '%d /llms.txt conflict was detected with another plugin.', 'agentready' ),
+					\__( '%d /llms.txt conflict was detected with another plugin.', 'agent-ready' ),
 					$conflict_n
 				),
-				'fix' => \__( 'Open Tools → Context and follow the conflict notice to resolve the override.', 'agentready' ),
+				'fix' => \__( 'Open Tools → Context and follow the conflict notice to resolve the override.', 'agent-ready' ),
 			);
 		}
 
 		return array(
-			'why' => \__( 'Partial — at least one integration signal is below target.', 'agentready' ),
-			'fix' => \__( 'Open the Context Profile and verify the AI Client status and /llms.txt conflicts.', 'agentready' ),
+			'why' => \__( 'Partial — at least one integration signal is below target.', 'agent-ready' ),
+			'fix' => \__( 'Open the Context Profile and verify the AI Client status and /llms.txt conflicts.', 'agent-ready' ),
 		);
 	}
 
@@ -323,15 +323,15 @@ final class Rule_Based_Narrative {
 
 		if ( $value >= 100 ) {
 			return array(
-				'why' => \__( 'Working well — Markdown conversion quality is at the ceiling across the cached posts.', 'agentready' ),
-				'fix' => \__( 'Re-run the audit after large editorial passes to catch drift.', 'agentready' ),
+				'why' => \__( 'Working well — Markdown conversion quality is at the ceiling across the cached posts.', 'agent-ready' ),
+				'fix' => \__( 'Re-run the audit after large editorial passes to catch drift.', 'agent-ready' ),
 			);
 		}
 
 		if ( $rows <= 0 ) {
 			return array(
-				'why' => \__( 'No Markdown Views cache rows yet, so there is nothing to evaluate.', 'agentready' ),
-				'fix' => \__( 'Visit a few .md URLs on the site to populate the cache, then recompute.', 'agentready' ),
+				'why' => \__( 'No Markdown Views cache rows yet, so there is nothing to evaluate.', 'agent-ready' ),
+				'fix' => \__( 'Visit a few .md URLs on the site to populate the cache, then recompute.', 'agent-ready' ),
 			);
 		}
 
@@ -339,22 +339,22 @@ final class Rule_Based_Narrative {
 			return array(
 				'why' => \sprintf(
 					/* translators: 1: mean MD quality 0-100. 2: percentage of rows above the cleanup threshold. */
-					\__( 'Critical — mean Markdown quality is %1$d/100 and only %2$d%% of cached posts are above the cleanup threshold.', 'agentready' ),
+					\__( 'Critical — mean Markdown quality is %1$d/100 and only %2$d%% of cached posts are above the cleanup threshold.', 'agent-ready' ),
 					$mean,
 					$above_pct
 				),
-				'fix' => \__( 'Enable LLM cleanup in the Context Profile and approve cleanup runs on the lowest-quality posts.', 'agentready' ),
+				'fix' => \__( 'Enable LLM cleanup in the Context Profile and approve cleanup runs on the lowest-quality posts.', 'agent-ready' ),
 			);
 		}
 
 		return array(
 			'why' => \sprintf(
 				/* translators: 1: mean MD quality 0-100. 2: percentage of rows above the cleanup threshold. */
-				\__( 'Partial — mean Markdown quality is %1$d/100; %2$d%% of cached posts are above the cleanup threshold.', 'agentready' ),
+				\__( 'Partial — mean Markdown quality is %1$d/100; %2$d%% of cached posts are above the cleanup threshold.', 'agent-ready' ),
 				$mean,
 				$above_pct
 			),
-			'fix' => \__( 'Approve LLM cleanup runs on the posts flagged below the threshold in Markdown Views.', 'agentready' ),
+			'fix' => \__( 'Approve LLM cleanup runs on the posts flagged below the threshold in Markdown Views.', 'agent-ready' ),
 		);
 	}
 
@@ -369,11 +369,11 @@ final class Rule_Based_Narrative {
 		return array(
 			'why' => \sprintf(
 				/* translators: 1: sub-score machine name. 2: value 0-100. */
-				\__( 'Sub-score "%1$s" scored %2$d/100; no template is configured for this sub-score yet.', 'agentready' ),
+				\__( 'Sub-score "%1$s" scored %2$d/100; no template is configured for this sub-score yet.', 'agent-ready' ),
 				$name,
 				$value
 			),
-			'fix' => \__( 'Review the raw signals in the Full breakdown panel.', 'agentready' ),
+			'fix' => \__( 'Review the raw signals in the Full breakdown panel.', 'agent-ready' ),
 		);
 	}
 

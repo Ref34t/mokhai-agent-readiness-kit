@@ -6,7 +6,7 @@
  * regenerate buttons and a top-level "Regenerate stale" button. Mounts
  * underneath the editorial-entries editor on Tools → Context.
  *
- * All mutations go through `agentready/v1/llms-txt/descriptions/*` REST
+ * All mutations go through `agent-ready/v1/llms-txt/descriptions/*` REST
  * routes — the controller is the source of truth, this UI is presentation
  * only.
  */
@@ -34,14 +34,14 @@ const PENDING_POLL_INTERVAL_MS = 4000;
 const STUCK_PENDING_THRESHOLD_MS = 60000;
 
 const STATUS_FILTERS = [
-	{ value: 'any', label: __( 'All entries', 'agentready' ) },
-	{ value: 'missing', label: __( 'Missing (no description)', 'agentready' ) },
-	{ value: 'cached', label: __( 'Cached (auto)', 'agentready' ) },
-	{ value: 'manual', label: __( 'Manual override', 'agentready' ) },
-	{ value: 'pending', label: __( 'Pending (queued)', 'agentready' ) },
-	{ value: 'needs-retry', label: __( 'Needs retry', 'agentready' ) },
-	{ value: 'failed', label: __( 'Failed', 'agentready' ) },
-	{ value: 'stale', label: __( 'Stale (post edited after generation)', 'agentready' ) },
+	{ value: 'any', label: __( 'All entries', 'agent-ready' ) },
+	{ value: 'missing', label: __( 'Missing (no description)', 'agent-ready' ) },
+	{ value: 'cached', label: __( 'Cached (auto)', 'agent-ready' ) },
+	{ value: 'manual', label: __( 'Manual override', 'agent-ready' ) },
+	{ value: 'pending', label: __( 'Pending (queued)', 'agent-ready' ) },
+	{ value: 'needs-retry', label: __( 'Needs retry', 'agent-ready' ) },
+	{ value: 'failed', label: __( 'Failed', 'agent-ready' ) },
+	{ value: 'stale', label: __( 'Stale (post edited after generation)', 'agent-ready' ) },
 ];
 
 const PILL_STYLES = {
@@ -94,7 +94,7 @@ function StatusBadges( { row } ) {
 			{ row.status && row.status !== 'done' && (
 				<Pill kind={ row.status }>{ row.status }</Pill>
 			) }
-			{ row.is_stale && <Pill kind="stale">{ __( 'stale', 'agentready' ) }</Pill> }
+			{ row.is_stale && <Pill kind="stale">{ __( 'stale', 'agent-ready' ) }</Pill> }
 		</div>
 	);
 }
@@ -118,10 +118,10 @@ function DescriptionRow( {
 	const regenDisabledReason = isManual
 		? __(
 				'Manual override is sticky. Use "Clear manual" first to regenerate.',
-				'agentready'
+				'agent-ready'
 		  )
 		: ! bootstrap.llmAvailable
-		? __( 'WP AI Client is not configured.', 'agentready' )
+		? __( 'WP AI Client is not configured.', 'agent-ready' )
 		: null;
 
 	const saveManual = useCallback( async () => {
@@ -137,7 +137,7 @@ function DescriptionRow( {
 			onRowUpdated( updated );
 			setEditing( false );
 		} catch ( err ) {
-			setError( err.message || __( 'Save failed.', 'agentready' ) );
+			setError( err.message || __( 'Save failed.', 'agent-ready' ) );
 		} finally {
 			setPendingAction( null );
 		}
@@ -156,7 +156,7 @@ function DescriptionRow( {
 			setDraft( updated.auto || '' );
 			setEditing( false );
 		} catch ( err ) {
-			setError( err.message || __( 'Clear failed.', 'agentready' ) );
+			setError( err.message || __( 'Clear failed.', 'agent-ready' ) );
 		} finally {
 			setPendingAction( null );
 		}
@@ -173,7 +173,7 @@ function DescriptionRow( {
 			} );
 			onRowUpdated( updated );
 		} catch ( err ) {
-			setError( err.message || __( 'Regenerate failed.', 'agentready' ) );
+			setError( err.message || __( 'Regenerate failed.', 'agent-ready' ) );
 		} finally {
 			setPendingAction( null );
 		}
@@ -184,7 +184,7 @@ function DescriptionRow( {
 			<td style={ { padding: '8px 6px', verticalAlign: 'top', width: '30%' } }>
 				<div>
 					<a href={ row.url } target="_blank" rel="noopener noreferrer">
-						{ row.title || __( '(no title)', 'agentready' ) }
+						{ row.title || __( '(no title)', 'agent-ready' ) }
 					</a>
 				</div>
 				<div style={ { color: '#888', fontSize: '11px', marginTop: '2px' } }>
@@ -199,21 +199,21 @@ function DescriptionRow( {
 					<div style={ { whiteSpace: 'pre-wrap' } }>
 						{ row.resolved || (
 							<em style={ { color: '#888' } }>
-								{ __( '(no description)', 'agentready' ) }
+								{ __( '(no description)', 'agent-ready' ) }
 							</em>
 						) }
 					</div>
 				) }
 				{ editing && (
 					<TextareaControl
-						label={ __( 'Manual override', 'agentready' ) }
+						label={ __( 'Manual override', 'agent-ready' ) }
 						value={ draft }
 						onChange={ ( v ) => setDraft( v ) }
 						rows={ 2 }
 						maxLength={ 200 }
 						help={ __(
 							'Sticky — never overwritten by automatic regeneration. Max 160 characters; longer entries are truncated.',
-							'agentready'
+							'agent-ready'
 						) }
 						__nextHasNoMarginBottom
 					/>
@@ -228,7 +228,7 @@ function DescriptionRow( {
 				{ ! editing && (
 					<div style={ { display: 'flex', gap: '4px', justifyContent: 'flex-end' } }>
 						<Button variant="tertiary" onClick={ () => setEditing( true ) } disabled={ isBusy }>
-							{ __( 'Edit', 'agentready' ) }
+							{ __( 'Edit', 'agent-ready' ) }
 						</Button>
 						<span title={ regenDisabledReason || undefined }>
 							<Button
@@ -236,7 +236,7 @@ function DescriptionRow( {
 								onClick={ regen }
 								disabled={ isBusy || regenDisabledReason !== null }
 							>
-								{ __( 'Regenerate', 'agentready' ) }
+								{ __( 'Regenerate', 'agent-ready' ) }
 							</Button>
 						</span>
 					</div>
@@ -244,14 +244,14 @@ function DescriptionRow( {
 				{ editing && (
 					<div style={ { display: 'flex', gap: '4px', justifyContent: 'flex-end' } }>
 						<Button variant="primary" onClick={ saveManual } disabled={ isBusy }>
-							{ __( 'Save', 'agentready' ) }
+							{ __( 'Save', 'agent-ready' ) }
 						</Button>
 						<Button variant="secondary" onClick={ () => setEditing( false ) } disabled={ isBusy }>
-							{ __( 'Cancel', 'agentready' ) }
+							{ __( 'Cancel', 'agent-ready' ) }
 						</Button>
 						{ row.manual && (
 							<Button variant="link" isDestructive onClick={ clearManual } disabled={ isBusy }>
-								{ __( 'Clear manual', 'agentready' ) }
+								{ __( 'Clear manual', 'agent-ready' ) }
 							</Button>
 						) }
 					</div>
@@ -315,7 +315,7 @@ function DescriptionsTable() {
 		} catch ( err ) {
 			setFlash( {
 				type: 'error',
-				message: err.message || __( 'Failed to load descriptions.', 'agentready' ),
+				message: err.message || __( 'Failed to load descriptions.', 'agent-ready' ),
 			} );
 		} finally {
 			if ( ! silent ) {
@@ -393,7 +393,7 @@ function DescriptionsTable() {
 				type: 'success',
 				message: sprintf(
 					/* translators: 1: scheduled count, 2: skipped count */
-					__( 'Scheduled %1$d description job(s); %2$d skipped.', 'agentready' ),
+					__( 'Scheduled %1$d description job(s); %2$d skipped.', 'agent-ready' ),
 					response.scheduled,
 					response.skipped
 				),
@@ -402,7 +402,7 @@ function DescriptionsTable() {
 		} catch ( err ) {
 			setFlash( {
 				type: 'error',
-				message: err.message || __( 'Bulk regenerate failed.', 'agentready' ),
+				message: err.message || __( 'Bulk regenerate failed.', 'agent-ready' ),
 			} );
 		} finally {
 			setBulkBusy( false );
@@ -414,7 +414,7 @@ function DescriptionsTable() {
 			<Notice status="error" isDismissible={ false }>
 				{ __(
 					'Agent Ready descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
-					'agentready'
+					'agent-ready'
 				) }
 			</Notice>
 		);
@@ -425,7 +425,7 @@ function DescriptionsTable() {
 			<Notice status="warning" isDismissible={ false }>
 				{ __(
 					'LLM descriptions are disabled in the Context Profile above. Toggle "Auto-generate entry descriptions" on to surface this table.',
-					'agentready'
+					'agent-ready'
 				) }
 			</Notice>
 		);
@@ -436,7 +436,7 @@ function DescriptionsTable() {
 			<Notice status="warning" isDismissible={ false }>
 				{ __(
 					'WP AI Client is not configured. Install/activate it and add API credentials before running description backfills.',
-					'agentready'
+					'agent-ready'
 				) }
 			</Notice>
 		);
@@ -454,10 +454,10 @@ function DescriptionsTable() {
 				} }
 			>
 				<SelectControl
-					label={ __( 'Post type', 'agentready' ) }
+					label={ __( 'Post type', 'agent-ready' ) }
 					value={ cpt }
 					options={ [
-						{ value: '', label: __( 'All exposed types', 'agentready' ) },
+						{ value: '', label: __( 'All exposed types', 'agent-ready' ) },
 						...( bootstrap.exposedCpts || [] ).map( ( c ) => ( {
 							value: c,
 							label: c,
@@ -470,7 +470,7 @@ function DescriptionsTable() {
 					__nextHasNoMarginBottom
 				/>
 				<SelectControl
-					label={ __( 'Filter', 'agentready' ) }
+					label={ __( 'Filter', 'agent-ready' ) }
 					value={ status }
 					options={ STATUS_FILTERS }
 					onChange={ ( v ) => {
@@ -485,8 +485,8 @@ function DescriptionsTable() {
 					disabled={ bulkBusy }
 				>
 					{ bulkBusy
-						? __( 'Scheduling…', 'agentready' )
-						: __( 'Regenerate stale descriptions', 'agentready' ) }
+						? __( 'Scheduling…', 'agent-ready' )
+						: __( 'Regenerate stale descriptions', 'agent-ready' ) }
 				</Button>
 			</div>
 
@@ -500,7 +500,7 @@ function DescriptionsTable() {
 				<Notice status="info" isDismissible={ false }>
 					{ __(
 						'Refreshing while cron processes the queued jobs…',
-						'agentready'
+						'agent-ready'
 					) }
 				</Notice>
 			) }
@@ -510,7 +510,7 @@ function DescriptionsTable() {
 					<p style={ { margin: 0 } }>
 						{ __(
 							'Description jobs have been pending for over 60 seconds. WP cron fires on every front-end page hit — load any post in another tab, or run "wp cron event run --due-now" from the command line to drain the queue. Auto-refresh has paused.',
-							'agentready'
+							'agent-ready'
 						) }
 					</p>
 					<p style={ { margin: '8px 0 0 0' } }>
@@ -521,7 +521,7 @@ function DescriptionsTable() {
 								fetchPage();
 							} }
 						>
-							{ __( 'Check again now', 'agentready' ) }
+							{ __( 'Check again now', 'agent-ready' ) }
 						</Button>
 					</p>
 				</Notice>
@@ -531,7 +531,7 @@ function DescriptionsTable() {
 
 			{ ! loading && data.items.length === 0 && (
 				<p style={ { fontStyle: 'italic', color: '#888' } }>
-					{ __( 'No entries match the current filter.', 'agentready' ) }
+					{ __( 'No entries match the current filter.', 'agent-ready' ) }
 				</p>
 			) }
 
@@ -546,16 +546,16 @@ function DescriptionsTable() {
 					<thead>
 						<tr style={ { background: '#f8f8f8', textAlign: 'left' } }>
 							<th style={ { padding: '8px 6px' } }>
-								{ __( 'Post', 'agentready' ) }
+								{ __( 'Post', 'agent-ready' ) }
 							</th>
 							<th style={ { padding: '8px 6px' } }>
-								{ __( 'Status', 'agentready' ) }
+								{ __( 'Status', 'agent-ready' ) }
 							</th>
 							<th style={ { padding: '8px 6px' } }>
-								{ __( 'Description', 'agentready' ) }
+								{ __( 'Description', 'agent-ready' ) }
 							</th>
 							<th style={ { padding: '8px 6px', textAlign: 'right' } }>
-								{ __( 'Actions', 'agentready' ) }
+								{ __( 'Actions', 'agent-ready' ) }
 							</th>
 						</tr>
 					</thead>
@@ -588,12 +588,12 @@ function DescriptionsTable() {
 						disabled={ page <= 1 }
 						onClick={ () => setPage( ( p ) => Math.max( 1, p - 1 ) ) }
 					>
-						{ __( '← Previous', 'agentready' ) }
+						{ __( '← Previous', 'agent-ready' ) }
 					</Button>
 					<span>
 						{ sprintf(
 							/* translators: 1: current page, 2: total pages */
-							__( 'Page %1$d of %2$d', 'agentready' ),
+							__( 'Page %1$d of %2$d', 'agent-ready' ),
 							page,
 							data.pages
 						) }
@@ -603,12 +603,12 @@ function DescriptionsTable() {
 						disabled={ page >= data.pages }
 						onClick={ () => setPage( ( p ) => Math.min( data.pages, p + 1 ) ) }
 					>
-						{ __( 'Next →', 'agentready' ) }
+						{ __( 'Next →', 'agent-ready' ) }
 					</Button>
 					<span style={ { color: '#888', marginLeft: '8px' } }>
 						{ sprintf(
 							/* translators: %d: total entries */
-							__( '%d total', 'agentready' ),
+							__( '%d total', 'agent-ready' ),
 							data.total
 						) }
 					</span>

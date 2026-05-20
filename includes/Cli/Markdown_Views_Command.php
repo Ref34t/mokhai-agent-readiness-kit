@@ -2,7 +2,7 @@
 /**
  * WP-CLI command surface for Markdown Views.
  *
- * Registers `wp agentready md preview <target> [...]` as a power-user and
+ * Registers `wp agent-ready md preview <target> [...]` as a power-user and
  * scripted-workflow path that bypasses the wp-admin UI per AgDR-0014.
  * Same backend as the public route + REST endpoint — every surface
  * funnels into `Service::get_markdown_for_post()`.
@@ -25,23 +25,23 @@ use WPContext\Markdown_Views\Service;
  * ## EXAMPLES
  *
  *     # Preview the MD for a post by ID, raw output to stdout.
- *     $ wp agentready md preview 42
+ *     $ wp agent-ready md preview 42
  *
  *     # Preview by permalink instead of ID.
- *     $ wp agentready md preview https://example.com/about-us/
+ *     $ wp agent-ready md preview https://example.com/about-us/
  *
  *     # Wrap the MD with a YAML-ish header (title, canonical URL,
  *     # generated_at). Useful for piping into LLM tooling that wants
  *     # source metadata.
- *     $ wp agentready md preview 42 --format=wrapped
+ *     $ wp agent-ready md preview 42 --format=wrapped
  *
  *     # Print cache-state diagnostics to stderr alongside the MD body.
- *     $ wp agentready md preview 42 --show-meta
+ *     $ wp agent-ready md preview 42 --show-meta
  *
  *     # Force preview a hidden post (draft, password-protected, etc.).
  *     # Requires manage_options capability. The output is NOT served
  *     # publicly — this flag only affects CLI introspection.
- *     $ wp agentready md preview 42 --bypass-exposure
+ *     $ wp agent-ready md preview 42 --bypass-exposure
  */
 final class Markdown_Views_Command {
 
@@ -54,7 +54,7 @@ final class Markdown_Views_Command {
 			return;
 		}
 
-		\WP_CLI::add_command( 'agentready md', self::class );
+		\WP_CLI::add_command( 'agent-ready md', self::class );
 	}
 
 	/**
@@ -85,9 +85,9 @@ final class Markdown_Views_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp agentready md preview 42
-	 *     wp agentready md preview /about-us/ --format=wrapped
-	 *     wp agentready md preview 42 --show-meta
+	 *     wp agent-ready md preview 42
+	 *     wp agent-ready md preview /about-us/ --format=wrapped
+	 *     wp agent-ready md preview 42 --show-meta
 	 *
 	 * @param array<int, string>      $args       Positional arguments.
 	 * @param array<string, string|bool> $assoc_args Associative arguments.
@@ -97,7 +97,7 @@ final class Markdown_Views_Command {
 		$post   = self::resolve_post( $target );
 
 		if ( null === $post ) {
-			\WP_CLI::error( \sprintf( /* translators: %s is the user-supplied target. */ \__( 'No post matches "%s".', 'agentready' ), $target ) );
+			\WP_CLI::error( \sprintf( /* translators: %s is the user-supplied target. */ \__( 'No post matches "%s".', 'agent-ready' ), $target ) );
 		}
 
 		$bypass = isset( $assoc_args['bypass-exposure'] ) && (bool) $assoc_args['bypass-exposure'];
@@ -106,7 +106,7 @@ final class Markdown_Views_Command {
 			\WP_CLI::error(
 				\__(
 					'--bypass-exposure requires the manage_options capability. Run with `--user=<id-or-login>` to authenticate as an administrator (e.g. `wp --user=admin agentready md preview <id> --bypass-exposure`).',
-					'agentready'
+					'agent-ready'
 				)
 			);
 		}
@@ -115,7 +115,7 @@ final class Markdown_Views_Command {
 		// toggle is an explicit admin choice and CLI output for a disabled
 		// module would be confusing.
 		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
-			\WP_CLI::error( \__( 'Markdown Views is disabled in the Context Profile.', 'agentready' ) );
+			\WP_CLI::error( \__( 'Markdown Views is disabled in the Context Profile.', 'agent-ready' ) );
 		}
 
 		if ( ! $bypass ) {
@@ -124,7 +124,7 @@ final class Markdown_Views_Command {
 				\WP_CLI::error(
 					\sprintf(
 						/* translators: 1: post ID, 2: reason code (cpt|status|password|noindex). */
-						\__( 'Post #%1$d is not exposable (reason: %2$s). Use --bypass-exposure to preview anyway (requires manage_options).', 'agentready' ),
+						\__( 'Post #%1$d is not exposable (reason: %2$s). Use --bypass-exposure to preview anyway (requires manage_options).', 'agent-ready' ),
 						(int) $post->ID,
 						$reason
 					)
@@ -233,14 +233,14 @@ final class Markdown_Views_Command {
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		if ( ! \is_array( $row ) ) {
-			\WP_CLI::warning( \__( 'cache: miss (no row)', 'agentready' ) );
+			\WP_CLI::warning( \__( 'cache: miss (no row)', 'agent-ready' ) );
 			return;
 		}
 
 		\WP_CLI::warning(
 			\sprintf(
 				/* translators: 1: content hash, 2: walker version, 3: generated_at timestamp. */
-				\__( 'cache: hit | hash=%1$s | walker_version=%2$s | generated_at=%3$s', 'agentready' ),
+				\__( 'cache: hit | hash=%1$s | walker_version=%2$s | generated_at=%3$s', 'agent-ready' ),
 				(string) $row['content_hash'],
 				(string) $row['walker_version'],
 				(string) $row['generated_at']

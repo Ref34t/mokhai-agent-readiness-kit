@@ -79,7 +79,7 @@ final class Sidebar_Assets {
 
 		\wp_set_script_translations(
 			self::SCRIPT_HANDLE,
-			'agentready',
+			'agent-ready',
 			\WPCTX_DIR . 'languages'
 		);
 	}
