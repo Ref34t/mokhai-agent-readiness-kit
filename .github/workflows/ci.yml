@@ -319,6 +319,7 @@ jobs:
             'agentready/composer\.lock'
             'agentready/package\.json'
             'agentready/package-lock\.json'
+            'agentready/webpack\.config\.js'
             'agentready/README\.md'
             'agentready/\.distignore'
             'agentready/phpcs\.xml\.dist'
