@@ -1,5 +1,5 @@
 /**
- * AgentReady — Context Score admin UI (#10 / AgDR-0031).
+ * Agent Ready — Context Score admin UI (#10 / AgDR-0031).
  *
  * Renders the cached breakdown shipped in AgDR-0030 (#9) as three
  * vertical regions:
@@ -789,7 +789,7 @@ function TypeChip( { children, tone } ) {
 
 // Schema Coordination panel (#12 / AgDR-0033). Documents which JSON-LD
 // types are deferred to the active SEO plugin and which (if any)
-// AgentReady fills via gap-fill. Static info — no mutations from this
+// Agent Ready fills via gap-fill. Static info — no mutations from this
 // surface; the matrix is read-only state.
 function SchemaCoordinationPanel( { coordination } ) {
 	if ( ! coordination || typeof coordination !== 'object' ) {
@@ -823,19 +823,19 @@ function SchemaCoordinationPanel( { coordination } ) {
 						sprintf(
 							/* translators: %s: SEO plugin name */
 							__(
-								'%s is active. AgentReady defers JSON-LD coordination to it and only fills schema types it does not already provide.',
+								'%s is active. Agent Ready defers JSON-LD coordination to it and only fills schema types it does not already provide.',
 								'agentready'
 							),
 							label
 						) }
 					{ ! hasPlugin && profileOptIn &&
 						__(
-							'No SEO plugin detected. AgentReady is emitting a minimal baseline schema set (site identity + content type) on the front-end.',
+							'No SEO plugin detected. Agent Ready is emitting a minimal baseline schema set (site identity + content type) on the front-end.',
 							'agentready'
 						) }
 					{ ! hasPlugin && ! profileOptIn &&
 						__(
-							'No SEO plugin detected and Schema emission is off in Context Profile. AgentReady is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage.',
+							'No SEO plugin detected and Schema emission is off in Context Profile. Agent Ready is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage.',
 							'agentready'
 						) }
 				</p>
@@ -874,7 +874,7 @@ function SchemaCoordinationPanel( { coordination } ) {
 					</div>
 
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Filled by AgentReady', 'agentready' ) }
+						{ __( 'Filled by Agent Ready', 'agentready' ) }
 					</div>
 					<div>
 						{ filled.length === 0 && (
@@ -1019,7 +1019,7 @@ function ContextScorePanel() {
 		return (
 			<Notice status="error" isDismissible={ false }>
 				{ __(
-					'AgentReady Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
+					'Agent Ready Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
 					'agentready'
 				) }
 			</Notice>

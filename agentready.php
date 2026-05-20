@@ -1,10 +1,10 @@
 <?php
 /**
- * Plugin Name:       AgentReady
+ * Plugin Name:       Agent Ready
  * Plugin URI:        https://github.com/Ref34t/agentready
  * Description:       Agent Readiness for WordPress: context, policy, audit, analytics. Makes sites readable, discoverable, governable, and measurable for AI agents.
- * Version:           0.1.0-dev
- * Requires at least: 7.0
+ * Version:           0.1.0
+ * Requires at least: 6.9
  * Requires PHP:      7.4
  * Author:            9H Digital
  * Author URI:        https://9hdigital.com
@@ -31,12 +31,12 @@ namespace WPContext;
  * WPContext\ namespace can reference them without imports.
  */
 function constants(): void {
-	\define( 'WPCTX_VERSION', '0.1.0-dev' );
+	\define( 'WPCTX_VERSION', '0.1.0' );
 	\define( 'WPCTX_FILE', __FILE__ );
 	\define( 'WPCTX_DIR', \plugin_dir_path( __FILE__ ) );
 	\define( 'WPCTX_URL', \plugin_dir_url( __FILE__ ) );
 	\define( 'WPCTX_REQUIRES_PHP', '7.4' );
-	\define( 'WPCTX_REQUIRES_WP', '7.0' );
+	\define( 'WPCTX_REQUIRES_WP', '6.9' );
 }
 
 constants();

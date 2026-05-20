@@ -243,11 +243,11 @@ final class Engine {
 			$value     = 100;
 		} elseif ( $native ) {
 			// Native gap-fill emitter is on via Context Profile (#73 /
-			// AgDR-0034). AgentReady is emitting WebSite + Organization
+			// AgDR-0034). Agent Ready is emitting WebSite + Organization
 			// + per-content JSON-LD on wp_head — same schema_coverage
 			// outcome as a third-party SEO plugin, without the
 			// disclaimer that drove ticket #73.
-			$reasons[] = 'AgentReady is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin.';
+			$reasons[] = 'Agent Ready is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin.';
 			$value     = 100;
 		} else {
 			// Neither path active. Reason text points operators at the
@@ -255,7 +255,7 @@ final class Engine {
 			// Context Profile") rather than the v0.1 disclaimer that
 			// PR #72 shipped — now that #73 has landed, native emission
 			// is real and reachable, not a future-tense promise.
-			$reasons[] = 'No structured data detected on this site. Enable Schema emission in the Context Profile to have AgentReady emit native JSON-LD, or rely on a third-party SEO plugin.';
+			$reasons[] = 'No structured data detected on this site. Enable Schema emission in the Context Profile to have Agent Ready emit native JSON-LD, or rely on a third-party SEO plugin.';
 			$value     = 60;
 		}
 

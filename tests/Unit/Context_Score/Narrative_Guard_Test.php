@@ -97,7 +97,7 @@ final class Narrative_Guard_Test extends TestCase {
 		self::assertContains( 'yoast seo', $allowlist['entities'] );
 	}
 
-	public function test_allowlist_always_includes_cross_cutting_agentready_terms(): void {
+	public function test_allowlist_always_includes_cross_cutting_brand_terms(): void {
 		$allowlist = Narrative_Guard::build_allowlist(
 			array(
 				'value'   => 0,
@@ -107,7 +107,7 @@ final class Narrative_Guard_Test extends TestCase {
 			)
 		);
 
-		self::assertContains( 'agentready', $allowlist['entities'] );
+		self::assertContains( 'agent ready', $allowlist['entities'] );
 		self::assertContains( 'context profile', $allowlist['entities'] );
 		self::assertContains( 'ai client', $allowlist['entities'] );
 		self::assertContains( 'site health', $allowlist['entities'] );

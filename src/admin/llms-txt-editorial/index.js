@@ -1,5 +1,5 @@
 /**
- * AgentReady — LLMs Index editorial entries admin UI (#7 Phase C / AgDR-0025).
+ * Agent Ready — LLMs Index editorial entries admin UI (#7 Phase C / AgDR-0025).
  *
  * Repeater editor for the `agentready_llms_txt_editorial` option. Mounts
  * underneath the Context Profile editor on Tools → Context. Submits via the
@@ -204,7 +204,7 @@ function EditorialApp( { bootstrap } ) {
 		<form
 			action={ bootstrap.options_url }
 			method="post"
-			aria-label={ __( 'AgentReady LLMs Index editorial entries form', 'agentready' ) }
+			aria-label={ __( 'Agent Ready LLMs Index editorial entries form', 'agentready' ) }
 		>
 			<input type="hidden" name="option_page" value={ bootstrap.option_group } />
 			<input type="hidden" name="action" value="update" />

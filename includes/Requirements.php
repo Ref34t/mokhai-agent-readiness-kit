@@ -2,7 +2,8 @@
 /**
  * Environment-requirements gate.
  *
- * Activation refusal on WP < 7.0 / PHP < 7.4, runtime degrade when the WP AI
+ * Activation refusal when WP or PHP falls below the floor declared via
+ * WPCTX_REQUIRES_WP / WPCTX_REQUIRES_PHP, runtime degrade when the WP AI
  * Client is unconfigured, and the admin notices that explain both states.
  *
  * @package WPContext
@@ -24,12 +25,12 @@ final class Requirements {
 	/**
 	 * Whether the running WordPress version meets the hard floor.
 	 *
-	 * Pre-release suffixes (e.g. `7.0-alpha-12345`, `7.0-RC1`) are stripped
-	 * before comparison so a pre-GA build of WP 7.0 still counts as ">= 7.0".
-	 * PHP's version_compare treats `-alpha` as pre-release, so without this
-	 * the gate would refuse activation on WP 7.0 dev branches even though
-	 * those builds ARE the future 7.0 — and CI matrix cells running against
-	 * the 7.0-branch would fail every integration test.
+	 * Pre-release suffixes (e.g. `6.9-alpha-12345`, `6.9-RC1`) are stripped
+	 * before comparison so a pre-GA build at the floor still counts as
+	 * meeting it. PHP's version_compare treats `-alpha` as pre-release, so
+	 * without this the gate would refuse activation on WP dev branches even
+	 * though those builds ARE the targeted version — and CI matrix cells
+	 * running against a pre-release branch would fail every integration test.
 	 *
 	 * @param string|null $current_version Optional override for testing.
 	 *                                     Defaults to `get_bloginfo('version')`.
@@ -48,11 +49,12 @@ final class Requirements {
 	}
 
 	/**
-	 * Whether the WP AI Client (shipped with WP core 7.0) is available
-	 * and configured at runtime.
+	 * Whether the WP AI Client is available and configured at runtime.
 	 *
-	 * Thin delegate so callers outside the Ai namespace don't have to
-	 * reach into Client_Wrapper directly.
+	 * Resolved via `wp_ai_client_prompt()` presence — true when a WP core
+	 * version that bundles the client is running, or when the standalone
+	 * WP AI Client plugin is active. Thin delegate so callers outside the
+	 * Ai namespace don't have to reach into Client_Wrapper directly.
 	 */
 	public static function has_ai_client(): bool {
 		return Client_Wrapper::has_ai_client();
@@ -71,7 +73,7 @@ final class Requirements {
 			\wp_die(
 				\sprintf(
 					/* translators: 1: required PHP version, 2: current PHP version */
-					\esc_html__( 'AgentReady requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated.', 'agentready' ),
+					\esc_html__( 'Agent Ready requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated.', 'agentready' ),
 					\esc_html( \WPCTX_REQUIRES_PHP ),
 					\esc_html( \PHP_VERSION )
 				),
@@ -85,7 +87,7 @@ final class Requirements {
 			\wp_die(
 				\sprintf(
 					/* translators: 1: required WordPress version, 2: current WordPress version */
-					\esc_html__( 'AgentReady requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated.', 'agentready' ),
+					\esc_html__( 'Agent Ready requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated.', 'agentready' ),
 					\esc_html( \WPCTX_REQUIRES_WP ),
 					\esc_html( \get_bloginfo( 'version' ) )
 				),
@@ -142,7 +144,7 @@ final class Requirements {
 
 		\printf(
 			'<div class="notice notice-error"><p><strong>%1$s</strong> %2$s</p></div>',
-			\esc_html__( 'AgentReady is inactive:', 'agentready' ),
+			\esc_html__( 'Agent Ready is inactive:', 'agentready' ),
 			\esc_html( \implode( ' ', $messages ) )
 		);
 	}
@@ -170,7 +172,7 @@ final class Requirements {
 			return;
 		}
 
-		// Only show on AgentReady admin screens. Screen IDs are added by
+		// Only show on Agent Ready admin screens. Screen IDs are added by
 		// #4 (Profile screen) and #10 (Context Score Tools page); until they
 		// land, this notice stays off-screen, which is the correct degrade
 		// for the scaffold-only state.
@@ -181,7 +183,7 @@ final class Requirements {
 
 		\printf(
 			'<div class="notice notice-info"><p>%1$s</p></div>',
-			\esc_html__( 'AgentReady is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives.', 'agentready' )
+			\esc_html__( 'Agent Ready is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives.', 'agentready' )
 		);
 	}
 }
