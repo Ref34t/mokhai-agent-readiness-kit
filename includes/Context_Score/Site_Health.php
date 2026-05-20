@@ -92,7 +92,7 @@ final class Site_Health {
 	 *
 	 * Reads `Service::get_breakdown()` only — never recomputes here. A
 	 * null cache means the score has not been computed yet (fresh
-	 * install pre-first-cron, or invalidated by `wp agentready
+	 * install pre-first-cron, or invalidated by `wp agent-ready
 	 * context-score reset`) and surfaces as a `recommended` prompt to
 	 * visit the admin page.
 	 *

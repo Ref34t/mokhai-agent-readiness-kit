@@ -161,7 +161,7 @@ final class Main {
 		// Wire the Context Score engine (#9 / AgDR-0030). Service owns the
 		// cache option, the daily cron backstop, and the debounced
 		// recompute on `agentready_context_profile_saved`. The WP-CLI
-		// command exposes the breakdown as JSON (`wp agentready
+		// command exposes the breakdown as JSON (`wp agent-ready
 		// context-score audit`).
 		Context_Score\Service::register_hooks();
 		\WPContext\Cli\Context_Score_Command::register();

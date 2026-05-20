@@ -148,6 +148,7 @@ jobs:
         uses: wordpress/plugin-check-action@v1.1.5
         with:
           build-dir: '.'
+          slug: 'agent-ready'
           wp-version: 'trunk'
           # Plugin Check scans the entire build-dir as if it were the wp.org
           # zip. Repo-only files (CI config, lockfiles, dev tooling, dotfiles,
