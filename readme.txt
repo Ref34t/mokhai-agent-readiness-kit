@@ -1,5 +1,5 @@
 === Agent Ready ===
-Contributors: author
+Contributors: mokhaled
 Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 6.9.4
