@@ -18,7 +18,7 @@ v0.1 ships four coherent modules driven by one profile:
 
 * **Markdown Views** — deterministic HTML → Markdown rendering for any public URL, with three URL forms (`.md` path, `?format=md` query, `Accept: text/markdown` content negotiation) and uniform 404 on denial. Per-post cache with content-hash invalidation, Gutenberg sidebar preview, WP-CLI command, REST endpoint for admin tooling.
 * **LLMs Index** — `/llms.txt` generator that publishes a discovery surface for AI agents, with conflict detection against `robots.txt`, an editorial entries admin UI for site owners to add curated entries, and an optional LLM-powered pass that drafts entry descriptions from post content.
-* **Context Score** — 0–100 readiness audit across six sub-scores (exposure, schema, discoverability, freshness, narrative-friendliness, agent-policy posture), surfaced in an admin page, Site Health, and `wp agentready context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
+* **Context Score** — 0–100 readiness audit across six weighted sub-scores (discoverability, content readability, schema coverage, exposure safety, integration health, Markdown conversion quality), surfaced in an admin page, Site Health, and `wp agentready context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
 * **Schema Coordination** — detects whether your SEO plugin already emits JSON-LD; if not, optionally emits a native WebSite + Organization + per-content schema set so the schema sub-score is achievable without a third-party SEO plugin. Defers gracefully when an SEO plugin is already covering the surface.
 
 The plugin is fully free, GPL-2.0+, with no paid tier and no hosted backend. Every module is independently toggleable from the Context Profile. No content leaves your server. The plugin makes no external HTTP calls; AI providers configured via the WP AI Client (an optional dependency) are only consulted by modules that explicitly opt in, and every deterministic surface (Markdown Views, /llms.txt, the rule-based score, the gap-fill schema) runs fully locally without an AI provider.
@@ -44,7 +44,7 @@ A URL returns 404 with no body — never a partial content leak — when any of 
 * The post's CPT is not in the Context Profile's "Exposed CPTs" list
 * The post's status is not in the "Exposed statuses" list (defaults to `publish` only)
 * The post is password-protected
-* The post is flagged noindex by an SEO plugin (Yoast / Rank Math / AIOSEO detection)
+* A subscriber to the `agentready_post_is_noindexed` filter returns true (the extension point for SEO-plugin noindex coordination — wire it from your theme / a companion plugin in v0.1; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release)
 * The Markdown Views module is toggled off in the Context Profile
 
 All denial paths produce the same 404 shape — admin debugging via the REST endpoint or the `wp agentready md preview` command surfaces the specific reason.
@@ -75,14 +75,14 @@ Optionally, an LLM pass drafts the per-entry descriptions from the post content 
 
 == Context Score ==
 
-Context Score is the 0–100 readiness audit answering "how prepared is this site for AI agent traffic?". It combines six sub-scores:
+Context Score is the 0–100 readiness audit answering "how prepared is this site for AI agent traffic?". It combines six weighted sub-scores:
 
-1. **Exposure** — how many CPTs and statuses are configured for agent access
-2. **Schema** — whether structured data (JSON-LD) is being emitted, by your SEO plugin or natively
-3. **Discoverability** — `/llms.txt` published, robots.txt conflicts resolved, AI agent layer surfaces in place
-4. **Freshness** — when the cache was last regenerated; staleness flagged
-5. **Narrative-friendliness** — content shape signals (heading structure, average post length, presence of summaries)
-6. **Agent-policy posture** — `/.well-known/llms-policy.json` declaration, agent-activity counters
+1. **Discoverability (weight 20)** — `/llms.txt` cache populated, at least one CPT exposed, entries published, no rewrite conflicts overriding the route
+2. **Content readability (weight 15)** — share of exposed entries that have a curated description (post excerpt or LLM-generated cache from the descriptions module)
+3. **Schema coverage (weight 10)** — JSON-LD is being emitted, either by a detected SEO plugin (Yoast / Rank Math / AIOSEO / The SEO Framework) or by Agent Ready's native gap-fill emitter when the Context Profile toggle is on
+4. **Exposure safety (weight 15)** — exposed statuses are limited to `publish` (no risky non-publish exposures) and at least one CPT is configured explicitly rather than implicitly
+5. **Integration health (weight 15)** — LLM features ↔ AI Client posture are consistent (no silent-degrade trap) and no `/llms.txt` conflicts are unresolved
+6. **Markdown conversion quality (weight 25)** — mean quality score across the Markdown Views cache and the percentage of cached posts above the cleanup threshold
 
 The score is surfaced in three places:
 
@@ -100,7 +100,7 @@ When you have an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) active
 
 Agent Ready stores rendered Markdown in a custom table named `{$wpdb->prefix}agentready_md_cache`, with one row per published post that has been requested at least once as Markdown — holding the Markdown body, an integrity hash of the source content, and the timestamp at which it was generated. The cache is invalidated automatically when a post is saved, trashed, or deleted.
 
-Context Score audit results are cached in a custom table named `{$wpdb->prefix}agentready_score_audit` (one row per audit run, retained for trend analysis).
+Context Score audit results are cached in the `agentready_context_score_cache` `wp_options` entry (the most-recent breakdown only — overwritten on each recompute).
 
 No content leaves your server. The plugin makes no external HTTP calls and ships no third-party analytics. AI providers configured via the WP AI Client (an optional dependency) are only consulted by modules that explicitly opt in; the deterministic surfaces (Markdown Views, /llms.txt, rule-based score narrative, gap-fill schema) all run fully locally without an AI provider.
 
@@ -113,7 +113,7 @@ Under **Tools → Context**, set:
 * **Exposed CPTs** — the list of post types to expose to agents. Default: empty (safe-by-default — a fresh install exposes nothing).
 * **Exposed statuses** — the list of post statuses to expose. Default: `publish` only.
 
-Per-module toggles (Markdown Views, LLMs Index, Context Score, native Schema emission) are accessible under the same screen.
+The same screen exposes the LLM cleanup toggle (Markdown Views auto-cleanup pass), the LLM descriptions toggle (auto-drafted `/llms.txt` entry descriptions), and the native Schema emission toggle (default off — opt in to satisfy Context Score's schema sub-score without a third-party SEO plugin). Each toggle gracefully degrades when the WP AI Client is unconfigured.
 
 To turn Markdown Views off without uninstalling:
 
@@ -129,7 +129,7 @@ No. Every deterministic surface (Markdown Views, /llms.txt floor, rule-based Con
 
 = How does Agent Ready interact with my SEO plugin? =
 
-It defers to your SEO plugin's noindex meta — a post marked noindex by Yoast / Rank Math / AIOSEO returns 404 in Markdown form. When your SEO plugin is emitting JSON-LD, Agent Ready emits nothing competing. When no SEO plugin is emitting JSON-LD, you can optionally enable Agent Ready's native gap-fill emission from the Context Profile.
+For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is active, Agent Ready emits nothing competing — schema is theirs. When no SEO plugin is emitting JSON-LD, you can optionally enable Agent Ready's native gap-fill emission from the Context Profile. For noindex: Agent Ready ships an `agentready_post_is_noindexed` filter the Markdown Views handler honours; v0.1 leaves the SEO-plugin subscriber unwired (a theme or companion plugin can subscribe it today; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release).
 
 = How is this different from existing /llms.txt plugins? =
 
@@ -172,7 +172,7 @@ First public release. Four coherent modules driven by one Context Profile.
 
 **Context Score**
 
-* Six sub-scores (exposure, schema, discoverability, freshness, narrative, agent-policy) → 0–100 composite
+* Six weighted sub-scores (discoverability 20, content readability 15, schema coverage 10, exposure safety 15, integration health 15, Markdown conversion quality 25) → 0–100 composite
 * Admin page at Tools → Context Score with full sub-score breakdown
 * Site Health integration with headline score and highest-leverage fix surfacing
 * REST endpoint for programmatic access
