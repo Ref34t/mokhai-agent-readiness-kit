@@ -1,0 +1,54 @@
+# Paths excluded from the wp.org distribution ZIP.
+# Consumed by tools/build-zip.sh via `rsync --exclude-from=.distignore`.
+#
+# Composer files (composer.json / composer.lock) are intentionally absent
+# from this list — they're required during the build's `composer install
+# --no-dev` step and stripped from the final ZIP by build-zip.sh after
+# vendor/ is populated.
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Editor / OS state
+.vscode/
+.editorconfig
+.DS_Store
+.phpunit.result.cache
+
+# Dev environment
+.wp-env.json
+.distignore
+
+# Repo-internal directories not part of the runtime plugin
+node_modules/
+tests/
+docs/
+.github/
+.claude/
+tools/
+src/
+
+# Assets ship via wp.org SVN /assets/, not inside the plugin ZIP
+assets/
+
+# Output artefacts of the build itself (the dist/ folder containing the ZIP)
+dist/
+
+# Dev-only PHP tooling configs
+phpcs.xml.dist
+phpstan.neon.dist
+phpstan-baseline.neon
+phpunit.xml.dist
+
+# Node lockfiles — pre-built artefacts already live in build/
+package.json
+package-lock.json
+
+# Repo README — wp.org listing reads readme.txt; README.md is for GitHub
+README.md
+
+# Test files that may live outside tests/ (e.g. inline test classes)
+*.test.php
+*Test.php
