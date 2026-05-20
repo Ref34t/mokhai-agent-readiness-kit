@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration smoke test — verifies AgentReady loads correctly inside the
+ * Integration smoke test — verifies Agent Ready loads correctly inside the
  * WP test instance booted by wp-phpunit / wp-env.
  *
  * @package WPContext\Tests

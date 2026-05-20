@@ -101,7 +101,7 @@ final class Context_Profile_Settings {
 			self::OPTION_KEY,
 			array(
 				'type'              => 'array',
-				'description'       => \__( 'AgentReady Context Profile (single source of truth for agent-facing surfaces).', 'agentready' ),
+				'description'       => \__( 'Agent Ready Context Profile (single source of truth for agent-facing surfaces).', 'agentready' ),
 				'sanitize_callback' => array( self::class, 'sanitize' ),
 				'show_in_rest'      => false,
 				'default'           => self::get_defaults(),

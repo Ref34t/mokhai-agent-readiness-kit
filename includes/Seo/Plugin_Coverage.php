@@ -6,7 +6,7 @@
  * emitter (`Schema_Emitter`) can compute `emit = baseline ∖ covered` per
  * detected plugin. v0.1 declares all three supported plugins (Yoast, Rank
  * Math, AIOSEO) cover the entire baseline — the gap is therefore empty,
- * AgentReady emits nothing, and Plugin Check Tool reports no duplicate-
+ * Agent Ready emits nothing, and Plugin Check Tool reports no duplicate-
  * schema warnings (AC #6).
  *
  * Full design rationale: docs/agdr/AgDR-0033-seo-defer-gap-fill-emitter.md.
@@ -46,7 +46,7 @@ final class Plugin_Coverage {
 	);
 
 	/**
-	 * Baseline types AgentReady knows how to emit when no SEO plugin is
+	 * Baseline types Agent Ready knows how to emit when no SEO plugin is
 	 * active. `BreadcrumbList` is intentionally absent — we'd need theme
 	 * cooperation to know the trail, and a fabricated trail is worse than
 	 * none.

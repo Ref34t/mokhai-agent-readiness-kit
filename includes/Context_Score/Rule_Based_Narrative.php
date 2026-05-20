@@ -131,7 +131,7 @@ final class Rule_Based_Narrative {
 		if ( $conflicted ) {
 			return array(
 				'why' => \__( 'Another plugin is overriding the /llms.txt rewrite rule, so agents may hit a stale index.', 'agentready' ),
-				'fix' => \__( 'Deactivate the conflicting plugin or move it after AgentReady in load order, then re-test /llms.txt.', 'agentready' ),
+				'fix' => \__( 'Deactivate the conflicting plugin or move it after Agent Ready in load order, then re-test /llms.txt.', 'agentready' ),
 			);
 		}
 
@@ -225,7 +225,7 @@ final class Rule_Based_Narrative {
 
 		return array(
 			'why' => \__( 'No structured data was detected. Exposed content reaches agents without schema metadata for now.', 'agentready' ),
-			'fix' => \__( 'AgentReady will emit JSON-LD natively in a future release; until then, an SEO plugin can fill the gap.', 'agentready' ),
+			'fix' => \__( 'Agent Ready will emit JSON-LD natively in a future release; until then, an SEO plugin can fill the gap.', 'agentready' ),
 		);
 	}
 

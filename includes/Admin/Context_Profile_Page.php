@@ -55,7 +55,7 @@ final class Context_Profile_Page {
 	 */
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
-			\__( 'AgentReady Context Profile', 'agentready' ),
+			\__( 'Agent Ready Context Profile', 'agentready' ),
 			\__( 'Context', 'agentready' ),
 			'manage_options',
 			self::PAGE_SLUG,
@@ -86,7 +86,7 @@ final class Context_Profile_Page {
 			<p class="description">
 				<?php
 				\esc_html_e(
-					'Configure how AgentReady exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below.',
+					'Configure how Agent Ready exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below.',
 					'agentready'
 				);
 				?>
@@ -95,7 +95,7 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-context-profile-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'AgentReady Context Profile editor', 'agentready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Agent Ready Context Profile editor', 'agentready' ); ?>"
 			></div>
 
 			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — editorial entries', 'agentready' ); ?></h2>
@@ -111,7 +111,7 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-llms-txt-editorial-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'AgentReady LLMs Index editorial entries editor', 'agentready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Agent Ready LLMs Index editorial entries editor', 'agentready' ); ?>"
 			></div>
 
 			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — auto-generated descriptions', 'agentready' ); ?></h2>
@@ -127,7 +127,7 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-llms-txt-descriptions-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'AgentReady LLM-powered /llms.txt entry descriptions', 'agentready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Agent Ready LLM-powered /llms.txt entry descriptions', 'agentready' ); ?>"
 			></div>
 
 			<noscript>
@@ -416,7 +416,7 @@ final class Context_Profile_Page {
 		}
 		\printf(
 			'<div class="notice notice-warning"><p>%1$s <code>%2$s</code></p></div>',
-			\esc_html__( 'AgentReady Context Profile UI bundle not found. Run:', 'agentready' ),
+			\esc_html__( 'Agent Ready Context Profile UI bundle not found. Run:', 'agentready' ),
 			\esc_html( 'npm install && npm run build' )
 		);
 	}

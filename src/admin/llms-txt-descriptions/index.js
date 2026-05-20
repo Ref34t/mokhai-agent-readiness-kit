@@ -1,5 +1,5 @@
 /**
- * AgentReady — LLM-powered /llms.txt entry descriptions admin UI
+ * Agent Ready — LLM-powered /llms.txt entry descriptions admin UI
  * (#8 Phase B / AgDR-0029).
  *
  * Server-paginated table of exposed posts with per-row inline edit /
@@ -413,7 +413,7 @@ function DescriptionsTable() {
 		return (
 			<Notice status="error" isDismissible={ false }>
 				{ __(
-					'AgentReady descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
+					'Agent Ready descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
 					'agentready'
 				) }
 			</Notice>

@@ -276,7 +276,7 @@ final class Conflict_Notice {
 		$rewrite_conflicts    = array_values( array_filter( $conflicts, static fn ( $c ) => 'rewrite' === ( $c['kind'] ?? '' ) ) );
 
 		echo '<div class="notice notice-warning is-dismissible agentready-llms-txt-conflict-notice">';
-		echo '<p><strong>' . \esc_html__( 'AgentReady — /llms.txt conflict detected', 'agentready' ) . '</strong></p>';
+		echo '<p><strong>' . \esc_html__( 'Agent Ready — /llms.txt conflict detected', 'agentready' ) . '</strong></p>';
 
 		if ( ! empty( $plugin_conflicts ) ) {
 			self::render_plugin_section( $plugin_conflicts );
@@ -310,7 +310,7 @@ final class Conflict_Notice {
 	private static function render_plugin_section( array $plugins ): void {
 		echo '<p>';
 		\esc_html_e(
-			'The following plugins also publish /llms.txt and will compete with AgentReady\'s route:',
+			'The following plugins also publish /llms.txt and will compete with Agent Ready\'s route:',
 			'agentready'
 		);
 		echo '</p><ul style="list-style:disc;margin-left:1.5em;">';
@@ -332,7 +332,7 @@ final class Conflict_Notice {
 		echo '</ul>';
 		echo '<p>';
 		\esc_html_e(
-			'To switch to AgentReady\'s /llms.txt, deactivate the competing plugin(s) above. If you intentionally run both — e.g. one for /llms.txt, another for something else — dismiss this notice.',
+			'To switch to Agent Ready\'s /llms.txt, deactivate the competing plugin(s) above. If you intentionally run both — e.g. one for /llms.txt, another for something else — dismiss this notice.',
 			'agentready'
 		);
 		echo '</p>';
@@ -350,7 +350,7 @@ final class Conflict_Notice {
 	private static function render_filesystem_section( array $files ): void {
 		echo '<p>';
 		\esc_html_e(
-			'A static /llms.txt file exists at the WordPress root. Web servers serve static files before WordPress loads, so AgentReady\'s /llms.txt route is being shadowed.',
+			'A static /llms.txt file exists at the WordPress root. Web servers serve static files before WordPress loads, so Agent Ready\'s /llms.txt route is being shadowed.',
 			'agentready'
 		);
 		echo '</p>';
@@ -373,7 +373,7 @@ final class Conflict_Notice {
 	private static function render_rewrite_section( array $rules ): void {
 		echo '<p>';
 		\esc_html_e(
-			'Another plugin registered a WordPress rewrite rule for /llms.txt that overrides AgentReady\'s route. The competing rule is:',
+			'Another plugin registered a WordPress rewrite rule for /llms.txt that overrides Agent Ready\'s route. The competing rule is:',
 			'agentready'
 		);
 		echo '</p>';

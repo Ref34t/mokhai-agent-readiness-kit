@@ -75,7 +75,7 @@ final class Narrative_Generator {
 	 * @var string
 	 */
 	private const SYSTEM_PROMPT = <<<'PROMPT'
-You are a senior WordPress consultant. Explain an AgentReady Context Score
+You are a senior WordPress consultant. Explain an Agent Ready Context Score
 audit to an agency owner.
 
 Output ONE pair per sub-score: a "why" explaining what the score reflects,

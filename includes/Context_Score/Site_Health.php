@@ -80,7 +80,7 @@ final class Site_Health {
 		}
 
 		$tests['direct'][ self::TEST_ID ] = array(
-			'label' => \__( 'AgentReady Context Score', 'agentready' ),
+			'label' => \__( 'Agent Ready Context Score', 'agentready' ),
 			'test'  => array( self::class, 'run_test' ),
 		);
 
@@ -107,7 +107,7 @@ final class Site_Health {
 				'recommended',
 				'gray',
 				\__( 'Context Score has not been computed yet.', 'agentready' ),
-				\__( 'Visit the AgentReady Context Score admin page or run <code>wp agentready context-score recompute</code> to generate the first audit.', 'agentready' ),
+				\__( 'Visit the Agent Ready Context Score admin page or run <code>wp agentready context-score recompute</code> to generate the first audit.', 'agentready' ),
 				$panel_url
 			);
 		}
@@ -131,7 +131,7 @@ final class Site_Health {
 			$badge  = 'green';
 			$label  = \sprintf(
 				/* translators: %d: overall score 0-100. */
-				\__( 'AgentReady Context Score: %d/100 — site is well-prepared for AI agent traffic.', 'agentready' ),
+				\__( 'Agent Ready Context Score: %d/100 — site is well-prepared for AI agent traffic.', 'agentready' ),
 				$overall
 			);
 		} elseif ( $overall >= self::CRITICAL_THRESHOLD ) {
@@ -139,7 +139,7 @@ final class Site_Health {
 			$badge  = 'orange';
 			$label  = \sprintf(
 				/* translators: 1: overall score 0-100. 2: count of sub-scores below 100. */
-				\__( 'AgentReady Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentready' ),
+				\__( 'Agent Ready Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentready' ),
 				$overall,
 				$below_target_count
 			);
@@ -148,7 +148,7 @@ final class Site_Health {
 			$badge  = 'red';
 			$label  = \sprintf(
 				/* translators: 1: overall score 0-100. 2: count of sub-scores below 100. */
-				\__( 'AgentReady Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentready' ),
+				\__( 'Agent Ready Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentready' ),
 				$overall,
 				$below_target_count
 			);
@@ -157,10 +157,10 @@ final class Site_Health {
 		$description = '' !== $worst_name
 			? \sprintf(
 				/* translators: %s: human-readable sub-score name (e.g. "discoverability"). */
-				\__( 'The highest-leverage area to improve is <strong>%s</strong>. Open the AgentReady Context Score admin page for the full breakdown and actionable suggestions.', 'agentready' ),
+				\__( 'The highest-leverage area to improve is <strong>%s</strong>. Open the Agent Ready Context Score admin page for the full breakdown and actionable suggestions.', 'agentready' ),
 				self::humanize_sub_score_name( $worst_name )
 			)
-			: \__( 'Open the AgentReady Context Score admin page for the full breakdown.', 'agentready' );
+			: \__( 'Open the Agent Ready Context Score admin page for the full breakdown.', 'agentready' );
 
 		// When the worst sub-score has an LLM narrative attached (#11 /
 		// AgDR-0032), surface its one-line "why" so Site Health and the
@@ -206,7 +206,7 @@ final class Site_Health {
 			'label'       => $label,
 			'status'      => $status,
 			'badge'       => array(
-				'label' => \__( 'AgentReady', 'agentready' ),
+				'label' => \__( 'Agent Ready', 'agentready' ),
 				'color' => $badge_color,
 			),
 			'description' => '<p>' . $description . '</p>',
