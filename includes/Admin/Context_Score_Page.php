@@ -64,7 +64,7 @@ final class Context_Score_Page {
 	 */
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
-			\__( 'AgentReady Context Score', 'agentready' ),
+			\__( 'Agent Ready Context Score', 'agentready' ),
 			\__( 'Context Score', 'agentready' ),
 			'manage_options',
 			self::PAGE_SLUG,
@@ -104,7 +104,7 @@ final class Context_Score_Page {
 			<div
 				id="agentready-context-score-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'AgentReady Context Score breakdown', 'agentready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Agent Ready Context Score breakdown', 'agentready' ); ?>"
 			></div>
 
 			<noscript>
@@ -212,7 +212,7 @@ final class Context_Score_Page {
 		}
 		\printf(
 			'<div class="notice notice-warning"><p>%1$s <code>%2$s</code></p></div>',
-			\esc_html__( 'AgentReady Context Score UI bundle not found. Run:', 'agentready' ),
+			\esc_html__( 'Agent Ready Context Score UI bundle not found. Run:', 'agentready' ),
 			\esc_html( 'npm install && npm run build' )
 		);
 	}
@@ -246,7 +246,7 @@ final class Context_Score_Page {
 	 * Surfaces the detected SEO plugin posture and the per-type
 	 * deference matrix so the agency lead can see at a glance:
 	 *   - Which schema types are deferred to the active SEO plugin
-	 *   - Which schema types AgentReady fills (gap-fill, empty by default)
+	 *   - Which schema types Agent Ready fills (gap-fill, empty by default)
 	 *   - Whether emission is suppressed by the `agentready_schema_emit` filter
 	 *
 	 * The values are computed at render time — same approach as the live

@@ -1,5 +1,5 @@
 /**
- * AgentReady — Context Profile admin UI.
+ * Agent Ready — Context Profile admin UI.
  *
  * React-based editor for the FR-1 keystone. Reads the server-rendered
  * bootstrap payload from `window.agentreadyContextProfile`, posts back via
@@ -92,14 +92,14 @@ function ContextProfileApp( { bootstrap } ) {
 	const schemaPostureLabel = useMemo( () => {
 		if ( schemaCoordination.posture === 'none' ) {
 			return __(
-				'No SEO plugin detected — AgentReady will emit its own JSON-LD schema.',
+				'No SEO plugin detected — Agent Ready will emit its own JSON-LD schema.',
 				'agentready'
 			);
 		}
 		return sprintf(
 			/* translators: %s: SEO plugin label (e.g. "Yoast SEO") */
 			__(
-				'Deferring JSON-LD to %s. AgentReady fills only the schema gaps that plugin does not provide.',
+				'Deferring JSON-LD to %s. Agent Ready fills only the schema gaps that plugin does not provide.',
 				'agentready'
 			),
 			schemaCoordination.label
@@ -123,7 +123,7 @@ function ContextProfileApp( { bootstrap } ) {
 		<form
 			action={ settings.optionsUrl }
 			method="post"
-			aria-label={ __( 'AgentReady Context Profile form', 'agentready' ) }
+			aria-label={ __( 'Agent Ready Context Profile form', 'agentready' ) }
 		>
 			{ /* Settings API plumbing — option_page + action + nonce + referer. */ }
 			<input
@@ -173,7 +173,7 @@ function ContextProfileApp( { bootstrap } ) {
 					<PanelRow>
 						<p className="description">
 							{ __(
-								'Site identity is read live from WordPress General Settings. Edit it there to change what AgentReady emits.',
+								'Site identity is read live from WordPress General Settings. Edit it there to change what Agent Ready emits.',
 								'agentready'
 							) }
 						</p>
@@ -334,7 +334,7 @@ function ContextProfileApp( { bootstrap } ) {
 								'agentready'
 							) }
 							help={ __(
-								'When on, AgentReady emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin.',
+								'When on, Agent Ready emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin.',
 								'agentready'
 							) }
 							checked={ profile.schema_emit_enabled }
@@ -426,7 +426,7 @@ function init() {
 	const bootstrap = readBootstrap();
 	if ( ! bootstrap ) {
 		mount.textContent = __(
-			'AgentReady Context Profile failed to load. Reload the page or contact support.',
+			'Agent Ready Context Profile failed to load. Reload the page or contact support.',
 			'agentready'
 		);
 		return;

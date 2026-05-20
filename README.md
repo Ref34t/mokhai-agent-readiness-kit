@@ -1,14 +1,14 @@
-# AgentReady
+# Agent Ready
 
 > Agent Readiness for WordPress: context, policy, audit, analytics.
 
 An open-source WordPress plugin making sites readable, discoverable, governable, and measurable for AI agents.
 
-**Status:** in early development. Not yet released.
+**Status:** v0.1.0 — submitted to the wp.org plugin directory.
 
 ## Requirements
 
-- WordPress 7.0+
+- WordPress 6.9+
 - PHP 7.4+
 
 ## License

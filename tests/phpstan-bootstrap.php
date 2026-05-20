@@ -15,7 +15,7 @@
 declare(strict_types=1);
 
 if ( ! defined( 'WPCTX_VERSION' ) ) {
-	define( 'WPCTX_VERSION', '0.1.0-dev' );
+	define( 'WPCTX_VERSION', '0.1.0' );
 }
 if ( ! defined( 'WPCTX_FILE' ) ) {
 	define( 'WPCTX_FILE', __DIR__ . '/../agentready.php' );
@@ -30,7 +30,7 @@ if ( ! defined( 'WPCTX_REQUIRES_PHP' ) ) {
 	define( 'WPCTX_REQUIRES_PHP', '7.4' );
 }
 if ( ! defined( 'WPCTX_REQUIRES_WP' ) ) {
-	define( 'WPCTX_REQUIRES_WP', '7.0' );
+	define( 'WPCTX_REQUIRES_WP', '6.9' );
 }
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/../' );
