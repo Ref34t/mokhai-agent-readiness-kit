@@ -80,7 +80,7 @@ final class Site_Health {
 		}
 
 		$tests['direct'][ self::TEST_ID ] = array(
-			'label' => \__( 'Agent Ready Context Score', 'agentready' ),
+			'label' => \__( 'Agent Ready Context Score', 'agent-ready' ),
 			'test'  => array( self::class, 'run_test' ),
 		);
 
@@ -92,7 +92,7 @@ final class Site_Health {
 	 *
 	 * Reads `Service::get_breakdown()` only — never recomputes here. A
 	 * null cache means the score has not been computed yet (fresh
-	 * install pre-first-cron, or invalidated by `wp agentready
+	 * install pre-first-cron, or invalidated by `wp agent-ready
 	 * context-score reset`) and surfaces as a `recommended` prompt to
 	 * visit the admin page.
 	 *
@@ -106,8 +106,8 @@ final class Site_Health {
 			return self::result_payload(
 				'recommended',
 				'gray',
-				\__( 'Context Score has not been computed yet.', 'agentready' ),
-				\__( 'Visit the Agent Ready Context Score admin page or run <code>wp agentready context-score recompute</code> to generate the first audit.', 'agentready' ),
+				\__( 'Context Score has not been computed yet.', 'agent-ready' ),
+				\__( 'Visit the Agent Ready Context Score admin page or run <code>wp agent-ready context-score recompute</code> to generate the first audit.', 'agent-ready' ),
 				$panel_url
 			);
 		}
@@ -131,7 +131,7 @@ final class Site_Health {
 			$badge  = 'green';
 			$label  = \sprintf(
 				/* translators: %d: overall score 0-100. */
-				\__( 'Agent Ready Context Score: %d/100 — site is well-prepared for AI agent traffic.', 'agentready' ),
+				\__( 'Agent Ready Context Score: %d/100 — site is well-prepared for AI agent traffic.', 'agent-ready' ),
 				$overall
 			);
 		} elseif ( $overall >= self::CRITICAL_THRESHOLD ) {
@@ -139,7 +139,7 @@ final class Site_Health {
 			$badge  = 'orange';
 			$label  = \sprintf(
 				/* translators: 1: overall score 0-100. 2: count of sub-scores below 100. */
-				\__( 'Agent Ready Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentready' ),
+				\__( 'Agent Ready Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agent-ready' ),
 				$overall,
 				$below_target_count
 			);
@@ -148,7 +148,7 @@ final class Site_Health {
 			$badge  = 'red';
 			$label  = \sprintf(
 				/* translators: 1: overall score 0-100. 2: count of sub-scores below 100. */
-				\__( 'Agent Ready Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentready' ),
+				\__( 'Agent Ready Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agent-ready' ),
 				$overall,
 				$below_target_count
 			);
@@ -157,10 +157,10 @@ final class Site_Health {
 		$description = '' !== $worst_name
 			? \sprintf(
 				/* translators: %s: human-readable sub-score name (e.g. "discoverability"). */
-				\__( 'The highest-leverage area to improve is <strong>%s</strong>. Open the Agent Ready Context Score admin page for the full breakdown and actionable suggestions.', 'agentready' ),
+				\__( 'The highest-leverage area to improve is <strong>%s</strong>. Open the Agent Ready Context Score admin page for the full breakdown and actionable suggestions.', 'agent-ready' ),
 				self::humanize_sub_score_name( $worst_name )
 			)
-			: \__( 'Open the Agent Ready Context Score admin page for the full breakdown.', 'agentready' );
+			: \__( 'Open the Agent Ready Context Score admin page for the full breakdown.', 'agent-ready' );
 
 		// When the worst sub-score has an LLM narrative attached (#11 /
 		// AgDR-0032), surface its one-line "why" so Site Health and the
@@ -206,14 +206,14 @@ final class Site_Health {
 			'label'       => $label,
 			'status'      => $status,
 			'badge'       => array(
-				'label' => \__( 'Agent Ready', 'agentready' ),
+				'label' => \__( 'Agent Ready', 'agent-ready' ),
 				'color' => $badge_color,
 			),
 			'description' => '<p>' . $description . '</p>',
 			'actions'     => \sprintf(
 				'<p><a href="%1$s">%2$s</a></p>',
 				\esc_url( $panel_url ),
-				\esc_html__( 'View full breakdown', 'agentready' )
+				\esc_html__( 'View full breakdown', 'agent-ready' )
 			),
 			'test'        => self::TEST_ID,
 		);
@@ -302,17 +302,17 @@ final class Site_Health {
 	private static function humanize_sub_score_name( string $name ): string {
 		switch ( $name ) {
 			case 'discoverability':
-				return \__( 'discoverability', 'agentready' );
+				return \__( 'discoverability', 'agent-ready' );
 			case 'content_readability':
-				return \__( 'content readability', 'agentready' );
+				return \__( 'content readability', 'agent-ready' );
 			case 'schema_coverage':
-				return \__( 'schema coverage', 'agentready' );
+				return \__( 'schema coverage', 'agent-ready' );
 			case 'exposure_safety':
-				return \__( 'exposure safety', 'agentready' );
+				return \__( 'exposure safety', 'agent-ready' );
 			case 'integration_health':
-				return \__( 'integration health', 'agentready' );
+				return \__( 'integration health', 'agent-ready' );
 			case 'md_conversion_quality':
-				return \__( 'Markdown conversion quality', 'agentready' );
+				return \__( 'Markdown conversion quality', 'agent-ready' );
 			default:
 				return \str_replace( '_', ' ', $name );
 		}

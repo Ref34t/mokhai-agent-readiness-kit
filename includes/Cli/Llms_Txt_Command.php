@@ -3,13 +3,13 @@
  * WP-CLI command surface for the LLMs Index module (#7 / AgDR-0022).
  *
  * Two subcommands:
- *   - `wp agentready llms-txt status` — diagnostic report (cache state,
+ *   - `wp agent-ready llms-txt status` — diagnostic report (cache state,
  *     generated_at timestamp, entry count, next scheduled regen).
- *   - `wp agentready llms-txt regen`  — synchronous regen bypassing the
+ *   - `wp agent-ready llms-txt regen`  — synchronous regen bypassing the
  *     cron debounce. Useful for support workflows and CI smoke tests.
  *
  * Mirrors the convention `Markdown_Views_Command` established under
- * `wp agentready md *`.
+ * `wp agent-ready md *`.
  *
  * @package WPContext
  */
@@ -29,13 +29,13 @@ use WPContext\LlmsTxt\Service;
  * ## EXAMPLES
  *
  *     # Show cache state, last regen timestamp, scheduled events.
- *     $ wp agentready llms-txt status
+ *     $ wp agent-ready llms-txt status
  *
  *     # Force a synchronous regen — bypasses the 5-second cron debounce.
- *     $ wp agentready llms-txt regen
+ *     $ wp agent-ready llms-txt regen
  *
  *     # Print the composed body to stdout without writing the cache.
- *     $ wp agentready llms-txt preview
+ *     $ wp agent-ready llms-txt preview
  */
 final class Llms_Txt_Command {
 
@@ -51,7 +51,7 @@ final class Llms_Txt_Command {
 			return;
 		}
 
-		\WP_CLI::add_command( 'agentready llms-txt', self::class );
+		\WP_CLI::add_command( 'agent-ready llms-txt', self::class );
 	}
 
 	/**
@@ -65,7 +65,7 @@ final class Llms_Txt_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp agentready llms-txt status
+	 *     $ wp agent-ready llms-txt status
 	 *     +------------------------+------------------------------------+
 	 *     | Field                  | Value                              |
 	 *     +------------------------+------------------------------------+
@@ -137,7 +137,7 @@ final class Llms_Txt_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp agentready llms-txt regen
+	 *     $ wp agent-ready llms-txt regen
 	 *     Success: Regenerated /llms.txt (11823 bytes, 142 entries).
 	 *
 	 * @param array<int, string>    $args       Positional args (unused).
@@ -170,7 +170,7 @@ final class Llms_Txt_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp agentready llms-txt preview | head -20
+	 *     $ wp agent-ready llms-txt preview | head -20
 	 *
 	 * @param array<int, string>    $args       Positional args (unused).
 	 * @param array<string, string> $assoc_args Associative args (unused).

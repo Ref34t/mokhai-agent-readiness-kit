@@ -7,8 +7,8 @@
  * Service writes to.
  *
  * Covers:
- *   GET  /agentready/v1/context-score
- *   POST /agentready/v1/context-score/recompute
+ *   GET  /agent-ready/v1/context-score
+ *   POST /agent-ready/v1/context-score/recompute
  *
  * @package WPContext\Tests
  */

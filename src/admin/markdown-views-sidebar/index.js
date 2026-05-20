@@ -2,7 +2,7 @@
  * Gutenberg PluginDocumentSettingPanel for previewing the Markdown view
  * of the post being edited.
  *
- * Wires to the agentready/v1/markdown-views/preview REST endpoint (Phase 5).
+ * Wires to the agent-ready/v1/markdown-views/preview REST endpoint (Phase 5).
  * Renders the MD body in a read-only <pre> with a copy-to-clipboard button,
  * plus a visibility verdict line and a cache-state diagnostics row.
  *
@@ -35,25 +35,25 @@ function reasonLabel( reason ) {
 		case 'cpt':
 			return __(
 				'Post type is not in the Context Profile’s exposed CPTs.',
-				'agentready'
+				'agent-ready'
 			);
 		case 'status':
 			return __(
 				'Post status is not in the Context Profile’s exposed statuses.',
-				'agentready'
+				'agent-ready'
 			);
 		case 'password':
 			return __(
 				'Post is password-protected. Markdown view never serves password-protected content.',
-				'agentready'
+				'agent-ready'
 			);
 		case 'noindex':
 			return __(
 				'Post is flagged noindex by an SEO plugin.',
-				'agentready'
+				'agent-ready'
 			);
 		default:
-			return __( 'Hidden from agents.', 'agentready' );
+			return __( 'Hidden from agents.', 'agent-ready' );
 	}
 }
 
@@ -90,14 +90,14 @@ function MarkdownViewsPanel() {
 
 		try {
 			const response = await apiFetch( {
-				path: `/agentready/v1/markdown-views/preview?post=${ postId }`,
+				path: `/agent-ready/v1/markdown-views/preview?post=${ postId }`,
 			} );
 			setData( response );
 		} catch ( err ) {
 			setError(
 				err && err.message
 					? err.message
-					: __( 'Failed to load preview.', 'agentready' )
+					: __( 'Failed to load preview.', 'agent-ready' )
 			);
 			setData( null );
 		} finally {
@@ -121,19 +121,19 @@ function MarkdownViewsPanel() {
 			setCopied( true );
 			setTimeout( () => setCopied( false ), 2000 );
 		} catch ( err ) {
-			setError( __( 'Copy to clipboard failed.', 'agentready' ) );
+			setError( __( 'Copy to clipboard failed.', 'agent-ready' ) );
 		}
 	}, [ data ] );
 
 	return (
 		<PluginDocumentSettingPanel
 			name="agentready-md-preview"
-			title={ __( 'Markdown view (agentready)', 'agentready' ) }
+			title={ __( 'Markdown view (agentready)', 'agent-ready' ) }
 			className="agentready-md-preview"
 		>
 			{ loading && (
 				<p>
-					<Spinner /> { __( 'Loading preview…', 'agentready' ) }
+					<Spinner /> { __( 'Loading preview…', 'agent-ready' ) }
 				</p>
 			) }
 
@@ -146,9 +146,9 @@ function MarkdownViewsPanel() {
 			{ ! loading && ! error && data && (
 				<>
 					<p>
-						<strong>{ __( 'Visibility:', 'agentready' ) }</strong>{ ' ' }
+						<strong>{ __( 'Visibility:', 'agent-ready' ) }</strong>{ ' ' }
 						{ data.visibility.verdict === 'exposable'
-							? __( 'Exposed to agents.', 'agentready' )
+							? __( 'Exposed to agents.', 'agent-ready' )
 							: reasonLabel( data.visibility.reason ) }
 					</p>
 
@@ -183,10 +183,10 @@ function MarkdownViewsPanel() {
 									disabled={ ! data.markdown }
 								>
 									{ copied
-										? __( 'Copied!', 'agentready' )
+										? __( 'Copied!', 'agent-ready' )
 										: __(
 												'Copy to clipboard',
-												'agentready'
+												'agent-ready'
 										  ) }
 								</Button>
 
@@ -194,7 +194,7 @@ function MarkdownViewsPanel() {
 									variant="tertiary"
 									onClick={ loadPreview }
 								>
-									{ __( 'Refresh', 'agentready' ) }
+									{ __( 'Refresh', 'agent-ready' ) }
 								</Button>
 							</div>
 
@@ -207,13 +207,13 @@ function MarkdownViewsPanel() {
 									} }
 								>
 									<strong>
-										{ __( 'Cache:', 'agentready' ) }
+										{ __( 'Cache:', 'agent-ready' ) }
 									</strong>{ ' ' }
 									{ data.cache_state.cached
-										? __( 'hit', 'agentready' )
-										: __( 'miss', 'agentready' ) }
+										? __( 'hit', 'agent-ready' )
+										: __( 'miss', 'agent-ready' ) }
 									{ ' · ' }
-									{ __( 'walker v', 'agentready' ) }
+									{ __( 'walker v', 'agent-ready' ) }
 									{ data.cache_state.walker_version }
 									{ ' · ' }
 									{ data.cache_state.generated_at }
@@ -259,19 +259,19 @@ function cleanupStatusBadge( status ) {
 	switch ( status ) {
 		case 'pending':
 			return {
-				label: __( 'Cleanup running…', 'agentready' ),
+				label: __( 'Cleanup running…', 'agent-ready' ),
 				variant: 'info',
 			};
 		case 'done':
 			return {
-				label: __( 'Cleanup ready — review needed', 'agentready' ),
+				label: __( 'Cleanup ready — review needed', 'agent-ready' ),
 				variant: 'warning',
 			};
 		case 'approved':
 			return {
 				label: __(
 					'Cleanup approved — serving cleaned MD',
-					'agentready'
+					'agent-ready'
 				),
 				variant: 'success',
 			};
@@ -279,25 +279,25 @@ function cleanupStatusBadge( status ) {
 			return {
 				label: __(
 					'Cleanup rejected — serving deterministic',
-					'agentready'
+					'agent-ready'
 				),
 				variant: 'info',
 			};
 		case 'needs-retry':
 			return {
-				label: __( 'Cleanup needs retry', 'agentready' ),
+				label: __( 'Cleanup needs retry', 'agent-ready' ),
 				variant: 'warning',
 			};
 		case 'failed':
 			return {
-				label: __( 'Cleanup failed', 'agentready' ),
+				label: __( 'Cleanup failed', 'agent-ready' ),
 				variant: 'error',
 			};
 		default:
 			return {
 				label: __(
 					'Cleanup not yet evaluated for this post',
-					'agentready'
+					'agent-ready'
 				),
 				variant: 'info',
 			};
@@ -306,7 +306,7 @@ function cleanupStatusBadge( status ) {
 
 /**
  * Side-by-side Markdown cleanup panel. Drives the four REST routes
- * under `agentready/v1/markdown-views/cleanup` per AgDR-0020.
+ * under `agent-ready/v1/markdown-views/cleanup` per AgDR-0020.
  */
 function MarkdownCleanupPanel() {
 	const { postId, moduleEnabled } = useSelect( ( select ) => {
@@ -341,14 +341,14 @@ function MarkdownCleanupPanel() {
 
 		try {
 			const response = await apiFetch( {
-				path: `/agentready/v1/markdown-views/cleanup?post=${ postId }`,
+				path: `/agent-ready/v1/markdown-views/cleanup?post=${ postId }`,
 			} );
 			setState( response );
 		} catch ( err ) {
 			setError(
 				err && err.message
 					? err.message
-					: __( 'Failed to load cleanup state.', 'agentready' )
+					: __( 'Failed to load cleanup state.', 'agent-ready' )
 			);
 			setState( null );
 		} finally {
@@ -404,7 +404,7 @@ function MarkdownCleanupPanel() {
 
 			try {
 				const response = await apiFetch( {
-					path: `/agentready/v1/markdown-views/cleanup/${ route }`,
+					path: `/agent-ready/v1/markdown-views/cleanup/${ route }`,
 					method: 'POST',
 					data: { post_id: postId },
 				} );
@@ -413,7 +413,7 @@ function MarkdownCleanupPanel() {
 				setError(
 					err && err.message
 						? err.message
-						: __( 'Cleanup action failed.', 'agentready' )
+						: __( 'Cleanup action failed.', 'agent-ready' )
 				);
 			} finally {
 				setActionInFlight( null );
@@ -433,10 +433,10 @@ function MarkdownCleanupPanel() {
 		return (
 			<PluginDocumentSettingPanel
 				name="agentready-md-cleanup"
-				title={ __( 'Markdown cleanup (agentready)', 'agentready' ) }
+				title={ __( 'Markdown cleanup (agentready)', 'agent-ready' ) }
 			>
 				<p>
-					<Spinner /> { __( 'Loading cleanup state…', 'agentready' ) }
+					<Spinner /> { __( 'Loading cleanup state…', 'agent-ready' ) }
 				</p>
 			</PluginDocumentSettingPanel>
 		);
@@ -460,7 +460,7 @@ function MarkdownCleanupPanel() {
 	return (
 		<PluginDocumentSettingPanel
 			name="agentready-md-cleanup"
-			title={ __( 'Markdown cleanup (agentready)', 'agentready' ) }
+			title={ __( 'Markdown cleanup (agentready)', 'agent-ready' ) }
 		>
 			{ error && (
 				<Notice status="error" isDismissible={ false }>
@@ -488,14 +488,14 @@ function MarkdownCleanupPanel() {
 				>
 					{ __(
 						'Cleanup is queued but waiting for WordPress cron. WP cron only fires on page visits — on a low-traffic site this can take a few minutes. Visiting any page on the site (or running `wp cron event run agentready_md_cleanup_run` via WP-CLI) will trigger it immediately.',
-						'agentready'
+						'agent-ready'
 					) }
 				</p>
 			) }
 
 			{ state && state.quality_score !== null && (
 				<p style={ { marginTop: '8px', fontSize: '12px' } }>
-					<strong>{ __( 'Quality score:', 'agentready' ) }</strong>{ ' ' }
+					<strong>{ __( 'Quality score:', 'agent-ready' ) }</strong>{ ' ' }
 					{ state.quality_score } / 100
 				</p>
 			) }
@@ -504,7 +504,7 @@ function MarkdownCleanupPanel() {
 				<div style={ { marginTop: '12px' } }>
 					<p style={ { margin: '0 0 4px', fontSize: '12px' } }>
 						<strong>
-							{ __( 'Deterministic MD:', 'agentready' ) }
+							{ __( 'Deterministic MD:', 'agent-ready' ) }
 						</strong>
 					</p>
 					<pre
@@ -525,7 +525,7 @@ function MarkdownCleanupPanel() {
 
 					<p style={ { margin: '8px 0 4px', fontSize: '12px' } }>
 						<strong>
-							{ __( 'LLM-cleaned MD:', 'agentready' ) }
+							{ __( 'LLM-cleaned MD:', 'agent-ready' ) }
 						</strong>
 					</p>
 					<pre
@@ -552,19 +552,19 @@ function MarkdownCleanupPanel() {
 					state.diagnostics.error_code ) && (
 					<details style={ { marginTop: '12px', fontSize: '12px' } }>
 						<summary>
-							{ __( 'Cleanup diagnostics', 'agentready' ) }
+							{ __( 'Cleanup diagnostics', 'agent-ready' ) }
 						</summary>
 						<p style={ { margin: '4px 0' } }>
 							{ state.diagnostics.sentences_kept !== undefined &&
-								`${ __( 'Sentences kept:', 'agentready' ) } ${
+								`${ __( 'Sentences kept:', 'agent-ready' ) } ${
 									state.diagnostics.sentences_kept
-								} · ${ __( 'dropped:', 'agentready' ) } ${
+								} · ${ __( 'dropped:', 'agent-ready' ) } ${
 									state.diagnostics.sentences_dropped
 								}` }
 						</p>
 						{ state.diagnostics.error_code && (
 							<p style={ { margin: '4px 0', color: '#a00' } }>
-								{ __( 'Error:', 'agentready' ) }{ ' ' }
+								{ __( 'Error:', 'agent-ready' ) }{ ' ' }
 								{ state.diagnostics.error_code }
 							</p>
 						) }
@@ -587,7 +587,7 @@ function MarkdownCleanupPanel() {
 							disabled={ actionInFlight !== null }
 							isBusy={ actionInFlight === 'approve' }
 						>
-							{ __( 'Approve', 'agentready' ) }
+							{ __( 'Approve', 'agent-ready' ) }
 						</Button>
 						<Button
 							variant="secondary"
@@ -595,7 +595,7 @@ function MarkdownCleanupPanel() {
 							disabled={ actionInFlight !== null }
 							isBusy={ actionInFlight === 'reject' }
 						>
-							{ __( 'Reject', 'agentready' ) }
+							{ __( 'Reject', 'agent-ready' ) }
 						</Button>
 					</>
 				) }
@@ -607,7 +607,7 @@ function MarkdownCleanupPanel() {
 						disabled={ actionInFlight !== null }
 						isBusy={ actionInFlight === 'regenerate' }
 					>
-						{ __( 'Regenerate', 'agentready' ) }
+						{ __( 'Regenerate', 'agent-ready' ) }
 					</Button>
 				) }
 
@@ -616,7 +616,7 @@ function MarkdownCleanupPanel() {
 					onClick={ loadState }
 					disabled={ loading || actionInFlight !== null }
 				>
-					{ __( 'Refresh', 'agentready' ) }
+					{ __( 'Refresh', 'agent-ready' ) }
 				</Button>
 			</div>
 		</PluginDocumentSettingPanel>

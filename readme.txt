@@ -2,7 +2,7 @@
 Contributors: mokhaled
 Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
-Tested up to: 6.9.4
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 0.1.0
 License: GPL-2.0-or-later
@@ -18,7 +18,7 @@ v0.1 ships four coherent modules driven by one profile:
 
 * **Markdown Views** — deterministic HTML → Markdown rendering for any public URL, with three URL forms (`.md` path, `?format=md` query, `Accept: text/markdown` content negotiation) and uniform 404 on denial. Per-post cache with content-hash invalidation, Gutenberg sidebar preview, WP-CLI command, REST endpoint for admin tooling.
 * **LLMs Index** — `/llms.txt` generator that publishes a discovery surface for AI agents, with conflict detection against `robots.txt`, an editorial entries admin UI for site owners to add curated entries, and an optional LLM-powered pass that drafts entry descriptions from post content.
-* **Context Score** — 0–100 readiness audit across six weighted sub-scores (discoverability, content readability, schema coverage, exposure safety, integration health, Markdown conversion quality), surfaced in an admin page, Site Health, and `wp agentready context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
+* **Context Score** — 0–100 readiness audit across six weighted sub-scores (discoverability, content readability, schema coverage, exposure safety, integration health, Markdown conversion quality), surfaced in an admin page, Site Health, and `wp agent-ready context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
 * **Schema Coordination** — detects whether your SEO plugin already emits JSON-LD; if not, optionally emits a native WebSite + Organization + per-content schema set so the schema sub-score is achievable without a third-party SEO plugin. Defers gracefully when an SEO plugin is already covering the surface.
 
 The plugin is fully free, GPL-2.0+, with no paid tier and no hosted backend. Every module is independently toggleable from the Context Profile. No content leaves your server. The plugin makes no external HTTP calls; AI providers configured via the WP AI Client (an optional dependency) are only consulted by modules that explicitly opt in, and every deterministic surface (Markdown Views, /llms.txt, the rule-based score, the gap-fill schema) runs fully locally without an AI provider.
@@ -47,13 +47,13 @@ A URL returns 404 with no body — never a partial content leak — when any of 
 * A subscriber to the `agentready_post_is_noindexed` filter returns true (the extension point for SEO-plugin noindex coordination — wire it from your theme / a companion plugin in v0.1; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release)
 * The Markdown Views module is toggled off in the Context Profile
 
-All denial paths produce the same 404 shape — admin debugging via the REST endpoint or the `wp agentready md preview` command surfaces the specific reason.
+All denial paths produce the same 404 shape — admin debugging via the REST endpoint or the `wp agent-ready md preview` command surfaces the specific reason.
 
 = Inspection surfaces =
 
 * **Gutenberg sidebar panel** — opens automatically in the document settings sidebar when editing a post. Shows the current MD rendering, the visibility verdict, and the cache state (cached vs miss, walker version, generated_at).
-* **WP-CLI** — `wp agentready md preview <post-id-or-url>`. Supports `--format=wrapped` for YAML-front-matter output suitable for piping into LLM tooling, `--show-meta` for cache diagnostics on stderr, and `--bypass-exposure` (requires manage_options) for inspecting hidden posts without serving them.
-* **REST endpoint** — `GET /wp-json/agentready/v1/markdown-views/preview?post=<id>`. Authentication via WP cookie / nonce; permission gated on `edit_post` for the target post. Used by the Gutenberg sidebar; available to third-party admin tooling.
+* **WP-CLI** — `wp agent-ready md preview <post-id-or-url>`. Supports `--format=wrapped` for YAML-front-matter output suitable for piping into LLM tooling, `--show-meta` for cache diagnostics on stderr, and `--bypass-exposure` (requires manage_options) for inspecting hidden posts without serving them.
+* **REST endpoint** — `GET /wp-json/agent-ready/v1/markdown-views/preview?post=<id>`. Authentication via WP cookie / nonce; permission gated on `edit_post` for the target post. Used by the Gutenberg sidebar; available to third-party admin tooling.
 
 == LLMs Index (/llms.txt) ==
 
@@ -69,9 +69,9 @@ Optionally, an LLM pass drafts the per-entry descriptions from the post content 
 
 = WP-CLI =
 
-* `wp agentready llms-txt status` — current generation state, conflict report, entry count
-* `wp agentready llms-txt regen` — force regeneration
-* `wp agentready llms-txt preview` — output the current `/llms.txt` content to stdout
+* `wp agent-ready llms-txt status` — current generation state, conflict report, entry count
+* `wp agent-ready llms-txt regen` — force regeneration
+* `wp agent-ready llms-txt preview` — output the current `/llms.txt` content to stdout
 
 == Context Score ==
 
@@ -88,7 +88,7 @@ The score is surfaced in three places:
 
 * **Tools → Context → Context Score** — the full breakdown with per-sub-score detail
 * **Site Health** — the headline score and the highest-leverage area to improve
-* **WP-CLI** — `wp agentready context-score recompute` for scripted audits
+* **WP-CLI** — `wp agent-ready context-score recompute` for scripted audits
 
 An LLM-generated narrative (uses the WP AI Client provider) explains the score in plain English and names the highest-leverage fixes. A rule-based narrative ships as a fallback for sites without an AI provider configured.
 
@@ -157,8 +157,8 @@ First public release. Four coherent modules driven by one Context Profile.
 * Deterministic HTML → Markdown rendering with three URL forms (path `.md`, query `?format=md`, `Accept: text/markdown`)
 * Custom cache table with content-hash invalidation and walker-version lazy revalidation
 * Gutenberg sidebar panel for in-editor preview
-* `wp agentready md preview` WP-CLI command with `--format=wrapped`, `--show-meta`, `--bypass-exposure`
-* REST endpoint for admin tooling at `/wp-json/agentready/v1/markdown-views/preview`
+* `wp agent-ready md preview` WP-CLI command with `--format=wrapped`, `--show-meta`, `--bypass-exposure`
+* REST endpoint for admin tooling at `/wp-json/agent-ready/v1/markdown-views/preview`
 * LLM cleanup pass with safety guard (rate-limited, opt-in via Context Profile)
 * Admin UI for cleanup approval workflow
 
@@ -168,7 +168,7 @@ First public release. Four coherent modules driven by one Context Profile.
 * Conflict detection against `robots.txt` with admin notice
 * Editorial entries admin UI for curated non-WordPress URLs
 * LLM-powered per-entry descriptions (Phase A engine + Phase B admin UI)
-* WP-CLI: `wp agentready llms-txt {status,regen,preview}`
+* WP-CLI: `wp agent-ready llms-txt {status,regen,preview}`
 
 **Context Score**
 
@@ -177,7 +177,7 @@ First public release. Four coherent modules driven by one Context Profile.
 * Site Health integration with headline score and highest-leverage fix surfacing
 * REST endpoint for programmatic access
 * LLM-narrated explanation with rule-based fallback
-* WP-CLI: `wp agentready context-score recompute`
+* WP-CLI: `wp agent-ready context-score recompute`
 
 **Schema Coordination**
 
@@ -188,7 +188,7 @@ First public release. Four coherent modules driven by one Context Profile.
 
 * Layered CI: PHPCS (WordPress + WordPressVIPMinimum) + Plugin Check + PHPUnit + PHPStan level 5
 * `requires_wp` / `requires_php` runtime gate with admin-notice degradation
-* Translation policy documented (AgDR-0009): managed via wp.org under slug `agentready`
+* Translation policy documented (AgDR-0009): managed via wp.org under slug `agent-ready`
 * Competitive landscape captured (AgDR-0006)
 
 == Upgrade Notice ==

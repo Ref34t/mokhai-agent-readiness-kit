@@ -55,8 +55,8 @@ final class Context_Profile_Page {
 	 */
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
-			\__( 'Agent Ready Context Profile', 'agentready' ),
-			\__( 'Context', 'agentready' ),
+			\__( 'Agent Ready Context Profile', 'agent-ready' ),
+			\__( 'Context', 'agent-ready' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( self::class, 'render' )
@@ -74,20 +74,20 @@ final class Context_Profile_Page {
 	public static function render(): void {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die(
-				\esc_html__( 'You do not have permission to access this page.', 'agentready' ),
-				\esc_html__( 'Forbidden', 'agentready' ),
+				\esc_html__( 'You do not have permission to access this page.', 'agent-ready' ),
+				\esc_html__( 'Forbidden', 'agent-ready' ),
 				array( 'response' => 403 )
 			);
 		}
 
 		?>
 		<div class="wrap" id="agentready-context-profile-wrap">
-			<h1><?php \esc_html_e( 'Context Profile', 'agentready' ); ?></h1>
+			<h1><?php \esc_html_e( 'Context Profile', 'agent-ready' ); ?></h1>
 			<p class="description">
 				<?php
 				\esc_html_e(
 					'Configure how Agent Ready exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below.',
-					'agentready'
+					'agent-ready'
 				);
 				?>
 			</p>
@@ -95,15 +95,15 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-context-profile-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'Agent Ready Context Profile editor', 'agentready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Agent Ready Context Profile editor', 'agent-ready' ); ?>"
 			></div>
 
-			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — editorial entries', 'agentready' ); ?></h2>
+			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — editorial entries', 'agent-ready' ); ?></h2>
 			<p class="description">
 				<?php
 				\esc_html_e(
 					'Hand-curated entries published in /llms.txt alongside the auto-listed posts above. Each entry has a title, URL, optional description, and a section heading.',
-					'agentready'
+					'agent-ready'
 				);
 				?>
 			</p>
@@ -111,15 +111,15 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-llms-txt-editorial-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'Agent Ready LLMs Index editorial entries editor', 'agentready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Agent Ready LLMs Index editorial entries editor', 'agent-ready' ); ?>"
 			></div>
 
-			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — auto-generated descriptions', 'agentready' ); ?></h2>
+			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — auto-generated descriptions', 'agent-ready' ); ?></h2>
 			<p class="description">
 				<?php
 				\esc_html_e(
 					'One-line descriptions for the auto-listed entries above, generated via the configured LLM and cached on post meta. Edit any description inline to set a sticky manual override that survives regeneration.',
-					'agentready'
+					'agent-ready'
 				);
 				?>
 			</p>
@@ -127,7 +127,7 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-llms-txt-descriptions-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'Agent Ready LLM-powered /llms.txt entry descriptions', 'agentready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Agent Ready LLM-powered /llms.txt entry descriptions', 'agent-ready' ); ?>"
 			></div>
 
 			<noscript>
@@ -136,7 +136,7 @@ final class Context_Profile_Page {
 						<?php
 						\esc_html_e(
 							'The Context Profile editor and LLMs Index editor both require JavaScript. Enable JavaScript and reload this page.',
-							'agentready'
+							'agent-ready'
 						);
 						?>
 					</p>
@@ -214,7 +214,7 @@ final class Context_Profile_Page {
 
 		\wp_set_script_translations(
 			'agentready-context-profile',
-			'agentready',
+			'agent-ready',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -278,7 +278,7 @@ final class Context_Profile_Page {
 
 		\wp_set_script_translations(
 			'agentready-llms-txt-editorial',
-			'agentready',
+			'agent-ready',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -333,7 +333,7 @@ final class Context_Profile_Page {
 
 		\wp_set_script_translations(
 			'agentready-llms-txt-descriptions',
-			'agentready',
+			'agent-ready',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -416,7 +416,7 @@ final class Context_Profile_Page {
 		}
 		\printf(
 			'<div class="notice notice-warning"><p>%1$s <code>%2$s</code></p></div>',
-			\esc_html__( 'Agent Ready Context Profile UI bundle not found. Run:', 'agentready' ),
+			\esc_html__( 'Agent Ready Context Profile UI bundle not found. Run:', 'agent-ready' ),
 			\esc_html( 'npm install && npm run build' )
 		);
 	}
@@ -453,23 +453,23 @@ final class Context_Profile_Page {
 		$status_options = array(
 			array(
 				'slug'  => 'publish',
-				'label' => \__( 'Published', 'agentready' ),
+				'label' => \__( 'Published', 'agent-ready' ),
 			),
 			array(
 				'slug'  => 'private',
-				'label' => \__( 'Private', 'agentready' ),
+				'label' => \__( 'Private', 'agent-ready' ),
 			),
 			array(
 				'slug'  => 'password',
-				'label' => \__( 'Password-protected', 'agentready' ),
+				'label' => \__( 'Password-protected', 'agent-ready' ),
 			),
 			array(
 				'slug'  => 'draft',
-				'label' => \__( 'Draft', 'agentready' ),
+				'label' => \__( 'Draft', 'agent-ready' ),
 			),
 			array(
 				'slug'  => 'pending',
-				'label' => \__( 'Pending review', 'agentready' ),
+				'label' => \__( 'Pending review', 'agent-ready' ),
 			),
 		);
 

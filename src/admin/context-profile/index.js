@@ -83,7 +83,7 @@ function ContextProfileApp( { bootstrap } ) {
 			<Notice status="info" isDismissible={ false }>
 				{ __(
 					'WP AI Client is not configured. The LLM toggles below stay on but degrade silently — outputs fall back to deterministic equivalents until a provider is configured.',
-					'agentready'
+					'agent-ready'
 				) }
 			</Notice>
 		);
@@ -93,14 +93,14 @@ function ContextProfileApp( { bootstrap } ) {
 		if ( schemaCoordination.posture === 'none' ) {
 			return __(
 				'No SEO plugin detected — Agent Ready will emit its own JSON-LD schema.',
-				'agentready'
+				'agent-ready'
 			);
 		}
 		return sprintf(
 			/* translators: %s: SEO plugin label (e.g. "Yoast SEO") */
 			__(
 				'Deferring JSON-LD to %s. Agent Ready fills only the schema gaps that plugin does not provide.',
-				'agentready'
+				'agent-ready'
 			),
 			schemaCoordination.label
 		);
@@ -123,7 +123,7 @@ function ContextProfileApp( { bootstrap } ) {
 		<form
 			action={ settings.optionsUrl }
 			method="post"
-			aria-label={ __( 'Agent Ready Context Profile form', 'agentready' ) }
+			aria-label={ __( 'Agent Ready Context Profile form', 'agent-ready' ) }
 		>
 			{ /* Settings API plumbing — option_page + action + nonce + referer. */ }
 			<input
@@ -145,28 +145,28 @@ function ContextProfileApp( { bootstrap } ) {
 			/>
 
 			<Panel
-				header={ __( 'Site identity', 'agentready' ) }
+				header={ __( 'Site identity', 'agent-ready' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
 					<PanelRow>
 						<p>
 							<strong>
-								{ __( 'Site name:', 'agentready' ) }
+								{ __( 'Site name:', 'agent-ready' ) }
 							</strong>{ ' ' }
 							{ siteIdentity.name }
 						</p>
 					</PanelRow>
 					<PanelRow>
 						<p>
-							<strong>{ __( 'Tagline:', 'agentready' ) }</strong>{ ' ' }
+							<strong>{ __( 'Tagline:', 'agent-ready' ) }</strong>{ ' ' }
 							{ siteIdentity.tagline ||
-								__( '(none)', 'agentready' ) }
+								__( '(none)', 'agent-ready' ) }
 						</p>
 					</PanelRow>
 					<PanelRow>
 						<p>
-							<strong>{ __( 'Locale:', 'agentready' ) }</strong>{ ' ' }
+							<strong>{ __( 'Locale:', 'agent-ready' ) }</strong>{ ' ' }
 							{ siteIdentity.locale }
 						</p>
 					</PanelRow>
@@ -174,7 +174,7 @@ function ContextProfileApp( { bootstrap } ) {
 						<p className="description">
 							{ __(
 								'Site identity is read live from WordPress General Settings. Edit it there to change what Agent Ready emits.',
-								'agentready'
+								'agent-ready'
 							) }
 						</p>
 					</PanelRow>
@@ -182,18 +182,18 @@ function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'Exposed content', 'agentready' ) }
+				header={ __( 'Exposed content', 'agent-ready' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody
-					title={ __( 'Custom post types', 'agentready' ) }
+					title={ __( 'Custom post types', 'agent-ready' ) }
 					initialOpen
 				>
 					<PanelRow>
 						<p className="description">
 							{ __(
 								'A fresh install exposes nothing. Tick every post type you want available to AI agents via /llms.txt and .md views.',
-								'agentready'
+								'agent-ready'
 							) }
 						</p>
 					</PanelRow>
@@ -207,14 +207,14 @@ function ContextProfileApp( { bootstrap } ) {
 						>
 							{ __(
 								'Custom post types to expose',
-								'agentready'
+								'agent-ready'
 							) }
 						</legend>
 						{ cptOptions.length === 0 && (
 							<Notice status="warning" isDismissible={ false }>
 								{ __(
 									'No public custom post types registered on this site.',
-									'agentready'
+									'agent-ready'
 								) }
 							</Notice>
 						) }
@@ -249,14 +249,14 @@ function ContextProfileApp( { bootstrap } ) {
 				</PanelBody>
 
 				<PanelBody
-					title={ __( 'Post statuses', 'agentready' ) }
+					title={ __( 'Post statuses', 'agent-ready' ) }
 					initialOpen={ false }
 				>
 					<PanelRow>
 						<p className="description">
 							{ __(
 								'"Published" is the only status enabled by default. Exposing private / draft / pending content to agents requires deliberate opt-in.',
-								'agentready'
+								'agent-ready'
 							) }
 						</p>
 					</PanelRow>
@@ -268,7 +268,7 @@ function ContextProfileApp( { bootstrap } ) {
 							id="agentready-statuses-legend"
 							className="screen-reader-text"
 						>
-							{ __( 'Post statuses to expose', 'agentready' ) }
+							{ __( 'Post statuses to expose', 'agent-ready' ) }
 						</legend>
 						{ statusOptions.map( ( status ) => (
 							<div key={ status.slug }>
@@ -304,7 +304,7 @@ function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'Schema coordination', 'agentready' ) }
+				header={ __( 'Schema coordination', 'agent-ready' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
@@ -315,7 +315,7 @@ function ContextProfileApp( { bootstrap } ) {
 						<p className="description">
 							{ __(
 								'Auto-detected. Activate or deactivate your SEO plugin to change this.',
-								'agentready'
+								'agent-ready'
 							) }
 						</p>
 					</PanelRow>
@@ -323,7 +323,7 @@ function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'Schema emission', 'agentready' ) }
+				header={ __( 'Schema emission', 'agent-ready' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
@@ -331,11 +331,11 @@ function ContextProfileApp( { bootstrap } ) {
 						<ToggleControl
 							label={ __(
 								'Emit native JSON-LD on the front-end',
-								'agentready'
+								'agent-ready'
 							) }
 							help={ __(
 								'When on, Agent Ready emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin.',
-								'agentready'
+								'agent-ready'
 							) }
 							checked={ profile.schema_emit_enabled }
 							onChange={ ( on ) =>
@@ -354,7 +354,7 @@ function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'LLM features', 'agentready' ) }
+				header={ __( 'LLM features', 'agent-ready' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
@@ -363,11 +363,11 @@ function ContextProfileApp( { bootstrap } ) {
 						<ToggleControl
 							label={ __(
 								'Enable LLM cleanup pass for messy pages',
-								'agentready'
+								'agent-ready'
 							) }
 							help={ __(
 								'When a page is built with a page builder (Elementor, Divi, etc.) or scores low on deterministic conversion, run a cleanup pass via WP AI Client. Admin-previewable; never auto-publishes.',
-								'agentready'
+								'agent-ready'
 							) }
 							checked={ profile.llm_cleanup_enabled }
 							onChange={ ( on ) =>
@@ -386,11 +386,11 @@ function ContextProfileApp( { bootstrap } ) {
 						<ToggleControl
 							label={ __(
 								'Auto-generate /llms.txt entry descriptions',
-								'agentready'
+								'agent-ready'
 							) }
 							help={ __(
 								'Use WP AI Client to write one-line descriptions for auto-listed entries. Falls back to the post excerpt when the AI Client is unconfigured.',
-								'agentready'
+								'agent-ready'
 							) }
 							checked={ profile.llm_descriptions_enabled }
 							onChange={ ( on ) =>
@@ -410,7 +410,7 @@ function ContextProfileApp( { bootstrap } ) {
 
 			<p className="submit">
 				<button type="submit" className="button button-primary">
-					{ __( 'Save Context Profile', 'agentready' ) }
+					{ __( 'Save Context Profile', 'agent-ready' ) }
 				</button>
 			</p>
 		</form>
@@ -427,7 +427,7 @@ function init() {
 	if ( ! bootstrap ) {
 		mount.textContent = __(
 			'Agent Ready Context Profile failed to load. Reload the page or contact support.',
-			'agentready'
+			'agent-ready'
 		);
 		return;
 	}
