@@ -5,7 +5,7 @@
  * Exercises the real `register_rest_route()` registration, permission
  * callback, and response shape against a live WP test instance. Verifies:
  *
- *   - Route is registered under `agentready/v1/markdown-views/preview`
+ *   - Route is registered under `agent-ready/v1/markdown-views/preview`
  *   - 200 + structured response on exposable post (cache + visibility data)
  *   - 200 + `visibility.verdict=not_exposable` with reason code for hidden posts
  *   - 403 on module disabled (AgDR-0015 distinct from public-route 404)

@@ -64,8 +64,8 @@ final class Context_Score_Page {
 	 */
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
-			\__( 'Agent Ready Context Score', 'agentready' ),
-			\__( 'Context Score', 'agentready' ),
+			\__( 'Agent Ready Context Score', 'agent-ready' ),
+			\__( 'Context Score', 'agent-ready' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( self::class, 'render' )
@@ -83,20 +83,20 @@ final class Context_Score_Page {
 	public static function render(): void {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die(
-				\esc_html__( 'You do not have permission to access this page.', 'agentready' ),
-				\esc_html__( 'Forbidden', 'agentready' ),
+				\esc_html__( 'You do not have permission to access this page.', 'agent-ready' ),
+				\esc_html__( 'Forbidden', 'agent-ready' ),
 				array( 'response' => 403 )
 			);
 		}
 
 		?>
 		<div class="wrap" id="agentready-context-score-wrap">
-			<h1><?php \esc_html_e( 'Context Score', 'agentready' ); ?></h1>
+			<h1><?php \esc_html_e( 'Context Score', 'agent-ready' ); ?></h1>
 			<p class="description">
 				<?php
 				\esc_html_e(
 					'A site-level audit of how prepared this WordPress install is for AI agent traffic. The overall score is a weighted sum of six sub-scores covering discoverability, content readability, schema coverage, exposure safety, integration health, and Markdown conversion quality.',
-					'agentready'
+					'agent-ready'
 				);
 				?>
 			</p>
@@ -104,7 +104,7 @@ final class Context_Score_Page {
 			<div
 				id="agentready-context-score-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'Agent Ready Context Score breakdown', 'agentready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Agent Ready Context Score breakdown', 'agent-ready' ); ?>"
 			></div>
 
 			<noscript>
@@ -112,8 +112,8 @@ final class Context_Score_Page {
 					<p>
 						<?php
 						\esc_html_e(
-							'The Context Score panel requires JavaScript. Enable JavaScript and reload this page, or run "wp agentready context-score audit" from the command line for an equivalent JSON breakdown.',
-							'agentready'
+							'The Context Score panel requires JavaScript. Enable JavaScript and reload this page, or run "wp agent-ready context-score audit" from the command line for an equivalent JSON breakdown.',
+							'agent-ready'
 						);
 						?>
 					</p>
@@ -178,7 +178,7 @@ final class Context_Score_Page {
 
 		\wp_set_script_translations(
 			'agentready-context-score',
-			'agentready',
+			'agent-ready',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -212,7 +212,7 @@ final class Context_Score_Page {
 		}
 		\printf(
 			'<div class="notice notice-warning"><p>%1$s <code>%2$s</code></p></div>',
-			\esc_html__( 'Agent Ready Context Score UI bundle not found. Run:', 'agentready' ),
+			\esc_html__( 'Agent Ready Context Score UI bundle not found. Run:', 'agent-ready' ),
 			\esc_html( 'npm install && npm run build' )
 		);
 	}

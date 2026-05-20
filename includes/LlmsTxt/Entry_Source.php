@@ -156,7 +156,7 @@ final class Entry_Source {
 		$title = \get_the_title( $post );
 		if ( '' === trim( (string) $title ) ) {
 			/* translators: placeholder shown in /llms.txt for posts saved without a title. */
-			return \__( '(no title)', 'agentready' );
+			return \__( '(no title)', 'agent-ready' );
 		}
 		return (string) $title;
 	}

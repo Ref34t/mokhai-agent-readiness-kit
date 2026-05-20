@@ -68,7 +68,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 				<strong>
 					{ sprintf(
 						/* translators: %d: entry index */
-						__( 'Entry %d', 'agentready' ),
+						__( 'Entry %d', 'agent-ready' ),
 						index + 1
 					) }
 				</strong>
@@ -78,7 +78,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 						variant="tertiary"
 						disabled={ index === 0 }
 						onClick={ () => onMove( index, -1 ) }
-						aria-label={ __( 'Move entry up', 'agentready' ) }
+						aria-label={ __( 'Move entry up', 'agent-ready' ) }
 					>
 						{ '↑' }
 					</Button>
@@ -87,7 +87,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 						variant="tertiary"
 						disabled={ index === total - 1 }
 						onClick={ () => onMove( index, 1 ) }
-						aria-label={ __( 'Move entry down', 'agentready' ) }
+						aria-label={ __( 'Move entry down', 'agent-ready' ) }
 					>
 						{ '↓' }
 					</Button>
@@ -96,15 +96,15 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 						isDestructive
 						variant="tertiary"
 						onClick={ () => onRemove( index ) }
-						aria-label={ __( 'Remove entry', 'agentready' ) }
+						aria-label={ __( 'Remove entry', 'agent-ready' ) }
 					>
-						{ __( 'Remove', 'agentready' ) }
+						{ __( 'Remove', 'agent-ready' ) }
 					</Button>
 				</div>
 			</div>
 
 			<TextControl
-				label={ __( 'Title', 'agentready' ) }
+				label={ __( 'Title', 'agent-ready' ) }
 				value={ entry.title }
 				onChange={ ( value ) => onChange( index, 'title', value ) }
 				required
@@ -113,7 +113,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 			/>
 
 			<TextControl
-				label={ __( 'URL', 'agentready' ) }
+				label={ __( 'URL', 'agent-ready' ) }
 				value={ entry.url }
 				onChange={ ( value ) => onChange( index, 'url', value ) }
 				type="url"
@@ -123,12 +123,12 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 				__next40pxDefaultSize
 				help={ __(
 					'External URLs allowed. Schemes: http, https, mailto.',
-					'agentready'
+					'agent-ready'
 				) }
 			/>
 
 			<TextControl
-				label={ __( 'Description (optional)', 'agentready' ) }
+				label={ __( 'Description (optional)', 'agent-ready' ) }
 				value={ entry.description }
 				onChange={ ( value ) => onChange( index, 'description', value ) }
 				__nextHasNoMarginBottom
@@ -136,7 +136,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 			/>
 
 			<SelectControl
-				label={ __( 'Section', 'agentready' ) }
+				label={ __( 'Section', 'agent-ready' ) }
 				value={ entry.section }
 				options={ sections.map( ( s ) => ( { label: s, value: s } ) ) }
 				onChange={ ( value ) => onChange( index, 'section', value ) }
@@ -146,7 +146,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 
 			{ isCustom && (
 				<TextControl
-					label={ __( 'Custom section heading', 'agentready' ) }
+					label={ __( 'Custom section heading', 'agent-ready' ) }
 					value={ entry.section_label }
 					onChange={ ( value ) => onChange( index, 'section_label', value ) }
 					required
@@ -154,7 +154,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 					__next40pxDefaultSize
 					help={ __(
 						'Heading rendered in /llms.txt when section is Custom.',
-						'agentready'
+						'agent-ready'
 					) }
 				/>
 			) }
@@ -204,7 +204,7 @@ function EditorialApp( { bootstrap } ) {
 		<form
 			action={ bootstrap.options_url }
 			method="post"
-			aria-label={ __( 'Agent Ready LLMs Index editorial entries form', 'agentready' ) }
+			aria-label={ __( 'Agent Ready LLMs Index editorial entries form', 'agent-ready' ) }
 		>
 			<input type="hidden" name="option_page" value={ bootstrap.option_group } />
 			<input type="hidden" name="action" value="update" />
@@ -221,7 +221,7 @@ function EditorialApp( { bootstrap } ) {
 				<Notice status="info" isDismissible={ false }>
 					{ __(
 						'No editorial entries yet. Add hand-picked URLs to surface them in /llms.txt alongside auto-listed posts.',
-						'agentready'
+						'agent-ready'
 					) }
 				</Notice>
 			) }
@@ -276,10 +276,10 @@ function EditorialApp( { bootstrap } ) {
 
 					<div style={ { marginTop: '12px', display: 'flex', gap: '8px' } }>
 						<Button type="button" variant="secondary" onClick={ onAdd }>
-							{ __( 'Add entry', 'agentready' ) }
+							{ __( 'Add entry', 'agent-ready' ) }
 						</Button>
 						<Button type="submit" variant="primary">
-							{ __( 'Save editorial entries', 'agentready' ) }
+							{ __( 'Save editorial entries', 'agent-ready' ) }
 						</Button>
 					</div>
 				</PanelBody>

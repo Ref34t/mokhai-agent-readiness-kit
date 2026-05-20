@@ -5,11 +5,11 @@
  * infrastructure, real capability checks, real post-meta layer.
  *
  * Covers the five routes:
- *   GET    /agentready/v1/llms-txt/descriptions
- *   PATCH  /agentready/v1/llms-txt/descriptions/<post>
- *   DELETE /agentready/v1/llms-txt/descriptions/<post>/manual
- *   POST   /agentready/v1/llms-txt/descriptions/<post>/regenerate
- *   POST   /agentready/v1/llms-txt/descriptions/bulk-regenerate-stale
+ *   GET    /agent-ready/v1/llms-txt/descriptions
+ *   PATCH  /agent-ready/v1/llms-txt/descriptions/<post>
+ *   DELETE /agent-ready/v1/llms-txt/descriptions/<post>/manual
+ *   POST   /agent-ready/v1/llms-txt/descriptions/<post>/regenerate
+ *   POST   /agent-ready/v1/llms-txt/descriptions/bulk-regenerate-stale
  *
  * The orchestrator's `run()` cron handler is NOT exercised here — that's
  * an LLM round-trip; the controller's read + mutation surfaces are what

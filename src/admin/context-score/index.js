@@ -12,7 +12,7 @@
  *   3. Full breakdown — one collapsible PanelBody per sub-score with
  *      value/weight, all reasons, and the raw signals dict.
  *
- * All mutations route through `agentready/v1/context-score/recompute`
+ * All mutations route through `agent-ready/v1/context-score/recompute`
  * (POST) so the server is the source of truth — the UI is presentation
  * only. Initial paint reuses `bootstrap.initialBreakdown` to avoid a
  * round-trip when the cache is populated.
@@ -43,12 +43,12 @@ const BOOTSTRAP_KEY = 'agentreadyContextScore';
 const SUCCESS_NOTICE_TIMEOUT_MS = 4000;
 
 const SUB_SCORE_LABELS = {
-	discoverability: __( 'Discoverability', 'agentready' ),
-	content_readability: __( 'Content readability', 'agentready' ),
-	schema_coverage: __( 'Schema coverage', 'agentready' ),
-	exposure_safety: __( 'Exposure safety', 'agentready' ),
-	integration_health: __( 'Integration health', 'agentready' ),
-	md_conversion_quality: __( 'Markdown conversion quality', 'agentready' ),
+	discoverability: __( 'Discoverability', 'agent-ready' ),
+	content_readability: __( 'Content readability', 'agent-ready' ),
+	schema_coverage: __( 'Schema coverage', 'agent-ready' ),
+	exposure_safety: __( 'Exposure safety', 'agent-ready' ),
+	integration_health: __( 'Integration health', 'agent-ready' ),
+	md_conversion_quality: __( 'Markdown conversion quality', 'agent-ready' ),
 };
 
 // Human-readable labels for the narrative.degraded_reason vocabulary
@@ -58,27 +58,27 @@ const SUB_SCORE_LABELS = {
 const DEGRADED_REASON_LABELS = {
 	unconfigured: __(
 		'AI Client is not configured. Narrative is using deterministic templates.',
-		'agentready'
+		'agent-ready'
 	),
 	rate_limit: __(
 		'AI provider rate-limited the request. Narrative is using deterministic templates; the next recompute will retry.',
-		'agentready'
+		'agent-ready'
 	),
 	network_error: __(
 		'AI provider was unreachable. Narrative is using deterministic templates; the next recompute will retry.',
-		'agentready'
+		'agent-ready'
 	),
 	permanent_error: __(
 		'AI provider rejected the request (configuration issue). Narrative is using deterministic templates.',
-		'agentready'
+		'agent-ready'
 	),
 	parse_error: __(
 		'AI response could not be parsed. Narrative is using deterministic templates.',
-		'agentready'
+		'agent-ready'
 	),
 	budget_exceeded: __(
 		'AI generation exceeded the 10-second budget. Narrative is using deterministic templates.',
-		'agentready'
+		'agent-ready'
 	),
 };
 
@@ -115,8 +115,8 @@ function narrativeFor( breakdown, name ) {
 function SourceBadge( { source } ) {
 	const isLlm = source === 'llm';
 	const label = isLlm
-		? __( 'AI-generated', 'agentready' )
-		: __( 'Rule-based', 'agentready' );
+		? __( 'AI-generated', 'agent-ready' )
+		: __( 'Rule-based', 'agent-ready' );
 	return (
 		<span
 			style={ {
@@ -148,21 +148,21 @@ function statusBucket( overall ) {
 
 function relativeTime( iso ) {
 	if ( ! iso ) {
-		return __( 'unknown', 'agentready' );
+		return __( 'unknown', 'agent-ready' );
 	}
 	const then = Date.parse( iso );
 	if ( Number.isNaN( then ) ) {
-		return __( 'unknown', 'agentready' );
+		return __( 'unknown', 'agent-ready' );
 	}
 	const diffSec = Math.max( 0, Math.round( ( Date.now() - then ) / 1000 ) );
 	if ( diffSec < 60 ) {
-		return __( 'just now', 'agentready' );
+		return __( 'just now', 'agent-ready' );
 	}
 	const diffMin = Math.round( diffSec / 60 );
 	if ( diffMin < 60 ) {
 		return sprintf(
 			/* translators: %d: minutes ago */
-			__( '%d minute(s) ago', 'agentready' ),
+			__( '%d minute(s) ago', 'agent-ready' ),
 			diffMin
 		);
 	}
@@ -170,14 +170,14 @@ function relativeTime( iso ) {
 	if ( diffHr < 24 ) {
 		return sprintf(
 			/* translators: %d: hours ago */
-			__( '%d hour(s) ago', 'agentready' ),
+			__( '%d hour(s) ago', 'agent-ready' ),
 			diffHr
 		);
 	}
 	const diffDay = Math.round( diffHr / 24 );
 	return sprintf(
 		/* translators: %d: days ago */
-		__( '%d day(s) ago', 'agentready' ),
+		__( '%d day(s) ago', 'agent-ready' ),
 		diffDay
 	);
 }
@@ -234,10 +234,10 @@ function OverallCard( {
 			<Panel>
 				<PanelBody
 					initialOpen
-					title={ __( 'Overall score', 'agentready' ) }
+					title={ __( 'Overall score', 'agent-ready' ) }
 				>
 					<Spinner />
-					<p>{ __( 'Computing Context Score…', 'agentready' ) }</p>
+					<p>{ __( 'Computing Context Score…', 'agent-ready' ) }</p>
 				</PanelBody>
 			</Panel>
 		);
@@ -248,12 +248,12 @@ function OverallCard( {
 			<Panel>
 				<PanelBody
 					initialOpen
-					title={ __( 'Overall score', 'agentready' ) }
+					title={ __( 'Overall score', 'agent-ready' ) }
 				>
 					<Notice status="warning" isDismissible={ false }>
 						{ __(
 							'No Context Score breakdown is available yet. Click "Recompute now" to generate the first audit.',
-							'agentready'
+							'agent-ready'
 						) }
 					</Notice>
 					<Button
@@ -262,8 +262,8 @@ function OverallCard( {
 						disabled={ pending }
 					>
 						{ pending
-							? __( 'Recomputing…', 'agentready' )
-							: __( 'Recompute now', 'agentready' ) }
+							? __( 'Recomputing…', 'agent-ready' )
+							: __( 'Recompute now', 'agent-ready' ) }
 					</Button>
 				</PanelBody>
 			</Panel>
@@ -283,14 +283,14 @@ function OverallCard( {
 			? DEGRADED_REASON_LABELS[ degradedReason ]
 			: __(
 					'Narrative is using deterministic templates.',
-					'agentready'
+					'agent-ready'
 			  );
 
 	return (
 		<Panel>
 			<PanelBody
 				initialOpen
-				title={ __( 'Overall score', 'agentready' ) }
+				title={ __( 'Overall score', 'agent-ready' ) }
 			>
 				{ flash && (
 					<Notice status={ flash.type } onRemove={ onDismissFlash }>
@@ -341,11 +341,11 @@ function OverallCard( {
 							} }
 						>
 							{ bucket.tone === 'good' &&
-								__( 'Good', 'agentready' ) }
+								__( 'Good', 'agent-ready' ) }
 							{ bucket.tone === 'recommended' &&
-								__( 'Needs attention', 'agentready' ) }
+								__( 'Needs attention', 'agent-ready' ) }
 							{ bucket.tone === 'critical' &&
-								__( 'Critical', 'agentready' ) }
+								__( 'Critical', 'agent-ready' ) }
 						</div>
 					</div>
 					<div style={ { flex: 1, minWidth: '200px' } }>
@@ -353,7 +353,7 @@ function OverallCard( {
 							value={ overall }
 							label={ __(
 								'Overall Context Score (0 to 100)',
-								'agentready'
+								'agent-ready'
 							) }
 						/>
 						<div
@@ -365,7 +365,7 @@ function OverallCard( {
 						>
 							{ sprintf(
 								/* translators: %s: relative time, e.g. "5 minutes ago" */
-								__( 'Last computed %s.', 'agentready' ),
+								__( 'Last computed %s.', 'agent-ready' ),
 								relativeTime( breakdown.computed_at )
 							) }
 						</div>
@@ -377,8 +377,8 @@ function OverallCard( {
 							disabled={ pending }
 						>
 							{ pending
-								? __( 'Recomputing…', 'agentready' )
-								: __( 'Recompute now', 'agentready' ) }
+								? __( 'Recomputing…', 'agent-ready' )
+								: __( 'Recompute now', 'agent-ready' ) }
 						</Button>
 					</div>
 				</div>
@@ -410,7 +410,7 @@ function fixActionFor( name, urls ) {
 		case 'integration_health':
 			return {
 				href: urls.profilePageUrl,
-				label: __( 'Configure in Context Profile', 'agentready' ),
+				label: __( 'Configure in Context Profile', 'agent-ready' ),
 			};
 		case 'schema_coverage':
 		case 'md_conversion_quality':
@@ -448,13 +448,13 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 		<Panel>
 			<PanelBody
 				initialOpen
-				title={ __( 'What is missing', 'agentready' ) }
+				title={ __( 'What is missing', 'agent-ready' ) }
 			>
 				{ rows.length === 0 && (
 					<p>
 						{ __(
 							'Every sub-score is at 100. Nothing actionable to surface.',
-							'agentready'
+							'agent-ready'
 						) }
 					</p>
 				) }
@@ -508,7 +508,7 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 													/* translators: 1: sub-score value 0-100. 2: weight contribution. */
 													__(
 														'%1$d/100 · weight %2$d',
-														'agentready'
+														'agent-ready'
 													),
 													row.value,
 													row.weight
@@ -543,7 +543,7 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 														/* translators: %s: one-line fix suggestion. */
 														__(
 															'Fix: %s',
-															'agentready'
+															'agent-ready'
 														),
 														row.narrative.fix
 													) }
@@ -589,7 +589,7 @@ function SubScoreBreakdown( { breakdown } ) {
 		<Panel>
 			<PanelBody
 				initialOpen={ false }
-				title={ __( 'Full breakdown', 'agentready' ) }
+				title={ __( 'Full breakdown', 'agent-ready' ) }
 			>
 				{ subs.map( ( [ name, sub ] ) => {
 					const value = Number( sub.value || 0 );
@@ -633,7 +633,7 @@ function SubScoreBreakdown( { breakdown } ) {
 										/* translators: 1: sub-score value. 2: weight. */
 										__(
 											'%1$d/100 · weight %2$d',
-											'agentready'
+											'agent-ready'
 										),
 										value,
 										weight
@@ -644,7 +644,7 @@ function SubScoreBreakdown( { breakdown } ) {
 								value={ value }
 								label={ sprintf(
 									/* translators: %s: sub-score label */
-									__( '%s score (0 to 100)', 'agentready' ),
+									__( '%s score (0 to 100)', 'agent-ready' ),
 									SUB_SCORE_LABELS[ name ] || name
 								) }
 							/>
@@ -677,7 +677,7 @@ function SubScoreBreakdown( { breakdown } ) {
 									>
 										{ sprintf(
 											/* translators: %s: one-line fix suggestion. */
-											__( 'Fix: %s', 'agentready' ),
+											__( 'Fix: %s', 'agent-ready' ),
 											narrative.fix
 										) }
 									</div>
@@ -704,7 +704,7 @@ function SubScoreBreakdown( { breakdown } ) {
 											color: '#555',
 										} }
 									>
-										{ __( 'Raw signals', 'agentready' ) }
+										{ __( 'Raw signals', 'agent-ready' ) }
 									</summary>
 									<dl
 										style={ {
@@ -758,9 +758,9 @@ function SubScoreBreakdown( { breakdown } ) {
 // Posture slug → human-readable label. Mirrors Schema_Coordination_Detector
 // signatures so a posture coming back from the server always resolves.
 const POSTURE_LABELS = {
-	yoast: __( 'Yoast SEO', 'agentready' ),
-	rank_math: __( 'Rank Math', 'agentready' ),
-	aioseo: __( 'All in One SEO', 'agentready' ),
+	yoast: __( 'Yoast SEO', 'agent-ready' ),
+	rank_math: __( 'Rank Math', 'agent-ready' ),
+	aioseo: __( 'All in One SEO', 'agent-ready' ),
 };
 
 function TypeChip( { children, tone } ) {
@@ -816,7 +816,7 @@ function SchemaCoordinationPanel( { coordination } ) {
 		<Panel>
 			<PanelBody
 				initialOpen={ false }
-				title={ __( 'Schema coordination', 'agentready' ) }
+				title={ __( 'Schema coordination', 'agent-ready' ) }
 			>
 				<p style={ { marginTop: 0 } }>
 					{ hasPlugin &&
@@ -824,19 +824,19 @@ function SchemaCoordinationPanel( { coordination } ) {
 							/* translators: %s: SEO plugin name */
 							__(
 								'%s is active. Agent Ready defers JSON-LD coordination to it and only fills schema types it does not already provide.',
-								'agentready'
+								'agent-ready'
 							),
 							label
 						) }
 					{ ! hasPlugin && profileOptIn &&
 						__(
 							'No SEO plugin detected. Agent Ready is emitting a minimal baseline schema set (site identity + content type) on the front-end.',
-							'agentready'
+							'agent-ready'
 						) }
 					{ ! hasPlugin && ! profileOptIn &&
 						__(
 							'No SEO plugin detected and Schema emission is off in Context Profile. Agent Ready is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage.',
-							'agentready'
+							'agent-ready'
 						) }
 				</p>
 				<div
@@ -849,21 +849,21 @@ function SchemaCoordinationPanel( { coordination } ) {
 					} }
 				>
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Baseline types', 'agentready' ) }
+						{ __( 'Baseline types', 'agent-ready' ) }
 					</div>
 					<div>
 						{ baseline.length > 0
 							? baseline.join( ', ' )
-							: __( '(none)', 'agentready' ) }
+							: __( '(none)', 'agent-ready' ) }
 					</div>
 
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Deferred to plugin', 'agentready' ) }
+						{ __( 'Deferred to plugin', 'agent-ready' ) }
 					</div>
 					<div>
 						{ deferred.length === 0 && (
 							<span style={ { color: '#777' } }>
-								{ __( '(none)', 'agentready' ) }
+								{ __( '(none)', 'agent-ready' ) }
 							</span>
 						) }
 						{ deferred.map( ( type ) => (
@@ -874,7 +874,7 @@ function SchemaCoordinationPanel( { coordination } ) {
 					</div>
 
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Filled by Agent Ready', 'agentready' ) }
+						{ __( 'Filled by Agent Ready', 'agent-ready' ) }
 					</div>
 					<div>
 						{ filled.length === 0 && (
@@ -882,9 +882,9 @@ function SchemaCoordinationPanel( { coordination } ) {
 								{ hasPlugin
 									? __(
 											'(none — every baseline type is covered by the active SEO plugin)',
-											'agentready'
+											'agent-ready'
 									  )
-									: __( '(none)', 'agentready' ) }
+									: __( '(none)', 'agent-ready' ) }
 							</span>
 						) }
 						{ filled.map( ( type ) => (
@@ -895,20 +895,20 @@ function SchemaCoordinationPanel( { coordination } ) {
 					</div>
 
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Emission on wp_head', 'agentready' ) }
+						{ __( 'Emission on wp_head', 'agent-ready' ) }
 					</div>
 					<div>
 						{ emitting &&
-							__( 'Enabled', 'agentready' ) }
+							__( 'Enabled', 'agent-ready' ) }
 						{ ! emitting && ! profileOptIn &&
 							__(
 								'Off — toggle in Context Profile → Schema emission',
-								'agentready'
+								'agent-ready'
 							) }
 						{ ! emitting && profileOptIn &&
 							__(
 								'Suppressed by agentready_schema_emit filter',
-								'agentready'
+								'agent-ready'
 							) }
 					</div>
 				</div>
@@ -946,7 +946,7 @@ function ContextScorePanel() {
 				type: 'error',
 				message:
 					err.message ||
-					__( 'Failed to load the Context Score.', 'agentready' ),
+					__( 'Failed to load the Context Score.', 'agent-ready' ),
 			} );
 		} finally {
 			setLoading( false );
@@ -986,7 +986,7 @@ function ContextScorePanel() {
 					/* translators: 1: overall score. 2: duration in ms. */
 					__(
 						'Context Score recomputed: %1$d/100 (%2$d ms).',
-						'agentready'
+						'agent-ready'
 					),
 					Number( response.overall || 0 ),
 					Number( response.recompute_duration_ms || 0 )
@@ -995,7 +995,7 @@ function ContextScorePanel() {
 		} catch ( err ) {
 			setFlash( {
 				type: 'error',
-				message: err.message || __( 'Recompute failed.', 'agentready' ),
+				message: err.message || __( 'Recompute failed.', 'agent-ready' ),
 			} );
 		} finally {
 			setPending( false );
@@ -1020,7 +1020,7 @@ function ContextScorePanel() {
 			<Notice status="error" isDismissible={ false }>
 				{ __(
 					'Agent Ready Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
-					'agentready'
+					'agent-ready'
 				) }
 			</Notice>
 		);

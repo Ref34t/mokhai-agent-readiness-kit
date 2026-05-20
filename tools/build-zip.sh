@@ -45,11 +45,19 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT"
 
 # --- 1. Parse slug + version from the plugin header. ---------------------
-SLUG=$(grep -E "^\s*\*\s*Text Domain:" agentready.php | sed -E 's/.*Text Domain:[[:space:]]*//; s/[[:space:]]+$//')
-VERSION=$(grep -E "^\s*\*\s*Version:" agentready.php | sed -E 's/.*Version:[[:space:]]*//; s/[[:space:]]+$//')
+# Discover the plugin's main file by scanning repo-root *.php for a Plugin
+# Name header (uninstall.php has no such header). Avoids hardcoding the file
+# name so the script survives future renames.
+PLUGIN_FILE=$(grep -lE "^\s*\*\s*Plugin Name:" *.php 2>/dev/null | head -n1)
+if [[ -z "$PLUGIN_FILE" ]]; then
+	echo "Error: no *.php file at repo root contains a 'Plugin Name:' header" >&2
+	exit 1
+fi
+SLUG=$(grep -E "^\s*\*\s*Text Domain:" "$PLUGIN_FILE" | sed -E 's/.*Text Domain:[[:space:]]*//; s/[[:space:]]+$//')
+VERSION=$(grep -E "^\s*\*\s*Version:" "$PLUGIN_FILE" | sed -E 's/.*Version:[[:space:]]*//; s/[[:space:]]+$//')
 
 if [[ -z "$SLUG" || -z "$VERSION" ]]; then
-	echo "Error: could not parse Text Domain or Version from agentready.php" >&2
+	echo "Error: could not parse Text Domain or Version from ${PLUGIN_FILE}" >&2
 	exit 1
 fi
 
@@ -92,12 +100,12 @@ echo "→ Installing production composer dependencies (--no-dev)"
 		--quiet
 )
 
-# --- 5. Strip composer.json / composer.lock from final ZIP. --------------
-# composer.json/lock are needed in step 4 so composer can resolve deps; once
-# vendor/ + vendor/autoload.php are in place, the metadata files are dead
-# weight in the shipped ZIP. wp.org reviewers and Plugin Check tolerate them
-# but the lean ZIP is the convention.
-rm -f "$DEST/composer.json" "$DEST/composer.lock"
+# --- 5. composer.json / composer.lock stay in the final ZIP. -------------
+# Earlier versions of this script stripped them after `composer install`;
+# wp.org's Plugin Check flags any /vendor directory without a sibling
+# composer.json as `missing_composer_json_file` (the file's absence makes
+# the vendor tree look opaque to a reviewer). Keep both files so the
+# scanner can see what produced vendor/.
 
 # --- 6. Create the ZIP. --------------------------------------------------
 DIST_DIR="$REPO_ROOT/dist"

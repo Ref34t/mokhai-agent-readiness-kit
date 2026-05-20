@@ -2,11 +2,11 @@
 /**
  * REST controller for the Context Score admin UI (#10 / AgDR-0031).
  *
- * Two routes under `agentready/v1/context-score/*`, both gated by
+ * Two routes under `agent-ready/v1/context-score/*`, both gated by
  * `manage_options`:
  *
- *   GET  /agentready/v1/context-score            — read cached breakdown
- *   POST /agentready/v1/context-score/recompute  — force synchronous recompute
+ *   GET  /agent-ready/v1/context-score            — read cached breakdown
+ *   POST /agent-ready/v1/context-score/recompute  — force synchronous recompute
  *
  * Both routes return the same payload shape — the breakdown emitted by
  * `Context_Score\Service` (and ultimately by `Context_Score\Engine`).
@@ -34,7 +34,7 @@ final class Rest_Controller {
 	 *
 	 * @var string
 	 */
-	public const NAMESPACE = 'agentready/v1';
+	public const NAMESPACE = 'agent-ready/v1';
 
 	/**
 	 * Base path under the namespace. The recompute endpoint appends
@@ -95,7 +95,7 @@ final class Rest_Controller {
 
 		return new \WP_Error(
 			'agentready_context_score_forbidden',
-			\__( 'You do not have permission to view the Context Score.', 'agentready' ),
+			\__( 'You do not have permission to view the Context Score.', 'agent-ready' ),
 			array( 'status' => 403 )
 		);
 	}

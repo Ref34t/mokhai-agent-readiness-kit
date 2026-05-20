@@ -10,10 +10,11 @@
  * Author URI:        https://profiles.wordpress.org/mokhaled
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       agentready
+ * Text Domain:       agent-ready
  *
- * Translations: managed by wp.org under plugin slug 'agentready' (no manual
- * textdomain loading needed since WP 4.6). See AgDR-0009.
+ * Translations: managed by wp.org under plugin slug 'agent-ready' (no manual
+ * textdomain loading needed since WP 4.6). See AgDR-0009 (slug value updated
+ * per AgDR-0036).
  *
  * @package WPContext
  */
