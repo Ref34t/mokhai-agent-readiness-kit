@@ -193,23 +193,52 @@ final class Markdown_Views_Command {
 	}
 
 	/**
-	 * Prefix the MD body with a YAML-ish header containing post metadata.
+	 * Prefix the MD body with a YAML header containing post metadata.
 	 * Used by `--format=wrapped`. Header is bracketed by `---` lines so
 	 * downstream LLM tooling that parses YAML front matter works directly.
 	 */
 	private static function wrap_with_header( \WP_Post $post, string $markdown ): string {
-		$title         = \str_replace( '"', '\"', (string) $post->post_title );
-		$canonical_url = (string) \get_permalink( $post );
-		$generated_at  = \current_time( 'c', true );
+		return self::format_yaml_header(
+			(int) $post->ID,
+			(string) $post->post_title,
+			(string) \get_permalink( $post ),
+			\current_time( 'c', true )
+		) . $markdown;
+	}
 
-		$header = "---\n"
-			. 'id: ' . (int) $post->ID . "\n"
-			. 'title: "' . $title . '"' . "\n"
-			. 'canonical_url: ' . $canonical_url . "\n"
-			. 'generated_at: ' . $generated_at . "\n"
+	/**
+	 * Build the YAML front-matter header from pre-fetched scalar values.
+	 * Internal: split out from `wrap_with_header()` so the YAML emission
+	 * shape is unit-testable without a `WP_Post` / `get_permalink()` /
+	 * `current_time()` dependency.
+	 *
+	 * String scalars are emitted via `wp_json_encode()` with
+	 * `JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE`. JSON string
+	 * scalars are a strict subset of YAML 1.2 double-quoted scalars, so
+	 * this handles backslashes, embedded quotes, literal newlines, tabs,
+	 * and other control characters that the prior naïve `str_replace`
+	 * approach mis-escaped (see AgDR-0038, GH#42).
+	 *
+	 * @param int    $id            Post ID.
+	 * @param string $title         Post title; may contain any character.
+	 * @param string $canonical_url Permalink; may contain any URL character.
+	 * @param string $generated_at  ISO-8601 timestamp.
+	 * @return string YAML header including leading + trailing `---` lines and a blank line.
+	 */
+	public static function format_yaml_header(
+		int $id,
+		string $title,
+		string $canonical_url,
+		string $generated_at
+	): string {
+		$flags = \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE;
+
+		return "---\n"
+			. 'id: ' . $id . "\n"
+			. 'title: ' . \wp_json_encode( $title, $flags ) . "\n"
+			. 'canonical_url: ' . \wp_json_encode( $canonical_url, $flags ) . "\n"
+			. 'generated_at: ' . \wp_json_encode( $generated_at, $flags ) . "\n"
 			. "---\n\n";
-
-		return $header . $markdown;
 	}
 
 	/**
