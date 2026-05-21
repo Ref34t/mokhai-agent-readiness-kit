@@ -128,12 +128,14 @@ final class Page_Builder_Detector_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Adversarial: a classic-editor post that mentions `[vc_row]` inside
-	 * a code block should NOT match — the fingerprint matches opening
-	 * tags, not bare text. (Markdown / pre / code wrapping preserves the
-	 * shortcode literal in `post_content`.)
+	 * Documented false-positive surface: a classic-editor post that mentions
+	 * `[vc_row]` inside a code block DOES match — the fingerprint matches
+	 * opening tags regardless of surrounding code-block context (markdown /
+	 * pre / code wrapping preserves the shortcode literal in `post_content`).
+	 * This test pins the current behaviour so a future tightening of the
+	 * regex flips this case deliberately. See AgDR-0016.
 	 */
-	public function test_fingerprint_does_not_match_shortcode_inside_code_block(): void {
+	public function test_fingerprint_matches_shortcode_inside_code_block_as_documented_false_positive(): void {
 		$post_id = self::factory()->post->create(
 			array(
 				'post_content' => "<pre><code>Use the [vc_row] shortcode like this</code></pre>",
