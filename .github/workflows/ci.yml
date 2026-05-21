@@ -261,7 +261,57 @@ jobs:
         run: npx wp-env stop || true
 
   # ---------------------------------------------------------------------------
-  # 7. Build the wp.org distribution ZIP and verify size + structure.
+  # 7. Verify wp-scripts build artefacts.
+  #    The bundled React admin UIs are emitted by webpack from
+  #    `src/admin/<name>/index.js` to `build/admin/<name>.{js,asset.php}`.
+  #    Artefacts are gitignored, so a stale or missing build only surfaces
+  #    at wp.org submission time — or worse, as a user-reported "the
+  #    Gutenberg sidebar / Context Profile editor doesn't render." This job
+  #    runs `npm ci && npm run build` and asserts every entry point under
+  #    `src/admin/` produced both its `.js` and `.asset.php` artefact,
+  #    non-empty. The expected list is derived from `src/admin/*/index.js`
+  #    so new admin bundles get covered automatically — same auto-discovery
+  #    shape the webpack config uses.
+  # ---------------------------------------------------------------------------
+  check-build:
+    name: Check build (wp-scripts artefacts)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies (deterministic)
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify each src/admin/<name>/index.js produced build/admin/<name>.{js,asset.php}
+        run: |
+          set -e
+          fail=0
+          for entry in src/admin/*/index.js; do
+            name=$(basename "$(dirname "$entry")")
+            for ext in js asset.php; do
+              artefact="build/admin/${name}.${ext}"
+              if [ ! -s "$artefact" ]; then
+                echo "::error::Missing or empty: $artefact (entry: $entry)"
+                fail=1
+              else
+                size=$(stat -c%s "$artefact")
+                echo "OK: $artefact ($size bytes)"
+              fi
+            done
+          done
+          exit $fail
+
+  # ---------------------------------------------------------------------------
+  # 8. Build the wp.org distribution ZIP and verify size + structure.
   #    Catches drift between the dev install and the production-only ZIP that
   #    ships to wp.org — composer dev deps slipping into the bundle, missing
   #    build/ artefacts after a webpack refactor, `.distignore` regressions
