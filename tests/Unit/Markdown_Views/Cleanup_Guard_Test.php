@@ -151,6 +151,21 @@ final class Cleanup_Guard_Test extends TestCase {
 		self::assertSame( 1, $result->get_stats()['sentences_dropped'] );
 	}
 
+	public function test_kill_switch_does_not_fire_at_exact_boundary(): void {
+		// 2 kept + 2 dropped = ratio 0.5 exactly. The comparison in
+		// Cleanup_Guard::check() is strict `>` (not `>=`), so the
+		// boundary case must NOT trigger the kill switch.
+		$source = '<p>The brave knight fought the dragon for the kingdom of light.</p>';
+		$allow  = Cleanup_Guard::build_allowlist( $source );
+
+		$llm_output = 'The knight fought. The brave knight fought. Random elephant text. Mystery octopus exists.';
+		$result     = Cleanup_Guard::check( $llm_output, $allow, array() );
+
+		self::assertFalse( $result->failed_overall() );
+		self::assertSame( 2, $result->get_stats()['sentences_kept'] );
+		self::assertSame( 2, $result->get_stats()['sentences_dropped'] );
+	}
+
 	public function test_extract_named_entities_finds_multi_word_capitalised(): void {
 		$text = 'John Smith met with Acme Corporation about the deal.';
 		$entities = Cleanup_Guard::extract_named_entities( $text );
