@@ -412,4 +412,172 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 			'Fresh detect() in the test environment returns an empty array (no real conflicts).'
 		);
 	}
+
+	/**
+	 * HTML-render — plugin-conflict section emits the expected structure.
+	 *
+	 * Seeds the cache transient with a single plugin-kind conflict so
+	 * `maybe_render()` bypasses the live detector and operates on our
+	 * fixture. Captures the echoed HTML via `ob_start`/`ob_get_clean` and
+	 * asserts the renderer produced: outer notice wrapper, top-level title,
+	 * plugin name + URL anchor, and the dismiss button with a 40-char-hex
+	 * `data-agentready-dismiss-fingerprint` attribute.
+	 *
+	 * The admin screen + capability are required by the gate in
+	 * `maybe_render()` (capability + `is_target_screen()`); without them the
+	 * function early-returns and emits nothing.
+	 */
+	public function test_maybe_render_emits_plugin_conflict_section(): void {
+		$this->_setRole( 'administrator' );
+		set_current_screen( 'plugins' );
+
+		$fixture = array(
+			array(
+				'kind'  => 'plugin',
+				'slug'  => 'website-llms-txt/website-llms-txt.php',
+				'name'  => 'Website LLMs.txt',
+				'url'   => 'https://wordpress.org/plugins/website-llms-txt/',
+				'shape' => 'hybrid',
+			),
+		);
+		set_transient( Conflict_Notice::CACHE_TRANSIENT, $fixture, Conflict_Notice::CACHE_TTL );
+
+		ob_start();
+		Conflict_Notice::maybe_render();
+		$html = (string) ob_get_clean();
+
+		$this->assertNotSame( '', $html, 'Expected maybe_render() to echo notice HTML for a plugin conflict fixture.' );
+		$this->assertStringContainsString( 'agentready-llms-txt-conflict-notice', $html );
+		$this->assertStringContainsString( 'Agent Ready — /llms.txt conflict detected', $html );
+		$this->assertStringContainsString( 'Website LLMs.txt', $html );
+		$this->assertStringContainsString( 'https://wordpress.org/plugins/website-llms-txt/', $html );
+		$this->assertStringContainsString( 'data-agentready-dismiss-fingerprint=', $html );
+		$this->assertMatchesRegularExpression(
+			'/data-agentready-dismiss-fingerprint="[a-f0-9]{40}"/',
+			$html,
+			'Dismiss-button fingerprint attribute must be a 40-char lowercase hex string.'
+		);
+	}
+
+	/**
+	 * HTML-render — filesystem-conflict section emits the expected structure.
+	 *
+	 * Seeds a filesystem-kind fixture and asserts the rendered HTML contains
+	 * the filesystem-resolution paragraph (anchored on the literal "static
+	 * /llms.txt file" prose), a `<code>` block for the file path, and the
+	 * dismiss-button fingerprint attribute in the expected 40-char-hex shape.
+	 */
+	public function test_maybe_render_emits_filesystem_conflict_section(): void {
+		$this->_setRole( 'administrator' );
+		set_current_screen( 'plugins' );
+
+		$fixture = array(
+			array(
+				'kind' => 'filesystem',
+				'path' => '/var/www/html/llms.txt',
+			),
+		);
+		set_transient( Conflict_Notice::CACHE_TRANSIENT, $fixture, Conflict_Notice::CACHE_TTL );
+
+		ob_start();
+		Conflict_Notice::maybe_render();
+		$html = (string) ob_get_clean();
+
+		$this->assertNotSame( '', $html, 'Expected maybe_render() to echo notice HTML for a filesystem conflict fixture.' );
+		$this->assertStringContainsString( 'A static /llms.txt file exists', $html );
+		$this->assertStringContainsString( '<code>/var/www/html/llms.txt</code>', $html );
+		$this->assertStringContainsString( 'data-agentready-dismiss-fingerprint=', $html );
+		$this->assertMatchesRegularExpression(
+			'/data-agentready-dismiss-fingerprint="[a-f0-9]{40}"/',
+			$html,
+			'Dismiss-button fingerprint attribute must be a 40-char lowercase hex string.'
+		);
+	}
+
+	/**
+	 * HTML-render — rewrite-conflict section emits the expected structure.
+	 *
+	 * Seeds a rewrite-kind fixture with a competing rewrite target string
+	 * and asserts the rendered HTML contains the rewrite-resolution prose
+	 * (anchored on "rewrite rule for /llms.txt"), a `<code>` block for the
+	 * rule target, and the dismiss-button fingerprint in the 40-char-hex shape.
+	 */
+	public function test_maybe_render_emits_rewrite_conflict_section(): void {
+		$this->_setRole( 'administrator' );
+		set_current_screen( 'plugins' );
+
+		$fixture = array(
+			array(
+				'kind' => 'rewrite',
+				'rule' => 'index.php?competitor_llms_txt=1',
+			),
+		);
+		set_transient( Conflict_Notice::CACHE_TRANSIENT, $fixture, Conflict_Notice::CACHE_TTL );
+
+		ob_start();
+		Conflict_Notice::maybe_render();
+		$html = (string) ob_get_clean();
+
+		$this->assertNotSame( '', $html, 'Expected maybe_render() to echo notice HTML for a rewrite conflict fixture.' );
+		$this->assertStringContainsString( 'rewrite rule for /llms.txt', $html );
+		$this->assertStringContainsString( '<code>index.php?competitor_llms_txt=1</code>', $html );
+		$this->assertStringContainsString( 'data-agentready-dismiss-fingerprint=', $html );
+		$this->assertMatchesRegularExpression(
+			'/data-agentready-dismiss-fingerprint="[a-f0-9]{40}"/',
+			$html,
+			'Dismiss-button fingerprint attribute must be a 40-char lowercase hex string.'
+		);
+	}
+
+	/**
+	 * Escape-regression guard — fixture inputs that contain HTML-special
+	 * characters (`&`, `<`) must come out escaped (`&amp;`, `&lt;`) in the
+	 * rendered output. A future refactor that drops `esc_html` / `esc_attr`
+	 * / `esc_url` on these surfaces would be caught here.
+	 *
+	 * Seeds two conflicts in one fixture so a single pass tests the
+	 * filesystem `path` (rendered via `esc_html` inside `<code>…</code>`)
+	 * and the rewrite `rule` (same shape) — the two adopter-supplied
+	 * strings most likely to drift into raw output during a refactor.
+	 */
+	public function test_maybe_render_escapes_html_special_chars_in_fixture_inputs(): void {
+		$this->_setRole( 'administrator' );
+		set_current_screen( 'plugins' );
+
+		$raw_path = '/var/www/html/llms.txt?foo=1&bar=2';
+		$raw_rule = 'index.php?q=<script>alert(1)</script>';
+
+		$fixture = array(
+			array(
+				'kind' => 'filesystem',
+				'path' => $raw_path,
+			),
+			array(
+				'kind' => 'rewrite',
+				'rule' => $raw_rule,
+			),
+		);
+		set_transient( Conflict_Notice::CACHE_TRANSIENT, $fixture, Conflict_Notice::CACHE_TTL );
+
+		ob_start();
+		Conflict_Notice::maybe_render();
+		$html = (string) ob_get_clean();
+
+		$this->assertNotSame( '', $html, 'Expected maybe_render() to echo notice HTML for the escape-regression fixture.' );
+
+		// Filesystem path: `&` must be escaped, raw form must not appear.
+		$this->assertStringContainsString( '/var/www/html/llms.txt?foo=1&amp;bar=2', $html );
+		$this->assertStringNotContainsString( '/var/www/html/llms.txt?foo=1&bar=2', $html );
+
+		// Rewrite rule: `<` and `>` must be escaped, raw `<script>` must not appear.
+		$this->assertStringContainsString( '&lt;script&gt;alert(1)&lt;/script&gt;', $html );
+		$this->assertStringNotContainsString( '<script>alert(1)</script>', $html );
+
+		// Fingerprint attribute still well-formed after the escape pipeline.
+		$this->assertMatchesRegularExpression(
+			'/data-agentready-dismiss-fingerprint="[a-f0-9]{40}"/',
+			$html,
+			'Dismiss-button fingerprint attribute must remain 40-char lowercase hex when fixture contains HTML-special chars.'
+		);
+	}
 }
