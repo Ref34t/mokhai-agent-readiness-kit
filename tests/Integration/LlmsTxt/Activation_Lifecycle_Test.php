@@ -43,6 +43,26 @@ final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 		// factory()->post->create() call in this suite stays quiet.
 		Markdown_Views_Schema::create();
 
+		// Root cause of the cross-test cron leak (v1/v2 didn't close it):
+		// this suite's factory()->post->create() calls fire `save_post`, which
+		// triggers `Description_Orchestrator::on_save_post()` → `schedule()` →
+		// a per-post cron entry. Sibling Description_Orchestrator_Test counts
+		// SCHEDULE_ACTION events globally and asserts the count is 1; ALT's two
+		// post-creating tests (`test_on_activate_writes_initial_cache_option`,
+		// `test_deactivate_then_reactivate_round_trip_serves_cache`) were each
+		// adding an entry — clearing in tearDown happens INSIDE the same
+		// transaction as the write, so a tearDown clear can't outrun a write
+		// that auto-commits via the dbDelta DDL path inside `on_activate()`.
+		// The robust shape is to detach the listener for the duration of this
+		// suite so the SCHEDULE_ACTION events never get scheduled in the first
+		// place; `_restore_hooks()` re-attaches it at parent::tearDown(), so
+		// downstream classes still observe the production-wired listener.
+		// We don't need that listener for any assertion ALT makes — this suite
+		// pins Main::on_activate() / on_deactivate() behaviour, not the
+		// save_post → schedule pipeline (that's covered by DOT's
+		// test_save_post_listener_schedules_for_eligible_post).
+		remove_action( 'save_post', array( Description_Orchestrator::class, 'on_save_post' ), 30 );
+
 		// Reset every piece of state the lifecycle touches so each test
 		// observes the activate / deactivate transition in isolation.
 		Service::invalidate();
@@ -83,9 +103,11 @@ final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 		Context_Score_Service::clear_scheduled_recomputes();
 		delete_option( 'agentready_version' );
 
-		// Description_Orchestrator queues per-post cron via the save_post path
-		// our factory()->post->create() calls fire. Clear so sibling tests
-		// that count global cron buckets observe a clean slate.
+		// Belt-and-suspenders clear of Description_Orchestrator::SCHEDULE_ACTION:
+		// the on_save_post listener was detached in setUp() so factory posts
+		// shouldn't be scheduling these — but if a future test in this class
+		// ever calls schedule() directly (e.g. via on_activate adding more
+		// listeners), this clear keeps DOT's idempotency assertion safe.
 		wp_clear_scheduled_hook( Description_Orchestrator::SCHEDULE_ACTION );
 
 		// Restore the rewrite-rules state we mutated for assertion clarity.
