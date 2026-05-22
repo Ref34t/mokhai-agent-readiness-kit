@@ -298,4 +298,118 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 		$this->assertContains( self::VALID_FINGERPRINT, $stored );
 		$this->assertContains( self::VALID_FINGERPRINT_2, $stored );
 	}
+
+	/**
+	 * Cache invalidation — `activated_plugin` action must delete the cache
+	 * transient so the next `get_conflicts()` call re-runs `detect()` instead
+	 * of returning a stale 5-minute-old result.
+	 *
+	 * Seeds the transient with a sentinel value, fires the action, and
+	 * asserts the transient is gone (`get_transient` returns `false` for a
+	 * deleted entry).
+	 */
+	public function test_activated_plugin_action_invalidates_conflict_cache(): void {
+		$sentinel = array(
+			array(
+				'kind' => 'plugin',
+				'slug' => 'sentinel/competitor.php',
+				'name' => 'Sentinel Competitor',
+			),
+		);
+
+		set_transient( Conflict_Notice::CACHE_TRANSIENT, $sentinel, Conflict_Notice::CACHE_TTL );
+		$this->assertSame(
+			$sentinel,
+			get_transient( Conflict_Notice::CACHE_TRANSIENT ),
+			'Pre-condition: sentinel must be cached before the invalidation hook fires.'
+		);
+
+		// Plugin file argument is unused by `invalidate_cache()`; passed for
+		// fidelity with the real `activated_plugin` hook signature.
+		do_action( 'activated_plugin', 'sentinel/competitor.php', false );
+
+		$this->assertFalse(
+			get_transient( Conflict_Notice::CACHE_TRANSIENT ),
+			'Cache transient must be deleted after activated_plugin fires.'
+		);
+	}
+
+	/**
+	 * Cache invalidation — `deactivated_plugin` action must delete the cache
+	 * transient. Mirror of the activation test: an admin deactivating a
+	 * competing plugin should clear a now-resolved conflict immediately,
+	 * not wait for the 5-minute TTL.
+	 */
+	public function test_deactivated_plugin_action_invalidates_conflict_cache(): void {
+		$sentinel = array(
+			array(
+				'kind' => 'plugin',
+				'slug' => 'sentinel/competitor.php',
+				'name' => 'Sentinel Competitor',
+			),
+		);
+
+		set_transient( Conflict_Notice::CACHE_TRANSIENT, $sentinel, Conflict_Notice::CACHE_TTL );
+		$this->assertSame(
+			$sentinel,
+			get_transient( Conflict_Notice::CACHE_TRANSIENT ),
+			'Pre-condition: sentinel must be cached before the invalidation hook fires.'
+		);
+
+		do_action( 'deactivated_plugin', 'sentinel/competitor.php', false );
+
+		$this->assertFalse(
+			get_transient( Conflict_Notice::CACHE_TRANSIENT ),
+			'Cache transient must be deleted after deactivated_plugin fires.'
+		);
+	}
+
+	/**
+	 * After invalidate, `get_conflicts()` must re-run `Conflict_Detector::detect()`
+	 * rather than returning a stale cached value.
+	 *
+	 * Strategy: seed the cache with a sentinel list that `detect()` would
+	 * never produce in this test environment (no competing plugins are
+	 * active, no static /llms.txt, no rewrite rule). Verify the cache is
+	 * read (first call returns the sentinel), then invalidate, then verify
+	 * the next call ignores the (now-deleted) cache and returns the fresh
+	 * detector output (empty array in the test env).
+	 */
+	public function test_get_conflicts_after_invalidate_runs_fresh_detect(): void {
+		$sentinel = array(
+			array(
+				'kind' => 'plugin',
+				'slug' => 'sentinel/competitor.php',
+				'name' => 'Sentinel Competitor',
+			),
+		);
+
+		set_transient( Conflict_Notice::CACHE_TRANSIENT, $sentinel, Conflict_Notice::CACHE_TTL );
+
+		// Sanity: the cache is being read (proves the sentinel isn't a no-op).
+		$this->assertSame(
+			$sentinel,
+			Conflict_Notice::get_conflicts(),
+			'Pre-condition: get_conflicts() must return the cached sentinel before invalidation.'
+		);
+
+		Conflict_Notice::invalidate_cache();
+
+		// After invalidate, `get_conflicts()` re-runs `detect()`. In the
+		// integration test environment there are no real competing plugins,
+		// no static file, and no rewrite rule for /llms.txt — so a fresh
+		// detect returns an empty array. The key assertion is that we no
+		// longer see the sentinel.
+		$fresh = Conflict_Notice::get_conflicts();
+		$this->assertNotSame(
+			$sentinel,
+			$fresh,
+			'get_conflicts() must not return the stale cached sentinel after invalidate_cache().'
+		);
+		$this->assertSame(
+			array(),
+			$fresh,
+			'Fresh detect() in the test environment returns an empty array (no real conflicts).'
+		);
+	}
 }
