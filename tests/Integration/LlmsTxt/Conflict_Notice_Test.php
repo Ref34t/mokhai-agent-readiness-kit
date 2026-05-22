@@ -67,9 +67,8 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 	 * Expected: JSON success, user-meta updated with the fingerprint.
 	 */
 	public function test_handle_dismiss_admin_with_valid_nonce_and_fingerprint_returns_success(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
 		$this->_setRole( 'administrator' );
+		$user_id = get_current_user_id();
 
 		$_POST['_wpnonce']    = wp_create_nonce( Conflict_Notice::DISMISS_ACTION );
 		$_POST['fingerprint'] = self::VALID_FINGERPRINT;
@@ -96,9 +95,8 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 	 * calls `wp_send_json_error( ..., 403 )` before nonce verification.
 	 */
 	public function test_handle_dismiss_non_admin_user_returns_403(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
-		wp_set_current_user( $user_id );
 		$this->_setRole( 'subscriber' );
+		$user_id = get_current_user_id();
 
 		$_POST['_wpnonce']    = wp_create_nonce( Conflict_Notice::DISMISS_ACTION );
 		$_POST['fingerprint'] = self::VALID_FINGERPRINT;
@@ -128,8 +126,6 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 	 * (no JSON body, hard die).
 	 */
 	public function test_handle_dismiss_missing_nonce_calls_wp_die(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
 		$this->_setRole( 'administrator' );
 
 		// _wpnonce intentionally absent.
@@ -144,8 +140,6 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 	 * as the missing case.
 	 */
 	public function test_handle_dismiss_invalid_nonce_calls_wp_die(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
 		$this->_setRole( 'administrator' );
 
 		$_POST['_wpnonce']    = 'not-a-real-nonce';
@@ -160,9 +154,8 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 	 * `wp_send_json_error( 'invalid_fingerprint', 400 )`.
 	 */
 	public function test_handle_dismiss_missing_fingerprint_returns_400(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
 		$this->_setRole( 'administrator' );
+		$user_id = get_current_user_id();
 
 		$_POST['_wpnonce'] = wp_create_nonce( Conflict_Notice::DISMISS_ACTION );
 		// fingerprint intentionally absent.
@@ -188,9 +181,8 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 	 * in length but fails the `[a-f0-9]` character class.
 	 */
 	public function test_handle_dismiss_non_hex_fingerprint_returns_400(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
 		$this->_setRole( 'administrator' );
+		$user_id = get_current_user_id();
 
 		$_POST['_wpnonce']    = wp_create_nonce( Conflict_Notice::DISMISS_ACTION );
 		// 40 chars, but the trailing `z` is not hex.
@@ -217,9 +209,8 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 	 * than the expected 40-char hash.
 	 */
 	public function test_handle_dismiss_wrong_length_fingerprint_returns_400(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
 		$this->_setRole( 'administrator' );
+		$user_id = get_current_user_id();
 
 		$_POST['_wpnonce']    = wp_create_nonce( Conflict_Notice::DISMISS_ACTION );
 		// 39 chars — one short.
@@ -252,9 +243,8 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 	 * fingerprint, not a single overwriting slot).
 	 */
 	public function test_handle_dismiss_idempotent_for_same_fingerprint(): void {
-		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $user_id );
 		$this->_setRole( 'administrator' );
+		$user_id = get_current_user_id();
 
 		$nonce = wp_create_nonce( Conflict_Notice::DISMISS_ACTION );
 
@@ -271,7 +261,6 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 		// if we call it explicitly — flip the internal flag so the second
 		// dispatch starts clean.
 		$this->_last_response = '';
-		$this->_last_response_parsed = null;
 
 		// Second dismissal — same fingerprint, same user.
 		$_POST['_wpnonce']    = $nonce;
@@ -295,7 +284,6 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 		// Third dispatch with a DIFFERENT fingerprint — should append, not
 		// overwrite. Confirms the storage is additive across unique hashes.
 		$this->_last_response = '';
-		$this->_last_response_parsed = null;
 		$_POST['_wpnonce']    = $nonce;
 		$_POST['fingerprint'] = self::VALID_FINGERPRINT_2;
 		try {
