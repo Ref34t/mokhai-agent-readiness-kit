@@ -30,7 +30,6 @@ use WPContext\LlmsTxt\Conflict_Detector;
 use WPContext\LlmsTxt\Description_Orchestrator;
 use WPContext\LlmsTxt\Service;
 use WPContext\Main;
-use WPContext\Markdown_Views\Cleanup_Orchestrator;
 use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Activation_Lifecycle_Test extends WP_UnitTestCase {
@@ -78,23 +77,16 @@ final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 		delete_option( 'agentready_llms_txt_editorial' );
 		delete_option( 'agentready_seo_posture_last_seen' );
 
-		// Context_Score state written by Main::on_activate() (#9 / AgDR-0030):
-		// schedule_daily_recompute() queues DAILY_RECOMPUTE_ACTION, and the
-		// cache option may be written by downstream recompute callbacks. Sibling
-		// Description_Orchestrator_Test counts scheduled events globally, so
-		// any leaked Context_Score cron entry fails its "must not double-queue"
-		// assertion. Clear both cron surfaces + the cache option per Rex's
-		// non-blocking review on #59 / PR #95.
+		// Context_Score state written by Main::on_activate(): clear the daily
+		// recompute cron and the version option so the next test boots from a
+		// clean slate.
 		Context_Score_Service::clear_scheduled_recomputes();
-		delete_option( Context_Score_Service::CACHE_OPTION );
 		delete_option( 'agentready_version' );
 
-		// The factory()->post->create() calls in this suite fire `save_post`,
-		// which schedules per-post cron events via Description_Orchestrator
-		// and Markdown_Views\Cleanup_Orchestrator. Clear them so sibling tests
+		// Description_Orchestrator queues per-post cron via the save_post path
+		// our factory()->post->create() calls fire. Clear so sibling tests
 		// that count global cron buckets observe a clean slate.
 		wp_clear_scheduled_hook( Description_Orchestrator::SCHEDULE_ACTION );
-		wp_clear_scheduled_hook( Cleanup_Orchestrator::SCHEDULE_ACTION );
 
 		// Restore the rewrite-rules state we mutated for assertion clarity.
 		global $wp_rewrite;
@@ -102,7 +94,12 @@ final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 			$wp_rewrite->extra_rules_top = array();
 		}
 
-		Markdown_Views_Schema::drop();
+		// Markdown_Views_Schema::drop() was removed: it's a DDL statement that
+		// auto-commits in MySQL, breaking the WP_UnitTestCase transaction that
+		// would otherwise roll back cron-event writes. The leak from this test
+		// to Description_Orchestrator_Test goes away once the transaction
+		// wrapper isn't broken. The schema persists across tests, which is
+		// harmless since Markdown_Views_Schema::create() in setUp is idempotent.
 
 		parent::tearDown();
 	}
