@@ -26,6 +26,8 @@ namespace WPContext\Tests\Integration\Cli;
 use WP_UnitTestCase;
 use WPContext\Admin\Context_Profile_Settings;
 use WPContext\Cli\Llms_Txt_Command;
+use WPContext\LlmsTxt\Conflict_Detector;
+use WPContext\LlmsTxt\Conflict_Notice;
 use WPContext\LlmsTxt\Service;
 use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
 
@@ -163,6 +165,12 @@ final class Llms_Txt_Command_Test extends WP_UnitTestCase {
 		wp_clear_scheduled_hook( Service::REGEN_ACTION );
 		wp_clear_scheduled_hook( Service::DAILY_REGEN_ACTION );
 
+		// Reset conflict-detector state so `status` reports a clean baseline
+		// unless a test explicitly stages a conflict fixture below.
+		Conflict_Notice::invalidate_cache();
+		global $wp_rewrite;
+		$wp_rewrite->extra_rules_top = array();
+
 		\WP_CLI::reset();
 
 		$this->command = new Llms_Txt_Command();
@@ -174,6 +182,11 @@ final class Llms_Txt_Command_Test extends WP_UnitTestCase {
 		wp_clear_scheduled_hook( Service::REGEN_ACTION );
 		wp_clear_scheduled_hook( Service::DAILY_REGEN_ACTION );
 		delete_option( 'agentready_llms_txt_editorial' );
+
+		// Strip any conflict fixture so it can't leak into a sibling test.
+		Conflict_Notice::invalidate_cache();
+		global $wp_rewrite;
+		$wp_rewrite->extra_rules_top = array();
 
 		Markdown_Views_Schema::drop();
 
@@ -347,6 +360,55 @@ final class Llms_Txt_Command_Test extends WP_UnitTestCase {
 			'Preview only',
 			\WP_CLI::$lines[0],
 			'Preview output must include the post title from the composed body.'
+		);
+	}
+
+	/**
+	 * Stage a rewrite-rule conflict (cheapest fixture — no filesystem write,
+	 * no plugin-option mutation) and assert `status --porcelain` surfaces
+	 * `conflicts_detected=1`.
+	 *
+	 * Pins the wire format consumed by smoke tooling + support runbooks:
+	 * the field name (`conflicts_detected`) and the integer-as-string
+	 * encoding (`=1`, not `=true` / `=yes`).
+	 *
+	 * The fixture mirrors `Conflict_Detector_Test::test_competing_rewrite_rule_is_detected`
+	 * — a foreign value on `$wp_rewrite->extra_rules_top[ REWRITE_KEY ]` is
+	 * the smallest poke that flips the detector from clean to dirty.
+	 */
+	public function test_status_porcelain_emits_conflicts_detected_one_when_conflict_exists(): void {
+		global $wp_rewrite;
+		$wp_rewrite->extra_rules_top[ Conflict_Detector::REWRITE_KEY ] = 'index.php?some_other_plugin=1';
+
+		// The detector is cached via a 5-minute transient; setUp() drops it,
+		// but be defensive against ordering changes by invalidating again
+		// after staging the fixture.
+		Conflict_Notice::invalidate_cache();
+
+		$this->command->status( array(), array( 'porcelain' => true ) );
+
+		$this->assertContains(
+			'conflicts_detected=1',
+			\WP_CLI::$lines,
+			'Porcelain output must emit `conflicts_detected=1` when one conflict is staged.'
+		);
+	}
+
+	/**
+	 * With no conflict fixture in place, `status --porcelain` must report
+	 * `conflicts_detected=0`. Guards against a regression where the field
+	 * silently switches to `false` / `no` / `none` and breaks downstream
+	 * `=0` parsers.
+	 */
+	public function test_status_porcelain_emits_conflicts_detected_zero_when_clean(): void {
+		// setUp() already drops the transient + clears extra_rules_top, so
+		// no extra fixture work is needed — this test asserts the baseline.
+		$this->command->status( array(), array( 'porcelain' => true ) );
+
+		$this->assertContains(
+			'conflicts_detected=0',
+			\WP_CLI::$lines,
+			'Porcelain output must emit `conflicts_detected=0` on a clean baseline.'
 		);
 	}
 }
