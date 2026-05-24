@@ -162,12 +162,78 @@ final class Entry_Source {
 	}
 
 	/**
-	 * Resolve the entry URL. Uses `get_permalink()` so the configured
-	 * permalink structure is honoured.
+	 * Resolve the entry URL.
+	 *
+	 * When Markdown Views is enabled in the Context Profile, the URL is
+	 * transformed to the `.md` form (pretty permalinks) or `?format=md`
+	 * (plain permalinks) so AI agents fetching from `/llms.txt` pull the
+	 * clean Markdown body (~4–8 KB) instead of the full HTML page
+	 * (~50–100 KB). The whole reason `/llms.txt` is the agent discovery
+	 * surface is to point at agent-shaped content — `get_permalink()`
+	 * alone defeats that. See `Ref34t/agentready#105`.
+	 *
+	 * When Markdown Views is disabled, returns the canonical permalink
+	 * unchanged.
 	 */
 	private static function resolve_url( \WP_Post $post ): string {
 		$url = \get_permalink( $post );
-		return false === $url ? '' : (string) $url;
+		if ( false === $url ) {
+			return '';
+		}
+		$url = (string) $url;
+
+		if ( ! self::markdown_views_enabled() ) {
+			return $url;
+		}
+
+		return self::to_md_url( $url );
+	}
+
+	/**
+	 * Whether the Markdown Views module is enabled in the Context Profile.
+	 * Drives whether `/llms.txt` links point at the `.md` form (#105).
+	 */
+	private static function markdown_views_enabled(): bool {
+		$profile = Context_Profile_Settings::get_profile();
+		return ! empty( $profile['markdown_views_enabled'] );
+	}
+
+	/**
+	 * Transform a canonical permalink to its Markdown View URL form.
+	 *
+	 * Two URL shapes, matching the rewrite contract in
+	 * `Markdown_Views\Router`:
+	 *
+	 *   - **Pretty permalinks** (`/lessons/foo/`): strip the trailing
+	 *     slash, append `.md`. Result `/lessons/foo.md`.
+	 *   - **Plain permalinks** (`/?p=42`): append `&format=md` to the
+	 *     existing query string. Result `/?p=42&format=md`.
+	 *
+	 * Both shapes resolve to the same `Handler::dispatch()` code path
+	 * once WordPress parses the request — the rewrite handles the path
+	 * form, the query var handles the query form.
+	 *
+	 * Idempotent: a URL already in `.md` or `format=md` shape is
+	 * returned unchanged.
+	 */
+	private static function to_md_url( string $url ): string {
+		$parsed = \wp_parse_url( $url );
+		$query  = isset( $parsed['query'] ) ? (string) $parsed['query'] : '';
+
+		if ( '' !== $query ) {
+			// Plain-permalink mode (or any URL carrying a query string).
+			if ( false !== \stripos( $query, 'format=md' ) ) {
+				return $url;
+			}
+			return $url . '&format=md';
+		}
+
+		// Pretty-permalink mode (or any URL with no query).
+		$path = isset( $parsed['path'] ) ? (string) $parsed['path'] : '';
+		if ( '' !== $path && \substr( $path, -3 ) === '.md' ) {
+			return $url;
+		}
+		return \rtrim( $url, '/' ) . '.md';
 	}
 
 	/**
