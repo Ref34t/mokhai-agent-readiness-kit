@@ -178,6 +178,41 @@ final class Service_Test extends WP_UnitTestCase {
 		$this->assertSame( $first, $second );
 	}
 
+	/**
+	 * Ref34t/agentready#115 — stale-event recovery (sibling of #103).
+	 *
+	 * Simulates the wp-env-without-traffic failure mode: an event was
+	 * scheduled in the past but never consumed by cron. A subsequent
+	 * schedule_recompute() must clear the stale event and schedule a
+	 * fresh future one — otherwise WP de-dups the new
+	 * wp_schedule_single_event call against the stale entry and the
+	 * recompute is silently lost. Mirrors
+	 * tests/Integration/LlmsTxt/Service_Test.php::test_schedule_regen_clears_stale_past_event_and_reschedules.
+	 */
+	public function test_schedule_recompute_clears_stale_past_event_and_reschedules(): void {
+		// Stage a stale past-timestamp event directly, bypassing the
+		// public API so we don't accidentally test the very logic we're
+		// regressing.
+		$past = time() - 60;
+		wp_schedule_single_event( $past, Service::RECOMPUTE_ACTION );
+		$this->assertSame( $past, wp_next_scheduled( Service::RECOMPUTE_ACTION ) );
+
+		Service::schedule_recompute();
+
+		$next = wp_next_scheduled( Service::RECOMPUTE_ACTION );
+		$this->assertIsInt( $next );
+		$this->assertGreaterThan(
+			time(),
+			$next,
+			'schedule_recompute must produce a future event even when a stale past event was in the queue.'
+		);
+		$this->assertLessThanOrEqual(
+			time() + Service::DEBOUNCE_DELAY + 1,
+			$next,
+			'New event must be scheduled within the debounce window.'
+		);
+	}
+
 	public function test_profile_saved_action_schedules_a_recompute(): void {
 		// Fire the action directly with the listener path the Main bootstrap
 		// already wired (Service::register_hooks runs at plugin boot).

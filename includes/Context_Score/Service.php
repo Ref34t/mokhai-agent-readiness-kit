@@ -113,16 +113,42 @@ final class Service {
 	/**
 	 * Schedule a debounced async recompute one window from now.
 	 *
-	 * Coalesces bursts: a second call inside the window finds an existing
-	 * scheduled event via `wp_next_scheduled` and noops. Extra arguments
-	 * passed by `do_action()` (e.g. the profile arrays from
-	 * `agentready_context_profile_saved`) are intentionally ignored —
+	 * Two behaviours bundled here (mirrors `LlmsTxt\Service::schedule_regen()`
+	 * post-#107):
+	 *
+	 * 1. **Debounce / coalesce.** A second call inside the debounce window
+	 *    finds a future-scheduled event and noops, so a burst of profile
+	 *    saves only triggers one recompute.
+	 * 2. **Stale-event recovery.** If a previously-scheduled event is
+	 *    still sitting in the cron queue with a past timestamp (the cron
+	 *    didn't fire it — common on wp-env without traffic, or on any
+	 *    site where cron failed for a window), the old event is cleared
+	 *    before a fresh one is scheduled. Without this, WP de-dups
+	 *    `wp_schedule_single_event` against the stale entry and the new
+	 *    schedule is silently dropped, leaving the recompute never to
+	 *    fire — Context Score would freeze at the previous breakdown
+	 *    until the daily backstop kicks in or someone runs
+	 *    `wp ai-readiness-kit context-score recompute` manually.
+	 *    See Ref34t/agentready#115 (sibling of #103).
+	 *
+	 * Extra arguments passed by `do_action()` (e.g. the profile arrays
+	 * from `agentready_context_profile_saved`) are intentionally ignored —
 	 * `recompute_now()` reads the current state at run time.
 	 */
 	public static function schedule_recompute(): void {
-		if ( false !== \wp_next_scheduled( self::RECOMPUTE_ACTION ) ) {
+		$existing = \wp_next_scheduled( self::RECOMPUTE_ACTION );
+
+		// Future event already scheduled — debounce is working, noop.
+		if ( false !== $existing && $existing > \time() ) {
 			return;
 		}
+
+		// Stale past-timestamp event still in the queue — clear it so the
+		// fresh schedule below isn't silently de-duped by WP. See #115.
+		if ( false !== $existing ) {
+			\wp_clear_scheduled_hook( self::RECOMPUTE_ACTION );
+		}
+
 		\wp_schedule_single_event(
 			\time() + self::DEBOUNCE_DELAY,
 			self::RECOMPUTE_ACTION
