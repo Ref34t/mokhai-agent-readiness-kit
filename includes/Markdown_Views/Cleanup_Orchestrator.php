@@ -198,16 +198,38 @@ PROMPT;
 	 *
 	 * Records `pending` state on post-meta so the admin UI can show
 	 * "cleanup queued" without a separate cron-introspection call.
+	 *
+	 * Stale-event recovery (Ref34t/agentready#120, sibling of #103 / #115):
+	 * if a previously-scheduled event for this post is still sitting in
+	 * the cron queue with a past timestamp (the cron didn't fire it —
+	 * common on wp-env without traffic, or on any site where cron failed
+	 * during the cleanup window), the old event is cleared before a
+	 * fresh one is scheduled. Without this, WP de-dups
+	 * `wp_schedule_single_event` against the stale entry and the new
+	 * schedule is silently dropped — the post's cleanup never fires,
+	 * but the admin UI keeps claiming "pending" because the meta
+	 * marker is rewritten on every schedule call. Mirrors
+	 * `LlmsTxt\Service::schedule_regen()` post-#107 and
+	 * `Context_Score\Service::schedule_recompute()` post-#115.
 	 */
 	public static function schedule( \WP_Post $post ): void {
-		$post_id = (int) $post->ID;
-		$args    = array( $post_id );
+		$post_id  = (int) $post->ID;
+		$args     = array( $post_id );
+		$existing = \wp_next_scheduled( self::SCHEDULE_ACTION, $args );
 
-		if ( false !== \wp_next_scheduled( self::SCHEDULE_ACTION, $args ) ) {
-			// Already pending for this post — refresh the status marker and
-			// exit; the existing cron event will fire normally.
+		// Future event already pending for this post — refresh the
+		// status marker and exit; the existing cron event will fire
+		// normally.
+		if ( false !== $existing && $existing > \time() ) {
 			\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_PENDING );
 			return;
+		}
+
+		// Stale past-timestamp event still in the queue — clear it so
+		// the fresh schedule below isn't silently de-duped by WP.
+		// See #120.
+		if ( false !== $existing ) {
+			\wp_clear_scheduled_hook( self::SCHEDULE_ACTION, $args );
 		}
 
 		if ( self::pending_count() >= Context_Profile_Settings::get_md_cleanup_max_per_run() ) {
