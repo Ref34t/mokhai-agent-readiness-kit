@@ -356,8 +356,9 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		if ( ! preg_match( '#<script type="application/ld\+json" data-emitted-by="agentready">\s*(.+?)\s*</script>#s', $output, $m ) ) {
 			return null;
 		}
-		$body    = html_entity_decode( $m[1], ENT_QUOTES | ENT_HTML5 );
-		$decoded = json_decode( $body, true );
+		// Body must be raw JSON (AgDR-0041) — `json_decode` directly,
+		// no `html_entity_decode` pre-processing.
+		$decoded = json_decode( $m[1], true );
 		return is_array( $decoded ) ? $decoded : null;
 	}
 

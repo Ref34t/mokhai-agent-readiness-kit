@@ -422,22 +422,46 @@ final class Schema_Emitter {
 
 	/**
 	 * Print the assembled nodes as a single `<script type="application/ld+json">`
-	 * block. JSON_UNESCAPED_SLASHES keeps URLs readable; the JSON body is
-	 * escaped via `esc_html()` so any operator-injected node content can't
-	 * break out of the script tag.
+	 * block.
+	 *
+	 * Encoding flags (AgDR-0041):
+	 *   - `JSON_UNESCAPED_SLASHES` keeps URLs human-readable (no `\/`).
+	 *   - `JSON_UNESCAPED_UNICODE` emits non-ASCII characters literally
+	 *     rather than as `\uXXXX` escapes.
+	 *   - `JSON_HEX_TAG` escapes `<` and `>` inside string values as
+	 *     `<` / `>`. This prevents an operator-injected node
+	 *     value containing the literal sequence `</script>` from
+	 *     breaking out of the script tag, without entity-encoding the
+	 *     JSON's structural characters (the bug we shipped from PR #75
+	 *     through PR #112 — fixed here as Ref34t/agentready#118).
+	 *
+	 * The JSON body is emitted RAW (no `esc_html`, no `wp_kses`). The
+	 * HTML5 spec for `<script type="application/ld+json">` requires the
+	 * body to be raw JSON — entity references inside the script tag are
+	 * not decoded by the HTML parser, so `esc_html()`-style encoding
+	 * silently produces invalid JSON for every standards-compliant
+	 * consumer (Google Rich Results Test, schema.org validator,
+	 * `JSON.parse()`).
 	 *
 	 * @param array<int, array<string, mixed>> $nodes Final node list.
 	 */
 	private static function print_jsonld( array $nodes ): void {
 		$payload = count( $nodes ) === 1 ? $nodes[0] : $nodes;
-		$json    = \wp_json_encode( $payload, JSON_UNESCAPED_SLASHES );
+		$json    = \wp_json_encode(
+			$payload,
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG
+		);
 
 		if ( ! \is_string( $json ) || '' === $json ) {
 			return;
 		}
 
 		echo "\n<script type=\"application/ld+json\" data-emitted-by=\"agentready\">\n";
-		echo \esc_html( $json );
+		// JSON-LD body must be raw JSON per the HTML5 spec — emitting
+		// through esc_html() / wp_kses() produces invalid JSON. Script-
+		// tag-breakout safety is delegated to JSON_HEX_TAG above.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $json;
 		echo "\n</script>\n";
 	}
 }
