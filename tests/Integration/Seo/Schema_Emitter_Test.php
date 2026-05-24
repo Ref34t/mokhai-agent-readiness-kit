@@ -134,6 +134,185 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		self::assertSame( '', $output, 'Emitter must defer entirely to Yoast — zero bytes on wp_head.' );
 	}
 
+	/**
+	 * Regression for Ref34t/agentready#104 / AgDR-0040.
+	 *
+	 * A custom CPT in `exposed_cpts` must produce a per-content schema
+	 * node on its singular URL — the pre-fix behavior emitted only
+	 * WebSite + Organization for any CPT other than `post` and `page`.
+	 * Default per-content type for non-`post` CPTs is WebPage.
+	 */
+	public function test_emits_webpage_for_custom_cpt_by_default(): void {
+		register_post_type(
+			'lesson',
+			array(
+				'public'             => true,
+				'show_in_rest'       => true,
+				'publicly_queryable' => true,
+				'has_archive'        => false,
+			)
+		);
+
+		update_option(
+			Context_Profile_Settings::OPTION_KEY,
+			array_merge(
+				Context_Profile_Settings::get_defaults(),
+				array(
+					'schema_emit_enabled' => true,
+					'exposed_cpts'        => array( 'lesson' ),
+					'exposed_statuses'    => array( 'publish' ),
+				)
+			)
+		);
+
+		$post_id = $this->factory->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_type'   => 'lesson',
+				'post_title'  => 'Lesson 01: Tokenisation',
+			)
+		);
+
+		$this->go_to( get_permalink( $post_id ) );
+
+		$output = $this->capture_render( 'none' );
+		$json   = $this->extract_json( $output );
+		$types  = $this->collect_types( $json );
+
+		self::assertContains( 'WebSite', $types );
+		self::assertContains( 'Organization', $types );
+		self::assertContains( 'WebPage', $types, 'Custom CPT singular must default to WebPage per AgDR-0040.' );
+		self::assertNotContains( 'Article', $types, 'Custom CPTs should not silently get Article — default is WebPage.' );
+
+		$webpage = $this->find_node_of_type( $json, 'WebPage' );
+		self::assertNotNull( $webpage );
+		self::assertSame( 'Lesson 01: Tokenisation', $webpage['name'] );
+
+		unregister_post_type( 'lesson' );
+	}
+
+	/**
+	 * Filter override path for #104 / AgDR-0040: an opinionated host that
+	 * wants `lesson` to map to `Article` (treating each lesson as a
+	 * standalone article) can subscribe to the filter and get the swap.
+	 */
+	public function test_filter_can_swap_custom_cpt_to_article(): void {
+		register_post_type(
+			'lesson',
+			array(
+				'public'             => true,
+				'show_in_rest'       => true,
+				'publicly_queryable' => true,
+				'has_archive'        => false,
+			)
+		);
+
+		update_option(
+			Context_Profile_Settings::OPTION_KEY,
+			array_merge(
+				Context_Profile_Settings::get_defaults(),
+				array(
+					'schema_emit_enabled' => true,
+					'exposed_cpts'        => array( 'lesson' ),
+					'exposed_statuses'    => array( 'publish' ),
+				)
+			)
+		);
+
+		add_filter(
+			'agentready_schema_type_for_cpt',
+			static function ( $default, $cpt ) {
+				return 'lesson' === $cpt ? 'Article' : $default;
+			},
+			10,
+			2
+		);
+
+		$post_id = $this->factory->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_type'   => 'lesson',
+				'post_title'  => 'Lesson 02: Embeddings',
+			)
+		);
+
+		$this->go_to( get_permalink( $post_id ) );
+
+		$output = $this->capture_render( 'none' );
+		$json   = $this->extract_json( $output );
+		$types  = $this->collect_types( $json );
+
+		self::assertContains( 'Article', $types, 'Filter override must flip lesson to Article.' );
+		self::assertNotContains( 'WebPage', $types, 'WebPage must be suppressed when filter resolves to Article.' );
+
+		$article = $this->find_node_of_type( $json, 'Article' );
+		self::assertNotNull( $article );
+		self::assertSame( 'Lesson 02: Embeddings', $article['headline'] );
+
+		remove_all_filters( 'agentready_schema_type_for_cpt' );
+		unregister_post_type( 'lesson' );
+	}
+
+	/**
+	 * Filter suppression path for #104 / AgDR-0040: a host that wants
+	 * NO per-content schema for a specific CPT can return null/'' from
+	 * the filter. Site-identity nodes still emit.
+	 */
+	public function test_filter_returning_null_suppresses_per_content_emit(): void {
+		register_post_type(
+			'product',
+			array(
+				'public'             => true,
+				'show_in_rest'       => true,
+				'publicly_queryable' => true,
+				'has_archive'        => false,
+			)
+		);
+
+		update_option(
+			Context_Profile_Settings::OPTION_KEY,
+			array_merge(
+				Context_Profile_Settings::get_defaults(),
+				array(
+					'schema_emit_enabled' => true,
+					'exposed_cpts'        => array( 'product' ),
+					'exposed_statuses'    => array( 'publish' ),
+				)
+			)
+		);
+
+		add_filter(
+			'agentready_schema_type_for_cpt',
+			static function ( $default, $cpt ) {
+				return 'product' === $cpt ? null : $default;
+			},
+			10,
+			2
+		);
+
+		$post_id = $this->factory->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_type'   => 'product',
+				'post_title'  => 'Widget',
+			)
+		);
+
+		$this->go_to( get_permalink( $post_id ) );
+
+		$output = $this->capture_render( 'none' );
+		$json   = $this->extract_json( $output );
+		$types  = $this->collect_types( $json );
+
+		self::assertContains( 'WebSite', $types, 'Site-identity always emits when the toggle is on.' );
+		self::assertContains( 'Organization', $types );
+		self::assertNotContains( 'WebPage', $types, 'Filter returning null must suppress WebPage.' );
+		self::assertNotContains( 'Article', $types, 'Filter returning null must suppress Article.' );
+
+		remove_all_filters( 'agentready_schema_type_for_cpt' );
+		unregister_post_type( 'product' );
+	}
+
 	public function test_renders_nothing_when_profile_toggle_is_off(): void {
 		update_option(
 			Context_Profile_Settings::OPTION_KEY,

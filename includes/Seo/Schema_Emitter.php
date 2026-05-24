@@ -204,28 +204,42 @@ final class Schema_Emitter {
 	}
 
 	/**
-	 * Build a `WebPage` node — applies on `is_singular('page')` or
-	 * `is_front_page()`. Per-content emission is gated by Context Profile's
-	 * `exposed_cpts` + `exposed_statuses`: a page that isn't exposed to
-	 * agents shouldn't be exposed in schema either (#73 / AgDR-0034).
+	 * Build a `WebPage` node — applies on `is_front_page()`, or on any
+	 * singular request whose CPT resolves to `WebPage` via
+	 * `schema_type_for_cpt()` (`page` by default; custom CPTs default to
+	 * `WebPage` too). Per-content emission is gated by Context Profile's
+	 * `exposed_cpts` + `exposed_statuses`: a post that isn't exposed to
+	 * agents shouldn't be exposed in schema either (#73 / AgDR-0034 /
+	 * #104 / AgDR-0040).
+	 *
 	 * Returns null when neither precondition holds.
 	 *
 	 * @return array<string, mixed>|null
 	 */
 	private static function build_webpage_node(): ?array {
 		$is_front_page = \function_exists( 'is_front_page' ) && \is_front_page();
-		$is_page       = \function_exists( 'is_singular' ) && \is_singular( 'page' );
+		$is_singular   = \function_exists( 'is_singular' ) && \is_singular();
 
-		if ( ! $is_front_page && ! $is_page ) {
+		if ( ! $is_front_page && ! $is_singular ) {
 			return null;
 		}
 
-		// Singular pages additionally gate on exposed_cpts + exposed_statuses.
-		// The front page in latest-posts mode has no queried WP_Post — we
-		// treat it as site-identity-class (no per-content gate) so the home
-		// URL gets a WebPage node even before any page is exposed.
-		if ( $is_page && ! self::current_post_is_exposed() ) {
-			return null;
+		// Singular content additionally gates on exposed_cpts +
+		// exposed_statuses AND on the resolved schema type being WebPage.
+		// The front page in latest-posts mode has no queried WP_Post —
+		// we treat it as site-identity-class (no per-content gate) so
+		// the home URL gets a WebPage node even before any post is exposed.
+		if ( $is_singular && ! $is_front_page ) {
+			$post = \get_post();
+			if ( ! $post instanceof \WP_Post ) {
+				return null;
+			}
+			if ( ! self::post_is_exposed( $post ) ) {
+				return null;
+			}
+			if ( 'WebPage' !== self::schema_type_for_cpt( $post->ID, (string) $post->post_type ) ) {
+				return null;
+			}
 		}
 
 		$url   = self::current_url();
@@ -242,16 +256,20 @@ final class Schema_Emitter {
 	}
 
 	/**
-	 * Build an `Article` node — applies on `is_singular('post')` and only
-	 * when the resolved post's type + status are present in Context
-	 * Profile's exposed lists (#73 / AgDR-0034). `headline`,
-	 * `datePublished`, and `dateModified` are derived from the current
-	 * `WP_Post`; `mainEntityOfPage` points at the canonical permalink.
+	 * Build an `Article` node — applies on any singular request whose CPT
+	 * resolves to `Article` via `schema_type_for_cpt()` (the built-in
+	 * `post` CPT by default; subscribers to the
+	 * `agentready_schema_type_for_cpt` filter may map custom CPTs to
+	 * Article too). Per-content emission is gated by Context Profile's
+	 * `exposed_cpts` + `exposed_statuses` (#73 / AgDR-0034 / #104 /
+	 * AgDR-0040). `headline`, `datePublished`, and `dateModified` are
+	 * derived from the current `WP_Post`; `mainEntityOfPage` points at
+	 * the canonical permalink.
 	 *
 	 * @return array<string, mixed>|null
 	 */
 	private static function build_article_node(): ?array {
-		if ( ! \function_exists( 'is_singular' ) || ! \is_singular( 'post' ) ) {
+		if ( ! \function_exists( 'is_singular' ) || ! \is_singular() ) {
 			return null;
 		}
 
@@ -261,6 +279,10 @@ final class Schema_Emitter {
 		}
 
 		if ( ! self::post_is_exposed( $post ) ) {
+			return null;
+		}
+
+		if ( 'Article' !== self::schema_type_for_cpt( $post->ID, (string) $post->post_type ) ) {
 			return null;
 		}
 
@@ -282,16 +304,60 @@ final class Schema_Emitter {
 	}
 
 	/**
-	 * Resolve the queried post and check exposure against the Context
-	 * Profile lists. Helper for the per-content node builders that need
-	 * the singular WP_Post via the global query.
+	 * Resolve the schema.org `@type` to emit for a given CPT.
+	 *
+	 * Defaults (closes #104):
+	 *
+	 *   - `post`        -> `Article`
+	 *   - `page`        -> `WebPage`
+	 *   - any other CPT -> `WebPage` (safe semantic generic for the
+	 *                      gap-fill emitter; custom blog-shaped CPTs
+	 *                      can opt into Article via the filter below)
+	 *
+	 * Subscribers to the `agentready_schema_type_for_cpt` filter may
+	 * map custom CPTs to other @types (e.g. `Recipe`, `Course`,
+	 * `Product`) or return `null`/`''` to suppress per-content emission
+	 * entirely.
+	 *
+	 * **v0.1.1 contract:** only `'Article'` and `'WebPage'` return
+	 * values are honored — any other string is treated as
+	 * suppress-for-now. Full custom-`@type` support is queued for
+	 * v0.1.2 with dedicated node builders.
+	 *
+	 * @param int    $post_id The post being rendered.
+	 * @param string $cpt     The post's `post_type`.
+	 * @return string|null    Either `'Article'`, `'WebPage'`, or `null`.
 	 */
-	private static function current_post_is_exposed(): bool {
-		$post = \get_post();
-		if ( ! $post instanceof \WP_Post ) {
-			return false;
+	private static function schema_type_for_cpt( int $post_id, string $cpt ): ?string {
+		if ( 'post' === $cpt ) {
+			$default = 'Article';
+		} else {
+			$default = 'WebPage';
 		}
-		return self::post_is_exposed( $post );
+
+		/**
+		 * Filter the schema.org `@type` emitted for a given CPT.
+		 *
+		 * Return `'Article'` or `'WebPage'` to swap the emitted type.
+		 * Return `null` or `''` to suppress per-content emission for
+		 * this CPT entirely (only site-identity nodes — WebSite +
+		 * Organization — will emit).
+		 *
+		 * v0.1.1 honors only `Article` and `WebPage`. Other strings
+		 * are treated as suppress until full custom-`@type` builders
+		 * land in v0.1.2.
+		 *
+		 * @param string $default Plugin default for this CPT.
+		 * @param string $cpt     The post's `post_type`.
+		 * @param int    $post_id The post being rendered.
+		 */
+		$type = \apply_filters( 'agentready_schema_type_for_cpt', $default, $cpt, $post_id );
+
+		if ( ! \is_string( $type ) || '' === $type ) {
+			return null;
+		}
+
+		return $type;
 	}
 
 	/**
