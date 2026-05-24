@@ -347,6 +347,52 @@ final class Composer_Test extends TestCase {
 		$this->assertStringContainsString( ': Desc with newline', $out );
 	}
 
+	/**
+	 * Regression for Ref34t/agentready#106.
+	 *
+	 * /llms.txt is served as `text/plain`, so HTML entities (`&#8217;`,
+	 * `&amp;`, `&quot;`, etc.) introduced upstream by `wptexturize` or
+	 * the block editor render literally as visible artefacts to the
+	 * consumer. The composer must decode entities before writing the
+	 * body — coverage spans identity (site name + tagline), section
+	 * labels, entry titles, and entry descriptions, so the decode runs
+	 * at the bottom of the escape pipeline (`escape_inline`).
+	 */
+	public function test_html_entities_are_decoded_across_all_text_surfaces(): void {
+		$out = Composer::compose(
+			array(
+				'identity'  => array(
+					'site_name' => 'Architect&#8217;s notebook',
+					'tagline'   => 'Tools &amp; tactics',
+				),
+				'editorial' => array(),
+				'sections'  => array(
+					array(
+						'label'   => 'GPU &amp; RAM',
+						'entries' => array(
+							array(
+								'title'       => 'Designer&#8217;s note: GPU&#8217;s',
+								'url'         => 'https://x.test/post/',
+								'description' => 'Architect&#8217;s view &mdash; with &quot;quotes&quot;',
+							),
+						),
+					),
+				),
+			)
+		);
+
+		// Every surface decoded — no entity codes remain.
+		$this->assertStringContainsString( "# Architect\xE2\x80\x99s notebook", $out, 'Site name must decode &#8217; -> typographic apostrophe.' );
+		$this->assertStringContainsString( '> Tools & tactics', $out, 'Tagline must decode &amp; -> &.' );
+		$this->assertStringContainsString( '## GPU & RAM', $out, 'Section label must decode &amp;.' );
+		$this->assertStringContainsString( "[Designer\xE2\x80\x99s note: GPU\xE2\x80\x99s]", $out, 'Entry title must decode &#8217;.' );
+		$this->assertStringContainsString( "Architect\xE2\x80\x99s view \xE2\x80\x94 with \"quotes\"", $out, 'Description must decode mixed entities.' );
+
+		// Belt-and-braces: no `&...;` sequences anywhere in the body.
+		$this->assertDoesNotMatchRegularExpression( '/&[a-z]+;/i', $out );
+		$this->assertDoesNotMatchRegularExpression( '/&#[0-9]+;/', $out );
+	}
+
 	public function test_missing_identity_keys_default_to_empty_strings(): void {
 		$out = Composer::compose(
 			array(

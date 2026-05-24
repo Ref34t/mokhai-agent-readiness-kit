@@ -291,8 +291,16 @@ final class Composer {
 	 * three characters that have inline syntactic meaning here: backslash,
 	 * `*`, `_`. Backticks are NOT escaped because llms.txt readers are
 	 * permissive about code spans inside descriptions.
+	 *
+	 * First step decodes HTML entities — WordPress's `wptexturize` filter
+	 * (and the block editor) introduce `&#8217;`, `&amp;`, `&quot;`, etc.
+	 * into titles and excerpts. `/llms.txt` is served as `text/plain`,
+	 * so entity codes render literally to the consumer. Decoding at the
+	 * bottom of the composition pipeline catches every entity introduced
+	 * anywhere upstream without per-source patching. See #106.
 	 */
 	private static function escape_inline( string $text ): string {
+		$text = \html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		$text = str_replace( array( "\r\n", "\r", "\n" ), ' ', $text );
 		$text = trim( $text );
 		return strtr(
