@@ -325,6 +325,22 @@ final class Schema_Emitter_Test extends TestCase {
 	 * string values as `<` / `>`, so a node value containing the
 	 * literal sequence `</script>` cannot close the wrapping script tag
 	 * early. See AgDR-0041.
+	 *
+	 * Assertion shape (intentional):
+	 *   1. `substr_count(..., '</script>') === 1` — PROPERTY assertion.
+	 *      The wrapping tag closes exactly once. This is the load-bearing
+	 *      breakout-safety property and survives any future encoding
+	 *      strategy that still produces a literal-`</script>`-free body.
+	 *   2. `assertStringContainsString('<\/script>', ...)` — MECHANISM
+	 *      assertion. Pins `JSON_HEX_TAG` as the escape strategy. A
+	 *      future maintainer revisiting AgDR-0041's option (c) (manual
+	 *      `str_replace('</','<\/')`) under a fresh AgDR should relax
+	 *      this one assertion; assertions #1 and #3 keep the property
+	 *      guarantee intact.
+	 *   3. `assertSame($injected_value, $organization['name'])` —
+	 *      PROPERTY assertion. Round-trip through `json_decode()` returns
+	 *      the original literal — consumers don't have to know we
+	 *      escaped anything.
 	 */
 	public function test_node_value_with_script_close_sequence_is_escaped(): void {
 		add_filter(
