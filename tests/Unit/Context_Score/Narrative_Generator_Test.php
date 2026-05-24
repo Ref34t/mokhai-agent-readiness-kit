@@ -120,7 +120,7 @@ final class Narrative_Generator_Test extends TestCase {
 		// the guard rejects it.
 		$response = self::valid_llm_response();
 		$response = str_replace(
-			'"fix": "AI Readiness Kit will emit JSON-LD natively in a future release."',
+			'"fix": "A future AI Readiness Kit release will emit JSON-LD natively."',
 			'"fix": "Install Yoast SEO to emit structured data."',
 			$response
 		);
@@ -352,7 +352,7 @@ final class Narrative_Generator_Test extends TestCase {
   },
   "schema_coverage": {
     "why": "No structured-data plugin was detected on this site.",
-    "fix": "AI Readiness Kit will emit JSON-LD natively in a future release."
+    "fix": "A future AI Readiness Kit release will emit JSON-LD natively."
   },
   "exposure_safety": {
     "why": "Only published statuses are exposed, which is the safe baseline.",
