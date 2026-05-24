@@ -3,7 +3,7 @@
  * Plugin Name:       AI Readiness Kit
  * Plugin URI:        https://github.com/Ref34t/agentready
  * Description:       AI Readiness for WordPress: context, policy, audit, analytics. Makes sites readable, discoverable, governable, and measurable for AI agents.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 6.9
  * Requires PHP:      7.4
  * Author:            Mohamed Khaled
