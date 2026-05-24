@@ -2,7 +2,7 @@
 /**
  * REST controller for the Markdown Views admin preview endpoint.
  *
- * Registers `GET /wp-json/agent-ready/v1/markdown-views/preview?post=<id>`.
+ * Registers `GET /wp-json/ai-readiness-kit/v1/markdown-views/preview?post=<id>`.
  * The Gutenberg sidebar (Phase 7) is the primary consumer; the WP-CLI
  * command (Phase 6) and any third-party admin tooling can use it too.
  *
@@ -53,7 +53,7 @@ final class Rest_Controller {
 	 *
 	 * @var string
 	 */
-	public const NAMESPACE = 'agent-ready/v1';
+	public const NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Route appended to the namespace.
@@ -111,7 +111,7 @@ final class Rest_Controller {
 		if ( $post_id <= 0 ) {
 			return new \WP_Error(
 				'rest_invalid_post',
-				\__( 'A valid post ID is required.', 'agent-ready' ),
+				\__( 'A valid post ID is required.', 'ai-readiness-kit' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -119,7 +119,7 @@ final class Rest_Controller {
 		if ( ! \current_user_can( 'edit_post', $post_id ) ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				\__( 'You are not allowed to preview this post.', 'agent-ready' ),
+				\__( 'You are not allowed to preview this post.', 'ai-readiness-kit' ),
 				array( 'status' => \rest_authorization_required_code() )
 			);
 		}
@@ -141,7 +141,7 @@ final class Rest_Controller {
 		if ( ! $post instanceof \WP_Post ) {
 			return new \WP_Error(
 				'rest_post_not_found',
-				\__( 'Post not found.', 'agent-ready' ),
+				\__( 'Post not found.', 'ai-readiness-kit' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -149,7 +149,7 @@ final class Rest_Controller {
 		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
 			return new \WP_Error(
 				Service::ERROR_MODULE_DISABLED,
-				\__( 'Markdown Views is disabled in the Context Profile.', 'agent-ready' ),
+				\__( 'Markdown Views is disabled in the Context Profile.', 'ai-readiness-kit' ),
 				array( 'status' => 403 )
 			);
 		}

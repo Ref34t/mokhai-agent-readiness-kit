@@ -2,7 +2,7 @@
 /**
  * PHPStan bootstrap.
  *
- * Defines the plugin-global constants that `agent-ready.php::constants()`
+ * Defines the plugin-global constants that `ai-readiness-kit.php::constants()`
  * defines at runtime. PHPStan does static analysis — it never calls the
  * `constants()` function — so without this file references like
  * \WPCTX_FILE / \WPCTX_VERSION analyse as undefined constants.
@@ -18,13 +18,13 @@ if ( ! defined( 'WPCTX_VERSION' ) ) {
 	define( 'WPCTX_VERSION', '0.1.0' );
 }
 if ( ! defined( 'WPCTX_FILE' ) ) {
-	define( 'WPCTX_FILE', __DIR__ . '/../agent-ready.php' );
+	define( 'WPCTX_FILE', __DIR__ . '/../ai-readiness-kit.php' );
 }
 if ( ! defined( 'WPCTX_DIR' ) ) {
 	define( 'WPCTX_DIR', __DIR__ . '/../' );
 }
 if ( ! defined( 'WPCTX_URL' ) ) {
-	define( 'WPCTX_URL', 'https://example.test/wp-content/plugins/agent-ready/' );
+	define( 'WPCTX_URL', 'https://example.test/wp-content/plugins/ai-readiness-kit/' );
 }
 if ( ! defined( 'WPCTX_REQUIRES_PHP' ) ) {
 	define( 'WPCTX_REQUIRES_PHP', '7.4' );

@@ -1,6 +1,6 @@
-# Agent Ready
+# AI Readiness Kit
 
-> Agent Readiness for WordPress: context, policy, audit, analytics.
+> AI Readiness for WordPress: context, policy, audit, analytics.
 
 An open-source WordPress plugin making sites readable, discoverable, governable, and measurable for AI agents.
 

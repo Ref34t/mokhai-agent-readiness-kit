@@ -3,10 +3,10 @@
  * Schema-coordination detector — detects active SEO plugins.
  *
  * Read-only helper: never persists state. Per PRD FR-8 ("Deferral to existing
- * SEO plugins"), Agent Ready defers JSON-LD coordination to whichever SEO
+ * SEO plugins"), AI Readiness Kit defers JSON-LD coordination to whichever SEO
  * plugin owns it — Yoast / Rank Math / AIOSEO. The Context Profile screen
  * surfaces the detected state read-only so the agency lead sees which plugin
- * Agent Ready is deferring to.
+ * AI Readiness Kit is deferring to.
  *
  * @package WPContext
  */

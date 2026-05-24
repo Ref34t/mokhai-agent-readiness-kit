@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<ruleset name="AgentReady — layered WordPress + Slevomat">
+<ruleset name="AI Readiness Kit — layered WordPress + Slevomat">
 	<description>
-		Coding-standard ruleset for AgentReady. Layered per AgDR-0004:
+		Coding-standard ruleset for AI Readiness Kit. Layered per AgDR-0004:
 		WordPress-VIP-Go (strictest) → WordPress-Core → WordPress-Extra
 		→ PHPCompatibilityWP → Slevomat. Excluded sniffs are individually
 		justified inline with the AgDR reference.
@@ -17,6 +17,14 @@
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/build/*</exclude-pattern>
 	<exclude-pattern>*/languages/*</exclude-pattern>
+	<!--
+		.claude/ holds session state and local git worktrees (each worktree
+		is a checkout of another branch). Scanning worktrees produces
+		false-positive textdomain-mismatch and duplicate-class warnings
+		against branches that are intentionally on older code. Not part of
+		the runtime plugin and not part of the wp.org distribution ZIP.
+	-->
+	<exclude-pattern>*/.claude/*</exclude-pattern>
 
 	<!--
 		Tests + dev tools are NOT plugin runtime code. WP strict naming
@@ -100,7 +108,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="agent-ready"/>
+				<element value="ai-readiness-kit"/>
 			</property>
 		</properties>
 	</rule>

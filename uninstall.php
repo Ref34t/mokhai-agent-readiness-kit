@@ -28,7 +28,7 @@ if ( is_readable( $wpctx_autoload ) ) {
 unset( $wpctx_autoload );
 
 /**
- * Single source-of-truth list of option keys Agent Ready owns.
+ * Single source-of-truth list of option keys AI Readiness Kit owns.
  *
  * Kept in sync with the Context Profile storage shape (#4 / AgDR-002),
  * the Markdown Views cache schema (#5 / AgDR-0011), the LLMs Index

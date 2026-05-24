@@ -3,14 +3,14 @@
  * REST controller for the Markdown Views cleanup admin actions
  * (Phase B of `Ref34t/agentready#6`, per AgDR-0020).
  *
- * Four routes under the `agent-ready/v1` namespace drive the sidebar
+ * Four routes under the `ai-readiness-kit/v1` namespace drive the sidebar
  * UI's cleanup panel: read state, approve, reject, regenerate. All
  * gated by `edit_post` on the target post.
  *
- *   GET  /agent-ready/v1/markdown-views/cleanup?post=<id>
- *   POST /agent-ready/v1/markdown-views/cleanup/approve
- *   POST /agent-ready/v1/markdown-views/cleanup/reject
- *   POST /agent-ready/v1/markdown-views/cleanup/regenerate
+ *   GET  /ai-readiness-kit/v1/markdown-views/cleanup?post=<id>
+ *   POST /ai-readiness-kit/v1/markdown-views/cleanup/approve
+ *   POST /ai-readiness-kit/v1/markdown-views/cleanup/reject
+ *   POST /ai-readiness-kit/v1/markdown-views/cleanup/regenerate
  *
  * The mutation routes return the same shape as GET so the UI can
  * refresh state from the action response without a second fetch.
@@ -37,7 +37,7 @@ final class Cleanup_Rest_Controller {
 	 *
 	 * @var string
 	 */
-	public const NAMESPACE = 'agent-ready/v1';
+	public const NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * GET route: read full cleanup state for a post.
@@ -230,7 +230,7 @@ final class Cleanup_Rest_Controller {
 		if ( $post_id <= 0 ) {
 			return new \WP_Error(
 				'rest_invalid_post',
-				\__( 'A valid post ID is required.', 'agent-ready' ),
+				\__( 'A valid post ID is required.', 'ai-readiness-kit' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -238,7 +238,7 @@ final class Cleanup_Rest_Controller {
 		if ( ! \current_user_can( 'edit_post', $post_id ) ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				\__( 'You are not allowed to manage cleanup for this post.', 'agent-ready' ),
+				\__( 'You are not allowed to manage cleanup for this post.', 'ai-readiness-kit' ),
 				array( 'status' => \rest_authorization_required_code() )
 			);
 		}
@@ -246,7 +246,7 @@ final class Cleanup_Rest_Controller {
 		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
 			return new \WP_Error(
 				Service::ERROR_MODULE_DISABLED,
-				\__( 'Markdown Views is disabled in the Context Profile.', 'agent-ready' ),
+				\__( 'Markdown Views is disabled in the Context Profile.', 'ai-readiness-kit' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -265,7 +265,7 @@ final class Cleanup_Rest_Controller {
 		if ( ! $post instanceof \WP_Post ) {
 			return new \WP_Error(
 				'rest_post_not_found',
-				\__( 'Post not found.', 'agent-ready' ),
+				\__( 'Post not found.', 'ai-readiness-kit' ),
 				array( 'status' => 404 )
 			);
 		}

@@ -51,7 +51,7 @@ parameters:
 
     # Bootstrap files load plugin-global constants (WPCTX_FILE, WPCTX_VERSION,
     # WPCTX_REQUIRES_*) so references like \WPCTX_FILE resolve during analysis.
-    # The constants() function in agent-ready.php defines them at runtime; we
+    # The constants() function in ai-readiness-kit.php defines them at runtime; we
     # mirror the definitions in a dedicated bootstrap file for PHPStan.
     bootstrapFiles:
         - tests/phpstan-bootstrap.php

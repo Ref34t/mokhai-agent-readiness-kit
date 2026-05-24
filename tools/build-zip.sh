@@ -2,7 +2,7 @@
 #
 # Build a wp.org-shippable distribution ZIP from the current working tree.
 #
-# Reads Text Domain + Version from agentready.php, runs `npm run build` to
+# Reads Text Domain + Version from ai-readiness-kit.php, runs `npm run build` to
 # refresh the JS bundles, rsyncs the working tree into a temp dir while
 # respecting .distignore, runs `composer install --no-dev --optimize-autoloader`
 # so the ZIP's vendor/ is production-only, strips composer.json + composer.lock

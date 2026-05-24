@@ -106,7 +106,7 @@ final class Editorial_Settings {
 			self::OPTION_KEY,
 			array(
 				'type'              => 'array',
-				'description'       => \__( 'Agent Ready editorial entries for /llms.txt.', 'agent-ready' ),
+				'description'       => \__( 'AI Readiness Kit editorial entries for /llms.txt.', 'ai-readiness-kit' ),
 				'sanitize_callback' => array( self::class, 'sanitize' ),
 				'show_in_rest'      => false,
 				'default'           => self::get_defaults(),

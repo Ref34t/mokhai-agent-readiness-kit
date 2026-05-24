@@ -101,7 +101,7 @@ final class Context_Profile_Settings {
 			self::OPTION_KEY,
 			array(
 				'type'              => 'array',
-				'description'       => \__( 'Agent Ready Context Profile (single source of truth for agent-facing surfaces).', 'agent-ready' ),
+				'description'       => \__( 'AI Readiness Kit Context Profile (single source of truth for agent-facing surfaces).', 'ai-readiness-kit' ),
 				'sanitize_callback' => array( self::class, 'sanitize' ),
 				'show_in_rest'      => false,
 				'default'           => self::get_defaults(),
@@ -345,8 +345,8 @@ final class Context_Profile_Settings {
 	public static function sanitize( $input ): array {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die(
-				\esc_html__( 'You do not have permission to save the Context Profile.', 'agent-ready' ),
-				\esc_html__( 'Forbidden', 'agent-ready' ),
+				\esc_html__( 'You do not have permission to save the Context Profile.', 'ai-readiness-kit' ),
+				\esc_html__( 'Forbidden', 'ai-readiness-kit' ),
 				array( 'response' => 403 )
 			);
 		}

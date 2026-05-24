@@ -1,5 +1,5 @@
 /**
- * Agent Ready — LLMs Index editorial entries admin UI (#7 Phase C / AgDR-0025).
+ * AI Readiness Kit — LLMs Index editorial entries admin UI (#7 Phase C / AgDR-0025).
  *
  * Repeater editor for the `agentready_llms_txt_editorial` option. Mounts
  * underneath the Context Profile editor on Tools → Context. Submits via the
@@ -43,7 +43,15 @@ function makeBlankEntry() {
 	};
 }
 
-function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections } ) {
+function EntryRow( {
+	entry,
+	index,
+	total,
+	onChange,
+	onRemove,
+	onMove,
+	sections,
+} ) {
 	const isCustom = entry.section === 'Custom';
 
 	return (
@@ -68,7 +76,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 				<strong>
 					{ sprintf(
 						/* translators: %d: entry index */
-						__( 'Entry %d', 'agent-ready' ),
+						__( 'Entry %d', 'ai-readiness-kit' ),
 						index + 1
 					) }
 				</strong>
@@ -78,7 +86,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 						variant="tertiary"
 						disabled={ index === 0 }
 						onClick={ () => onMove( index, -1 ) }
-						aria-label={ __( 'Move entry up', 'agent-ready' ) }
+						aria-label={ __( 'Move entry up', 'ai-readiness-kit' ) }
 					>
 						{ '↑' }
 					</Button>
@@ -87,7 +95,10 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 						variant="tertiary"
 						disabled={ index === total - 1 }
 						onClick={ () => onMove( index, 1 ) }
-						aria-label={ __( 'Move entry down', 'agent-ready' ) }
+						aria-label={ __(
+							'Move entry down',
+							'ai-readiness-kit'
+						) }
 					>
 						{ '↓' }
 					</Button>
@@ -96,15 +107,15 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 						isDestructive
 						variant="tertiary"
 						onClick={ () => onRemove( index ) }
-						aria-label={ __( 'Remove entry', 'agent-ready' ) }
+						aria-label={ __( 'Remove entry', 'ai-readiness-kit' ) }
 					>
-						{ __( 'Remove', 'agent-ready' ) }
+						{ __( 'Remove', 'ai-readiness-kit' ) }
 					</Button>
 				</div>
 			</div>
 
 			<TextControl
-				label={ __( 'Title', 'agent-ready' ) }
+				label={ __( 'Title', 'ai-readiness-kit' ) }
 				value={ entry.title }
 				onChange={ ( value ) => onChange( index, 'title', value ) }
 				required
@@ -113,7 +124,7 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 			/>
 
 			<TextControl
-				label={ __( 'URL', 'agent-ready' ) }
+				label={ __( 'URL', 'ai-readiness-kit' ) }
 				value={ entry.url }
 				onChange={ ( value ) => onChange( index, 'url', value ) }
 				type="url"
@@ -123,20 +134,22 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 				__next40pxDefaultSize
 				help={ __(
 					'External URLs allowed. Schemes: http, https, mailto.',
-					'agent-ready'
+					'ai-readiness-kit'
 				) }
 			/>
 
 			<TextControl
-				label={ __( 'Description (optional)', 'agent-ready' ) }
+				label={ __( 'Description (optional)', 'ai-readiness-kit' ) }
 				value={ entry.description }
-				onChange={ ( value ) => onChange( index, 'description', value ) }
+				onChange={ ( value ) =>
+					onChange( index, 'description', value )
+				}
 				__nextHasNoMarginBottom
 				__next40pxDefaultSize
 			/>
 
 			<SelectControl
-				label={ __( 'Section', 'agent-ready' ) }
+				label={ __( 'Section', 'ai-readiness-kit' ) }
 				value={ entry.section }
 				options={ sections.map( ( s ) => ( { label: s, value: s } ) ) }
 				onChange={ ( value ) => onChange( index, 'section', value ) }
@@ -146,15 +159,17 @@ function EntryRow( { entry, index, total, onChange, onRemove, onMove, sections }
 
 			{ isCustom && (
 				<TextControl
-					label={ __( 'Custom section heading', 'agent-ready' ) }
+					label={ __( 'Custom section heading', 'ai-readiness-kit' ) }
 					value={ entry.section_label }
-					onChange={ ( value ) => onChange( index, 'section_label', value ) }
+					onChange={ ( value ) =>
+						onChange( index, 'section_label', value )
+					}
 					required
 					__nextHasNoMarginBottom
 					__next40pxDefaultSize
 					help={ __(
 						'Heading rendered in /llms.txt when section is Custom.',
-						'agent-ready'
+						'ai-readiness-kit'
 					) }
 				/>
 			) }
@@ -176,7 +191,9 @@ function EditorialApp( { bootstrap } ) {
 
 	const onChange = ( index, field, value ) => {
 		setEntries( ( prev ) =>
-			prev.map( ( e, i ) => ( i === index ? { ...e, [ field ]: value } : e ) )
+			prev.map( ( e, i ) =>
+				i === index ? { ...e, [ field ]: value } : e
+			)
 		);
 	};
 
@@ -191,7 +208,10 @@ function EditorialApp( { bootstrap } ) {
 			if ( target < 0 || target >= next.length ) {
 				return prev;
 			}
-			[ next[ index ], next[ target ] ] = [ next[ target ], next[ index ] ];
+			[ next[ index ], next[ target ] ] = [
+				next[ target ],
+				next[ index ],
+			];
 			return next;
 		} );
 	};
@@ -204,9 +224,16 @@ function EditorialApp( { bootstrap } ) {
 		<form
 			action={ bootstrap.options_url }
 			method="post"
-			aria-label={ __( 'Agent Ready LLMs Index editorial entries form', 'agent-ready' ) }
+			aria-label={ __(
+				'AI Readiness Kit LLMs Index editorial entries form',
+				'ai-readiness-kit'
+			) }
 		>
-			<input type="hidden" name="option_page" value={ bootstrap.option_group } />
+			<input
+				type="hidden"
+				name="option_page"
+				value={ bootstrap.option_group }
+			/>
 			<input type="hidden" name="action" value="update" />
 			<input type="hidden" name="_wpnonce" value={ bootstrap.nonce } />
 			<input type="hidden" name="_wp_http_referer" value={ referer } />
@@ -221,7 +248,7 @@ function EditorialApp( { bootstrap } ) {
 				<Notice status="info" isDismissible={ false }>
 					{ __(
 						'No editorial entries yet. Add hand-picked URLs to surface them in /llms.txt alongside auto-listed posts.',
-						'agent-ready'
+						'ai-readiness-kit'
 					) }
 				</Notice>
 			) }
@@ -234,7 +261,13 @@ function EditorialApp( { bootstrap } ) {
 							entry={ entry }
 							index={ index }
 							total={ entries.length }
-							sections={ bootstrap.sections || [ 'Featured', 'Resources', 'Custom' ] }
+							sections={
+								bootstrap.sections || [
+									'Featured',
+									'Resources',
+									'Custom',
+								]
+							}
 							onChange={ onChange }
 							onRemove={ onRemove }
 							onMove={ onMove }
@@ -274,12 +307,25 @@ function EditorialApp( { bootstrap } ) {
 						</div>
 					) ) }
 
-					<div style={ { marginTop: '12px', display: 'flex', gap: '8px' } }>
-						<Button type="button" variant="secondary" onClick={ onAdd }>
-							{ __( 'Add entry', 'agent-ready' ) }
+					<div
+						style={ {
+							marginTop: '12px',
+							display: 'flex',
+							gap: '8px',
+						} }
+					>
+						<Button
+							type="button"
+							variant="secondary"
+							onClick={ onAdd }
+						>
+							{ __( 'Add entry', 'ai-readiness-kit' ) }
 						</Button>
 						<Button type="submit" variant="primary">
-							{ __( 'Save editorial entries', 'agent-ready' ) }
+							{ __(
+								'Save editorial entries',
+								'ai-readiness-kit'
+							) }
 						</Button>
 					</div>
 				</PanelBody>
