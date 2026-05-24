@@ -153,6 +153,60 @@ final class Cleanup_Orchestrator_State_Test extends WP_UnitTestCase {
 		self::assertSame( Cleanup_Orchestrator::STATUS_PENDING, Cleanup_Orchestrator::get_status( (int) $post_id ) );
 	}
 
+	/**
+	 * Ref34t/agentready#120 — per-post stale-event recovery.
+	 *
+	 * Simulates the wp-env-without-traffic failure mode: a per-post
+	 * cleanup event was scheduled in the past but never consumed by
+	 * cron. A subsequent Cleanup_Orchestrator::schedule() call for the
+	 * same post must clear the stale event and schedule a fresh future
+	 * one — otherwise WP de-dups the new wp_schedule_single_event call
+	 * against the stale entry and the cleanup is silently lost, but
+	 * the admin UI keeps showing "pending" forever because the meta
+	 * marker is rewritten on every schedule call.
+	 *
+	 * Mirrors tests/Integration/Context_Score/Service_Test.php::
+	 * test_schedule_recompute_clears_stale_past_event_and_reschedules
+	 * and tests/Integration/LlmsTxt/Service_Test.php::
+	 * test_schedule_regen_clears_stale_past_event_and_reschedules.
+	 */
+	public function test_schedule_clears_stale_past_event_and_reschedules(): void {
+		$post_id = (int) self::factory()->post->create();
+		$post    = \get_post( $post_id );
+		self::assertNotNull( $post );
+		$args = array( $post_id );
+
+		// Stage a stale past-timestamp event directly, bypassing the
+		// public API so we don't accidentally test the very logic
+		// we're regressing.
+		$past = \time() - 60;
+		\wp_schedule_single_event( $past, Cleanup_Orchestrator::SCHEDULE_ACTION, $args );
+		$this->assertSame( $past, \wp_next_scheduled( Cleanup_Orchestrator::SCHEDULE_ACTION, $args ) );
+
+		Cleanup_Orchestrator::schedule( $post );
+
+		$next = \wp_next_scheduled( Cleanup_Orchestrator::SCHEDULE_ACTION, $args );
+		$this->assertIsInt( $next );
+		$this->assertGreaterThan(
+			\time(),
+			$next,
+			'schedule() must produce a future event for this post even when a stale past event was in the queue.'
+		);
+		// The cleanup-cap guard runs AFTER the stale-event branch, so
+		// when the cap is far from hit the new event is scheduled
+		// within ~1s.
+		$this->assertLessThanOrEqual(
+			\time() + 5,
+			$next,
+			'New event must be scheduled within a few seconds.'
+		);
+		// Meta marker must reflect the fresh schedule.
+		$this->assertSame(
+			Cleanup_Orchestrator::STATUS_PENDING,
+			Cleanup_Orchestrator::get_status( $post_id )
+		);
+	}
+
 	public function test_get_state_returns_blob_with_all_fields(): void {
 		$post_id = $this->seed_done_state( 'hash-blob-test' );
 
