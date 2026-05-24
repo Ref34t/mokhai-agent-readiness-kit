@@ -73,11 +73,11 @@ final class Requirements {
 			\wp_die(
 				\sprintf(
 					/* translators: 1: required PHP version, 2: current PHP version */
-					\esc_html__( 'Agent Ready requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated.', 'agent-ready' ),
+					\esc_html__( 'AI Readiness Kit requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated.', 'ai-readiness-kit' ),
 					\esc_html( \WPCTX_REQUIRES_PHP ),
 					\esc_html( \PHP_VERSION )
 				),
-				\esc_html__( 'Plugin activation error', 'agent-ready' ),
+				\esc_html__( 'Plugin activation error', 'ai-readiness-kit' ),
 				array( 'back_link' => true )
 			);
 		}
@@ -87,11 +87,11 @@ final class Requirements {
 			\wp_die(
 				\sprintf(
 					/* translators: 1: required WordPress version, 2: current WordPress version */
-					\esc_html__( 'Agent Ready requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated.', 'agent-ready' ),
+					\esc_html__( 'AI Readiness Kit requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated.', 'ai-readiness-kit' ),
 					\esc_html( \WPCTX_REQUIRES_WP ),
 					\esc_html( \get_bloginfo( 'version' ) )
 				),
-				\esc_html__( 'Plugin activation error', 'agent-ready' ),
+				\esc_html__( 'Plugin activation error', 'ai-readiness-kit' ),
 				array( 'back_link' => true )
 			);
 		}
@@ -102,7 +102,7 @@ final class Requirements {
 	 *
 	 * Registers an admin notice if WP / PHP slid below the floor after the
 	 * plugin was activated (the user downgraded core, switched servers, etc.).
-	 * Bootstrapping code in agent-ready.php returns early when this fires so
+	 * Bootstrapping code in ai-readiness-kit.php returns early when this fires so
 	 * no subsystem boots against an unsupported host.
 	 */
 	public static function register_runtime_notice(): void {
@@ -128,7 +128,7 @@ final class Requirements {
 		if ( ! $php_ok ) {
 			$messages[] = \sprintf(
 				/* translators: 1: required PHP version, 2: current PHP version */
-				\esc_html__( 'PHP %1$s or higher is required. Current: %2$s.', 'agent-ready' ),
+				\esc_html__( 'PHP %1$s or higher is required. Current: %2$s.', 'ai-readiness-kit' ),
 				\esc_html( \WPCTX_REQUIRES_PHP ),
 				\esc_html( \PHP_VERSION )
 			);
@@ -136,7 +136,7 @@ final class Requirements {
 		if ( ! $wp_ok ) {
 			$messages[] = \sprintf(
 				/* translators: 1: required WordPress version, 2: current WordPress version */
-				\esc_html__( 'WordPress %1$s or higher is required. Current: %2$s.', 'agent-ready' ),
+				\esc_html__( 'WordPress %1$s or higher is required. Current: %2$s.', 'ai-readiness-kit' ),
 				\esc_html( \WPCTX_REQUIRES_WP ),
 				\esc_html( \get_bloginfo( 'version' ) )
 			);
@@ -144,7 +144,7 @@ final class Requirements {
 
 		\printf(
 			'<div class="notice notice-error"><p><strong>%1$s</strong> %2$s</p></div>',
-			\esc_html__( 'Agent Ready is inactive:', 'agent-ready' ),
+			\esc_html__( 'AI Readiness Kit is inactive:', 'ai-readiness-kit' ),
 			\esc_html( \implode( ' ', $messages ) )
 		);
 	}
@@ -172,18 +172,18 @@ final class Requirements {
 			return;
 		}
 
-		// Only show on Agent Ready admin screens. Screen IDs are added by
+		// Only show on AI Readiness Kit admin screens. Screen IDs are added by
 		// #4 (Profile screen) and #10 (Context Score Tools page); until they
 		// land, this notice stays off-screen, which is the correct degrade
 		// for the scaffold-only state.
 		$screen = \function_exists( 'get_current_screen' ) ? \get_current_screen() : null;
-		if ( null === $screen || false === \strpos( (string) $screen->id, 'agent-ready' ) ) {
+		if ( null === $screen || false === \strpos( (string) $screen->id, 'ai-readiness-kit' ) ) {
 			return;
 		}
 
 		\printf(
 			'<div class="notice notice-info"><p>%1$s</p></div>',
-			\esc_html__( 'Agent Ready is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives.', 'agent-ready' )
+			\esc_html__( 'AI Readiness Kit is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives.', 'ai-readiness-kit' )
 		);
 	}
 }

@@ -89,14 +89,14 @@ final class Service {
 		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
 			return new \WP_Error(
 				self::ERROR_MODULE_DISABLED,
-				\__( 'Markdown Views is disabled in the Context Profile.', 'agent-ready' )
+				\__( 'Markdown Views is disabled in the Context Profile.', 'ai-readiness-kit' )
 			);
 		}
 
 		if ( ! Context_Profile_Settings::is_url_exposable( $post ) ) {
 			return new \WP_Error(
 				self::ERROR_NOT_EXPOSABLE,
-				\__( 'This post is not exposable.', 'agent-ready' )
+				\__( 'This post is not exposable.', 'ai-readiness-kit' )
 			);
 		}
 

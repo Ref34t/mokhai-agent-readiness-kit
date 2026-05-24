@@ -1,5 +1,5 @@
 /**
- * Custom webpack config for agent-ready admin bundles.
+ * Custom webpack config for ai-readiness-kit admin bundles.
  *
  * Extends the @wordpress/scripts default config to support multiple
  * entry points. Without this, chained `wp-scripts build` invocations

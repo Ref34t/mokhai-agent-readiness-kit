@@ -139,7 +139,7 @@ jobs:
 
       - name: Install runtime Composer deps (no dev)
         # The Plugin Check action loads the plugin inside a real WP install,
-        # which means agent-ready.php's `require vendor/autoload.php` must
+        # which means ai-readiness-kit.php's `require vendor/autoload.php` must
         # find vendor/. vendor/ is gitignored; install it here. --no-dev
         # keeps the install lean (matches what would ship to wp.org).
         run: composer install --no-dev --no-progress --no-interaction --prefer-dist --optimize-autoloader
@@ -148,7 +148,7 @@ jobs:
         uses: wordpress/plugin-check-action@v1.1.5
         with:
           build-dir: '.'
-          slug: 'agent-ready'
+          slug: 'ai-readiness-kit'
           wp-version: 'trunk'
           # Plugin Check scans the entire build-dir as if it were the wp.org
           # zip. Repo-only files (CI config, lockfiles, dev tooling, dotfiles,
@@ -254,7 +254,7 @@ jobs:
         # bash -c wrapper avoids wp-env / docker-exec arg-splitting weirdness
         # (the quoted form `"phpunit --testsuite integration"` would otherwise
         # land in docker exec as one argv element and fail with ENOENT).
-        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/agent-ready bash -c "vendor/bin/phpunit --testsuite integration"
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/ai-readiness-kit bash -c "vendor/bin/phpunit --testsuite integration"
 
       - name: Stop wp-env
         if: always()
@@ -345,7 +345,7 @@ jobs:
 
       - name: Inspect ZIP structure
         run: |
-          ZIP=$(ls -1 dist/agent-ready-*.zip | head -n1)
+          ZIP=$(ls -1 dist/ai-readiness-kit-*.zip | head -n1)
           echo "Built: $ZIP"
           unzip -l "$ZIP" | head -20
           echo ""
@@ -353,27 +353,27 @@ jobs:
 
       - name: Verify ZIP excludes dev paths
         run: |
-          ZIP=$(ls -1 dist/agent-ready-*.zip | head -n1)
+          ZIP=$(ls -1 dist/ai-readiness-kit-*.zip | head -n1)
           # Paths that MUST NOT appear inside the ZIP — mirrors `.distignore`.
           # Any of these slipping through means a regression in either the
           # exclude list or rsync invocation in tools/build-zip.sh.
           BANNED=(
-            'agent-ready/\.claude/'
-            'agent-ready/\.github/'
-            'agent-ready/tests/'
-            'agent-ready/tools/'
-            'agent-ready/docs/'
-            'agent-ready/src/'
-            'agent-ready/node_modules/'
-            'agent-ready/assets/'
-            'agent-ready/package\.json'
-            'agent-ready/package-lock\.json'
-            'agent-ready/webpack\.config\.js'
-            'agent-ready/README\.md'
-            'agent-ready/\.distignore'
-            'agent-ready/phpcs\.xml\.dist'
-            'agent-ready/phpstan\.neon\.dist'
-            'agent-ready/phpunit\.xml\.dist'
+            'ai-readiness-kit/\.claude/'
+            'ai-readiness-kit/\.github/'
+            'ai-readiness-kit/tests/'
+            'ai-readiness-kit/tools/'
+            'ai-readiness-kit/docs/'
+            'ai-readiness-kit/src/'
+            'ai-readiness-kit/node_modules/'
+            'ai-readiness-kit/assets/'
+            'ai-readiness-kit/package\.json'
+            'ai-readiness-kit/package-lock\.json'
+            'ai-readiness-kit/webpack\.config\.js'
+            'ai-readiness-kit/README\.md'
+            'ai-readiness-kit/\.distignore'
+            'ai-readiness-kit/phpcs\.xml\.dist'
+            'ai-readiness-kit/phpstan\.neon\.dist'
+            'ai-readiness-kit/phpunit\.xml\.dist'
           )
           fail=0
           for p in "${BANNED[@]}"; do
@@ -386,15 +386,15 @@ jobs:
 
       - name: Verify required paths present
         run: |
-          ZIP=$(ls -1 dist/agent-ready-*.zip | head -n1)
+          ZIP=$(ls -1 dist/ai-readiness-kit-*.zip | head -n1)
           REQUIRED=(
-            'agent-ready/agent-ready\.php'
-            'agent-ready/readme\.txt'
-            'agent-ready/LICENSE'
-            'agent-ready/uninstall\.php'
-            'agent-ready/includes/Main\.php'
-            'agent-ready/build/admin/'
-            'agent-ready/vendor/autoload\.php'
+            'ai-readiness-kit/ai-readiness-kit\.php'
+            'ai-readiness-kit/readme\.txt'
+            'ai-readiness-kit/LICENSE'
+            'ai-readiness-kit/uninstall\.php'
+            'ai-readiness-kit/includes/Main\.php'
+            'ai-readiness-kit/build/admin/'
+            'ai-readiness-kit/vendor/autoload\.php'
           )
           fail=0
           for p in "${REQUIRED[@]}"; do
@@ -407,7 +407,7 @@ jobs:
 
       - name: Verify ZIP size under wp.org 10 MB ceiling
         run: |
-          ZIP=$(ls -1 dist/agent-ready-*.zip | head -n1)
+          ZIP=$(ls -1 dist/ai-readiness-kit-*.zip | head -n1)
           SIZE=$(stat -c%s "$ZIP")
           MB=$(awk "BEGIN{printf \"%.2f\", $SIZE/1048576}")
           echo "ZIP size: $MB MB ($SIZE bytes)"
@@ -419,6 +419,6 @@ jobs:
       - name: Upload built ZIP as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: agent-ready-zip
-          path: dist/agent-ready-*.zip
+          name: ai-readiness-kit-zip
+          path: dist/ai-readiness-kit-*.zip
           retention-days: 7

@@ -2,7 +2,7 @@
  * Gutenberg PluginDocumentSettingPanel for previewing the Markdown view
  * of the post being edited.
  *
- * Wires to the agent-ready/v1/markdown-views/preview REST endpoint (Phase 5).
+ * Wires to the ai-readiness-kit/v1/markdown-views/preview REST endpoint (Phase 5).
  * Renders the MD body in a read-only <pre> with a copy-to-clipboard button,
  * plus a visibility verdict line and a cache-state diagnostics row.
  *
@@ -35,25 +35,25 @@ function reasonLabel( reason ) {
 		case 'cpt':
 			return __(
 				'Post type is not in the Context Profile’s exposed CPTs.',
-				'agent-ready'
+				'ai-readiness-kit'
 			);
 		case 'status':
 			return __(
 				'Post status is not in the Context Profile’s exposed statuses.',
-				'agent-ready'
+				'ai-readiness-kit'
 			);
 		case 'password':
 			return __(
 				'Post is password-protected. Markdown view never serves password-protected content.',
-				'agent-ready'
+				'ai-readiness-kit'
 			);
 		case 'noindex':
 			return __(
 				'Post is flagged noindex by an SEO plugin.',
-				'agent-ready'
+				'ai-readiness-kit'
 			);
 		default:
-			return __( 'Hidden from agents.', 'agent-ready' );
+			return __( 'Hidden from agents.', 'ai-readiness-kit' );
 	}
 }
 
@@ -90,14 +90,14 @@ function MarkdownViewsPanel() {
 
 		try {
 			const response = await apiFetch( {
-				path: `/agent-ready/v1/markdown-views/preview?post=${ postId }`,
+				path: `/ai-readiness-kit/v1/markdown-views/preview?post=${ postId }`,
 			} );
 			setData( response );
 		} catch ( err ) {
 			setError(
 				err && err.message
 					? err.message
-					: __( 'Failed to load preview.', 'agent-ready' )
+					: __( 'Failed to load preview.', 'ai-readiness-kit' )
 			);
 			setData( null );
 		} finally {
@@ -121,19 +121,19 @@ function MarkdownViewsPanel() {
 			setCopied( true );
 			setTimeout( () => setCopied( false ), 2000 );
 		} catch ( err ) {
-			setError( __( 'Copy to clipboard failed.', 'agent-ready' ) );
+			setError( __( 'Copy to clipboard failed.', 'ai-readiness-kit' ) );
 		}
 	}, [ data ] );
 
 	return (
 		<PluginDocumentSettingPanel
 			name="agentready-md-preview"
-			title={ __( 'Markdown view (agentready)', 'agent-ready' ) }
+			title={ __( 'Markdown view (agentready)', 'ai-readiness-kit' ) }
 			className="agentready-md-preview"
 		>
 			{ loading && (
 				<p>
-					<Spinner /> { __( 'Loading preview…', 'agent-ready' ) }
+					<Spinner /> { __( 'Loading preview…', 'ai-readiness-kit' ) }
 				</p>
 			) }
 
@@ -146,9 +146,11 @@ function MarkdownViewsPanel() {
 			{ ! loading && ! error && data && (
 				<>
 					<p>
-						<strong>{ __( 'Visibility:', 'agent-ready' ) }</strong>{ ' ' }
+						<strong>
+							{ __( 'Visibility:', 'ai-readiness-kit' ) }
+						</strong>{ ' ' }
 						{ data.visibility.verdict === 'exposable'
-							? __( 'Exposed to agents.', 'agent-ready' )
+							? __( 'Exposed to agents.', 'ai-readiness-kit' )
 							: reasonLabel( data.visibility.reason ) }
 					</p>
 
@@ -183,10 +185,10 @@ function MarkdownViewsPanel() {
 									disabled={ ! data.markdown }
 								>
 									{ copied
-										? __( 'Copied!', 'agent-ready' )
+										? __( 'Copied!', 'ai-readiness-kit' )
 										: __(
 												'Copy to clipboard',
-												'agent-ready'
+												'ai-readiness-kit'
 										  ) }
 								</Button>
 
@@ -194,7 +196,7 @@ function MarkdownViewsPanel() {
 									variant="tertiary"
 									onClick={ loadPreview }
 								>
-									{ __( 'Refresh', 'agent-ready' ) }
+									{ __( 'Refresh', 'ai-readiness-kit' ) }
 								</Button>
 							</div>
 
@@ -207,13 +209,13 @@ function MarkdownViewsPanel() {
 									} }
 								>
 									<strong>
-										{ __( 'Cache:', 'agent-ready' ) }
+										{ __( 'Cache:', 'ai-readiness-kit' ) }
 									</strong>{ ' ' }
 									{ data.cache_state.cached
-										? __( 'hit', 'agent-ready' )
-										: __( 'miss', 'agent-ready' ) }
+										? __( 'hit', 'ai-readiness-kit' )
+										: __( 'miss', 'ai-readiness-kit' ) }
 									{ ' · ' }
-									{ __( 'walker v', 'agent-ready' ) }
+									{ __( 'walker v', 'ai-readiness-kit' ) }
 									{ data.cache_state.walker_version }
 									{ ' · ' }
 									{ data.cache_state.generated_at }
@@ -259,19 +261,22 @@ function cleanupStatusBadge( status ) {
 	switch ( status ) {
 		case 'pending':
 			return {
-				label: __( 'Cleanup running…', 'agent-ready' ),
+				label: __( 'Cleanup running…', 'ai-readiness-kit' ),
 				variant: 'info',
 			};
 		case 'done':
 			return {
-				label: __( 'Cleanup ready — review needed', 'agent-ready' ),
+				label: __(
+					'Cleanup ready — review needed',
+					'ai-readiness-kit'
+				),
 				variant: 'warning',
 			};
 		case 'approved':
 			return {
 				label: __(
 					'Cleanup approved — serving cleaned MD',
-					'agent-ready'
+					'ai-readiness-kit'
 				),
 				variant: 'success',
 			};
@@ -279,25 +284,25 @@ function cleanupStatusBadge( status ) {
 			return {
 				label: __(
 					'Cleanup rejected — serving deterministic',
-					'agent-ready'
+					'ai-readiness-kit'
 				),
 				variant: 'info',
 			};
 		case 'needs-retry':
 			return {
-				label: __( 'Cleanup needs retry', 'agent-ready' ),
+				label: __( 'Cleanup needs retry', 'ai-readiness-kit' ),
 				variant: 'warning',
 			};
 		case 'failed':
 			return {
-				label: __( 'Cleanup failed', 'agent-ready' ),
+				label: __( 'Cleanup failed', 'ai-readiness-kit' ),
 				variant: 'error',
 			};
 		default:
 			return {
 				label: __(
 					'Cleanup not yet evaluated for this post',
-					'agent-ready'
+					'ai-readiness-kit'
 				),
 				variant: 'info',
 			};
@@ -306,7 +311,7 @@ function cleanupStatusBadge( status ) {
 
 /**
  * Side-by-side Markdown cleanup panel. Drives the four REST routes
- * under `agent-ready/v1/markdown-views/cleanup` per AgDR-0020.
+ * under `ai-readiness-kit/v1/markdown-views/cleanup` per AgDR-0020.
  */
 function MarkdownCleanupPanel() {
 	const { postId, moduleEnabled } = useSelect( ( select ) => {
@@ -341,14 +346,14 @@ function MarkdownCleanupPanel() {
 
 		try {
 			const response = await apiFetch( {
-				path: `/agent-ready/v1/markdown-views/cleanup?post=${ postId }`,
+				path: `/ai-readiness-kit/v1/markdown-views/cleanup?post=${ postId }`,
 			} );
 			setState( response );
 		} catch ( err ) {
 			setError(
 				err && err.message
 					? err.message
-					: __( 'Failed to load cleanup state.', 'agent-ready' )
+					: __( 'Failed to load cleanup state.', 'ai-readiness-kit' )
 			);
 			setState( null );
 		} finally {
@@ -404,7 +409,7 @@ function MarkdownCleanupPanel() {
 
 			try {
 				const response = await apiFetch( {
-					path: `/agent-ready/v1/markdown-views/cleanup/${ route }`,
+					path: `/ai-readiness-kit/v1/markdown-views/cleanup/${ route }`,
 					method: 'POST',
 					data: { post_id: postId },
 				} );
@@ -413,7 +418,7 @@ function MarkdownCleanupPanel() {
 				setError(
 					err && err.message
 						? err.message
-						: __( 'Cleanup action failed.', 'agent-ready' )
+						: __( 'Cleanup action failed.', 'ai-readiness-kit' )
 				);
 			} finally {
 				setActionInFlight( null );
@@ -433,10 +438,14 @@ function MarkdownCleanupPanel() {
 		return (
 			<PluginDocumentSettingPanel
 				name="agentready-md-cleanup"
-				title={ __( 'Markdown cleanup (agentready)', 'agent-ready' ) }
+				title={ __(
+					'Markdown cleanup (agentready)',
+					'ai-readiness-kit'
+				) }
 			>
 				<p>
-					<Spinner /> { __( 'Loading cleanup state…', 'agent-ready' ) }
+					<Spinner />{ ' ' }
+					{ __( 'Loading cleanup state…', 'ai-readiness-kit' ) }
 				</p>
 			</PluginDocumentSettingPanel>
 		);
@@ -460,7 +469,7 @@ function MarkdownCleanupPanel() {
 	return (
 		<PluginDocumentSettingPanel
 			name="agentready-md-cleanup"
-			title={ __( 'Markdown cleanup (agentready)', 'agent-ready' ) }
+			title={ __( 'Markdown cleanup (agentready)', 'ai-readiness-kit' ) }
 		>
 			{ error && (
 				<Notice status="error" isDismissible={ false }>
@@ -488,14 +497,16 @@ function MarkdownCleanupPanel() {
 				>
 					{ __(
 						'Cleanup is queued but waiting for WordPress cron. WP cron only fires on page visits — on a low-traffic site this can take a few minutes. Visiting any page on the site (or running `wp cron event run agentready_md_cleanup_run` via WP-CLI) will trigger it immediately.',
-						'agent-ready'
+						'ai-readiness-kit'
 					) }
 				</p>
 			) }
 
 			{ state && state.quality_score !== null && (
 				<p style={ { marginTop: '8px', fontSize: '12px' } }>
-					<strong>{ __( 'Quality score:', 'agent-ready' ) }</strong>{ ' ' }
+					<strong>
+						{ __( 'Quality score:', 'ai-readiness-kit' ) }
+					</strong>{ ' ' }
 					{ state.quality_score } / 100
 				</p>
 			) }
@@ -504,7 +515,7 @@ function MarkdownCleanupPanel() {
 				<div style={ { marginTop: '12px' } }>
 					<p style={ { margin: '0 0 4px', fontSize: '12px' } }>
 						<strong>
-							{ __( 'Deterministic MD:', 'agent-ready' ) }
+							{ __( 'Deterministic MD:', 'ai-readiness-kit' ) }
 						</strong>
 					</p>
 					<pre
@@ -525,7 +536,7 @@ function MarkdownCleanupPanel() {
 
 					<p style={ { margin: '8px 0 4px', fontSize: '12px' } }>
 						<strong>
-							{ __( 'LLM-cleaned MD:', 'agent-ready' ) }
+							{ __( 'LLM-cleaned MD:', 'ai-readiness-kit' ) }
 						</strong>
 					</p>
 					<pre
@@ -552,19 +563,22 @@ function MarkdownCleanupPanel() {
 					state.diagnostics.error_code ) && (
 					<details style={ { marginTop: '12px', fontSize: '12px' } }>
 						<summary>
-							{ __( 'Cleanup diagnostics', 'agent-ready' ) }
+							{ __( 'Cleanup diagnostics', 'ai-readiness-kit' ) }
 						</summary>
 						<p style={ { margin: '4px 0' } }>
 							{ state.diagnostics.sentences_kept !== undefined &&
-								`${ __( 'Sentences kept:', 'agent-ready' ) } ${
+								`${ __(
+									'Sentences kept:',
+									'ai-readiness-kit'
+								) } ${
 									state.diagnostics.sentences_kept
-								} · ${ __( 'dropped:', 'agent-ready' ) } ${
+								} · ${ __( 'dropped:', 'ai-readiness-kit' ) } ${
 									state.diagnostics.sentences_dropped
 								}` }
 						</p>
 						{ state.diagnostics.error_code && (
 							<p style={ { margin: '4px 0', color: '#a00' } }>
-								{ __( 'Error:', 'agent-ready' ) }{ ' ' }
+								{ __( 'Error:', 'ai-readiness-kit' ) }{ ' ' }
 								{ state.diagnostics.error_code }
 							</p>
 						) }
@@ -587,7 +601,7 @@ function MarkdownCleanupPanel() {
 							disabled={ actionInFlight !== null }
 							isBusy={ actionInFlight === 'approve' }
 						>
-							{ __( 'Approve', 'agent-ready' ) }
+							{ __( 'Approve', 'ai-readiness-kit' ) }
 						</Button>
 						<Button
 							variant="secondary"
@@ -595,7 +609,7 @@ function MarkdownCleanupPanel() {
 							disabled={ actionInFlight !== null }
 							isBusy={ actionInFlight === 'reject' }
 						>
-							{ __( 'Reject', 'agent-ready' ) }
+							{ __( 'Reject', 'ai-readiness-kit' ) }
 						</Button>
 					</>
 				) }
@@ -607,7 +621,7 @@ function MarkdownCleanupPanel() {
 						disabled={ actionInFlight !== null }
 						isBusy={ actionInFlight === 'regenerate' }
 					>
-						{ __( 'Regenerate', 'agent-ready' ) }
+						{ __( 'Regenerate', 'ai-readiness-kit' ) }
 					</Button>
 				) }
 
@@ -616,7 +630,7 @@ function MarkdownCleanupPanel() {
 					onClick={ loadState }
 					disabled={ loading || actionInFlight !== null }
 				>
-					{ __( 'Refresh', 'agent-ready' ) }
+					{ __( 'Refresh', 'ai-readiness-kit' ) }
 				</Button>
 			</div>
 		</PluginDocumentSettingPanel>

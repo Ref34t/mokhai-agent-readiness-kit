@@ -3,9 +3,9 @@
  * Integration tests for WPContext\Cli\Llms_Txt_Command.
  *
  * Covers the WP-CLI surface from #7 Phase A / AgDR-0022:
- *   - `wp agent-ready llms-txt status`  (porcelain + table output)
- *   - `wp agent-ready llms-txt regen`   (synchronous regen + success message)
- *   - `wp agent-ready llms-txt preview` (compose without writing cache)
+ *   - `wp ai-readiness-kit llms-txt status`  (porcelain + table output)
+ *   - `wp ai-readiness-kit llms-txt regen`   (synchronous regen + success message)
+ *   - `wp ai-readiness-kit llms-txt preview` (compose without writing cache)
  *
  * WP-CLI is not loaded inside wp-phpunit, so this file ships a minimal
  * shim for `WP_CLI`, `WP_CLI\NoExitException`, and `WP_CLI\Utils\format_items`
@@ -125,7 +125,7 @@ if ( ! function_exists( 'WP_CLI\\Utils\\format_items' ) ) {
 }
 
 /**
- * Integration tests for the `wp agent-ready llms-txt` command surface.
+ * Integration tests for the `wp ai-readiness-kit llms-txt` command surface.
  *
  * Each test runs against the live wp-phpunit environment: real options,
  * real cron, real transients. Service::invalidate() + option cleanup in

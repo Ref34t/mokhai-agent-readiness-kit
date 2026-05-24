@@ -2,7 +2,7 @@
 /**
  * WP-CLI surface for #8 LLM-powered entry descriptions.
  *
- * Three subcommands mounted at `wp agent-ready llms-txt descriptions`:
+ * Three subcommands mounted at `wp ai-readiness-kit llms-txt descriptions`:
  *   - `status` — counts (manual / auto / pending / missing) for the
  *     current exposure set.
  *   - `backfill` — iterate the exposure set and schedule a description
@@ -33,14 +33,14 @@ use WPContext\LlmsTxt\Entry_Source;
  * ## EXAMPLES
  *
  *     # Counts for the current exposure set.
- *     $ wp agent-ready llms-txt descriptions status
+ *     $ wp ai-readiness-kit llms-txt descriptions status
  *
  *     # Queue a description job for every missing entry across all
  *     # exposed CPTs and statuses.
- *     $ wp agent-ready llms-txt descriptions backfill
+ *     $ wp ai-readiness-kit llms-txt descriptions backfill
  *
  *     # Force-regenerate the cache for one post.
- *     $ wp agent-ready llms-txt descriptions regen 42
+ *     $ wp ai-readiness-kit llms-txt descriptions regen 42
  */
 final class Llms_Txt_Descriptions_Command {
 
@@ -55,7 +55,7 @@ final class Llms_Txt_Descriptions_Command {
 			return;
 		}
 
-		\WP_CLI::add_command( 'agent-ready llms-txt descriptions', self::class );
+		\WP_CLI::add_command( 'ai-readiness-kit llms-txt descriptions', self::class );
 	}
 
 	/**
@@ -226,7 +226,7 @@ final class Llms_Txt_Descriptions_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp agent-ready llms-txt descriptions regen 42
+	 *     $ wp ai-readiness-kit llms-txt descriptions regen 42
 	 *
 	 * @param array<int, string>    $args       Positional args — [post_id].
 	 * @param array<string, string> $assoc_args Associative args (unused).
@@ -235,7 +235,7 @@ final class Llms_Txt_Descriptions_Command {
 		unset( $assoc_args );
 
 		if ( array() === $args ) {
-			\WP_CLI::error( 'Usage: wp agent-ready llms-txt descriptions regen <post_id>' );
+			\WP_CLI::error( 'Usage: wp ai-readiness-kit llms-txt descriptions regen <post_id>' );
 			return;
 		}
 

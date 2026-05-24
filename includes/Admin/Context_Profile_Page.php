@@ -55,8 +55,8 @@ final class Context_Profile_Page {
 	 */
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
-			\__( 'Agent Ready Context Profile', 'agent-ready' ),
-			\__( 'Context', 'agent-ready' ),
+			\__( 'AI Readiness Kit Context Profile', 'ai-readiness-kit' ),
+			\__( 'Context', 'ai-readiness-kit' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( self::class, 'render' )
@@ -74,20 +74,20 @@ final class Context_Profile_Page {
 	public static function render(): void {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die(
-				\esc_html__( 'You do not have permission to access this page.', 'agent-ready' ),
-				\esc_html__( 'Forbidden', 'agent-ready' ),
+				\esc_html__( 'You do not have permission to access this page.', 'ai-readiness-kit' ),
+				\esc_html__( 'Forbidden', 'ai-readiness-kit' ),
 				array( 'response' => 403 )
 			);
 		}
 
 		?>
 		<div class="wrap" id="agentready-context-profile-wrap">
-			<h1><?php \esc_html_e( 'Context Profile', 'agent-ready' ); ?></h1>
+			<h1><?php \esc_html_e( 'Context Profile', 'ai-readiness-kit' ); ?></h1>
 			<p class="description">
 				<?php
 				\esc_html_e(
-					'Configure how Agent Ready exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below.',
-					'agent-ready'
+					'Configure how AI Readiness Kit exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below.',
+					'ai-readiness-kit'
 				);
 				?>
 			</p>
@@ -95,15 +95,15 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-context-profile-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'Agent Ready Context Profile editor', 'agent-ready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'AI Readiness Kit Context Profile editor', 'ai-readiness-kit' ); ?>"
 			></div>
 
-			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — editorial entries', 'agent-ready' ); ?></h2>
+			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — editorial entries', 'ai-readiness-kit' ); ?></h2>
 			<p class="description">
 				<?php
 				\esc_html_e(
 					'Hand-curated entries published in /llms.txt alongside the auto-listed posts above. Each entry has a title, URL, optional description, and a section heading.',
-					'agent-ready'
+					'ai-readiness-kit'
 				);
 				?>
 			</p>
@@ -111,15 +111,15 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-llms-txt-editorial-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'Agent Ready LLMs Index editorial entries editor', 'agent-ready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'AI Readiness Kit LLMs Index editorial entries editor', 'ai-readiness-kit' ); ?>"
 			></div>
 
-			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — auto-generated descriptions', 'agent-ready' ); ?></h2>
+			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — auto-generated descriptions', 'ai-readiness-kit' ); ?></h2>
 			<p class="description">
 				<?php
 				\esc_html_e(
 					'One-line descriptions for the auto-listed entries above, generated via the configured LLM and cached on post meta. Edit any description inline to set a sticky manual override that survives regeneration.',
-					'agent-ready'
+					'ai-readiness-kit'
 				);
 				?>
 			</p>
@@ -127,7 +127,7 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-llms-txt-descriptions-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'Agent Ready LLM-powered /llms.txt entry descriptions', 'agent-ready' ); ?>"
+				aria-label="<?php \esc_attr_e( 'AI Readiness Kit LLM-powered /llms.txt entry descriptions', 'ai-readiness-kit' ); ?>"
 			></div>
 
 			<noscript>
@@ -136,7 +136,7 @@ final class Context_Profile_Page {
 						<?php
 						\esc_html_e(
 							'The Context Profile editor and LLMs Index editor both require JavaScript. Enable JavaScript and reload this page.',
-							'agent-ready'
+							'ai-readiness-kit'
 						);
 						?>
 					</p>
@@ -214,7 +214,7 @@ final class Context_Profile_Page {
 
 		\wp_set_script_translations(
 			'agentready-context-profile',
-			'agent-ready',
+			'ai-readiness-kit',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -278,7 +278,7 @@ final class Context_Profile_Page {
 
 		\wp_set_script_translations(
 			'agentready-llms-txt-editorial',
-			'agent-ready',
+			'ai-readiness-kit',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -333,7 +333,7 @@ final class Context_Profile_Page {
 
 		\wp_set_script_translations(
 			'agentready-llms-txt-descriptions',
-			'agent-ready',
+			'ai-readiness-kit',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -416,7 +416,7 @@ final class Context_Profile_Page {
 		}
 		\printf(
 			'<div class="notice notice-warning"><p>%1$s <code>%2$s</code></p></div>',
-			\esc_html__( 'Agent Ready Context Profile UI bundle not found. Run:', 'agent-ready' ),
+			\esc_html__( 'AI Readiness Kit Context Profile UI bundle not found. Run:', 'ai-readiness-kit' ),
 			\esc_html( 'npm install && npm run build' )
 		);
 	}
@@ -453,23 +453,23 @@ final class Context_Profile_Page {
 		$status_options = array(
 			array(
 				'slug'  => 'publish',
-				'label' => \__( 'Published', 'agent-ready' ),
+				'label' => \__( 'Published', 'ai-readiness-kit' ),
 			),
 			array(
 				'slug'  => 'private',
-				'label' => \__( 'Private', 'agent-ready' ),
+				'label' => \__( 'Private', 'ai-readiness-kit' ),
 			),
 			array(
 				'slug'  => 'password',
-				'label' => \__( 'Password-protected', 'agent-ready' ),
+				'label' => \__( 'Password-protected', 'ai-readiness-kit' ),
 			),
 			array(
 				'slug'  => 'draft',
-				'label' => \__( 'Draft', 'agent-ready' ),
+				'label' => \__( 'Draft', 'ai-readiness-kit' ),
 			),
 			array(
 				'slug'  => 'pending',
-				'label' => \__( 'Pending review', 'agent-ready' ),
+				'label' => \__( 'Pending review', 'ai-readiness-kit' ),
 			),
 		);
 

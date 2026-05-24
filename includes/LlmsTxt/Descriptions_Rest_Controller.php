@@ -3,14 +3,14 @@
  * REST controller for the Phase B admin UI of #8 (LLM-powered
  * /llms.txt entry descriptions), per AgDR-0029.
  *
- * Five routes under `agent-ready/v1/llms-txt/descriptions/*`, all gated
+ * Five routes under `ai-readiness-kit/v1/llms-txt/descriptions/*`, all gated
  * by `manage_options`:
  *
- *   GET    /agent-ready/v1/llms-txt/descriptions
- *   PATCH  /agent-ready/v1/llms-txt/descriptions/<post_id>
- *   DELETE /agent-ready/v1/llms-txt/descriptions/<post_id>/manual
- *   POST   /agent-ready/v1/llms-txt/descriptions/<post_id>/regenerate
- *   POST   /agent-ready/v1/llms-txt/descriptions/bulk-regenerate-stale
+ *   GET    /ai-readiness-kit/v1/llms-txt/descriptions
+ *   PATCH  /ai-readiness-kit/v1/llms-txt/descriptions/<post_id>
+ *   DELETE /ai-readiness-kit/v1/llms-txt/descriptions/<post_id>/manual
+ *   POST   /ai-readiness-kit/v1/llms-txt/descriptions/<post_id>/regenerate
+ *   POST   /ai-readiness-kit/v1/llms-txt/descriptions/bulk-regenerate-stale
  *
  * Read responses (GET + every mutation's response body) share a single
  * row-projection function so the UI can refresh state from a mutation
@@ -39,7 +39,7 @@ final class Descriptions_Rest_Controller {
 	 *
 	 * @var string
 	 */
-	public const NAMESPACE = 'agent-ready/v1';
+	public const NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Base path under the namespace. Per-post routes append `/<post_id>`;
@@ -331,7 +331,7 @@ final class Descriptions_Rest_Controller {
 		if ( ! Client_Wrapper::has_ai_client() ) {
 			return new \WP_Error(
 				'rest_ai_client_unavailable',
-				\__( 'WP AI Client is not configured.', 'agent-ready' ),
+				\__( 'WP AI Client is not configured.', 'ai-readiness-kit' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -356,7 +356,7 @@ final class Descriptions_Rest_Controller {
 		if ( ! Client_Wrapper::has_ai_client() ) {
 			return new \WP_Error(
 				'rest_ai_client_unavailable',
-				\__( 'WP AI Client is not configured.', 'agent-ready' ),
+				\__( 'WP AI Client is not configured.', 'ai-readiness-kit' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -364,7 +364,7 @@ final class Descriptions_Rest_Controller {
 		if ( empty( Context_Profile_Settings::get_profile()['llm_descriptions_enabled'] ) ) {
 			return new \WP_Error(
 				'rest_descriptions_disabled',
-				\__( 'LLM descriptions are disabled in the Context Profile.', 'agent-ready' ),
+				\__( 'LLM descriptions are disabled in the Context Profile.', 'ai-readiness-kit' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -451,7 +451,7 @@ final class Descriptions_Rest_Controller {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				\__( 'You are not allowed to manage entry descriptions.', 'agent-ready' ),
+				\__( 'You are not allowed to manage entry descriptions.', 'ai-readiness-kit' ),
 				array( 'status' => \rest_authorization_required_code() )
 			);
 		}
@@ -467,7 +467,7 @@ final class Descriptions_Rest_Controller {
 		if ( $post_id <= 0 ) {
 			return new \WP_Error(
 				'rest_invalid_post',
-				\__( 'A valid post ID is required.', 'agent-ready' ),
+				\__( 'A valid post ID is required.', 'ai-readiness-kit' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -475,7 +475,7 @@ final class Descriptions_Rest_Controller {
 		if ( ! $post instanceof \WP_Post ) {
 			return new \WP_Error(
 				'rest_post_not_found',
-				\__( 'Post not found.', 'agent-ready' ),
+				\__( 'Post not found.', 'ai-readiness-kit' ),
 				array( 'status' => 404 )
 			);
 		}

@@ -35,11 +35,11 @@ namespace WPContext\Context_Score;
 final class Narrative_Guard {
 
 	/**
-	 * Cross-cutting Agent Ready terms always permitted in any sub-score's
+	 * Cross-cutting AI Readiness Kit terms always permitted in any sub-score's
 	 * narrative. Mirrors the surface area the rule-based templates
 	 * reference (Context Profile, Site Health, WP-CLI commands, etc.) so
 	 * the guard doesn't reject perfectly accurate LLM output that names
-	 * an Agent Ready-internal concept missing from a given sub-score's
+	 * an AI Readiness Kit-internal concept missing from a given sub-score's
 	 * `signals`/`reasons` list.
 	 *
 	 * Lowercased on lookup, so the source casing is purely documentary.
@@ -47,7 +47,7 @@ final class Narrative_Guard {
 	 * @var array<int, string>
 	 */
 	public const CROSS_CUTTING_ENTITIES = array(
-		'Agent Ready',
+		'AI Readiness Kit',
 		'Context Profile',
 		'Context Score',
 		'Site Health',

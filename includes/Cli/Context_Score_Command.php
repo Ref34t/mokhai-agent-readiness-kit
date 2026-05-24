@@ -2,7 +2,7 @@
 /**
  * WP-CLI command surface for the Context Score module (#9 / AgDR-0030).
  *
- * Mounted at `wp agent-ready context-score` following AgDR-0014's CLI
+ * Mounted at `wp ai-readiness-kit context-score` following AgDR-0014's CLI
  * convention. The AC ticket wording `wp context audit` is satisfied by
  * the `audit` subcommand here — JSON output by default, `--porcelain`
  * for key=value lines.
@@ -30,16 +30,16 @@ use WPContext\Context_Score\Service;
  * ## EXAMPLES
  *
  *     # Print the cached breakdown as JSON. Recomputes if the cache is empty.
- *     $ wp agent-ready context-score audit
+ *     $ wp ai-readiness-kit context-score audit
  *
  *     # Print the breakdown as key=value lines (shell-friendly).
- *     $ wp agent-ready context-score audit --porcelain
+ *     $ wp ai-readiness-kit context-score audit --porcelain
  *
  *     # Force a synchronous recompute regardless of cache state.
- *     $ wp agent-ready context-score recompute
+ *     $ wp ai-readiness-kit context-score recompute
  *
  *     # Drop the cached payload (next read recomputes).
- *     $ wp agent-ready context-score reset
+ *     $ wp ai-readiness-kit context-score reset
  */
 final class Context_Score_Command {
 
@@ -55,7 +55,7 @@ final class Context_Score_Command {
 			return;
 		}
 
-		\WP_CLI::add_command( 'agent-ready context-score', self::class );
+		\WP_CLI::add_command( 'ai-readiness-kit context-score', self::class );
 	}
 
 	/**
@@ -73,10 +73,10 @@ final class Context_Score_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp agent-ready context-score audit | jq .overall
+	 *     $ wp ai-readiness-kit context-score audit | jq .overall
 	 *     64
 	 *
-	 *     $ wp agent-ready context-score audit --porcelain
+	 *     $ wp ai-readiness-kit context-score audit --porcelain
 	 *     overall=64
 	 *     discoverability=80
 	 *     content_readability=62
@@ -121,7 +121,7 @@ final class Context_Score_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp agent-ready context-score recompute
+	 *     $ wp ai-readiness-kit context-score recompute
 	 *     Success: Context Score recomputed: 64/100 (842 ms).
 	 *
 	 * @param array<int, string>    $args       Positional args (unused).
@@ -146,7 +146,7 @@ final class Context_Score_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp agent-ready context-score reset
+	 *     $ wp ai-readiness-kit context-score reset
 	 *     Success: Context Score cache cleared.
 	 *
 	 * @param array<int, string>    $args       Positional args (unused).

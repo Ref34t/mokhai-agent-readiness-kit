@@ -25,8 +25,8 @@ from PIL import Image, ImageDraw, ImageFont
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ASSETS_DIR = REPO_ROOT / "assets"
 
-BRAND_NAME = "Agent Ready"
-BRAND_TAGLINE = "Agent Readiness for WordPress"
+BRAND_NAME = "AI Readiness Kit"
+BRAND_TAGLINE = "AI Readiness for WordPress"
 BG = (26, 29, 46)
 FG_PRIMARY = (255, 255, 255)
 FG_SECONDARY = (160, 168, 200)
