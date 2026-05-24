@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -147,6 +147,17 @@ v0.1.1 fast-follow: AI Assistant Preview pane (render a page as ChatGPT / Claude
 4. Context Score — 0–100 readiness audit with six sub-scores and actionable fixes
 
 == Changelog ==
+
+= 0.1.1 — 2026-05-24 =
+
+Bug-fix release. Four issues surfaced during post-merge smoke testing of v0.1.0 (PR #102 rebrand bundle) and the external LLM review of the live `/llms.txt` output.
+
+**Fixes**
+
+* `/llms.txt` regen now fires reliably after Context Profile saves on sites where wp-cron sits stale (e.g. wp-env without traffic, any site where cron failed for a window). `Service::schedule_regen()` now clears stale past-timestamp events before scheduling a fresh one. (#103)
+* `Schema_Emitter` now emits per-content JSON-LD for custom CPTs. Built-in `post` maps to `Article`; `page` and every other CPT (including custom ones like `lesson`, `product`, `recipe`) map to `WebPage` by default. Adds an `agentready_schema_type_for_cpt` filter for plugin/theme authors to specialize. Honors `'Article'` / `'WebPage'` / `null` (suppress) in v0.1.1; full custom-`@type` support lands in v0.1.2. AgDR-0040 captures the rationale. (#104)
+* `/llms.txt` entry links now point at the `.md` form when Markdown Views is enabled — AI agents fetch a 4–8 KB Markdown body instead of the 50–100 KB HTML page. Pretty permalinks use the `<slug>.md` shape; plain permalinks fall through to `?format=md`. Idempotent: URLs already in either form are returned unchanged. When `markdown_views_enabled` is false, the canonical permalink is preserved. (#105)
+* HTML entities (`&#8217;`, `&amp;`, `&quot;`, `&mdash;`, etc.) no longer leak into the plain-text `/llms.txt` body. WordPress's `wptexturize` filter HTML-encodes typographic characters; the composer now decodes them at the bottom of the escape pipeline so every text surface (site name, tagline, section label, entry title, description) is clean. (#106)
 
 = 0.1.0 — 2026-05-20 =
 
