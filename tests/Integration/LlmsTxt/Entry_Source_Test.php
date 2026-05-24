@@ -246,6 +246,135 @@ final class Entry_Source_Test extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Regression for Ref34t/agentready#105.
+	 *
+	 * `/llms.txt` is an agent discovery surface — its links should point at
+	 * the `.md` form (small, clean Markdown) rather than the canonical HTML
+	 * page (large, navigation-heavy). When the Markdown Views module is
+	 * enabled, entry URLs must transform pretty permalinks to `<slug>.md`.
+	 */
+	public function test_entry_url_uses_md_form_when_markdown_views_enabled(): void {
+		// wp-env's test instance defaults to plain permalinks (`?p=N`).
+		// Flip to pretty permalinks for this test so we exercise the
+		// `.md` suffix branch of the transform (the plain-permalinks
+		// `?format=md` branch has its own test below).
+		$original_structure = (string) \get_option( 'permalink_structure' );
+		\update_option( 'permalink_structure', '/%postname%/' );
+		\flush_rewrite_rules( false );
+
+		try {
+			// Default Profile (seeded in setUp) has markdown_views_enabled=true.
+			$post_id = self::factory()->post->create(
+				array(
+					'post_title'  => 'A typical post',
+					'post_name'   => 'a-typical-post',
+					'post_status' => 'publish',
+					'post_type'   => 'post',
+				)
+			);
+
+			$sections = Entry_Source::get_sections();
+			$this->assertNotEmpty( $sections );
+
+			$entry = $sections[0]['entries'][0];
+			$this->assertStringEndsWith(
+				'.md',
+				$entry['url'],
+				'Pretty-permalink URL must end in .md when Markdown Views is on.'
+			);
+			$this->assertStringNotContainsString(
+				'a-typical-post/',
+				$entry['url'],
+				'Trailing slash must be stripped before appending .md.'
+			);
+
+			// Sanity: the .md URL still resolves to the same post via Router.
+			$this->assertSame(
+				\rtrim( (string) \get_permalink( $post_id ), '/' ) . '.md',
+				$entry['url']
+			);
+		} finally {
+			\update_option( 'permalink_structure', $original_structure );
+			\flush_rewrite_rules( false );
+		}
+	}
+
+	/**
+	 * If the operator has turned the Markdown Views module off, /llms.txt
+	 * cannot link at the `.md` form — the rewrite is still registered but
+	 * Handler will 404 on it. Fall back to the canonical permalink.
+	 */
+	public function test_entry_url_stays_canonical_when_markdown_views_disabled(): void {
+		update_option(
+			Context_Profile_Settings::OPTION_KEY,
+			array_merge(
+				Context_Profile_Settings::get_defaults(),
+				array(
+					'exposed_cpts'           => array( 'post' ),
+					'exposed_statuses'       => array( 'publish' ),
+					'markdown_views_enabled' => false,
+				)
+			)
+		);
+
+		$post_id = self::factory()->post->create(
+			array(
+				'post_title'  => 'MV-off post',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		$sections = Entry_Source::get_sections();
+		$entry    = $sections[0]['entries'][0];
+
+		$this->assertSame(
+			(string) \get_permalink( $post_id ),
+			$entry['url'],
+			'With MV disabled, the URL must be the canonical permalink — no .md transform.'
+		);
+		$this->assertStringEndsNotWith( '.md', $entry['url'] );
+	}
+
+	/**
+	 * On a site running plain permalinks (`?p=<id>`), the `.md` rewrite
+	 * doesn't apply — fall through to the `?format=md` content-negotiation
+	 * form so the agent still reaches the Markdown response.
+	 */
+	public function test_entry_url_uses_format_md_query_for_plain_permalinks(): void {
+		$original_structure = (string) \get_option( 'permalink_structure' );
+		\update_option( 'permalink_structure', '' );
+		\flush_rewrite_rules( false );
+
+		try {
+			self::factory()->post->create(
+				array(
+					'post_title'  => 'Plain-permalink post',
+					'post_status' => 'publish',
+					'post_type'   => 'post',
+				)
+			);
+
+			$sections = Entry_Source::get_sections();
+			$entry    = $sections[0]['entries'][0];
+
+			$this->assertStringContainsString(
+				'format=md',
+				$entry['url'],
+				'Plain permalinks must fall through to the ?format=md query form.'
+			);
+			$this->assertStringEndsNotWith(
+				'.md',
+				$entry['url'],
+				'No .md suffix on plain-permalink URLs — the rewrite would not match.'
+			);
+		} finally {
+			\update_option( 'permalink_structure', $original_structure );
+			\flush_rewrite_rules( false );
+		}
+	}
+
 	public function test_custom_cpt_label_appears_as_section_header(): void {
 		$this->register_and_expose_custom_cpt( 'Field Reports' );
 
