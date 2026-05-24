@@ -286,6 +286,106 @@ final class Schema_Emitter_Test extends TestCase {
 	}
 
 	/**
+	 * Ref34t/agentready#118 — the script body MUST be raw JSON.
+	 *
+	 * Pre-#118 the emitter wrapped `wp_json_encode()` output in `esc_html()`,
+	 * which entity-encoded every structural `"` and `&` and made the body
+	 * invalid for every standards-compliant JSON-LD consumer (Google Rich
+	 * Results Test, schema.org validator, `JSON.parse()`). The unit tests
+	 * masked this by running `html_entity_decode` before `json_decode` —
+	 * see AgDR-0041.
+	 */
+	public function test_script_body_is_raw_json_with_no_html_entities(): void {
+		$output = $this->capture_render( 'none' );
+
+		self::assertNotSame( '', $output );
+
+		$match = preg_match(
+			'#<script type="application/ld\+json" data-emitted-by="agentready">\s*(.+?)\s*</script>#s',
+			$output,
+			$m
+		);
+		self::assertSame( 1, $match, 'No JSON-LD script block found in output.' );
+
+		$body = $m[1];
+
+		self::assertStringNotContainsString( '&quot;', $body, 'Body contains &quot; entities — JSON is not raw.' );
+		self::assertStringNotContainsString( '&amp;', $body, 'Body contains &amp; entities — JSON is not raw.' );
+		self::assertStringNotContainsString( '&lt;', $body, 'Body contains &lt; entities — JSON is not raw.' );
+		self::assertStringNotContainsString( '&gt;', $body, 'Body contains &gt; entities — JSON is not raw.' );
+		self::assertStringNotContainsString( '&#039;', $body, 'Body contains &#039; entities — JSON is not raw.' );
+
+		$decoded = json_decode( $body, true );
+		self::assertIsArray( $decoded, 'Body must parse as JSON directly, with no html_entity_decode pre-pass.' );
+	}
+
+	/**
+	 * Ref34t/agentready#118 — script-tag-breakout safety must NOT depend
+	 * on `esc_html()`. Instead `JSON_HEX_TAG` escapes `<` and `>` inside
+	 * string values as `<` / `>`, so a node value containing the
+	 * literal sequence `</script>` cannot close the wrapping script tag
+	 * early. See AgDR-0041.
+	 *
+	 * Assertion shape (intentional):
+	 *   1. `substr_count(..., '</script>') === 1` — PROPERTY assertion.
+	 *      The wrapping tag closes exactly once. This is the load-bearing
+	 *      breakout-safety property and survives any future encoding
+	 *      strategy that still produces a literal-`</script>`-free body.
+	 *   2. `assertStringContainsString('<\/script>', ...)` — MECHANISM
+	 *      assertion. Pins `JSON_HEX_TAG` as the escape strategy. A
+	 *      future maintainer revisiting AgDR-0041's option (c) (manual
+	 *      `str_replace('</','<\/')`) under a fresh AgDR should relax
+	 *      this one assertion; assertions #1 and #3 keep the property
+	 *      guarantee intact.
+	 *   3. `assertSame($injected_value, $organization['name'])` —
+	 *      PROPERTY assertion. Round-trip through `json_decode()` returns
+	 *      the original literal — consumers don't have to know we
+	 *      escaped anything.
+	 */
+	public function test_node_value_with_script_close_sequence_is_escaped(): void {
+		add_filter(
+			Schema_Emitter::FILTER_NODES,
+			static function ( array $nodes ): array {
+				foreach ( $nodes as &$node ) {
+					if ( isset( $node['@type'] ) && 'Organization' === $node['@type'] ) {
+						$node['name'] = 'Bad </script><script>alert(1)</script>';
+					}
+				}
+				return $nodes;
+			}
+		);
+
+		$output = $this->capture_render( 'none' );
+
+		// The wrapping script tag must close exactly once — the literal
+		// `</script>` inside the org name must NOT have closed it early.
+		self::assertSame(
+			1,
+			substr_count( $output, '</script>' ),
+			'Operator-injected </script> broke out of the wrapping script tag.'
+		);
+
+		// The encoded form is what should appear in the body — `JSON_HEX_TAG`
+		// emits `<` and `>` as the JSON unicode escapes `<` / `>`.
+		self::assertStringContainsString(
+			'</script>',
+			$output,
+			'Expected JSON_HEX_TAG-escaped </script> sequence inside the JSON body.'
+		);
+
+		// And after JSON parse, the consumer sees the original literal.
+		$json         = $this->extract_json( $output );
+		$organization = $this->find_node_of_type( $json, 'Organization' );
+
+		self::assertNotNull( $organization );
+		self::assertSame(
+			'Bad </script><script>alert(1)</script>',
+			$organization['name'],
+			'JSON decoding should reverse the JSON_HEX_TAG escape transparently.'
+		);
+	}
+
+	/**
 	 * Capture stdout from Schema_Emitter::render_for_posture(). Tests
 	 * supply the posture slug explicitly to avoid coupling to global
 	 * `class_exists()` state that leaks across unit tests.
@@ -309,11 +409,9 @@ final class Schema_Emitter_Test extends TestCase {
 		if ( ! preg_match( '#<script type="application/ld\+json" data-emitted-by="agentready">\s*(.+?)\s*</script>#s', $output, $m ) ) {
 			return null;
 		}
-		// esc_html() escapes &, <, >, ", ' — but the JSON we produce uses
-		// JSON_UNESCAPED_SLASHES + nothing requires those entities, so the
-		// only entity html_entity_decode reverses here is &quot; → ".
-		$body    = html_entity_decode( $m[1], ENT_QUOTES | ENT_HTML5 );
-		$decoded = json_decode( $body, true );
+		// Body must be raw JSON (AgDR-0041) — `json_decode` directly,
+		// no `html_entity_decode` pre-processing.
+		$decoded = json_decode( $m[1], true );
 		return is_array( $decoded ) ? $decoded : null;
 	}
 
