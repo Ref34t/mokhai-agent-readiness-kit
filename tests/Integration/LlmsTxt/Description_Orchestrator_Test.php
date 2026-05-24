@@ -174,6 +174,59 @@ final class Description_Orchestrator_Test extends WP_UnitTestCase {
 		self::assertSame( 1, $count, 'second schedule() must not double-queue' );
 	}
 
+	/**
+	 * Ref34t/agentready#121 — per-post stale-event recovery.
+	 *
+	 * Same shape as `Cleanup_Orchestrator::schedule` post-#120 — a per-
+	 * post description event left in the cron queue with a past
+	 * timestamp must be cleared before a fresh future event can be
+	 * scheduled. Without the clear, WP de-dups the new event against
+	 * the stale entry and the description never fires, but the meta
+	 * marker keeps reporting `pending`.
+	 *
+	 * Mirrors tests/Integration/Markdown_Views/Cleanup_Orchestrator_State_Test.php::
+	 * test_schedule_clears_stale_past_event_and_reschedules.
+	 */
+	public function test_schedule_clears_stale_past_event_and_reschedules(): void {
+		$post = self::factory()->post->create_and_get(
+			array( 'post_type' => 'post', 'post_status' => 'publish' )
+		);
+		$post_id = (int) $post->ID;
+		$args    = array( $post_id );
+
+		// `factory()->post->create_and_get` fires save_post, which the
+		// production register_hooks chain wires up to schedule(). Clear
+		// whatever auto-scheduled event landed so we can stage a clean
+		// stale-only state.
+		wp_clear_scheduled_hook( Description_Orchestrator::SCHEDULE_ACTION, $args );
+
+		// Stage a stale past-timestamp event directly, bypassing the
+		// public API so we don't accidentally test the very logic
+		// we're regressing.
+		$past = time() - 60;
+		wp_schedule_single_event( $past, Description_Orchestrator::SCHEDULE_ACTION, $args );
+		self::assertSame( $past, wp_next_scheduled( Description_Orchestrator::SCHEDULE_ACTION, $args ) );
+
+		Description_Orchestrator::schedule( $post );
+
+		$next = wp_next_scheduled( Description_Orchestrator::SCHEDULE_ACTION, $args );
+		self::assertIsInt( $next );
+		self::assertGreaterThan(
+			time(),
+			$next,
+			'schedule() must produce a future event for this post even when a stale past event was in the queue.'
+		);
+		self::assertLessThanOrEqual(
+			time() + 5,
+			$next,
+			'New event must be scheduled within a few seconds.'
+		);
+		self::assertSame(
+			Description_Orchestrator::STATUS_PENDING,
+			Description_Orchestrator::get_status( $post_id )
+		);
+	}
+
 	public function test_regenerate_clears_auto_cache_and_queues_fresh_job(): void {
 		$post = self::factory()->post->create_and_get(
 			array( 'post_type' => 'post', 'post_status' => 'publish' )
