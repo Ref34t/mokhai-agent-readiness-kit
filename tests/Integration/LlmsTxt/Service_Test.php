@@ -175,6 +175,38 @@ final class Service_Test extends WP_UnitTestCase {
 		$this->assertSame( $first, $second );
 	}
 
+	/**
+	 * Regression for Ref34t/agentready#103.
+	 *
+	 * Simulates the wp-env-without-traffic failure mode: an event was
+	 * scheduled in the past but never consumed by cron. A subsequent
+	 * schedule_regen() must clear the stale event and schedule a fresh
+	 * future one — otherwise WP de-dups the new wp_schedule_single_event
+	 * call against the stale entry and the regen is silently lost.
+	 */
+	public function test_schedule_regen_clears_stale_past_event_and_reschedules(): void {
+		// Stage a stale past-timestamp event directly, bypassing the public
+		// API so we don't accidentally test the very logic we're regressing.
+		$past = time() - 60;
+		wp_schedule_single_event( $past, Service::REGEN_ACTION );
+		$this->assertSame( $past, wp_next_scheduled( Service::REGEN_ACTION ) );
+
+		Service::schedule_regen();
+
+		$next = wp_next_scheduled( Service::REGEN_ACTION );
+		$this->assertIsInt( $next );
+		$this->assertGreaterThan(
+			time(),
+			$next,
+			'schedule_regen must produce a future event even when a stale past event was in the queue.'
+		);
+		$this->assertLessThanOrEqual(
+			time() + Service::DEBOUNCE_DELAY + 1,
+			$next,
+			'New event must be scheduled within the debounce window.'
+		);
+	}
+
 	public function test_on_post_change_skips_non_exposed_cpt(): void {
 		// Page CPT isn't in the test profile's exposed_cpts (only 'post' is),
 		// so the save_post hook chain should see on_post_change return early

@@ -187,18 +187,40 @@ final class Service {
 	}
 
 	/**
-	 * Schedule an async regen one debounce window from now. Coalesces
-	 * bursts: a second call inside the window finds an existing scheduled
-	 * event via `wp_next_scheduled` and noops.
+	 * Schedule an async regen one debounce window from now.
+	 *
+	 * Two behaviours bundled here:
+	 *
+	 * 1. **Debounce / coalesce.** A second call inside the debounce window
+	 *    sees a future-scheduled event and noops, so a burst of saves only
+	 *    triggers one regen.
+	 * 2. **Stale-event recovery.** If a previously-scheduled event is still
+	 *    sitting in the cron queue with a past timestamp (the cron didn't
+	 *    fire it — common on wp-env without traffic, or on any site where
+	 *    cron failed for a window), the old event is cleared before a
+	 *    fresh one is scheduled. Without this, WP de-dups
+	 *    `wp_schedule_single_event` against the stale entry and the new
+	 *    schedule is silently dropped, leaving the regen never to fire.
+	 *    See Ref34t/agentready#103.
 	 *
 	 * `do_action()` may pass extra arguments (e.g. `save_post` passes the
 	 * post ID). They are intentionally ignored — the regen is site-level
 	 * and reads the current state of all inputs at run time.
 	 */
 	public static function schedule_regen(): void {
-		if ( false !== \wp_next_scheduled( self::REGEN_ACTION ) ) {
+		$existing = \wp_next_scheduled( self::REGEN_ACTION );
+
+		// Future event already scheduled — debounce is working, noop.
+		if ( false !== $existing && $existing > \time() ) {
 			return;
 		}
+
+		// Stale past-timestamp event still in the queue — clear it so the
+		// fresh schedule below isn't silently de-duped by WP. See #103.
+		if ( false !== $existing ) {
+			\wp_clear_scheduled_hook( self::REGEN_ACTION );
+		}
+
 		\wp_schedule_single_event(
 			\time() + self::DEBOUNCE_DELAY,
 			self::REGEN_ACTION
