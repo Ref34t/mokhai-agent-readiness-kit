@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace WPContext\Context_Score;
 
 use WPContext\Admin\Context_Profile_Settings;
+use WPContext\Admin\Multi_Channel_Provider_Detector;
 use WPContext\Admin\Schema_Coordination_Detector;
 use WPContext\Ai\Client_Wrapper;
 use WPContext\LlmsTxt\Conflict_Detector;
@@ -43,15 +44,17 @@ final class Signal_Collector {
 	 * @return array<string, mixed>
 	 */
 	public static function collect(): array {
-		$profile = Context_Profile_Settings::get_profile();
+		$profile  = Context_Profile_Settings::get_profile();
+		$llms_txt = self::llms_txt_signals();
 
 		return array(
-			'profile'      => self::profile_signals( $profile ),
-			'llms_txt'     => self::llms_txt_signals(),
-			'md_cache'     => self::md_cache_signals( Context_Profile_Settings::get_md_cleanup_threshold() ),
-			'schema'       => self::schema_signals(),
-			'ai_client'    => self::ai_client_signals(),
-			'descriptions' => self::description_signals(),
+			'profile'                 => self::profile_signals( $profile ),
+			'llms_txt'                => $llms_txt,
+			'md_cache'                => self::md_cache_signals( Context_Profile_Settings::get_md_cleanup_threshold() ),
+			'schema'                  => self::schema_signals(),
+			'ai_client'               => self::ai_client_signals(),
+			'descriptions'            => self::description_signals(),
+			'multi_channel_discovery' => self::multi_channel_signals( (bool) ( $llms_txt['cache_populated'] ?? false ) ),
 		);
 	}
 
@@ -238,6 +241,55 @@ final class Signal_Collector {
 		return array(
 			'total_entries'            => $total,
 			'entries_with_description' => $with_description,
+		);
+	}
+
+	/**
+	 * Multi-channel discovery signals for #22 / AgDR-0043.
+	 *
+	 * Probes a small fixed set of well-known discovery surfaces from the
+	 * WordPress install root. Filesystem probes (not HTTP) — fast,
+	 * deterministic, and zero round-trip cost even on cron-less wp-env.
+	 *
+	 * Limitations (documented in AgDR-0043):
+	 *   - Subdirectory-WordPress installs where the document root differs
+	 *     from `ABSPATH` will miss `ai.txt` and `/.well-known/*` files
+	 *     served from the public site root. v0.1.2 candidate.
+	 *   - The OpenAPI probe credits a static spec only; the always-present
+	 *     `/wp-json/` REST root is intentionally NOT credited because it
+	 *     would zero out the signal across every WP site.
+	 *
+	 * @param bool $llms_txt_cache_populated Re-uses the value from
+	 *                                       `llms_txt_signals()` so a single
+	 *                                       option read drives both sub-scores.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function multi_channel_signals( bool $llms_txt_cache_populated ): array {
+		$root = \ABSPATH;
+
+		$ai_txt          = \file_exists( $root . 'ai.txt' );
+		$wk_ai_layer     = \file_exists( $root . '.well-known/ai-layer' );
+		$wk_llms_policy  = \file_exists( $root . '.well-known/llms-policy.json' );
+		$openapi         = \file_exists( $root . 'openapi.json' )
+			|| \file_exists( $root . 'openapi.yaml' )
+			|| \file_exists( $root . 'swagger.json' );
+		$active_provider = Multi_Channel_Provider_Detector::detect_active();
+
+		// Sibling provider counts as a `.well-known/ai-layer` presence even
+		// when the file isn't on disk (the plugin serves it dynamically via
+		// rewrite rules).
+		if ( null !== $active_provider ) {
+			$wk_ai_layer = true;
+		}
+
+		return array(
+			'llms_txt_present'       => $llms_txt_cache_populated,
+			'ai_txt_present'         => $ai_txt,
+			'well_known_ai_layer'    => $wk_ai_layer,
+			'well_known_llms_policy' => $wk_llms_policy,
+			'openapi_spec_present'   => $openapi,
+			'active_provider'        => $active_provider,
 		);
 	}
 }

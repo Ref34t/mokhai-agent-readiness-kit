@@ -95,7 +95,7 @@ final class Context_Score_Page {
 			<p class="description">
 				<?php
 				\esc_html_e(
-					'A site-level audit of how prepared this WordPress install is for AI agent traffic. The overall score is a weighted sum of six sub-scores covering discoverability, content readability, schema coverage, exposure safety, integration health, and Markdown conversion quality.',
+					'A site-level audit of how prepared this WordPress install is for AI agent traffic. The overall score is a weighted sum of seven sub-scores covering discoverability, content readability, schema coverage, exposure safety, integration health, Markdown conversion quality, and multi-channel discovery.',
 					'ai-readiness-kit'
 				);
 				?>

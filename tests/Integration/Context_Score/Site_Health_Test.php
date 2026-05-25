@@ -184,12 +184,13 @@ final class Site_Health_Test extends WP_UnitTestCase {
 	 */
 	private function seed_cache( int $overall, array $sub_values ): void {
 		$weights    = array(
-			'discoverability'       => 20,
-			'content_readability'   => 15,
-			'schema_coverage'       => 10,
-			'exposure_safety'       => 15,
-			'integration_health'    => 15,
-			'md_conversion_quality' => 25,
+			'discoverability'         => 10,
+			'content_readability'     => 15,
+			'schema_coverage'         => 10,
+			'exposure_safety'         => 15,
+			'integration_health'      => 15,
+			'md_conversion_quality'   => 25,
+			'multi_channel_discovery' => 10,
 		);
 		$sub_scores = array();
 		foreach ( $sub_values as $name => $value ) {

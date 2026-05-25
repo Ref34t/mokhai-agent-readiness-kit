@@ -3,7 +3,7 @@
  * Pure scoring engine for the Context Score (#9 / AgDR-0030).
  *
  * Takes a `$signals` array gathered by `Signal_Collector` and returns a
- * structured `Breakdown` array: overall 0–100 plus six sub-scores, each
+ * structured `Breakdown` array: overall 0–100 plus a per-sub-score map, each
  * carrying its raw value, weight, raw signal counts, and a list of
  * human-readable reason strings. No WordPress calls. Pure PHP so the unit
  * tests run against fixtures without WP_UnitTestCase.
@@ -44,22 +44,28 @@ final class Engine {
 	 *
 	 * @var int
 	 */
-	public const BREAKDOWN_SCHEMA_VERSION = 1;
+	public const BREAKDOWN_SCHEMA_VERSION = 2;
 
 	/**
 	 * Per-sub-score weights. Sum MUST equal 100 — asserted in self-tests so a
 	 * future contributor adjusting weights without re-totalling gets a
 	 * deterministic failure.
 	 *
+	 * v2 of the breakdown (#22 / AgDR-0043) splits the original
+	 * `discoverability` (20) into the existing /llms.txt-focused
+	 * `discoverability` (10) and the new sibling `multi_channel_discovery`
+	 * (10). All other weights are unchanged.
+	 *
 	 * @var array<string, int>
 	 */
 	public const WEIGHTS = array(
-		'discoverability'       => 20,
-		'content_readability'   => 15,
-		'schema_coverage'       => 10,
-		'exposure_safety'       => 15,
-		'integration_health'    => 15,
-		'md_conversion_quality' => 25,
+		'discoverability'         => 10,
+		'content_readability'     => 15,
+		'schema_coverage'         => 10,
+		'exposure_safety'         => 15,
+		'integration_health'      => 15,
+		'md_conversion_quality'   => 25,
+		'multi_channel_discovery' => 10,
 	);
 
 	/**
@@ -75,12 +81,13 @@ final class Engine {
 	 */
 	public static function compute( array $signals ): array {
 		$sub_scores = array(
-			'discoverability'       => self::score_discoverability( $signals ),
-			'content_readability'   => self::score_content_readability( $signals ),
-			'schema_coverage'       => self::score_schema_coverage( $signals ),
-			'exposure_safety'       => self::score_exposure_safety( $signals ),
-			'integration_health'    => self::score_integration_health( $signals ),
-			'md_conversion_quality' => self::score_md_conversion_quality( $signals ),
+			'discoverability'         => self::score_discoverability( $signals ),
+			'content_readability'     => self::score_content_readability( $signals ),
+			'schema_coverage'         => self::score_schema_coverage( $signals ),
+			'exposure_safety'         => self::score_exposure_safety( $signals ),
+			'integration_health'      => self::score_integration_health( $signals ),
+			'md_conversion_quality'   => self::score_md_conversion_quality( $signals ),
+			'multi_channel_discovery' => self::score_multi_channel_discovery( $signals ),
 		);
 
 		$weighted_sum = 0;
@@ -465,6 +472,90 @@ final class Engine {
 				'rows_above_threshold' => $above,
 				'above_threshold_pct'  => $above_pct,
 				'cleanup_threshold'    => $thresh,
+			),
+			'reasons' => $reasons,
+		);
+	}
+
+	/**
+	 * Multi-channel discovery — how many agent-discovery surfaces does the
+	 * site publish, across AI Readiness Kit's own channels and complementary
+	 * sibling plugins (#22 / AgDR-0043)?
+	 *
+	 * Five surfaces, each worth 20 points (sum 100):
+	 *   - `/llms.txt` cache populated         (re-credits the existing signal)
+	 *   - `ai.txt` at the WordPress install root
+	 *   - `/.well-known/ai-layer` (file probe OR registered sibling provider)
+	 *   - `/.well-known/llms-policy.json`
+	 *   - OpenAPI / Swagger spec at `ABSPATH/{openapi.json,openapi.yaml,swagger.json}`
+	 *
+	 * When a registered sibling provider (e.g. AI Layer) is detected, an
+	 * extra reason string names the plugin and points at its admin page so
+	 * the narrative can render a one-click "Configure at X" affordance. The
+	 * /llms.txt re-credit is intentional — the AC lists it as one of the
+	 * five surfaces; double-credit with `discoverability` is the cost of
+	 * giving sites a coherent "how many channels" reading.
+	 *
+	 * Conflict warnings for competing /llms.txt plugins stay in
+	 * `discoverability` (rewrite_conflicted signal) — this sub-score only
+	 * emits positive credit reasons, so the AC's "no double-warning"
+	 * requirement is satisfied by construction.
+	 *
+	 * @param array<string, mixed> $signals
+	 *
+	 * @return array{value: int, weight: int, signals: array<string, mixed>, reasons: array<int, string>}
+	 */
+	private static function score_multi_channel_discovery( array $signals ): array {
+		$bundle = self::array_at( $signals, 'multi_channel_discovery' );
+
+		$llms_txt        = (bool) ( $bundle['llms_txt_present'] ?? false );
+		$ai_txt          = (bool) ( $bundle['ai_txt_present'] ?? false );
+		$wk_ai_layer     = (bool) ( $bundle['well_known_ai_layer'] ?? false );
+		$wk_llms_policy  = (bool) ( $bundle['well_known_llms_policy'] ?? false );
+		$openapi         = (bool) ( $bundle['openapi_spec_present'] ?? false );
+		$active_provider = ( isset( $bundle['active_provider'] ) && is_array( $bundle['active_provider'] ) )
+			? $bundle['active_provider']
+			: null;
+
+		$surfaces_present = (int) $llms_txt + (int) $ai_txt + (int) $wk_ai_layer
+			+ (int) $wk_llms_policy + (int) $openapi;
+		$score            = $surfaces_present * 20;
+		$reasons          = array();
+
+		if ( $surfaces_present <= 0 ) {
+			$reasons[] = 'No agent-discovery channels detected — site is invisible to agents that scan for ai.txt, /.well-known/, or OpenAPI.';
+		} else {
+			$reasons[] = sprintf(
+				'%d of 5 agent-discovery channel(s) detected.',
+				$surfaces_present
+			);
+		}
+
+		if ( null !== $active_provider && $wk_ai_layer ) {
+			$name       = isset( $active_provider['name'] ) ? (string) $active_provider['name'] : 'Sibling provider';
+			$config_url = isset( $active_provider['config_url'] ) ? (string) $active_provider['config_url'] : '';
+			$reasons[]  = '' !== $config_url
+				? sprintf( '%s detected — coordinating multi-channel discovery. Configure at %s', $name, $config_url )
+				: sprintf( '%s detected — coordinating multi-channel discovery.', $name );
+		}
+
+		return array(
+			'value'   => self::clamp( $score ),
+			'weight'  => self::WEIGHTS['multi_channel_discovery'],
+			'signals' => array(
+				'llms_txt_present'       => $llms_txt,
+				'ai_txt_present'         => $ai_txt,
+				'well_known_ai_layer'    => $wk_ai_layer,
+				'well_known_llms_policy' => $wk_llms_policy,
+				'openapi_spec_present'   => $openapi,
+				'surfaces_present_count' => $surfaces_present,
+				'active_provider'        => null !== $active_provider
+					? array(
+						'slug'       => (string) ( $active_provider['slug'] ?? '' ),
+						'name'       => (string) ( $active_provider['name'] ?? '' ),
+						'config_url' => (string) ( $active_provider['config_url'] ?? '' ),
+					)
+					: null,
 			),
 			'reasons' => $reasons,
 		);
