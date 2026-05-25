@@ -67,10 +67,14 @@ final class Service {
 	 *   1 — initial shape from #9 / AgDR-0030 (overall + sub_scores).
 	 *   2 — adds the LLM narrative slot from #11 / AgDR-0032. Old payloads
 	 *       read as null and trigger a fresh recompute on first access.
+	 *   3 — adds the `multi_channel_discovery` sub-score from #22 /
+	 *       AgDR-0043. Old payloads (v2 shape, 6 sub-scores) read as null
+	 *       and trigger a fresh recompute so the new sub-score is populated
+	 *       on first access after upgrade.
 	 *
 	 * @var int
 	 */
-	public const CACHE_SCHEMA_VERSION = 2;
+	public const CACHE_SCHEMA_VERSION = 3;
 
 	/**
 	 * Wire the WordPress hooks owned by this service.

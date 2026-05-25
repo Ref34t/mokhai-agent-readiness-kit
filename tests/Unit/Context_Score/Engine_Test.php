@@ -26,13 +26,21 @@ final class Engine_Test extends TestCase {
 		$this->assertSame( 100, $total, 'Sub-score weights must total 100 for the overall formula to map to a 0..100 range.' );
 	}
 
-	public function test_breakdown_includes_all_six_sub_scores(): void {
+	public function test_breakdown_includes_all_sub_scores(): void {
 		$out = Engine::compute( array() );
 
 		$this->assertArrayHasKey( 'sub_scores', $out );
 		foreach ( array_keys( Engine::WEIGHTS ) as $name ) {
 			$this->assertArrayHasKey( $name, $out['sub_scores'], "missing sub-score: {$name}" );
 		}
+	}
+
+	public function test_breakdown_schema_version_is_v2(): void {
+		// AgDR-0043 bumped the breakdown schema from 1 → 2 when the
+		// multi_channel_discovery sub-score was added. The explicit assertion
+		// guards against accidental rollback of the bump (which would let
+		// stale 6-sub-score caches read as fresh after upgrade).
+		$this->assertSame( 2, Engine::BREAKDOWN_SCHEMA_VERSION );
 	}
 
 	public function test_breakdown_schema_version_matches_constant(): void {
@@ -89,10 +97,13 @@ final class Engine_Test extends TestCase {
 		$out = Engine::compute( $signals );
 
 		// Sub-scores: discoverability=100, content_readability=50, schema=100,
-		// exposure=100, integration=100, md_quality=80.
-		// Overall = floor( (100*20 + 50*15 + 100*10 + 100*15 + 100*15 + 80*25) / 100 )
-		//         = floor( (2000 + 750 + 1000 + 1500 + 1500 + 2000) / 100 )
+		// exposure=100, integration=100, md_quality=80, multi_channel=100.
+		// Overall = floor( (100*10 + 50*15 + 100*10 + 100*15 + 100*15 + 80*25 + 100*10) / 100 )
+		//         = floor( (1000 + 750 + 1000 + 1500 + 1500 + 2000 + 1000) / 100 )
 		//         = floor( 8750 / 100 ) = 87.
+		// The total coincidentally matches the pre-AgDR-0043 expectation because
+		// the 10 weight points moved from discoverability into
+		// multi_channel_discovery contribute identically when both score 100.
 		$this->assertSame( 87, $out['overall'] );
 	}
 
@@ -382,6 +393,117 @@ final class Engine_Test extends TestCase {
 		$this->assertSame( 100, $sub['value'] );
 	}
 
+	public function test_multi_channel_discovery_yields_100_when_all_surfaces_present(): void {
+		$signals = array(
+			'multi_channel_discovery' => array(
+				'llms_txt_present'       => true,
+				'ai_txt_present'         => true,
+				'well_known_ai_layer'    => true,
+				'well_known_llms_policy' => true,
+				'openapi_spec_present'   => true,
+				'active_provider'        => null,
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
+
+		$this->assertSame( 100, $sub['value'] );
+		$this->assertSame( 5, $sub['signals']['surfaces_present_count'] );
+	}
+
+	public function test_multi_channel_discovery_yields_0_when_no_surfaces(): void {
+		$signals = array(
+			'multi_channel_discovery' => array(
+				'llms_txt_present'       => false,
+				'ai_txt_present'         => false,
+				'well_known_ai_layer'    => false,
+				'well_known_llms_policy' => false,
+				'openapi_spec_present'   => false,
+				'active_provider'        => null,
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
+
+		$this->assertSame( 0, $sub['value'] );
+		$this->assertNotEmpty( $sub['reasons'] );
+		$this->assertStringContainsString( 'No agent-discovery channels detected', $sub['reasons'][0] );
+	}
+
+	public function test_multi_channel_discovery_credits_20_per_surface(): void {
+		// Three of five surfaces present → 3 × 20 = 60 internal.
+		$signals = array(
+			'multi_channel_discovery' => array(
+				'llms_txt_present'       => true,
+				'ai_txt_present'         => true,
+				'well_known_ai_layer'    => false,
+				'well_known_llms_policy' => false,
+				'openapi_spec_present'   => true,
+				'active_provider'        => null,
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
+
+		$this->assertSame( 60, $sub['value'] );
+		$this->assertSame( 3, $sub['signals']['surfaces_present_count'] );
+	}
+
+	public function test_multi_channel_discovery_emits_provider_config_link_when_sibling_active(): void {
+		$signals = array(
+			'multi_channel_discovery' => array(
+				'llms_txt_present'       => true,
+				'ai_txt_present'         => false,
+				'well_known_ai_layer'    => true,
+				'well_known_llms_policy' => false,
+				'openapi_spec_present'   => false,
+				'active_provider'        => array(
+					'slug'       => 'ai_layer',
+					'name'       => 'AI Layer',
+					'config_url' => 'https://example.test/wp-admin/admin.php?page=ai-layer',
+				),
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
+
+		$this->assertSame( 40, $sub['value'] );
+		// Reasons[0] is the per-channel count, reasons[1] is the provider line.
+		$this->assertCount( 2, $sub['reasons'] );
+		$this->assertStringContainsString( 'AI Layer', $sub['reasons'][1] );
+		$this->assertStringContainsString( 'Configure at https://example.test/wp-admin/admin.php?page=ai-layer', $sub['reasons'][1] );
+	}
+
+	public function test_multi_channel_discovery_omits_provider_line_when_inactive(): void {
+		// well_known_ai_layer can be true via filesystem probe even when no
+		// registered sibling provider is class-present. In that case the
+		// score still rises but the "Configure at X" line is skipped.
+		$signals = array(
+			'multi_channel_discovery' => array(
+				'llms_txt_present'       => false,
+				'ai_txt_present'         => false,
+				'well_known_ai_layer'    => true,
+				'well_known_llms_policy' => false,
+				'openapi_spec_present'   => false,
+				'active_provider'        => null,
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
+
+		$this->assertSame( 20, $sub['value'] );
+		$this->assertCount( 1, $sub['reasons'] );
+	}
+
+	public function test_multi_channel_discovery_zero_when_signal_bundle_missing(): void {
+		// Engine must default-safe to 0 when the multi_channel_discovery bundle
+		// is absent (e.g. an older Signal_Collector version sends the v1 shape).
+		$sub = Engine::compute( array() )['sub_scores']['multi_channel_discovery'];
+
+		$this->assertSame( 0, $sub['value'] );
+		$this->assertSame( Engine::WEIGHTS['multi_channel_discovery'], $sub['weight'] );
+	}
+
 	/**
 	 * A signals bundle that every sub-score scores 100 on.
 	 *
@@ -392,31 +514,43 @@ final class Engine_Test extends TestCase {
 	 */
 	private static function perfect_signals(): array {
 		return array(
-			'profile'      => array(
+			'profile'                 => array(
 				'exposed_cpts'                     => array( 'post', 'page' ),
 				'exposed_statuses'                 => array( 'publish' ),
 				'llm_cleanup_enabled'              => true,
 				'llm_descriptions_enabled'         => true,
 				'markdown_views_cleanup_threshold' => 70,
 			),
-			'llms_txt'     => array(
+			'llms_txt'                => array(
 				'cache_populated' => true,
 				'entry_count'     => 42,
 				'body_bytes'      => 4096,
 				'conflicts'       => array(),
 			),
-			'md_cache'     => array(
+			'md_cache'                => array(
 				'rows_total'           => 10,
 				'rows_with_score'      => 10,
 				'mean_quality'         => 100.0,
 				'rows_above_threshold' => 10,
 				'cleanup_threshold'    => 70,
 			),
-			'schema'       => array( 'seo_plugin' => 'yoast' ),
-			'ai_client'    => array( 'configured' => true ),
-			'descriptions' => array(
+			'schema'                  => array( 'seo_plugin' => 'yoast' ),
+			'ai_client'               => array( 'configured' => true ),
+			'descriptions'            => array(
 				'total_entries'            => 10,
 				'entries_with_description' => 10,
+			),
+			'multi_channel_discovery' => array(
+				'llms_txt_present'       => true,
+				'ai_txt_present'         => true,
+				'well_known_ai_layer'    => true,
+				'well_known_llms_policy' => true,
+				'openapi_spec_present'   => true,
+				'active_provider'        => array(
+					'slug'       => 'ai_layer',
+					'name'       => 'AI Layer',
+					'config_url' => 'https://example.test/wp-admin/admin.php?page=ai-layer',
+				),
 			),
 		);
 	}

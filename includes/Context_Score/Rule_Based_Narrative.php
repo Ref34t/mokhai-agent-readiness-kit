@@ -106,6 +106,8 @@ final class Rule_Based_Narrative {
 				return self::truncate_pair( self::for_integration_health( $value, $signals ) );
 			case 'md_conversion_quality':
 				return self::truncate_pair( self::for_md_conversion_quality( $value, $signals ) );
+			case 'multi_channel_discovery':
+				return self::truncate_pair( self::for_multi_channel_discovery( $value, $signals ) );
 			default:
 				return self::truncate_pair( self::for_unknown( $name, $value ) );
 		}
@@ -355,6 +357,61 @@ final class Rule_Based_Narrative {
 				$above_pct
 			),
 			'fix' => \__( 'Approve LLM cleanup runs on the posts flagged below the threshold in Markdown Views.', 'ai-readiness-kit' ),
+		);
+	}
+
+	/**
+	 * @param array<string, mixed> $signals
+	 * @return array{why: string, fix: string}
+	 */
+	private static function for_multi_channel_discovery( int $value, array $signals ): array {
+		$present_count   = (int) ( $signals['surfaces_present_count'] ?? 0 );
+		$active_provider = ( isset( $signals['active_provider'] ) && \is_array( $signals['active_provider'] ) )
+			? $signals['active_provider']
+			: null;
+		$provider_name   = ( null !== $active_provider && isset( $active_provider['name'] ) )
+			? (string) $active_provider['name']
+			: '';
+
+		if ( $value >= 100 ) {
+			return array(
+				'why' => '' !== $provider_name
+					? \sprintf(
+						/* translators: %s: detected sibling provider name (e.g. "AI Layer"). */
+						\__( 'Working well — every agent-discovery channel is published and %s is coordinating multi-channel coverage.', 'ai-readiness-kit' ),
+						$provider_name
+					)
+					: \__( 'Working well — every agent-discovery channel is published.', 'ai-readiness-kit' ),
+				'fix' => \__( 'Re-audit after adding or removing sibling AI-readiness plugins to keep coverage consistent.', 'ai-readiness-kit' ),
+			);
+		}
+
+		if ( $value <= 0 ) {
+			return array(
+				'why' => \__( 'No agent-discovery channels detected — agents that scan ai.txt, /.well-known/, or OpenAPI will miss this site.', 'ai-readiness-kit' ),
+				'fix' => \__( 'Open the Context Profile and save it to seed /llms.txt as a first discovery channel.', 'ai-readiness-kit' ),
+			);
+		}
+
+		if ( '' !== $provider_name ) {
+			return array(
+				'why' => \sprintf(
+					/* translators: 1: count of channels detected (0-5). 2: sibling provider name. */
+					\__( 'Partial — %1$d of 5 agent-discovery channels detected; %2$s is contributing to coverage.', 'ai-readiness-kit' ),
+					$present_count,
+					$provider_name
+				),
+				'fix' => \__( 'Add the missing channels (ai.txt at site root, OpenAPI spec, /.well-known/llms-policy.json) to broaden discoverability.', 'ai-readiness-kit' ),
+			);
+		}
+
+		return array(
+			'why' => \sprintf(
+				/* translators: %d: count of channels detected (0-5). */
+				\__( 'Partial — %d of 5 agent-discovery channels detected.', 'ai-readiness-kit' ),
+				$present_count
+			),
+			'fix' => \__( 'Add ai.txt at the site root, publish an OpenAPI spec, or install a sibling AI-readiness plugin to broaden discovery.', 'ai-readiness-kit' ),
 		);
 	}
 

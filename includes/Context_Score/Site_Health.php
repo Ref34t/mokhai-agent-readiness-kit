@@ -313,6 +313,8 @@ final class Site_Health {
 				return \__( 'integration health', 'ai-readiness-kit' );
 			case 'md_conversion_quality':
 				return \__( 'Markdown conversion quality', 'ai-readiness-kit' );
+			case 'multi_channel_discovery':
+				return \__( 'multi-channel discovery', 'ai-readiness-kit' );
 			default:
 				return \str_replace( '_', ' ', $name );
 		}
