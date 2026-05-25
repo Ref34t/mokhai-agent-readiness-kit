@@ -3,7 +3,7 @@
  * Pure scoring engine for the Context Score (#9 / AgDR-0030).
  *
  * Takes a `$signals` array gathered by `Signal_Collector` and returns a
- * structured `Breakdown` array: overall 0–100 plus six sub-scores, each
+ * structured `Breakdown` array: overall 0–100 plus a per-sub-score map, each
  * carrying its raw value, weight, raw signal counts, and a list of
  * human-readable reason strings. No WordPress calls. Pure PHP so the unit
  * tests run against fixtures without WP_UnitTestCase.

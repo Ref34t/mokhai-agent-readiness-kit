@@ -228,16 +228,16 @@ final class Rule_Based_Narrative_Test extends TestCase {
 	}
 
 	/**
-	 * @return array<string, mixed> A breakdown with all six sub-scores at
+	 * @return array<string, mixed> A breakdown with all sub-scores at
 	 *                              representative values.
 	 */
 	private static function sample_breakdown(): array {
 		return array(
 			'overall'    => 60,
 			'sub_scores' => array(
-				'discoverability'       => array(
+				'discoverability'         => array(
 					'value'   => 75,
-					'weight'  => 20,
+					'weight'  => 10,
 					'signals' => array(
 						'llms_txt_cache_populated' => true,
 						'exposed_cpts_count'       => 1,
@@ -278,7 +278,7 @@ final class Rule_Based_Narrative_Test extends TestCase {
 						'conflict_count'           => 0,
 					),
 				),
-				'md_conversion_quality' => array(
+				'md_conversion_quality'   => array(
 					'value'   => 60,
 					'weight'  => 25,
 					'signals' => array(
@@ -288,6 +288,19 @@ final class Rule_Based_Narrative_Test extends TestCase {
 						'rows_above_threshold' => 2,
 						'above_threshold_pct'  => 50,
 						'cleanup_threshold'    => 70,
+					),
+				),
+				'multi_channel_discovery' => array(
+					'value'   => 40,
+					'weight'  => 10,
+					'signals' => array(
+						'llms_txt_present'       => true,
+						'ai_txt_present'         => true,
+						'well_known_ai_layer'    => false,
+						'well_known_llms_policy' => false,
+						'openapi_spec_present'   => false,
+						'surfaces_present_count' => 2,
+						'active_provider'        => null,
 					),
 				),
 			),

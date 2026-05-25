@@ -2,7 +2,7 @@
 /**
  * Context Score narrative orchestrator (#11 / AgDR-0032).
  *
- * One call, six sub-score pairs. Builds the prompt from the breakdown,
+ * One call, one pair per sub-score. Builds the prompt from the breakdown,
  * dispatches via Client_Wrapper, parses the JSON, runs the per-line
  * Narrative_Guard, and falls back to Rule_Based_Narrative on any
  * failure — line-by-line on guard failure (mixed mode), wholesale on
@@ -92,12 +92,13 @@ Rules:
 
 Schema:
 {
-  "discoverability":       {"why": "...", "fix": "..."},
-  "content_readability":   {"why": "...", "fix": "..."},
-  "schema_coverage":       {"why": "...", "fix": "..."},
-  "exposure_safety":       {"why": "...", "fix": "..."},
-  "integration_health":    {"why": "...", "fix": "..."},
-  "md_conversion_quality": {"why": "...", "fix": "..."}
+  "discoverability":         {"why": "...", "fix": "..."},
+  "content_readability":     {"why": "...", "fix": "..."},
+  "schema_coverage":         {"why": "...", "fix": "..."},
+  "exposure_safety":         {"why": "...", "fix": "..."},
+  "integration_health":      {"why": "...", "fix": "..."},
+  "md_conversion_quality":   {"why": "...", "fix": "..."},
+  "multi_channel_discovery": {"why": "...", "fix": "..."}
 }
 PROMPT;
 
@@ -122,8 +123,8 @@ PROMPT;
 		$start_us = (int) ( \microtime( true ) * 1_000_000 );
 
 		// `temperature` deliberately omitted — reasoning-class models reject
-		// it with a 400 (AgDR-0028). `max_tokens` 800 covers 6 × ~70-token
-		// fields with reasoning headroom.
+		// it with a 400 (AgDR-0028). `max_tokens` 800 covers 7 × ~70-token
+		// fields (≈490 tokens content) with reasoning headroom.
 		$result = Client_Wrapper::generate(
 			$prompt,
 			array(

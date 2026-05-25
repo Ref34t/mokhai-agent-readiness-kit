@@ -32,7 +32,7 @@ namespace WPContext\Context_Score;
  *   - compose( array $breakdown ): array{
  *         <name>: array{ why: string, fix: string }
  *     }
- *     Builds all six pairs.
+ *     Builds one pair per sub-score in the breakdown.
  *
  *   - compose_one( string $name, array $sub ): array{ why: string, fix: string }
  *     Builds a single pair — used by Narrative_Generator when an LLM line
