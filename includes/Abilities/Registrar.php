@@ -71,6 +71,10 @@ final class Registrar {
 	 * properties allowed): `WP_Ability::execute()` validates the return value
 	 * against `output_schema`, and the underlying service payloads are richly
 	 * nested. Input schemas are strict where it helps agents call correctly.
+	 *
+	 * Each ability also carries `meta.mcp.public = true` (#131 / AgDR-0045):
+	 * the optional WordPress/mcp-adapter exposes it on its default MCP server.
+	 * The flag is inert metadata when the adapter is absent.
 	 */
 	public static function register_abilities(): void {
 		$manage_options = array( Permissions::class, 'require_manage_options' );
@@ -103,7 +107,10 @@ final class Registrar {
 				),
 				'execute_callback'    => array( Audit_Ability::class, 'run' ),
 				'permission_callback' => $manage_options,
-				'meta'                => array( 'show_in_rest' => true ),
+				'meta'                => array(
+					'show_in_rest' => true,
+					'mcp'          => array( 'public' => true ),
+				),
 			)
 		);
 
@@ -120,6 +127,7 @@ final class Registrar {
 				'meta'                => array(
 					'show_in_rest' => true,
 					'readonly'     => true,
+					'mcp'          => array( 'public' => true ),
 				),
 			)
 		);
@@ -154,7 +162,10 @@ final class Registrar {
 				'output_schema'       => array( 'type' => 'object' ),
 				'execute_callback'    => array( Profile_Ability::class, 'set_exposure' ),
 				'permission_callback' => $manage_options,
-				'meta'                => array( 'show_in_rest' => true ),
+				'meta'                => array(
+					'show_in_rest' => true,
+					'mcp'          => array( 'public' => true ),
+				),
 			)
 		);
 
@@ -177,7 +188,10 @@ final class Registrar {
 				),
 				'execute_callback'    => array( Llms_Txt_Ability::class, 'regenerate' ),
 				'permission_callback' => $manage_options,
-				'meta'                => array( 'show_in_rest' => true ),
+				'meta'                => array(
+					'show_in_rest' => true,
+					'mcp'          => array( 'public' => true ),
+				),
 			)
 		);
 
@@ -223,6 +237,7 @@ final class Registrar {
 				'meta'                => array(
 					'show_in_rest' => true,
 					'readonly'     => true,
+					'mcp'          => array( 'public' => true ),
 				),
 			)
 		);
