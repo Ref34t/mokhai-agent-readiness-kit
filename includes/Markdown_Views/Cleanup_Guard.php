@@ -132,18 +132,40 @@ final class Cleanup_Guard {
 	/**
 	 * Build the content-word allowlist from a source HTML string.
 	 *
-	 * Pipeline: strip tags → lowercase → NFC-normalise → strip
-	 * punctuation → tokenize on whitespace → drop stopwords → light
-	 * stem. The result is the set of "known" content-word stems for
-	 * the source.
+	 * Pipeline: flatten HTML to text (tag boundaries → whitespace) →
+	 * lowercase → NFC-normalise → strip punctuation → tokenize on
+	 * whitespace → drop stopwords → light stem. The result is the set of
+	 * "known" content-word stems for the source.
 	 *
 	 * @return array<string, true> Allowlist keyed by stemmed token (faster lookup).
 	 */
 	public static function build_allowlist( string $source_html ): array {
-		$text = \wp_strip_all_tags( $source_html );
+		$text = self::html_to_text( $source_html );
 		$text = self::normalise( $text );
 
 		return self::tokenize_to_set( $text );
+	}
+
+	/**
+	 * Flatten HTML to plain text WITHOUT mashing adjacent block content.
+	 *
+	 * `wp_strip_all_tags()` deletes tags in place, so block-level text that
+	 * was separated only by markup collapses into one token —
+	 * `…heading</h2><p>Body…` becomes `headingBody`. That corrupts the
+	 * allowlist: the real source words `heading` and `body` never enter the
+	 * set, so the guard later drops legitimate output sentences containing
+	 * them (issue #135). Replacing every tag with a space first preserves the
+	 * word boundary, then `wp_strip_all_tags()` mops up the remainder.
+	 *
+	 * This only ever ADDS correctly-separated real source words to the
+	 * allowlist — it never introduces a word that wasn't in the source — so
+	 * the no-hallucination guarantee (AgDR-0018) is preserved: we fix a
+	 * false-negative, not the safety direction.
+	 */
+	public static function html_to_text( string $html ): string {
+		$spaced = (string) \preg_replace( '/<[^>]+>/', ' ', $html );
+
+		return \wp_strip_all_tags( $spaced );
 	}
 
 	/**

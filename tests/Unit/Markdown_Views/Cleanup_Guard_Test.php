@@ -223,4 +223,66 @@ final class Cleanup_Guard_Test extends TestCase {
 
 		self::assertSame( 1, $result->get_stats()['sentences_kept'] );
 	}
+
+	// ------------------------------------------------------------------
+	// #135 — tag boundaries must become whitespace, not mash adjacent
+	// block text into one token.
+	// ------------------------------------------------------------------
+
+	public function test_html_to_text_inserts_space_at_tag_boundaries(): void {
+		// Adjacent block elements with no whitespace between the tags.
+		$html = '<h2>A nested heading</h2><p>Body paragraph one.</p>';
+
+		$text = Cleanup_Guard::html_to_text( $html );
+
+		// The words must stay separated — NOT "headingBody".
+		self::assertStringContainsString( 'heading', $text );
+		self::assertStringContainsString( 'Body', $text );
+		self::assertStringNotContainsString( 'headingBody', $text );
+	}
+
+	public function test_allowlist_separates_adjacent_block_words(): void {
+		// Regression for #135: `heading</h2><p>Body` previously stemmed to a
+		// single `headingbody` token, so neither `head` nor `body` entered
+		// the allowlist.
+		$allowlist = Cleanup_Guard::build_allowlist(
+			'<h2>A nested heading</h2><p>Body paragraph.</p>'
+		);
+
+		self::assertArrayHasKey( 'head', $allowlist, 'heading should stem to "head"' );
+		self::assertArrayHasKey( 'body', $allowlist );
+		self::assertArrayNotHasKey( 'headingbody', $allowlist );
+	}
+
+	public function test_multi_block_source_does_not_drop_legitimate_heading_sentence(): void {
+		// The exact #135 shape: an h2 directly followed by a paragraph, no
+		// whitespace between the tags. The walker emits clean, separately-
+		// spaced markdown; the guard must keep it rather than drop the
+		// heading sentence as "not in source".
+		$source_html = '<div class="elementor"><h2>A nested heading</h2>'
+			. '<p>Body paragraph one with some bold.</p>'
+			. '<p>Body paragraph two with residue.</p></div>';
+
+		$allowlist  = Cleanup_Guard::build_allowlist( $source_html );
+		$llm_output = "## A nested heading\n\nBody paragraph one with some bold.\n\nBody paragraph two with residue.";
+
+		$result = Cleanup_Guard::check( $llm_output, $allowlist, array() );
+
+		self::assertSame( 0, $result->get_stats()['sentences_dropped'], 'no legitimate sentence should be dropped' );
+		self::assertStringContainsString( 'A nested heading', $result->get_filtered_markdown() );
+		self::assertStringContainsString( 'Body paragraph one', $result->get_filtered_markdown() );
+		self::assertStringContainsString( 'Body paragraph two', $result->get_filtered_markdown() );
+	}
+
+	public function test_fix_does_not_let_fabricated_word_through(): void {
+		// Safety direction preserved: separating block words must not make a
+		// genuinely-hallucinated word pass the allowlist.
+		$allowlist  = Cleanup_Guard::build_allowlist( '<h2>Pricing</h2><p>Our plans.</p>' );
+		$llm_output = 'Our enterprise plans include unicorns.';
+
+		$result = Cleanup_Guard::check( $llm_output, $allowlist, array() );
+
+		self::assertSame( 1, $result->get_stats()['sentences_dropped'] );
+		self::assertSame( '', $result->get_filtered_markdown() );
+	}
 }

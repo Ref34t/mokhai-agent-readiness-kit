@@ -321,7 +321,10 @@ PROMPT;
 		}
 
 		$cleaned_raw = (string) $result->content();
-		$source_text = \wp_strip_all_tags( $post->post_content );
+		// Flatten via the guard's boundary-preserving helper so adjacent
+		// block text isn't mashed into one token before entity extraction
+		// (issue #135 — same root cause as the allowlist fix).
+		$source_text = Cleanup_Guard::html_to_text( $post->post_content );
 
 		$allowlist       = Cleanup_Guard::build_allowlist( $post->post_content );
 		$source_entities = Cleanup_Guard::extract_named_entities( $source_text );
