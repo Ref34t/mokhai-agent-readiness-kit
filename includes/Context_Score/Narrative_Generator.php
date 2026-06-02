@@ -70,11 +70,14 @@ final class Narrative_Generator {
 	public const MAX_OUTPUT_CHARS = 140;
 
 	/**
-	 * System prompt — see AgDR-0032 § "Single-call prompt".
+	 * Static instruction block of the system prompt — see AgDR-0032 §
+	 * "Single-call prompt". The per-sub-score JSON schema is appended at
+	 * runtime by `system_prompt()` so the inventory tracks `Engine::WEIGHTS`
+	 * instead of being restated here (#126).
 	 *
 	 * @var string
 	 */
-	private const SYSTEM_PROMPT = <<<'PROMPT'
+	private const SYSTEM_PROMPT_PREAMBLE = <<<'PROMPT'
 You are a senior WordPress consultant. Explain an AI Readiness Kit Context Score
 audit to an agency owner.
 
@@ -91,16 +94,27 @@ Rules:
 - Output ONLY valid JSON, no preamble, no fences, no commentary.
 
 Schema:
-{
-  "discoverability":         {"why": "...", "fix": "..."},
-  "content_readability":     {"why": "...", "fix": "..."},
-  "schema_coverage":         {"why": "...", "fix": "..."},
-  "exposure_safety":         {"why": "...", "fix": "..."},
-  "integration_health":      {"why": "...", "fix": "..."},
-  "md_conversion_quality":   {"why": "...", "fix": "..."},
-  "multi_channel_discovery": {"why": "...", "fix": "..."}
-}
 PROMPT;
+
+	/**
+	 * Assemble the full system prompt: the static preamble plus a JSON
+	 * schema with one line per `Engine::WEIGHTS` entry.
+	 *
+	 * Built at runtime so adding an Nth sub-score needs zero edits here —
+	 * the schema gains its line automatically (#126). Public so tests and
+	 * WP-CLI debug surfaces can see exactly what the LLM is asked, matching
+	 * the `build_user_prompt` precedent.
+	 *
+	 * @return string The complete system prompt.
+	 */
+	public static function system_prompt(): string {
+		$lines = array();
+		foreach ( \array_keys( Engine::WEIGHTS ) as $name ) {
+			$lines[] = \sprintf( '  "%s": {"why": "...", "fix": "..."}', $name );
+		}
+
+		return self::SYSTEM_PROMPT_PREAMBLE . "\n{\n" . \implode( ",\n", $lines ) . "\n}";
+	}
 
 	/**
 	 * Compose the narrative for the given breakdown.
@@ -123,12 +137,12 @@ PROMPT;
 		$start_us = (int) ( \microtime( true ) * 1_000_000 );
 
 		// `temperature` deliberately omitted — reasoning-class models reject
-		// it with a 400 (AgDR-0028). `max_tokens` 800 covers 7 × ~70-token
-		// fields (≈490 tokens content) with reasoning headroom.
+		// it with a 400 (AgDR-0028). `max_tokens` 800 covers one ~70-token
+		// field per Engine::WEIGHTS sub-score with reasoning headroom.
 		$result = Client_Wrapper::generate(
 			$prompt,
 			array(
-				'system'     => self::SYSTEM_PROMPT,
+				'system'     => self::system_prompt(),
 				'max_tokens' => 800,
 			),
 			$provider

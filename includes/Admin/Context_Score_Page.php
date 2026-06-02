@@ -23,6 +23,7 @@ use WPContext\Ai_Preview\Rest_Controller as Ai_Preview_Rest_Controller;
 use WPContext\Context_Score\Engine;
 use WPContext\Context_Score\Rest_Controller;
 use WPContext\Context_Score\Service;
+use WPContext\Context_Score\Sub_Score_Names;
 use WPContext\Seo\Plugin_Coverage;
 use WPContext\Seo\Schema_Emitter;
 
@@ -81,6 +82,28 @@ final class Context_Score_Page {
 	 * at the CLI as the no-JS path, and a `role="region"` mount-point
 	 * with an aria-label for screen readers.
 	 */
+	/**
+	 * Build the page subtitle that enumerates the sub-score inventory.
+	 *
+	 * Driven by `Engine::WEIGHTS` so adding an Nth sub-score updates the
+	 * count and the covered-areas list with zero copy changes here (#126).
+	 * Public so the unit suite can assert the rendered list against
+	 * `Engine::WEIGHTS` without rendering the whole admin page.
+	 *
+	 * @return string Translatable subtitle (plain text; caller escapes).
+	 */
+	public static function subtitle(): string {
+		return \sprintf(
+			/* translators: 1: number of sub-scores. 2: comma-and-joined list of sub-score names. */
+			\__(
+				'A site-level audit of how prepared this WordPress install is for AI agent traffic. The overall score is a weighted sum of %1$d sub-scores covering %2$s.',
+				'ai-readiness-kit'
+			),
+			\count( Engine::WEIGHTS ),
+			Sub_Score_Names::joined_labels()
+		);
+	}
+
 	public static function render(): void {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die(
@@ -94,12 +117,7 @@ final class Context_Score_Page {
 		<div class="wrap" id="agentready-context-score-wrap">
 			<h1><?php \esc_html_e( 'Context Score', 'ai-readiness-kit' ); ?></h1>
 			<p class="description">
-				<?php
-				\esc_html_e(
-					'A site-level audit of how prepared this WordPress install is for AI agent traffic. The overall score is a weighted sum of seven sub-scores covering discoverability, content readability, schema coverage, exposure safety, integration health, Markdown conversion quality, and multi-channel discovery.',
-					'ai-readiness-kit'
-				);
-				?>
+				<?php echo \esc_html( self::subtitle() ); ?>
 			</p>
 
 			<div
