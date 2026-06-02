@@ -35,12 +35,12 @@ final class Engine_Test extends TestCase {
 		}
 	}
 
-	public function test_breakdown_schema_version_is_v2(): void {
-		// AgDR-0043 bumped the breakdown schema from 1 → 2 when the
-		// multi_channel_discovery sub-score was added. The explicit assertion
-		// guards against accidental rollback of the bump (which would let
-		// stale 6-sub-score caches read as fresh after upgrade).
-		$this->assertSame( 2, Engine::BREAKDOWN_SCHEMA_VERSION );
+	public function test_breakdown_schema_version_is_v3(): void {
+		// Version history: 1 → 2 (AgDR-0043, multi_channel_discovery sub-score),
+		// 2 → 3 (AgDR-0047, additive parallel reason_keys array). The explicit
+		// assertion guards against accidental rollback of a bump (which would
+		// let stale-shaped caches read as fresh after upgrade).
+		$this->assertSame( 3, Engine::BREAKDOWN_SCHEMA_VERSION );
 	}
 
 	public function test_breakdown_schema_version_matches_constant(): void {
