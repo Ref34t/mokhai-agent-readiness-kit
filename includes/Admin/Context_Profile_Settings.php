@@ -328,6 +328,34 @@ final class Context_Profile_Settings {
 	}
 
 	/**
+	 * REST write path for the full profile (#142 / AgDR-0048).
+	 *
+	 * The Settings API form posts to options.php; the SPA posts here via
+	 * `Context_Profile_Rest_Controller`. Mirrors `set_exposure()`'s
+	 * `sanitize_internal()` + `update_option()` shape, but accepts the WHOLE
+	 * profile (toggles, schema flag, exposure) rather than only the two
+	 * exposure keys. Routing through `sanitize_internal()` means a hostile REST
+	 * body can't persist an unknown key or an invalid CPT/status — identical to
+	 * the form path.
+	 *
+	 * Does NOT cap-check: the REST controller's `permission_callback`
+	 * (`manage_options`) gates the caller before this runs, matching
+	 * `set_exposure()`. The `update_option()` write fires
+	 * `update_option_<key>` / `add_option_<key>`, so the
+	 * `agentready_context_profile_saved` cascade (Context Score recompute,
+	 * /llms.txt regen) runs exactly as on an admin form save.
+	 *
+	 * @param array<int|string, mixed> $raw Raw profile payload from the SPA.
+	 *
+	 * @return array<string, mixed> The saved profile (post-whitelist + migrate).
+	 */
+	public static function save( array $raw ): array {
+		\update_option( self::OPTION_KEY, self::sanitize_internal( $raw ) );
+
+		return self::get_profile();
+	}
+
+	/**
 	 * Migrate a stored profile to the current schema version.
 	 *
 	 * Pure function: returns a new array, never writes back. The write-back

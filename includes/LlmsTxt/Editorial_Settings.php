@@ -139,6 +139,26 @@ final class Editorial_Settings {
 	}
 
 	/**
+	 * REST write path for the editorial entries (#142 / AgDR-0048).
+	 *
+	 * The Settings API form posts to options.php; the SPA posts here via
+	 * `Editorial_Rest_Controller`. Routes through the same `sanitize()` source
+	 * of truth, then `update_option()` — which fires `update_option_<key>` /
+	 * `add_option_<key>`, dispatching `agentready_llms_txt_editorial_saved`
+	 * exactly as the form save does (so /llms.txt regen cascades identically).
+	 *
+	 * Auth is the REST controller's `permission_callback` (`manage_options`).
+	 *
+	 * @param array<int|string, mixed> $raw Raw editorial payload from the SPA.
+	 *
+	 * @return array{schema_version: int, entries: array<int, array<string, mixed>>} The saved settings.
+	 */
+	public static function save( array $raw ): array {
+		\update_option( self::OPTION_KEY, self::sanitize( $raw ) );
+		return self::get_settings();
+	}
+
+	/**
 	 * Sanitise the submitted option payload. Single source of truth — every
 	 * write (Settings API, REST, WP-CLI, programmatic) routes through this.
 	 *
