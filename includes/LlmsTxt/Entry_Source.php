@@ -125,18 +125,10 @@ final class Entry_Source {
 			if ( ! $post instanceof \WP_Post ) {
 				continue;
 			}
-			if ( ! Context_Profile_Settings::is_url_exposable( $post ) ) {
+
+			$entry = self::entry_for_post( $post );
+			if ( null === $entry ) {
 				continue;
-			}
-
-			$entry = array(
-				'title' => self::resolve_title( $post ),
-				'url'   => self::resolve_url( $post ),
-			);
-
-			$description = self::resolve_description( $post );
-			if ( '' !== $description ) {
-				$entry['description'] = $description;
 			}
 
 			$entries[] = $entry;
@@ -145,6 +137,38 @@ final class Entry_Source {
 		\wp_reset_postdata();
 
 		return $entries;
+	}
+
+	/**
+	 * Project a single post into its `/llms.txt` entry, or null when the
+	 * post is not exposable (password / noindex / status / CPT gate).
+	 *
+	 * This is the single source of truth for how one URL is rendered in
+	 * `/llms.txt`: the same title / URL / description resolution the
+	 * auto-listing loop uses. The AI Assistant Preview pane (#45) calls
+	 * this directly so its "llms.txt entry" column matches the live file
+	 * byte-for-byte rather than re-deriving the shape.
+	 *
+	 * @param \WP_Post $post Post to project.
+	 *
+	 * @return array{title: string, url: string, description?: string}|null
+	 */
+	public static function entry_for_post( \WP_Post $post ): ?array {
+		if ( ! Context_Profile_Settings::is_url_exposable( $post ) ) {
+			return null;
+		}
+
+		$entry = array(
+			'title' => self::resolve_title( $post ),
+			'url'   => self::resolve_url( $post ),
+		);
+
+		$description = self::resolve_description( $post );
+		if ( '' !== $description ) {
+			$entry['description'] = $description;
+		}
+
+		return $entry;
 	}
 
 	/**
