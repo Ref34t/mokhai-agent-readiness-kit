@@ -70,6 +70,7 @@ final class Main {
 		// the admin-only asset enqueue. Front-end requests pay no cost —
 		// admin_init / admin_menu / admin_enqueue_scripts only fire in wp-admin.
 		\WPContext\Admin\Context_Profile_Settings::register_hooks();
+		\WPContext\Admin\Context_Profile_Rest_Controller::register_hooks();
 		\WPContext\Admin\Context_Profile_Page::register_hooks();
 
 		// Wire the Markdown Views cache schema upgrade-on-admin_init
@@ -157,6 +158,7 @@ final class Main {
 		// gated by manage_options (same as the rest of the Context
 		// Profile screen).
 		LlmsTxt\Descriptions_Rest_Controller::register_hooks();
+		LlmsTxt\Editorial_Rest_Controller::register_hooks();
 
 		// Wire the Context Score engine (#9 / AgDR-0030). Service owns the
 		// cache option, the daily cron backstop, and the debounced
