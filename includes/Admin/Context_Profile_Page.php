@@ -20,10 +20,10 @@ namespace WPContext\Admin;
  *
  * Owns three responsibilities:
  *   1. Register the menu entry under Tools.
- *   2. Render the page mount-point (`<div id="agentready-context-profile-root">`)
+ *   2. Render the single SPA mount-point (`<div id="agentready-context-app">`)
  *      plus a no-JS fallback notice.
- *   3. Enqueue the React bundle ONLY on the plugin's screen — never globally,
- *      per the WordPress admin-asset hygiene rule.
+ *   3. Enqueue the `context-app` React bundle ONLY on the plugin's screen —
+ *      never globally, per the WordPress admin-asset hygiene rule.
  */
 final class Context_Profile_Page {
 
@@ -64,12 +64,12 @@ final class Context_Profile_Page {
 	}
 
 	/**
-	 * Render the page mount-point.
+	 * Render the single SPA mount-point.
 	 *
-	 * The actual UI is React-driven from `build/admin/context-profile.js`.
-	 * This server-rendered shell carries a `<noscript>` fallback and the
-	 * settings-API nonce so the form remains functional without JS in the
-	 * worst case (graceful degrade).
+	 * The actual UI is React-driven from `build/admin/context-app.js` — one
+	 * app with a TabPanel (Profile / Editorial / Descriptions) that saves via
+	 * REST (#142 / AgDR-0048). This server-rendered shell carries only a
+	 * `<noscript>` fallback notice; the app requires JS.
 	 */
 	public static function render(): void {
 		if ( ! \current_user_can( 'manage_options' ) ) {
