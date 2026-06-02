@@ -19,6 +19,7 @@ namespace WPContext\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 
+use WPContext\Ai_Preview\Rest_Controller as Ai_Preview_Rest_Controller;
 use WPContext\Context_Score\Engine;
 use WPContext\Context_Score\Rest_Controller;
 use WPContext\Context_Score\Service;
@@ -119,6 +120,13 @@ final class Context_Score_Page {
 					</p>
 				</div>
 			</noscript>
+
+			<?php // AI Assistant Preview pane mount-point (#45 / AgDR-0046). ?>
+			<div
+				id="agentready-ai-preview-root"
+				role="region"
+				aria-label="<?php \esc_attr_e( 'AI Assistant Preview', 'ai-readiness-kit' ); ?>"
+			></div>
 		</div>
 		<?php
 	}
@@ -190,6 +198,74 @@ final class Context_Score_Page {
 				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
 			);
 		}
+
+		self::enqueue_ai_preview();
+	}
+
+	/**
+	 * Enqueue the AI Assistant Preview bundle on the same screen (#45 /
+	 * AgDR-0046). Kept separate from the Context Score bundle so the two
+	 * mount-points stay independent — webpack auto-discovers
+	 * `src/admin/ai-preview/index.js`. No-ops silently when the build
+	 * artefact is missing (the Context Score missing-build notice already
+	 * covers the "run npm run build" case for this screen).
+	 */
+	private static function enqueue_ai_preview(): void {
+		$asset_file = \WPCTX_DIR . 'build/admin/ai-preview.asset.php';
+		if ( ! \file_exists( $asset_file ) ) {
+			return;
+		}
+
+		$resolved_asset = self::asset_path( $asset_file );
+		$asset          = \is_readable( $resolved_asset )
+			? require $resolved_asset
+			: array(
+				'dependencies' => array(),
+				'version'      => \WPCTX_VERSION,
+			);
+
+		\wp_enqueue_script(
+			'agentready-ai-preview',
+			\WPCTX_URL . 'build/admin/ai-preview.js',
+			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
+			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
+			true
+		);
+
+		\wp_add_inline_script(
+			'agentready-ai-preview',
+			'window.agentreadyAiPreview = ' . \wp_json_encode( self::ai_preview_bootstrap_data() ) . ';',
+			'before'
+		);
+
+		\wp_set_script_translations(
+			'agentready-ai-preview',
+			'ai-readiness-kit',
+			\WPCTX_DIR . 'languages'
+		);
+
+		if ( \file_exists( \WPCTX_DIR . 'build/admin/ai-preview.css' ) ) {
+			\wp_enqueue_style(
+				'agentready-ai-preview',
+				\WPCTX_URL . 'build/admin/ai-preview.css',
+				array( 'wp-components' ),
+				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
+			);
+		}
+	}
+
+	/**
+	 * Bootstrap payload for the AI Assistant Preview bundle.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function ai_preview_bootstrap_data(): array {
+		return array(
+			'restNamespace'  => Ai_Preview_Rest_Controller::NAMESPACE,
+			'restBase'       => Ai_Preview_Rest_Controller::ROUTE_BASE,
+			'restNonce'      => \wp_create_nonce( 'wp_rest' ),
+			'profilePageUrl' => \admin_url( 'tools.php?page=' . Context_Profile_Page::PAGE_SLUG ),
+		);
 	}
 
 	/**
