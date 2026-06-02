@@ -1,6 +1,6 @@
 <?php
 /**
- * `ai-readiness-kit/md-view.preview` ability (#21 / AgDR-0044).
+ * `ai-readiness-kit/md-view-preview` ability (#21 / AgDR-0044).
  *
  * @package WPContext
  */

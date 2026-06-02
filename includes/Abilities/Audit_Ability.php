@@ -1,6 +1,6 @@
 <?php
 /**
- * `ai-readiness-kit/audit.run` ability (#21 / AgDR-0044).
+ * `ai-readiness-kit/audit-run` ability (#21 / AgDR-0044).
  *
  * @package WPContext
  */

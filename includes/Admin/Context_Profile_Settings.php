@@ -295,7 +295,7 @@ final class Context_Profile_Settings {
 	 * Canonical programmatic setter for the two exposure keys.
 	 *
 	 * The Settings API form is the admin write path; this is the write path
-	 * for non-form callers (the WP Abilities API `profile.set_exposure`
+	 * for non-form callers (the WP Abilities API `profile-set-exposure`
 	 * ability, #21 / AgDR-0044). Merges ONLY `exposed_cpts` /
 	 * `exposed_statuses` over the current profile — every other key
 	 * (module flags, thresholds, schema_version) is preserved — then runs the

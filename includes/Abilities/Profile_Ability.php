@@ -1,6 +1,6 @@
 <?php
 /**
- * `ai-readiness-kit/profile.read` + `ai-readiness-kit/profile.set_exposure`
+ * `ai-readiness-kit/profile-read` + `ai-readiness-kit/profile-set-exposure`
  * abilities (#21 / AgDR-0044).
  *
  * @package WPContext
@@ -33,7 +33,7 @@ final class Profile_Ability {
 	public const SET_EXPOSURE_ID = 'ai-readiness-kit/profile-set-exposure';
 
 	/**
-	 * Execute callback for `profile.read`. Readonly.
+	 * Execute callback for `profile-read`. Readonly.
 	 *
 	 * @param mixed $input Validated ability input (unused).
 	 *
@@ -46,7 +46,7 @@ final class Profile_Ability {
 	}
 
 	/**
-	 * Execute callback for `profile.set_exposure`.
+	 * Execute callback for `profile-set-exposure`.
 	 *
 	 * Accepts `exposed_cpts` and/or `exposed_statuses`. Any key absent from
 	 * the input is preserved from the current profile (partial update). The

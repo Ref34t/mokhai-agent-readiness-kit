@@ -1,6 +1,6 @@
 <?php
 /**
- * `ai-readiness-kit/llms-txt.regenerate` ability (#21 / AgDR-0044).
+ * `ai-readiness-kit/llms-txt-regenerate` ability (#21 / AgDR-0044).
  *
  * @package WPContext
  */
