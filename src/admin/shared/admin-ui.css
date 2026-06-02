@@ -11,6 +11,21 @@
  * per-bundle `<name>.css` that the PHP enqueue picks up alongside the JS.
  */
 
+/* ---- Context app shell (#142) --------------------------------------- */
+
+/* Card wrapper for each tab's content — gives the connector's framed-panel
+   look. The tab strip sits above it; a small gap separates the two. */
+.agentready-context-card {
+	margin-top: 12px;
+}
+
+/* Let the tab content breathe inside the card without a doubled outer panel
+   margin on the first child. */
+.agentready-context-card .agentready-context-profile-panel:first-child,
+.agentready-context-card .agentready-admin-panel:first-child {
+	margin-top: 0;
+}
+
 /* ---- Panels ---------------------------------------------------------- */
 
 /* Vertical rhythm between stacked card panels — replaces the inline

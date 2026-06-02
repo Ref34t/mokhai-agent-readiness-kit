@@ -11,12 +11,7 @@
  * only.
  */
 
-import {
-	createRoot,
-	useCallback,
-	useEffect,
-	useState,
-} from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import {
 	Button,
 	Notice,
@@ -31,7 +26,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Pill } from '../shared/Pill';
 import '../shared/admin-ui.css';
 
-const MOUNT_SELECTOR = '#agentready-llms-txt-descriptions-root';
 const BOOTSTRAP_KEY = 'agentreadyLlmsTxtDescriptions';
 
 // Poll cadence for rows in `pending` status. Re-fetches the whole page
@@ -290,7 +284,7 @@ function DescriptionRow( {
 	);
 }
 
-function DescriptionsTable() {
+export function DescriptionsTable() {
 	const bootstrap = readBootstrap();
 	const [ page, setPage ] = useState( 1 );
 	const [ perPage ] = useState( 20 );
@@ -669,10 +663,4 @@ function DescriptionsTable() {
 			</PanelBody>
 		</Panel>
 	);
-}
-
-const target = document.querySelector( MOUNT_SELECTOR );
-if ( target ) {
-	const root = createRoot( target );
-	root.render( <DescriptionsTable /> );
 }
