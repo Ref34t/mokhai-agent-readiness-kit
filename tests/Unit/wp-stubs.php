@@ -262,6 +262,28 @@ if ( ! function_exists( 'esc_html__' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_sprintf_l' ) ) {
+	/**
+	 * Stub: locale-aware list join matching WP core's English `%l` output
+	 * ("a", "a and b", "a, b, and c"). Only the `%l` pattern is supported.
+	 */
+	function wp_sprintf_l( string $pattern, array $args ): string {
+		$args = array_values( $args );
+		$n    = count( $args );
+		if ( 0 === $n ) {
+			return '';
+		}
+		if ( 1 === $n ) {
+			return (string) $args[0];
+		}
+		if ( 2 === $n ) {
+			return $args[0] . ' and ' . $args[1];
+		}
+		$last = array_pop( $args );
+		return implode( ', ', $args ) . ', and ' . $last;
+	}
+}
+
 if ( ! function_exists( 'esc_html' ) ) {
 	/**
 	 * Stub: minimal HTML escape matching WP core behaviour.

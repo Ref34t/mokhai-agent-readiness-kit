@@ -158,7 +158,7 @@ final class Site_Health {
 			? \sprintf(
 				/* translators: %s: human-readable sub-score name (e.g. "discoverability"). */
 				\__( 'The highest-leverage area to improve is <strong>%s</strong>. Open the AI Readiness Kit Context Score admin page for the full breakdown and actionable suggestions.', 'ai-readiness-kit' ),
-				self::humanize_sub_score_name( $worst_name )
+				Sub_Score_Names::label( $worst_name )
 			)
 			: \__( 'Open the AI Readiness Kit Context Score admin page for the full breakdown.', 'ai-readiness-kit' );
 
@@ -287,38 +287,5 @@ final class Site_Health {
 
 		$why = isset( $entry['why'] ) && \is_string( $entry['why'] ) ? $entry['why'] : '';
 		return \trim( $why );
-	}
-
-	/**
-	 * Convert a sub-score machine name to a human-readable label.
-	 *
-	 * The breakdown shape (AgDR-0030) uses snake_case identifiers
-	 * (e.g. `md_conversion_quality`). Site Health surfaces them
-	 * unchanged would read as machine output; rewriting to a
-	 * translator-friendly label here keeps the i18n surface small.
-	 *
-	 * @param string $name Sub-score machine name.
-	 *
-	 * @return string Translatable label.
-	 */
-	private static function humanize_sub_score_name( string $name ): string {
-		switch ( $name ) {
-			case 'discoverability':
-				return \__( 'discoverability', 'ai-readiness-kit' );
-			case 'content_readability':
-				return \__( 'content readability', 'ai-readiness-kit' );
-			case 'schema_coverage':
-				return \__( 'schema coverage', 'ai-readiness-kit' );
-			case 'exposure_safety':
-				return \__( 'exposure safety', 'ai-readiness-kit' );
-			case 'integration_health':
-				return \__( 'integration health', 'ai-readiness-kit' );
-			case 'md_conversion_quality':
-				return \__( 'Markdown conversion quality', 'ai-readiness-kit' );
-			case 'multi_channel_discovery':
-				return \__( 'multi-channel discovery', 'ai-readiness-kit' );
-			default:
-				return \str_replace( '_', ' ', $name );
-		}
 	}
 }
