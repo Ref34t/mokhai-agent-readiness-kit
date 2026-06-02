@@ -52,6 +52,7 @@ final class Sidebar_Assets {
 	public static function enqueue(): void {
 		$asset_file = \WPCTX_DIR . 'build/admin/markdown-views-sidebar.asset.php';
 		$script_url = \WPCTX_URL . 'build/admin/markdown-views-sidebar.js';
+		$style_url  = \WPCTX_URL . 'build/admin/markdown-views-sidebar.css';
 
 		if ( ! \file_exists( $asset_file ) ) {
 			// Build artefact missing — fail silent in the editor rather than
@@ -82,6 +83,19 @@ final class Sidebar_Assets {
 			'ai-readiness-kit',
 			\WPCTX_DIR . 'languages'
 		);
+
+		// Shared admin design-token stylesheet (#70). Carries the
+		// `.agentready-md-*` classes the panel markup now uses in place of
+		// inline styles. Guarded on existence so a source checkout without a
+		// build still loads the script (the panel degrades to unstyled <pre>).
+		if ( \file_exists( \WPCTX_DIR . 'build/admin/markdown-views-sidebar.css' ) ) {
+			\wp_enqueue_style(
+				self::SCRIPT_HANDLE,
+				$style_url,
+				array( 'wp-components' ),
+				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
+			);
+		}
 	}
 
 	/**

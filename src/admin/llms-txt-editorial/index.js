@@ -18,6 +18,7 @@ import {
 	Notice,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import '../shared/admin-ui.css';
 
 const MOUNT_SELECTOR = '#agentready-llms-txt-editorial-root';
 const BOOTSTRAP_KEY = 'agentreadyLlmsTxtEditorial';
@@ -55,24 +56,8 @@ function EntryRow( {
 	const isCustom = entry.section === 'Custom';
 
 	return (
-		<div
-			className="agentready-llms-editorial__row"
-			style={ {
-				border: '1px solid #ccd0d4',
-				padding: '12px',
-				marginBottom: '8px',
-				borderRadius: '4px',
-				background: '#fff',
-			} }
-		>
-			<div
-				style={ {
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					marginBottom: '8px',
-				} }
-			>
+		<div className="agentready-editorial__row">
+			<div className="agentready-editorial__row-header">
 				<strong>
 					{ sprintf(
 						/* translators: %d: entry index */
@@ -80,7 +65,7 @@ function EntryRow( {
 						index + 1
 					) }
 				</strong>
-				<div style={ { display: 'flex', gap: '4px' } }>
+				<div className="agentready-button-row agentready-button-row--tight">
 					<Button
 						type="button"
 						variant="tertiary"
@@ -244,17 +229,30 @@ function EditorialApp( { bootstrap } ) {
 				value="1"
 			/>
 
-			{ entries.length === 0 && (
-				<Notice status="info" isDismissible={ false }>
-					{ __(
-						'No editorial entries yet. Add hand-picked URLs to surface them in /llms.txt alongside auto-listed posts.',
-						'ai-readiness-kit'
-					) }
-				</Notice>
-			) }
-
-			<Panel>
+			<Panel
+				header={ __(
+					'LLMs Index — editorial entries',
+					'ai-readiness-kit'
+				) }
+				className="agentready-admin-panel"
+			>
 				<PanelBody opened>
+					<p className="description">
+						{ __(
+							'Hand-curated entries published in /llms.txt alongside the auto-listed posts above. Each entry has a title, URL, optional description, and a section heading.',
+							'ai-readiness-kit'
+						) }
+					</p>
+
+					{ entries.length === 0 && (
+						<Notice status="info" isDismissible={ false }>
+							{ __(
+								'No editorial entries yet. Add hand-picked URLs to surface them in /llms.txt alongside auto-listed posts.',
+								'ai-readiness-kit'
+							) }
+						</Notice>
+					) }
+
 					{ entries.map( ( entry, index ) => (
 						<EntryRow
 							key={ index }
@@ -307,13 +305,7 @@ function EditorialApp( { bootstrap } ) {
 						</div>
 					) ) }
 
-					<div
-						style={ {
-							marginTop: '12px',
-							display: 'flex',
-							gap: '8px',
-						} }
-					>
+					<div className="agentready-button-row">
 						<Button
 							type="button"
 							variant="secondary"

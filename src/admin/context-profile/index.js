@@ -20,6 +20,7 @@ import {
 	Notice,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
+import '../shared/admin-ui.css';
 
 const MOUNT_SELECTOR = '#agentready-context-profile-root';
 const BOOTSTRAP_KEY = 'agentreadyContextProfile';
@@ -228,6 +229,7 @@ function ContextProfileApp( { bootstrap } ) {
 						{ cptOptions.map( ( cpt ) => (
 							<div key={ cpt.slug }>
 								<CheckboxControl
+									__nextHasNoMarginBottom
 									label={ `${ cpt.label } (${ cpt.slug })` }
 									checked={ profile.exposed_cpts.includes(
 										cpt.slug
@@ -283,6 +285,7 @@ function ContextProfileApp( { bootstrap } ) {
 						{ statusOptions.map( ( status ) => (
 							<div key={ status.slug }>
 								<CheckboxControl
+									__nextHasNoMarginBottom
 									label={ status.label }
 									checked={ profile.exposed_statuses.includes(
 										status.slug
@@ -339,6 +342,7 @@ function ContextProfileApp( { bootstrap } ) {
 				<PanelBody opened>
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __(
 								'Emit native JSON-LD on the front-end',
 								'ai-readiness-kit'
@@ -371,6 +375,7 @@ function ContextProfileApp( { bootstrap } ) {
 					{ aiNotice }
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __(
 								'Enable LLM cleanup pass for messy pages',
 								'ai-readiness-kit'
@@ -394,6 +399,7 @@ function ContextProfileApp( { bootstrap } ) {
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __(
 								'Auto-generate /llms.txt entry descriptions',
 								'ai-readiness-kit'

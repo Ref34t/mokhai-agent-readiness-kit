@@ -20,12 +20,16 @@ import {
 import {
 	Button,
 	Notice,
+	Panel,
+	PanelBody,
 	SelectControl,
 	Spinner,
 	TextareaControl,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
+import { Pill } from '../shared/Pill';
+import '../shared/admin-ui.css';
 
 const MOUNT_SELECTOR = '#agentready-llms-txt-descriptions-root';
 const BOOTSTRAP_KEY = 'agentreadyLlmsTxtDescriptions';
@@ -55,18 +59,6 @@ const STATUS_FILTERS = [
 	},
 ];
 
-const PILL_STYLES = {
-	manual: { background: '#dcedc8', color: '#33691e' },
-	auto: { background: '#e3f2fd', color: '#0d47a1' },
-	excerpt: { background: '#f5f5f5', color: '#555' },
-	none: { background: '#fbeaea', color: '#a94442' },
-	pending: { background: '#fff8e1', color: '#996f00' },
-	'needs-retry': { background: '#fff8e1', color: '#996f00' },
-	failed: { background: '#fbeaea', color: '#a94442' },
-	done: { background: '#e8f5e9', color: '#2e7d32' },
-	stale: { background: '#fff3e0', color: '#bf360c' },
-};
-
 function readBootstrap() {
 	if ( typeof window === 'undefined' ) {
 		return null;
@@ -78,29 +70,9 @@ function readBootstrap() {
 	return data;
 }
 
-function Pill( { kind, children } ) {
-	const style = PILL_STYLES[ kind ] || PILL_STYLES.none;
-	return (
-		<span
-			style={ {
-				display: 'inline-block',
-				padding: '2px 8px',
-				borderRadius: '10px',
-				fontSize: '11px',
-				fontWeight: 600,
-				textTransform: 'uppercase',
-				letterSpacing: '0.04em',
-				...style,
-			} }
-		>
-			{ children }
-		</span>
-	);
-}
-
 function StatusBadges( { row } ) {
 	return (
-		<div style={ { display: 'flex', gap: '4px', flexWrap: 'wrap' } }>
+		<div className="agentready-pill-group">
 			<Pill kind={ row.source }>{ row.source }</Pill>
 			{ row.status && row.status !== 'done' && (
 				<Pill kind={ row.status }>{ row.status }</Pill>
@@ -216,14 +188,8 @@ function DescriptionRow( {
 	] );
 
 	return (
-		<tr style={ { borderBottom: '1px solid #eee' } }>
-			<td
-				style={ {
-					padding: '8px 6px',
-					verticalAlign: 'top',
-					width: '30%',
-				} }
-			>
+		<tr>
+			<td className="col-post">
 				<div>
 					<a
 						href={ row.url }
@@ -233,30 +199,16 @@ function DescriptionRow( {
 						{ row.title || __( '(no title)', 'ai-readiness-kit' ) }
 					</a>
 				</div>
-				<div
-					style={ {
-						color: '#888',
-						fontSize: '11px',
-						marginTop: '2px',
-					} }
-				>
-					{ row.post_type }
-				</div>
+				<div className="agentready-muted--sm">{ row.post_type }</div>
 			</td>
-			<td
-				style={ {
-					padding: '8px 6px',
-					verticalAlign: 'top',
-					width: '15%',
-				} }
-			>
+			<td className="col-status">
 				<StatusBadges row={ row } />
 			</td>
-			<td style={ { padding: '8px 6px', verticalAlign: 'top' } }>
+			<td>
 				{ ! editing && (
-					<div style={ { whiteSpace: 'pre-wrap' } }>
+					<div className="agentready-descriptions__resolved">
 						{ row.resolved || (
-							<em style={ { color: '#888' } }>
+							<em className="agentready-muted">
 								{ __( '(no description)', 'ai-readiness-kit' ) }
 							</em>
 						) }
@@ -282,22 +234,9 @@ function DescriptionRow( {
 					</Notice>
 				) }
 			</td>
-			<td
-				style={ {
-					padding: '8px 6px',
-					verticalAlign: 'top',
-					width: '20%',
-					textAlign: 'right',
-				} }
-			>
+			<td className="col-actions">
 				{ ! editing && (
-					<div
-						style={ {
-							display: 'flex',
-							gap: '4px',
-							justifyContent: 'flex-end',
-						} }
-					>
+					<div className="agentready-button-row agentready-button-row--end agentready-button-row--tight">
 						<Button
 							variant="tertiary"
 							onClick={ () => setEditing( true ) }
@@ -319,13 +258,7 @@ function DescriptionRow( {
 					</div>
 				) }
 				{ editing && (
-					<div
-						style={ {
-							display: 'flex',
-							gap: '4px',
-							justifyContent: 'flex-end',
-						} }
-					>
+					<div className="agentready-button-row agentready-button-row--end agentready-button-row--tight">
 						<Button
 							variant="primary"
 							onClick={ saveManual }
@@ -552,207 +485,189 @@ function DescriptionsTable() {
 	}
 
 	return (
-		<div>
-			<div
-				style={ {
-					display: 'flex',
-					gap: '12px',
-					alignItems: 'flex-end',
-					marginBottom: '12px',
-					flexWrap: 'wrap',
-				} }
-			>
-				<SelectControl
-					label={ __( 'Post type', 'ai-readiness-kit' ) }
-					value={ cpt }
-					options={ [
-						{
-							value: '',
-							label: __(
-								'All exposed types',
-								'ai-readiness-kit'
-							),
-						},
-						...( bootstrap.exposedCpts || [] ).map( ( c ) => ( {
-							value: c,
-							label: c,
-						} ) ),
-					] }
-					onChange={ ( v ) => {
-						setCpt( v );
-						setPage( 1 );
-					} }
-					__nextHasNoMarginBottom
-				/>
-				<SelectControl
-					label={ __( 'Filter', 'ai-readiness-kit' ) }
-					value={ status }
-					options={ STATUS_FILTERS }
-					onChange={ ( v ) => {
-						setStatus( v );
-						setPage( 1 );
-					} }
-					__nextHasNoMarginBottom
-				/>
-				<Button
-					variant="secondary"
-					onClick={ bulkRegen }
-					disabled={ bulkBusy }
-				>
-					{ bulkBusy
-						? __( 'Scheduling…', 'ai-readiness-kit' )
-						: __(
-								'Regenerate stale descriptions',
-								'ai-readiness-kit'
-						  ) }
-				</Button>
-			</div>
-
-			{ flash && (
-				<Notice
-					status={ flash.type }
-					onRemove={ () => setFlash( null ) }
-				>
-					{ flash.message }
-				</Notice>
+		<Panel
+			header={ __(
+				'LLMs Index — auto-generated descriptions',
+				'ai-readiness-kit'
 			) }
-
-			{ hasPending && ! stuckPending && (
-				<Notice status="info" isDismissible={ false }>
+			className="agentready-admin-panel"
+		>
+			<PanelBody opened>
+				<p className="description">
 					{ __(
-						'Refreshing while cron processes the queued jobs…',
-						'ai-readiness-kit'
-					) }
-				</Notice>
-			) }
-
-			{ stuckPending && (
-				<Notice status="warning" isDismissible={ false }>
-					<p style={ { margin: 0 } }>
-						{ __(
-							'Description jobs have been pending for over 60 seconds. WP cron fires on every front-end page hit — load any post in another tab, or run "wp cron event run --due-now" from the command line to drain the queue. Auto-refresh has paused.',
-							'ai-readiness-kit'
-						) }
-					</p>
-					<p style={ { margin: '8px 0 0 0' } }>
-						<Button
-							variant="secondary"
-							onClick={ () => {
-								setPendingStartedAt( null );
-								fetchPage();
-							} }
-						>
-							{ __( 'Check again now', 'ai-readiness-kit' ) }
-						</Button>
-					</p>
-				</Notice>
-			) }
-
-			{ loading && <Spinner /> }
-
-			{ ! loading && data.items.length === 0 && (
-				<p style={ { fontStyle: 'italic', color: '#888' } }>
-					{ __(
-						'No entries match the current filter.',
+						'One-line descriptions for the auto-listed entries above, generated via the configured LLM and cached on post meta. Edit any description inline to set a sticky manual override that survives regeneration.',
 						'ai-readiness-kit'
 					) }
 				</p>
-			) }
 
-			{ ! loading && data.items.length > 0 && (
-				<table
-					style={ {
-						width: '100%',
-						borderCollapse: 'collapse',
-						background: '#fff',
-					} }
-				>
-					<thead>
-						<tr
-							style={ {
-								background: '#f8f8f8',
-								textAlign: 'left',
-							} }
-						>
-							<th style={ { padding: '8px 6px' } }>
-								{ __( 'Post', 'ai-readiness-kit' ) }
-							</th>
-							<th style={ { padding: '8px 6px' } }>
-								{ __( 'Status', 'ai-readiness-kit' ) }
-							</th>
-							<th style={ { padding: '8px 6px' } }>
-								{ __( 'Description', 'ai-readiness-kit' ) }
-							</th>
-							<th
-								style={ {
-									padding: '8px 6px',
-									textAlign: 'right',
+				<div className="agentready-toolbar">
+					<SelectControl
+						label={ __( 'Post type', 'ai-readiness-kit' ) }
+						value={ cpt }
+						options={ [
+							{
+								value: '',
+								label: __(
+									'All exposed types',
+									'ai-readiness-kit'
+								),
+							},
+							...( bootstrap.exposedCpts || [] ).map( ( c ) => ( {
+								value: c,
+								label: c,
+							} ) ),
+						] }
+						onChange={ ( v ) => {
+							setCpt( v );
+							setPage( 1 );
+						} }
+						__nextHasNoMarginBottom
+					/>
+					<SelectControl
+						label={ __( 'Filter', 'ai-readiness-kit' ) }
+						value={ status }
+						options={ STATUS_FILTERS }
+						onChange={ ( v ) => {
+							setStatus( v );
+							setPage( 1 );
+						} }
+						__nextHasNoMarginBottom
+					/>
+					<Button
+						variant="secondary"
+						onClick={ bulkRegen }
+						disabled={ bulkBusy }
+					>
+						{ bulkBusy
+							? __( 'Scheduling…', 'ai-readiness-kit' )
+							: __(
+									'Regenerate stale descriptions',
+									'ai-readiness-kit'
+							  ) }
+					</Button>
+				</div>
+
+				{ flash && (
+					<Notice
+						status={ flash.type }
+						onRemove={ () => setFlash( null ) }
+					>
+						{ flash.message }
+					</Notice>
+				) }
+
+				{ hasPending && ! stuckPending && (
+					<Notice status="info" isDismissible={ false }>
+						{ __(
+							'Refreshing while cron processes the queued jobs…',
+							'ai-readiness-kit'
+						) }
+					</Notice>
+				) }
+
+				{ stuckPending && (
+					<Notice status="warning" isDismissible={ false }>
+						<p className="agentready-md-label--first">
+							{ __(
+								'Description jobs have been pending for over 60 seconds. WP cron fires on every front-end page hit — load any post in another tab, or run "wp cron event run --due-now" from the command line to drain the queue. Auto-refresh has paused.',
+								'ai-readiness-kit'
+							) }
+						</p>
+						<p className="agentready-button-row">
+							<Button
+								variant="secondary"
+								onClick={ () => {
+									setPendingStartedAt( null );
+									fetchPage();
 								} }
 							>
-								{ __( 'Actions', 'ai-readiness-kit' ) }
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						{ data.items.map( ( row ) => (
-							<DescriptionRow
-								key={ row.post_id }
-								row={ row }
-								bootstrap={ bootstrap }
-								onRowUpdated={ handleRowUpdated }
-								pendingAction={ pendingAction }
-								setPendingAction={ setPendingAction }
-							/>
-						) ) }
-					</tbody>
-				</table>
-			) }
+								{ __( 'Check again now', 'ai-readiness-kit' ) }
+							</Button>
+						</p>
+					</Notice>
+				) }
 
-			{ ! loading && data.pages > 1 && (
-				<div
-					style={ {
-						display: 'flex',
-						gap: '8px',
-						alignItems: 'center',
-						marginTop: '12px',
-					} }
-				>
-					<Button
-						variant="tertiary"
-						disabled={ page <= 1 }
-						onClick={ () =>
-							setPage( ( p ) => Math.max( 1, p - 1 ) )
-						}
-					>
-						{ __( '← Previous', 'ai-readiness-kit' ) }
-					</Button>
-					<span>
-						{ sprintf(
-							/* translators: 1: current page, 2: total pages */
-							__( 'Page %1$d of %2$d', 'ai-readiness-kit' ),
-							page,
-							data.pages
+				{ loading && <Spinner /> }
+
+				{ ! loading && data.items.length === 0 && (
+					<p className="agentready-empty">
+						{ __(
+							'No entries match the current filter.',
+							'ai-readiness-kit'
 						) }
-					</span>
-					<Button
-						variant="tertiary"
-						disabled={ page >= data.pages }
-						onClick={ () =>
-							setPage( ( p ) => Math.min( data.pages, p + 1 ) )
-						}
-					>
-						{ __( 'Next →', 'ai-readiness-kit' ) }
-					</Button>
-					<span style={ { color: '#888', marginLeft: '8px' } }>
-						{ sprintf(
-							/* translators: %d: total entries */
-							__( '%d total', 'ai-readiness-kit' ),
-							data.total
-						) }
-					</span>
-				</div>
-			) }
-		</div>
+					</p>
+				) }
+
+				{ ! loading && data.items.length > 0 && (
+					<table className="agentready-descriptions-table">
+						<thead>
+							<tr>
+								<th>{ __( 'Post', 'ai-readiness-kit' ) }</th>
+								<th>{ __( 'Status', 'ai-readiness-kit' ) }</th>
+								<th>
+									{ __( 'Description', 'ai-readiness-kit' ) }
+								</th>
+								<th className="col-actions">
+									{ __( 'Actions', 'ai-readiness-kit' ) }
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							{ data.items.map( ( row ) => (
+								<DescriptionRow
+									key={ row.post_id }
+									row={ row }
+									bootstrap={ bootstrap }
+									onRowUpdated={ handleRowUpdated }
+									pendingAction={ pendingAction }
+									setPendingAction={ setPendingAction }
+								/>
+							) ) }
+						</tbody>
+					</table>
+				) }
+
+				{ ! loading && data.pages > 1 && (
+					<div className="agentready-pagination">
+						<Button
+							variant="tertiary"
+							disabled={ page <= 1 }
+							onClick={ () =>
+								setPage( ( p ) => Math.max( 1, p - 1 ) )
+							}
+						>
+							{ __( '← Previous', 'ai-readiness-kit' ) }
+						</Button>
+						<span>
+							{ sprintf(
+								/* translators: 1: current page, 2: total pages */
+								__( 'Page %1$d of %2$d', 'ai-readiness-kit' ),
+								page,
+								data.pages
+							) }
+						</span>
+						<Button
+							variant="tertiary"
+							disabled={ page >= data.pages }
+							onClick={ () =>
+								setPage( ( p ) =>
+									Math.min( data.pages, p + 1 )
+								)
+							}
+						>
+							{ __( 'Next →', 'ai-readiness-kit' ) }
+						</Button>
+						<span className="agentready-muted">
+							{ sprintf(
+								/* translators: %d: total entries */
+								__( '%d total', 'ai-readiness-kit' ),
+								data.total
+							) }
+						</span>
+					</div>
+				) }
+			</PanelBody>
+		</Panel>
 	);
 }
 
