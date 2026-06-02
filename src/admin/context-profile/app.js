@@ -1,16 +1,18 @@
 /**
- * AI Readiness Kit — Context Profile admin UI.
+ * AI Readiness Kit — Context Profile view (FR-1 keystone / #142).
  *
- * React-based editor for the FR-1 keystone. Reads the server-rendered
- * bootstrap payload from `window.agentreadyContextProfile`, posts back via
- * the standard options.php Settings API flow.
+ * Rendered as the "Profile" tab of the Context app shell (#142 / AgDR-0048).
+ * Saves the whole profile via the `ai-readiness-kit/v1/context-profile` REST
+ * route through `apiFetch` — no page reload — instead of the legacy
+ * options.php form POST. The server-side `Context_Profile_Settings::save()`
+ * (whitelist via `sanitize_internal()`) remains the source of truth.
  *
  * Safe-by-default rule (FR-9): a fresh install ships with `exposed_cpts: []`
  * — the agency lead must explicitly opt in CPTs and statuses before any
  * agent-facing surface emits content.
  */
 
-import { createRoot, useState, useMemo } from '@wordpress/element';
+import { useState, useMemo } from '@wordpress/element';
 import {
 	Panel,
 	PanelBody,
@@ -18,35 +20,15 @@ import {
 	ToggleControl,
 	CheckboxControl,
 	Notice,
+	Button,
+	Spinner,
 } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import '../shared/admin-ui.css';
 
-const MOUNT_SELECTOR = '#agentready-context-profile-root';
-const BOOTSTRAP_KEY = 'agentreadyContextProfile';
-
 /**
- * Read the bootstrap payload injected by the PHP enqueue.
- *
- * @return {object|null} Bootstrap data, or null if the payload is missing
- *                      (signals a misconfigured enqueue — UI renders a
- *                      Notice rather than crashing).
- */
-function readBootstrap() {
-	if ( typeof window === 'undefined' ) {
-		return null;
-	}
-
-	const data = window[ BOOTSTRAP_KEY ];
-	if ( ! data || typeof data !== 'object' ) {
-		return null;
-	}
-
-	return data;
-}
-
-/**
- * Toggle a slug in a string-array, keeping the array sorted + de-duplicated.
+ * Toggle a slug in a string-array, keeping the array de-duplicated.
  *
  * @param {string[]} list Current list.
  * @param {string}   slug Slug to add/remove.
@@ -63,7 +45,7 @@ function toggleSlug( list, slug, on ) {
 	return Array.from( set );
 }
 
-function ContextProfileApp( { bootstrap } ) {
+export function ContextProfileApp( { bootstrap } ) {
 	const {
 		profile: initialProfile,
 		cptOptions,
@@ -75,6 +57,8 @@ function ContextProfileApp( { bootstrap } ) {
 	} = bootstrap;
 
 	const [ profile, setProfile ] = useState( initialProfile );
+	const [ saving, setSaving ] = useState( false );
+	const [ flash, setFlash ] = useState( null );
 
 	const aiNotice = useMemo( () => {
 		if ( aiClient.configured ) {
@@ -111,42 +95,51 @@ function ContextProfileApp( { bootstrap } ) {
 		setProfile( ( prev ) => ( { ...prev, [ field ]: value } ) );
 	};
 
-	// Mirror of WP's wp_referer_field() — options.php reads this to redirect
-	// back to the calling screen with ?settings-updated=true, which is what
-	// triggers the "Settings saved." admin notice via settings_errors().
-	// Without it the user lands on raw /wp-admin/options.php with no feedback.
-	const referer =
-		typeof window !== 'undefined'
-			? window.location.pathname + window.location.search
-			: '';
+	const save = async () => {
+		setSaving( true );
+		setFlash( null );
+		try {
+			const response = await apiFetch( {
+				path: `/${ settings.restNamespace }${ settings.restBase }`,
+				method: 'PUT',
+				data: profile,
+				headers: { 'X-WP-Nonce': settings.restNonce },
+			} );
+			// Adopt the persisted (whitelisted + migrated) profile so the UI
+			// reflects exactly what the server kept.
+			if ( response && response.profile ) {
+				setProfile( response.profile );
+			}
+			setFlash( {
+				type: 'success',
+				message: __( 'Context Profile saved.', 'ai-readiness-kit' ),
+			} );
+		} catch ( err ) {
+			setFlash( {
+				type: 'error',
+				message:
+					err.message || __( 'Save failed.', 'ai-readiness-kit' ),
+			} );
+		} finally {
+			setSaving( false );
+		}
+	};
 
 	return (
-		<form
-			action={ settings.optionsUrl }
-			method="post"
+		<div
 			aria-label={ __(
-				'AI Readiness Kit Context Profile form',
+				'AI Readiness Kit Context Profile',
 				'ai-readiness-kit'
 			) }
 		>
-			{ /* Settings API plumbing — option_page + action + nonce + referer. */ }
-			<input
-				type="hidden"
-				name="option_page"
-				value={ settings.optionGroup }
-			/>
-			<input type="hidden" name="action" value="update" />
-			<input type="hidden" name="_wpnonce" value={ settings.nonce } />
-			<input type="hidden" name="_wp_http_referer" value={ referer } />
-
-			{ /* Whole profile encoded as one POST payload — keeps the
-			     sanitiser the only write path. schema_version is preserved
-			     so future migrations have a starting version. */ }
-			<input
-				type="hidden"
-				name={ `${ settings.optionKey }[schema_version]` }
-				value={ profile.schema_version }
-			/>
+			{ flash && (
+				<Notice
+					status={ flash.type }
+					onRemove={ () => setFlash( null ) }
+				>
+					{ flash.message }
+				</Notice>
+			) }
 
 			<Panel
 				header={ __( 'Site identity', 'ai-readiness-kit' ) }
@@ -227,32 +220,24 @@ function ContextProfileApp( { bootstrap } ) {
 							</Notice>
 						) }
 						{ cptOptions.map( ( cpt ) => (
-							<div key={ cpt.slug }>
-								<CheckboxControl
-									__nextHasNoMarginBottom
-									label={ `${ cpt.label } (${ cpt.slug })` }
-									checked={ profile.exposed_cpts.includes(
-										cpt.slug
-									) }
-									onChange={ ( on ) =>
-										updateField(
-											'exposed_cpts',
-											toggleSlug(
-												profile.exposed_cpts,
-												cpt.slug,
-												on
-											)
-										)
-									}
-								/>
-								{ profile.exposed_cpts.includes( cpt.slug ) && (
-									<input
-										type="hidden"
-										name={ `${ settings.optionKey }[exposed_cpts][]` }
-										value={ cpt.slug }
-									/>
+							<CheckboxControl
+								key={ cpt.slug }
+								__nextHasNoMarginBottom
+								label={ `${ cpt.label } (${ cpt.slug })` }
+								checked={ profile.exposed_cpts.includes(
+									cpt.slug
 								) }
-							</div>
+								onChange={ ( on ) =>
+									updateField(
+										'exposed_cpts',
+										toggleSlug(
+											profile.exposed_cpts,
+											cpt.slug,
+											on
+										)
+									)
+								}
+							/>
 						) ) }
 					</fieldset>
 				</PanelBody>
@@ -283,34 +268,24 @@ function ContextProfileApp( { bootstrap } ) {
 							) }
 						</legend>
 						{ statusOptions.map( ( status ) => (
-							<div key={ status.slug }>
-								<CheckboxControl
-									__nextHasNoMarginBottom
-									label={ status.label }
-									checked={ profile.exposed_statuses.includes(
-										status.slug
-									) }
-									onChange={ ( on ) =>
-										updateField(
-											'exposed_statuses',
-											toggleSlug(
-												profile.exposed_statuses,
-												status.slug,
-												on
-											)
-										)
-									}
-								/>
-								{ profile.exposed_statuses.includes(
+							<CheckboxControl
+								key={ status.slug }
+								__nextHasNoMarginBottom
+								label={ status.label }
+								checked={ profile.exposed_statuses.includes(
 									status.slug
-								) && (
-									<input
-										type="hidden"
-										name={ `${ settings.optionKey }[exposed_statuses][]` }
-										value={ status.slug }
-									/>
 								) }
-							</div>
+								onChange={ ( on ) =>
+									updateField(
+										'exposed_statuses',
+										toggleSlug(
+											profile.exposed_statuses,
+											status.slug,
+											on
+										)
+									)
+								}
+							/>
 						) ) }
 					</fieldset>
 				</PanelBody>
@@ -356,13 +331,6 @@ function ContextProfileApp( { bootstrap } ) {
 								updateField( 'schema_emit_enabled', on )
 							}
 						/>
-						{ profile.schema_emit_enabled && (
-							<input
-								type="hidden"
-								name={ `${ settings.optionKey }[schema_emit_enabled]` }
-								value="1"
-							/>
-						) }
 					</PanelRow>
 				</PanelBody>
 			</Panel>
@@ -389,13 +357,6 @@ function ContextProfileApp( { bootstrap } ) {
 								updateField( 'llm_cleanup_enabled', on )
 							}
 						/>
-						{ profile.llm_cleanup_enabled && (
-							<input
-								type="hidden"
-								name={ `${ settings.optionKey }[llm_cleanup_enabled]` }
-								value="1"
-							/>
-						) }
 					</PanelRow>
 					<PanelRow>
 						<ToggleControl
@@ -413,47 +374,23 @@ function ContextProfileApp( { bootstrap } ) {
 								updateField( 'llm_descriptions_enabled', on )
 							}
 						/>
-						{ profile.llm_descriptions_enabled && (
-							<input
-								type="hidden"
-								name={ `${ settings.optionKey }[llm_descriptions_enabled]` }
-								value="1"
-							/>
-						) }
 					</PanelRow>
 				</PanelBody>
 			</Panel>
 
-			<p className="submit">
-				<button type="submit" className="button button-primary">
-					{ __( 'Save Context Profile', 'ai-readiness-kit' ) }
-				</button>
-			</p>
-		</form>
+			<div className="agentready-button-row">
+				<Button
+					variant="primary"
+					onClick={ save }
+					isBusy={ saving }
+					disabled={ saving }
+				>
+					{ saving
+						? __( 'Saving…', 'ai-readiness-kit' )
+						: __( 'Save Context Profile', 'ai-readiness-kit' ) }
+				</Button>
+				{ saving && <Spinner /> }
+			</div>
+		</div>
 	);
-}
-
-function init() {
-	const mount = document.querySelector( MOUNT_SELECTOR );
-	if ( ! mount ) {
-		return;
-	}
-
-	const bootstrap = readBootstrap();
-	if ( ! bootstrap ) {
-		mount.textContent = __(
-			'AI Readiness Kit Context Profile failed to load. Reload the page or contact support.',
-			'ai-readiness-kit'
-		);
-		return;
-	}
-
-	const root = createRoot( mount );
-	root.render( <ContextProfileApp bootstrap={ bootstrap } /> );
-}
-
-if ( document.readyState === 'loading' ) {
-	document.addEventListener( 'DOMContentLoaded', init );
-} else {
-	init();
 }

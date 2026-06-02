@@ -92,23 +92,11 @@ final class Context_Profile_Page {
 				?>
 			</p>
 
+			<?php // Single SPA mount (#142 / AgDR-0048): one card-framed app with TabPanel section nav (Profile / Editorial / Descriptions). Saves go through REST — no page reload. ?>
 			<div
-				id="agentready-context-profile-root"
+				id="agentready-context-app"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'AI Readiness Kit Context Profile editor', 'ai-readiness-kit' ); ?>"
-			></div>
-
-			<?php // Section headings + intros for the two surfaces below now render in the React layer (#70) so the page reads as one consistent stack of card panels. ?>
-			<div
-				id="agentready-llms-txt-editorial-root"
-				role="region"
-				aria-label="<?php \esc_attr_e( 'AI Readiness Kit LLMs Index editorial entries editor', 'ai-readiness-kit' ); ?>"
-			></div>
-
-			<div
-				id="agentready-llms-txt-descriptions-root"
-				role="region"
-				aria-label="<?php \esc_attr_e( 'AI Readiness Kit LLM-powered /llms.txt entry descriptions', 'ai-readiness-kit' ); ?>"
+				aria-label="<?php \esc_attr_e( 'AI Readiness Kit Context editor', 'ai-readiness-kit' ); ?>"
 			></div>
 
 			<noscript>
@@ -116,7 +104,7 @@ final class Context_Profile_Page {
 					<p>
 						<?php
 						\esc_html_e(
-							'The Context Profile editor and LLMs Index editor both require JavaScript. Enable JavaScript and reload this page.',
+							'The Context editor requires JavaScript. Enable JavaScript and reload this page.',
 							'ai-readiness-kit'
 						);
 						?>
@@ -145,9 +133,9 @@ final class Context_Profile_Page {
 			return;
 		}
 
-		$asset_file = \WPCTX_DIR . 'build/admin/context-profile.asset.php';
-		$script_url = \WPCTX_URL . 'build/admin/context-profile.js';
-		$style_url  = \WPCTX_URL . 'build/admin/context-profile.css';
+		$asset_file = \WPCTX_DIR . 'build/admin/context-app.asset.php';
+		$script_url = \WPCTX_URL . 'build/admin/context-app.js';
+		$style_url  = \WPCTX_URL . 'build/admin/context-app.css';
 
 		if ( ! \file_exists( $asset_file ) ) {
 			\add_action( 'admin_notices', array( self::class, 'render_missing_build_notice' ) );
@@ -176,151 +164,33 @@ final class Context_Profile_Page {
 			);
 
 		\wp_enqueue_script(
-			'agentready-context-profile',
+			'agentready-context-app',
 			$script_url,
 			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
 			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
 			true
 		);
 
-		// Pass the server-rendered profile snapshot, detected SEO plugin,
-		// list of registered public CPTs, the REST nonce, and the i18n
-		// text-domain to the script. Keeping the bootstrap data in a single
-		// inline-script keeps the HTTP cost down.
+		// Three server-rendered bootstraps power first paint for the three tabs
+		// (profile / editorial / descriptions); saves then round-trip through
+		// REST (#142 / AgDR-0048). All attach to the single context-app handle.
 		\wp_add_inline_script(
-			'agentready-context-profile',
-			'window.agentreadyContextProfile = ' . \wp_json_encode( self::bootstrap_data() ) . ';',
+			'agentready-context-app',
+			'window.agentreadyContextProfile = ' . \wp_json_encode( self::bootstrap_data() ) . ';'
+				. 'window.agentreadyLlmsTxtEditorial = ' . \wp_json_encode( self::editorial_bootstrap_data() ) . ';'
+				. 'window.agentreadyLlmsTxtDescriptions = ' . \wp_json_encode( self::descriptions_bootstrap_data() ) . ';',
 			'before'
 		);
 
 		\wp_set_script_translations(
-			'agentready-context-profile',
+			'agentready-context-app',
 			'ai-readiness-kit',
 			\WPCTX_DIR . 'languages'
 		);
 
-		if ( \file_exists( \WPCTX_DIR . 'build/admin/context-profile.css' ) ) {
+		if ( \file_exists( \WPCTX_DIR . 'build/admin/context-app.css' ) ) {
 			\wp_enqueue_style(
-				'agentready-context-profile',
-				$style_url,
-				array( 'wp-components' ),
-				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
-			);
-		}
-
-		self::enqueue_llms_txt_editorial_assets();
-		self::enqueue_llms_txt_descriptions_assets();
-	}
-
-	/**
-	 * Enqueue the LLMs Index editorial-entries React bundle alongside the
-	 * Context Profile editor (#7 Phase C / AgDR-0025).
-	 *
-	 * Same defensive `*.asset.php` shape as the Context Profile enqueue —
-	 * a missing build artefact degrades to an empty-deps fallback so the
-	 * page still loads from a source checkout. The page-level missing-build
-	 * notice is rendered by `render_missing_build_notice` for the Context
-	 * Profile path; the editorial path inherits that signal (if Context
-	 * Profile's build is missing, the editorial build will be too).
-	 */
-	private static function enqueue_llms_txt_editorial_assets(): void {
-		$asset_file = \WPCTX_DIR . 'build/admin/llms-txt-editorial.asset.php';
-		$script_url = \WPCTX_URL . 'build/admin/llms-txt-editorial.js';
-		$style_url  = \WPCTX_URL . 'build/admin/llms-txt-editorial.css';
-
-		if ( ! \file_exists( $asset_file ) ) {
-			// No editorial-bundle build yet — Context Profile's
-			// `render_missing_build_notice` has already surfaced the issue
-			// for the larger bundle; we don't double-notice.
-			return;
-		}
-
-		$resolved_asset = self::asset_path( $asset_file );
-		$asset          = \is_readable( $resolved_asset )
-			? require $resolved_asset
-			: array(
-				'dependencies' => array(),
-				'version'      => \WPCTX_VERSION,
-			);
-
-		\wp_enqueue_script(
-			'agentready-llms-txt-editorial',
-			$script_url,
-			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
-			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
-			true
-		);
-
-		\wp_add_inline_script(
-			'agentready-llms-txt-editorial',
-			'window.agentreadyLlmsTxtEditorial = ' . \wp_json_encode( self::editorial_bootstrap_data() ) . ';',
-			'before'
-		);
-
-		\wp_set_script_translations(
-			'agentready-llms-txt-editorial',
-			'ai-readiness-kit',
-			\WPCTX_DIR . 'languages'
-		);
-
-		if ( \file_exists( \WPCTX_DIR . 'build/admin/llms-txt-editorial.css' ) ) {
-			\wp_enqueue_style(
-				'agentready-llms-txt-editorial',
-				$style_url,
-				array( 'wp-components' ),
-				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
-			);
-		}
-	}
-
-	/**
-	 * Enqueue the LLM-powered descriptions React bundle alongside the
-	 * Context Profile editor (#8 Phase B / AgDR-0029).
-	 *
-	 * Same defensive `*.asset.php` shape as the other two bundles — a
-	 * missing build artefact degrades to an empty-deps fallback so the
-	 * page still loads from a source checkout.
-	 */
-	private static function enqueue_llms_txt_descriptions_assets(): void {
-		$asset_file = \WPCTX_DIR . 'build/admin/llms-txt-descriptions.asset.php';
-		$script_url = \WPCTX_URL . 'build/admin/llms-txt-descriptions.js';
-		$style_url  = \WPCTX_URL . 'build/admin/llms-txt-descriptions.css';
-
-		if ( ! \file_exists( $asset_file ) ) {
-			return;
-		}
-
-		$resolved_asset = self::asset_path( $asset_file );
-		$asset          = \is_readable( $resolved_asset )
-			? require $resolved_asset
-			: array(
-				'dependencies' => array(),
-				'version'      => \WPCTX_VERSION,
-			);
-
-		\wp_enqueue_script(
-			'agentready-llms-txt-descriptions',
-			$script_url,
-			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
-			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
-			true
-		);
-
-		\wp_add_inline_script(
-			'agentready-llms-txt-descriptions',
-			'window.agentreadyLlmsTxtDescriptions = ' . \wp_json_encode( self::descriptions_bootstrap_data() ) . ';',
-			'before'
-		);
-
-		\wp_set_script_translations(
-			'agentready-llms-txt-descriptions',
-			'ai-readiness-kit',
-			\WPCTX_DIR . 'languages'
-		);
-
-		if ( \file_exists( \WPCTX_DIR . 'build/admin/llms-txt-descriptions.css' ) ) {
-			\wp_enqueue_style(
-				'agentready-llms-txt-descriptions',
+				'agentready-context-app',
 				$style_url,
 				array( 'wp-components' ),
 				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
@@ -358,13 +228,13 @@ final class Context_Profile_Page {
 		$settings = \WPContext\LlmsTxt\Editorial_Settings::get_settings();
 
 		return array(
-			'entries'      => $settings['entries'],
-			'sections'     => \WPContext\LlmsTxt\Editorial_Settings::SECTIONS,
-			'option_group' => \WPContext\LlmsTxt\Editorial_Settings::OPTION_GROUP,
-			'option_key'   => \WPContext\LlmsTxt\Editorial_Settings::OPTION_KEY,
-			'nonce'        => \wp_create_nonce( \WPContext\LlmsTxt\Editorial_Settings::OPTION_GROUP . '-options' ),
-			'options_url'  => \admin_url( 'options.php' ),
-			'page_url'     => \admin_url( 'tools.php?page=' . self::PAGE_SLUG ),
+			'entries'       => $settings['entries'],
+			'sections'      => \WPContext\LlmsTxt\Editorial_Settings::SECTIONS,
+			// REST write path (#142). The legacy options.php fields are dropped;
+			// the SPA saves via PUT through `apiFetch`.
+			'restNamespace' => \WPContext\LlmsTxt\Editorial_Rest_Controller::NAMESPACE,
+			'restBase'      => \WPContext\LlmsTxt\Editorial_Rest_Controller::ROUTE_BASE,
+			'restNonce'     => \wp_create_nonce( 'wp_rest' ),
 		);
 	}
 
@@ -467,11 +337,13 @@ final class Context_Profile_Page {
 			'aiClient'           => array(
 				'configured' => \WPContext\Ai\Client_Wrapper::has_ai_client(),
 			),
+			// REST write path (#142 / AgDR-0048). The SPA saves the whole
+			// profile via PUT through `apiFetch`; the legacy options.php
+			// fields are dropped.
 			'settings'           => array(
-				'optionGroup' => Context_Profile_Settings::OPTION_GROUP,
-				'optionKey'   => Context_Profile_Settings::OPTION_KEY,
-				'nonce'       => \wp_create_nonce( Context_Profile_Settings::OPTION_GROUP . '-options' ),
-				'optionsUrl'  => \admin_url( 'options.php' ),
+				'restNamespace' => Context_Profile_Rest_Controller::NAMESPACE,
+				'restBase'      => Context_Profile_Rest_Controller::ROUTE_BASE,
+				'restNonce'     => \wp_create_nonce( 'wp_rest' ),
 			),
 		);
 	}
