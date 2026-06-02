@@ -68,4 +68,33 @@ wp eval '$r = wp_get_ability( "ai-readiness-kit/audit-run" )->execute( array() )
 
 ## MCP exposure
 
-Exposing these abilities as MCP tools via the optional [`WordPress/mcp-adapter`](https://github.com/WordPress/mcp-adapter) plugin is a planned follow-up (PR B of #21). Until then, abilities are reachable through the core `wp-abilities/v1` REST surface.
+All five abilities carry `meta.mcp.public = true`, so the optional [`WordPress/mcp-adapter`](https://github.com/WordPress/mcp-adapter) exposes them on its **default MCP server** with no further configuration. When the adapter is not installed, the flag is inert — the abilities remain reachable via the core `wp-abilities/v1` REST surface. See AgDR-0045 for the design rationale.
+
+### Enabling MCP
+
+```bash
+composer require wordpress/mcp-adapter
+```
+
+Once the adapter is active, the abilities are reachable on the default server at:
+
+```
+/wp-json/mcp/mcp-adapter-default-server
+```
+
+Per the adapter's design, `meta.mcp.public` abilities are accessed through the default server's meta-tools — `mcp-adapter/discover-abilities`, `mcp-adapter/get-ability-info`, and `mcp-adapter/execute-ability` — rather than appearing as individually-named entries in `tools/list`.
+
+### Verifying
+
+```bash
+# List MCP servers
+wp mcp-adapter list
+
+# Discover the exposed ai-readiness-kit/* abilities
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"mcp-adapter-discover-abilities","arguments":{}}}' \
+  | wp mcp-adapter serve --user=admin --server=mcp-adapter-default-server
+```
+
+### Named tools (future)
+
+Exposing each ability as an individually-named `tools/list` tool (via a dedicated `create_server()` MCP server) is a possible future enhancement, deferred per AgDR-0045 — the default-server discover/execute pattern covers the v0.1.1 need.
