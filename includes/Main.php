@@ -185,6 +185,15 @@ final class Main {
 		// SEO plugin is active, AI Readiness Kit emits a minimal baseline
 		// (WebSite + Organization + WebPage/Article).
 		Seo\Schema_Emitter::register_hooks();
+
+		// Wire the WordPress Abilities API surface (#21 / AgDR-0044). Registers
+		// the `ai-readiness-kit` ability category + five abilities (audit-run,
+		// profile-read, profile-set-exposure, llms-txt-regenerate,
+		// md-view-preview) on the Abilities API init hooks. Self-guards on
+		// `wp_register_ability` so it's a clean no-op if the API is absent.
+		// Abilities are exposed via core's `wp-abilities/v1` REST namespace;
+		// the optional mcp-adapter integration is a PR-B follow-up.
+		Abilities\Registrar::register_hooks();
 	}
 
 	/**

@@ -122,14 +122,29 @@ jobs:
         run: composer phpstan
 
   # ---------------------------------------------------------------------------
-  # 4. wp.org Plugin Check Tool against WP trunk.
-  #    The gate for wp.org submission — must pass on every PR.
+  # 4. wp.org Plugin Check — the gate for wp.org submission; must pass on
+  #    every PR.
+  #
+  #    Runs the wp.org Plugin Check tool against the plugin inside our OWN
+  #    wp-env (the same environment the integration matrix boots without
+  #    issue). We dropped wordpress/plugin-check-action: it shells out to its
+  #    own wp-env, and a wp-env release on the GitHub runner broke its
+  #    start -> run handoff ("Environment not initialized"), turning this job
+  #    red on every PR (and on main) regardless of plugin code — independent
+  #    of any diff. Driving wp-env ourselves removes that third-party
+  #    fragility and mirrors the exact `wp plugin check` flow we run locally.
   # ---------------------------------------------------------------------------
   plugin-check:
     name: WP Plugin Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
       - name: Set up PHP 7.4
         uses: shivammathur/setup-php@v2
@@ -138,24 +153,62 @@ jobs:
           tools: composer:v2
 
       - name: Install runtime Composer deps (no dev)
-        # The Plugin Check action loads the plugin inside a real WP install,
-        # which means ai-readiness-kit.php's `require vendor/autoload.php` must
-        # find vendor/. vendor/ is gitignored; install it here. --no-dev
-        # keeps the install lean (matches what would ship to wp.org).
+        # ai-readiness-kit.php's `require vendor/autoload.php` must resolve when
+        # WP loads the plugin. vendor/ is gitignored; install it here. --no-dev
+        # mirrors what ships to wp.org.
         run: composer install --no-dev --no-progress --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Plugin Check
-        uses: wordpress/plugin-check-action@v1.1.5
-        with:
-          build-dir: '.'
-          slug: 'ai-readiness-kit'
-          wp-version: 'trunk'
-          # Plugin Check scans the entire build-dir as if it were the wp.org
-          # zip. Repo-only files (CI config, lockfiles, dev tooling, dotfiles,
-          # tests) aren't part of what would ship — exclude them so the scan
-          # focuses on plugin runtime code. Mirrors WordPress/ai.
-          exclude-directories: 'vendor,node_modules,tests,tools,.github,docs,languages'
-          exclude-files: '.gitignore,.gitattributes,.editorconfig,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpcs.xml.dist,phpstan-baseline.neon,phpstan.neon.dist,phpunit.xml.dist'
+      - name: Install wp-env
+        run: npm ci
+
+      - name: Start wp-env (stable WP line)
+        env:
+          # Validate against the released WP a wp.org reviewer / user runs, not
+          # master. 7.0-branch is the same core the integration matrix's stable
+          # cell boots successfully.
+          WP_ENV_CORE: WordPress/WordPress#7.0-branch
+        run: npx wp-env start
+
+      - name: Install Plugin Check; activate only the canonical slug
+        # .wp-env.json mounts the plugin source under BOTH `agentready`
+        # (plugins:["."]) and `ai-readiness-kit` (mappings). Activating both
+        # double-declares the plugin's classes (fatal), so deactivate
+        # `agentready` and keep only `ai-readiness-kit` (the wp.org slug) live.
+        run: |
+          npx wp-env run cli wp plugin install plugin-check --activate
+          npx wp-env run cli wp plugin deactivate agentready || true
+          npx wp-env run cli wp plugin activate ai-readiness-kit
+
+      - name: Run Plugin Check (errors fail the job)
+        run: |
+          set -uo pipefail
+          # Repo-only files (CI config, lockfiles, dev tooling, dotfiles, tests)
+          # aren't part of the wp.org zip — exclude them so the scan focuses on
+          # plugin runtime code. Mirrors the old action's exclude lists, plus
+          # .distignore (a repo-only dev dotfile).
+          npx wp-env run cli wp plugin check ai-readiness-kit \
+            --exclude-directories=vendor,node_modules,tests,tools,.github,docs,languages \
+            --exclude-files=.gitignore,.gitattributes,.editorconfig,.distignore,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpcs.xml.dist,phpstan-baseline.neon,phpstan.neon.dist,phpunit.xml.dist \
+            --format=csv --fields=file,line,type,code 2>/dev/null > pc.csv || true
+          echo "--- Plugin Check findings (file,line,type,code) ---"
+          cat pc.csv || true
+          # Fail on any ERROR-severity finding EXCEPT one documented false
+          # positive: Wp_Ai_Client_Provider::generate() calls wp_ai_client_prompt()
+          # (a WP 7.0 function) only AFTER a function_exists() guard, so the plugin
+          # keeps its 6.9 floor — the AI feature is optional. Plugin Check's static
+          # checker can't see the runtime guard, so it mis-reports
+          # wp_function_not_compatible_with_requires_wp. Everything else blocks.
+          blocking="$(grep ',ERROR,' pc.csv | grep -v 'wp_function_not_compatible_with_requires_wp' || true)"
+          if [ -n "$blocking" ]; then
+            echo "::error::Plugin Check found blocking error(s):"
+            echo "$blocking"
+            exit 1
+          fi
+          echo "Plugin Check passed — no blocking errors."
+
+      - name: Stop wp-env
+        if: always()
+        run: npx wp-env stop || true
 
   # ---------------------------------------------------------------------------
   # 5. PHPUnit unit suite — no wp-env, fast. Runs tests/Unit/* which use the

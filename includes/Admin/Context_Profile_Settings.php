@@ -292,6 +292,42 @@ final class Context_Profile_Settings {
 	}
 
 	/**
+	 * Canonical programmatic setter for the two exposure keys.
+	 *
+	 * The Settings API form is the admin write path; this is the write path
+	 * for non-form callers (the WP Abilities API `profile-set-exposure`
+	 * ability, #21 / AgDR-0044). Merges ONLY `exposed_cpts` /
+	 * `exposed_statuses` over the current profile — every other key
+	 * (module flags, thresholds, schema_version) is preserved — then runs the
+	 * merged array through the same internal whitelist the form uses, so an
+	 * invalid CPT / status from a programmatic caller can never persist.
+	 *
+	 * The `update_option()` write fires `update_option_<key>` /
+	 * `add_option_<key>`, which dispatch `agentready_context_profile_saved` —
+	 * so Context Score recompute and /llms.txt regen cascade exactly as they
+	 * do on an admin save.
+	 *
+	 * Does NOT perform its own capability check: callers are responsible for
+	 * authorisation (the ability's `permission_callback` gates `manage_options`
+	 * before reaching here). When `admin_init` has registered the Settings API
+	 * sanitise callback, that callback's own cap check additionally applies.
+	 *
+	 * @param array<int|string, mixed> $cpts     Candidate CPT slugs (whitelisted).
+	 * @param array<int|string, mixed> $statuses Candidate status slugs (whitelisted).
+	 *
+	 * @return array<string, mixed> The saved profile (post-whitelist).
+	 */
+	public static function set_exposure( array $cpts, array $statuses ): array {
+		$merged                     = self::get_profile();
+		$merged['exposed_cpts']     = $cpts;
+		$merged['exposed_statuses'] = $statuses;
+
+		\update_option( self::OPTION_KEY, self::sanitize_internal( $merged ) );
+
+		return self::get_profile();
+	}
+
+	/**
 	 * Migrate a stored profile to the current schema version.
 	 *
 	 * Pure function: returns a new array, never writes back. The write-back
