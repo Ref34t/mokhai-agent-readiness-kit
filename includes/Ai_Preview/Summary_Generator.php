@@ -123,7 +123,11 @@ PROMPT;
 			);
 		}
 
-		// Path 1: AI client unavailable → no call, structured hint.
+		// Path 1: AI client unavailable → no call, structured hint. This is
+		// a deliberate short-circuit: Client_Wrapper::generate() would also
+		// return an 'unconfigured' Result, but checking here avoids building
+		// the prompt and lets the UI show the "connect a provider" hint with
+		// no round-trip. When a provider is injected (tests) we skip it.
 		if ( null === $provider && ! Client_Wrapper::has_ai_client() ) {
 			return self::degrade(
 				'unconfigured',
@@ -207,8 +211,8 @@ PROMPT;
 	 * @param string $markdown The (already-trimmed) Markdown View.
 	 */
 	public static function build_prompt( string $markdown ): string {
-		if ( \strlen( $markdown ) > self::MAX_INPUT_CHARS ) {
-			$markdown = \rtrim( \substr( $markdown, 0, self::MAX_INPUT_CHARS ) );
+		if ( \mb_strlen( $markdown ) > self::MAX_INPUT_CHARS ) {
+			$markdown = \rtrim( \mb_substr( $markdown, 0, self::MAX_INPUT_CHARS ) );
 		}
 
 		return "Page content:\n\n" . $markdown;
@@ -222,8 +226,8 @@ PROMPT;
 		$text = \preg_replace( '/\s+/', ' ', $text );
 		$text = \is_string( $text ) ? \trim( $text ) : '';
 
-		if ( \strlen( $text ) > self::MAX_OUTPUT_CHARS ) {
-			$text = \rtrim( \substr( $text, 0, self::MAX_OUTPUT_CHARS - 1 ) ) . '…';
+		if ( \mb_strlen( $text ) > self::MAX_OUTPUT_CHARS ) {
+			$text = \rtrim( \mb_substr( $text, 0, self::MAX_OUTPUT_CHARS - 1 ) ) . '…';
 		}
 
 		return $text;
