@@ -98,31 +98,12 @@ final class Context_Profile_Page {
 				aria-label="<?php \esc_attr_e( 'AI Readiness Kit Context Profile editor', 'ai-readiness-kit' ); ?>"
 			></div>
 
-			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — editorial entries', 'ai-readiness-kit' ); ?></h2>
-			<p class="description">
-				<?php
-				\esc_html_e(
-					'Hand-curated entries published in /llms.txt alongside the auto-listed posts above. Each entry has a title, URL, optional description, and a section heading.',
-					'ai-readiness-kit'
-				);
-				?>
-			</p>
-
+			<?php // Section headings + intros for the two surfaces below now render in the React layer (#70) so the page reads as one consistent stack of card panels. ?>
 			<div
 				id="agentready-llms-txt-editorial-root"
 				role="region"
 				aria-label="<?php \esc_attr_e( 'AI Readiness Kit LLMs Index editorial entries editor', 'ai-readiness-kit' ); ?>"
 			></div>
-
-			<h2 style="margin-top:2em;"><?php \esc_html_e( 'LLMs Index — auto-generated descriptions', 'ai-readiness-kit' ); ?></h2>
-			<p class="description">
-				<?php
-				\esc_html_e(
-					'One-line descriptions for the auto-listed entries above, generated via the configured LLM and cached on post meta. Edit any description inline to set a sticky manual override that survives regeneration.',
-					'ai-readiness-kit'
-				);
-				?>
-			</p>
 
 			<div
 				id="agentready-llms-txt-descriptions-root"

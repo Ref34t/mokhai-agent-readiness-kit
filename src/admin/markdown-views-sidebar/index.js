@@ -9,7 +9,7 @@
  * Mount guard: the panel hides itself when the Context Profile reports
  * `markdown_views_enabled === false` (AgDR-0015 soft-disable).
  *
- * @package WPContext
+ * @package
  */
 
 import { registerPlugin } from '@wordpress/plugins';
@@ -20,6 +20,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
+import '../shared/admin-ui.css';
 
 /**
  * Convert a visibility reason code to a user-facing string.
@@ -156,29 +157,11 @@ function MarkdownViewsPanel() {
 
 					{ data.visibility.verdict === 'exposable' && (
 						<>
-							<pre
-								style={ {
-									maxHeight: '240px',
-									overflow: 'auto',
-									padding: '8px',
-									background: '#f6f7f7',
-									border: '1px solid #ddd',
-									fontFamily:
-										'Consolas, Menlo, Monaco, monospace',
-									fontSize: '12px',
-									whiteSpace: 'pre-wrap',
-								} }
-							>
+							<pre className="agentready-md-pre">
 								{ data.markdown }
 							</pre>
 
-							<div
-								style={ {
-									display: 'flex',
-									gap: '8px',
-									marginTop: '8px',
-								} }
-							>
+							<div className="agentready-button-row">
 								<Button
 									variant="secondary"
 									onClick={ onCopy }
@@ -201,13 +184,7 @@ function MarkdownViewsPanel() {
 							</div>
 
 							{ data.cache_state && (
-								<p
-									style={ {
-										marginTop: '12px',
-										fontSize: '11px',
-										color: '#6b6b6b',
-									} }
-								>
+								<p className="agentready-md-meta">
 									<strong>
 										{ __( 'Cache:', 'ai-readiness-kit' ) }
 									</strong>{ ' ' }
@@ -486,15 +463,7 @@ function MarkdownCleanupPanel() {
 			</Notice>
 
 			{ stuckPending && (
-				<p
-					style={ {
-						marginTop: '8px',
-						fontSize: '11px',
-						color: '#6b6b6b',
-						lineHeight: '1.45',
-					} }
-					className="agentready-md-cleanup__stuck-hint"
-				>
+				<p className="agentready-md-hint agentready-md-cleanup__stuck-hint">
 					{ __(
 						'Cleanup is queued but waiting for WordPress cron. WP cron only fires on page visits — on a low-traffic site this can take a few minutes. Visiting any page on the site (or running `wp cron event run agentready_md_cleanup_run` via WP-CLI) will trigger it immediately.',
 						'ai-readiness-kit'
@@ -503,7 +472,7 @@ function MarkdownCleanupPanel() {
 			) }
 
 			{ state && state.quality_score !== null && (
-				<p style={ { marginTop: '8px', fontSize: '12px' } }>
+				<p className="agentready-md-line">
 					<strong>
 						{ __( 'Quality score:', 'ai-readiness-kit' ) }
 					</strong>{ ' ' }
@@ -512,46 +481,22 @@ function MarkdownCleanupPanel() {
 			) }
 
 			{ hasCleaned && (
-				<div style={ { marginTop: '12px' } }>
-					<p style={ { margin: '0 0 4px', fontSize: '12px' } }>
+				<div className="agentready-md-line">
+					<p className="agentready-md-label--first">
 						<strong>
 							{ __( 'Deterministic MD:', 'ai-readiness-kit' ) }
 						</strong>
 					</p>
-					<pre
-						style={ {
-							maxHeight: '180px',
-							overflow: 'auto',
-							padding: '8px',
-							background: '#f6f7f7',
-							border: '1px solid #ddd',
-							fontFamily: 'Consolas, Menlo, Monaco, monospace',
-							fontSize: '11px',
-							whiteSpace: 'pre-wrap',
-							margin: 0,
-						} }
-					>
+					<pre className="agentready-md-pre agentready-md-pre--diff">
 						{ state.deterministic_markdown }
 					</pre>
 
-					<p style={ { margin: '8px 0 4px', fontSize: '12px' } }>
+					<p className="agentready-md-label">
 						<strong>
 							{ __( 'LLM-cleaned MD:', 'ai-readiness-kit' ) }
 						</strong>
 					</p>
-					<pre
-						style={ {
-							maxHeight: '180px',
-							overflow: 'auto',
-							padding: '8px',
-							background: '#f0f6fc',
-							border: '1px solid #c5d9ed',
-							fontFamily: 'Consolas, Menlo, Monaco, monospace',
-							fontSize: '11px',
-							whiteSpace: 'pre-wrap',
-							margin: 0,
-						} }
-					>
+					<pre className="agentready-md-pre agentready-md-pre--diff agentready-md-pre--cleaned">
 						{ state.cleaned_markdown }
 					</pre>
 				</div>
@@ -561,11 +506,11 @@ function MarkdownCleanupPanel() {
 				state.diagnostics &&
 				( state.diagnostics.sentences_dropped > 0 ||
 					state.diagnostics.error_code ) && (
-					<details style={ { marginTop: '12px', fontSize: '12px' } }>
+					<details className="agentready-md-diagnostics">
 						<summary>
 							{ __( 'Cleanup diagnostics', 'ai-readiness-kit' ) }
 						</summary>
-						<p style={ { margin: '4px 0' } }>
+						<p>
 							{ state.diagnostics.sentences_kept !== undefined &&
 								`${ __(
 									'Sentences kept:',
@@ -577,7 +522,7 @@ function MarkdownCleanupPanel() {
 								}` }
 						</p>
 						{ state.diagnostics.error_code && (
-							<p style={ { margin: '4px 0', color: '#a00' } }>
+							<p className="agentready-md-error">
 								{ __( 'Error:', 'ai-readiness-kit' ) }{ ' ' }
 								{ state.diagnostics.error_code }
 							</p>
@@ -585,14 +530,7 @@ function MarkdownCleanupPanel() {
 					</details>
 				) }
 
-			<div
-				style={ {
-					display: 'flex',
-					gap: '8px',
-					marginTop: '12px',
-					flexWrap: 'wrap',
-				} }
-			>
+			<div className="agentready-button-row">
 				{ canApproveReject && (
 					<>
 						<Button

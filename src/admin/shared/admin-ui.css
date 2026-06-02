@@ -1,0 +1,235 @@
+/**
+ * AI Readiness Kit — shared admin design tokens (#70).
+ *
+ * One stylesheet imported by every admin React entry so the Context Profile
+ * screen, the editorial repeater, the descriptions table, and the Markdown
+ * Views sidebar share a single visual language instead of each carrying its
+ * own bespoke inline styles. Mirrors the card-panel / status-pill / settings
+ * grid idioms used by the WP AI Client and OpenAI Connector settings screens.
+ *
+ * Imported (not enqueued by hand) — `@wordpress/scripts` extracts a
+ * per-bundle `<name>.css` that the PHP enqueue picks up alongside the JS.
+ */
+
+/* ---- Panels ---------------------------------------------------------- */
+
+/* Vertical rhythm between stacked card panels — replaces the inline
+   `margin-top:2em` that used to live on the PHP <h2> section headings. */
+.agentready-context-profile-panel,
+.agentready-admin-panel {
+	margin-bottom: 16px;
+}
+
+/* ---- Status pills ---------------------------------------------------- */
+
+.agentready-pill-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.agentready-pill {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	/* Neutral default — the modifier classes below override colour. */
+	background: #fbeaea;
+	color: #a94442;
+}
+
+.agentready-pill--manual {
+	background: #dcedc8;
+	color: #33691e;
+}
+.agentready-pill--auto {
+	background: #e3f2fd;
+	color: #0d47a1;
+}
+.agentready-pill--excerpt {
+	background: #f5f5f5;
+	color: #555;
+}
+.agentready-pill--none {
+	background: #fbeaea;
+	color: #a94442;
+}
+.agentready-pill--pending,
+.agentready-pill--needs-retry {
+	background: #fff8e1;
+	color: #996f00;
+}
+.agentready-pill--failed {
+	background: #fbeaea;
+	color: #a94442;
+}
+.agentready-pill--done {
+	background: #e8f5e9;
+	color: #2e7d32;
+}
+.agentready-pill--stale {
+	background: #fff3e0;
+	color: #bf360c;
+}
+
+/* ---- Button clusters ------------------------------------------------- */
+
+/* Shared horizontal button cluster. The `--end` modifier right-aligns the
+   cluster (table row actions); the bare class left-aligns (form actions). */
+.agentready-button-row {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-top: 12px;
+}
+.agentready-button-row--end {
+	justify-content: flex-end;
+	margin-top: 0;
+}
+.agentready-button-row--tight {
+	gap: 4px;
+	margin-top: 0;
+}
+
+/* ---- Empty / muted text --------------------------------------------- */
+
+/* Replaces the bespoke inline `font-style:italic;color:#888` empty states. */
+.agentready-empty {
+	font-style: italic;
+	color: #757575;
+	margin: 8px 0;
+}
+.agentready-muted {
+	color: #757575;
+}
+.agentready-muted--sm {
+	color: #757575;
+	font-size: 11px;
+	margin-top: 2px;
+}
+
+/* ---- Editorial repeater rows ---------------------------------------- */
+
+.agentready-editorial__row {
+	border: 1px solid #ccd0d4;
+	padding: 12px;
+	margin-bottom: 8px;
+	border-radius: 4px;
+	background: #fff;
+}
+.agentready-editorial__row-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+/* ---- Descriptions table --------------------------------------------- */
+
+.agentready-toolbar {
+	display: flex;
+	gap: 12px;
+	align-items: flex-end;
+	margin-bottom: 12px;
+	flex-wrap: wrap;
+}
+
+.agentready-descriptions-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: #fff;
+}
+.agentready-descriptions-table thead tr {
+	background: #f8f8f8;
+	text-align: left;
+}
+.agentready-descriptions-table th {
+	padding: 8px 6px;
+}
+.agentready-descriptions-table th.col-actions {
+	text-align: right;
+}
+.agentready-descriptions-table td {
+	padding: 8px 6px;
+	vertical-align: top;
+}
+.agentready-descriptions-table tbody tr {
+	border-bottom: 1px solid #eee;
+}
+.agentready-descriptions-table .col-post {
+	width: 30%;
+}
+.agentready-descriptions-table .col-status {
+	width: 15%;
+}
+.agentready-descriptions-table .col-actions {
+	width: 20%;
+	text-align: right;
+}
+.agentready-descriptions__resolved {
+	white-space: pre-wrap;
+}
+
+.agentready-pagination {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-top: 12px;
+}
+
+/* ---- Markdown Views sidebar ----------------------------------------- */
+
+.agentready-md-pre {
+	max-height: 240px;
+	overflow: auto;
+	padding: 8px;
+	background: #f6f7f7;
+	border: 1px solid #ddd;
+	font-family: Consolas, Menlo, Monaco, monospace;
+	font-size: 12px;
+	white-space: pre-wrap;
+	margin: 0;
+}
+.agentready-md-pre--diff {
+	max-height: 180px;
+	font-size: 11px;
+}
+.agentready-md-pre--cleaned {
+	background: #f0f6fc;
+	border-color: #c5d9ed;
+}
+.agentready-md-meta {
+	margin-top: 12px;
+	font-size: 11px;
+	color: #6b6b6b;
+}
+.agentready-md-hint {
+	margin-top: 8px;
+	font-size: 11px;
+	color: #6b6b6b;
+	line-height: 1.45;
+}
+.agentready-md-line {
+	margin-top: 8px;
+	font-size: 12px;
+}
+.agentready-md-label {
+	margin: 8px 0 4px;
+	font-size: 12px;
+}
+.agentready-md-label--first {
+	margin: 0 0 4px;
+}
+.agentready-md-diagnostics {
+	margin-top: 12px;
+	font-size: 12px;
+}
+.agentready-md-diagnostics p {
+	margin: 4px 0;
+}
+.agentready-md-error {
+	color: #a00;
+}
