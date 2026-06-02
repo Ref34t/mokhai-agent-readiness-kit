@@ -178,6 +178,13 @@ final class Main {
 		\WPContext\Admin\Context_Score_Page::register_hooks();
 		Context_Score\Site_Health::register_hooks();
 
+		// Wire the AI Assistant Preview pane (#45 / AgDR-0046). Admin-only
+		// REST surface that renders any URL the way an AI assistant consumes
+		// it — raw HTML vs Markdown View vs the /llms.txt line, plus an
+		// optional synchronous Sample AI Summary cached in post-meta. The
+		// React panel mounts on the Context Score Tools page (PR B).
+		Ai_Preview\Rest_Controller::register_hooks();
+
 		// Wire the gap-fill JSON-LD emitter (#12 / AgDR-0033). Runs on
 		// `wp_head` priority 10. When any of Yoast / Rank Math / AIOSEO is
 		// detected the gap is empty and the emitter is a no-op — wp.org

@@ -17,6 +17,39 @@ if ( ! isset( $GLOBALS['wpctx_test_cron_queue'] ) ) {
 	$GLOBALS['wpctx_test_cron_queue'] = array();
 }
 
+if ( ! isset( $GLOBALS['wpctx_test_post_meta'] ) ) {
+	$GLOBALS['wpctx_test_post_meta'] = array();
+}
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+	/**
+	 * Stub: store a single post-meta value in the global map. Single-value
+	 * semantics (no add-vs-update distinction) — enough for the plugin's
+	 * scalar-meta usage. Tests reset $GLOBALS['wpctx_test_post_meta'] in
+	 * setUp to isolate.
+	 *
+	 * @param mixed $meta_value Value to store.
+	 * @return bool Always true.
+	 */
+	function update_post_meta( int $post_id, string $meta_key, $meta_value ): bool {
+		$GLOBALS['wpctx_test_post_meta'][ $post_id ][ $meta_key ] = $meta_value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_post_meta' ) ) {
+	/**
+	 * Stub: read a single post-meta value, mirroring core's `$single=true`
+	 * shape (returns '' when absent).
+	 *
+	 * @return mixed Stored value, or '' when unset.
+	 */
+	function get_post_meta( int $post_id, string $meta_key = '', bool $single = false ) {
+		$value = $GLOBALS['wpctx_test_post_meta'][ $post_id ][ $meta_key ] ?? '';
+		return $value;
+	}
+}
+
 if ( ! function_exists( 'wp_next_scheduled' ) ) {
 	/**
 	 * Stub: report nothing scheduled. Tests that need the "already scheduled"
