@@ -144,6 +144,9 @@ final class Summary_Generator_Test extends TestCase {
 	// Provider doubles
 	// ------------------------------------------------------------------
 
+	/**
+	 * @return Provider&object{calls: int}
+	 */
 	private function text_provider( string $response ): Provider {
 		return new class( $response ) implements Provider {
 			public int $calls = 0;
