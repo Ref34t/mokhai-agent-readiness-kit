@@ -85,6 +85,232 @@ const DEGRADED_REASON_LABELS = {
 	),
 };
 
+// Translatable templates for the Engine reason codes (#139 / AgDR-0047).
+// Engine emits `{ code, args }` tokens alongside the English `reasons`
+// strings; this map turns a code + positional args into a localised line.
+// The set of keys here MUST mirror Engine's canonical reason-code set —
+// the PHP Reason_Keys_Test pins that set, so a mismatch trips CI. An
+// unknown code falls back to the English `reasons[i]` via renderReason().
+const REASON_TEMPLATES = {
+	// discoverability
+	disc_llms_txt_populated: () =>
+		__( '/llms.txt cache is populated.', 'ai-readiness-kit' ),
+	disc_llms_txt_empty: () =>
+		__(
+			'/llms.txt cache is empty — agents cannot discover the site index.',
+			'ai-readiness-kit'
+		),
+	disc_cpt_exposed: ( a ) =>
+		sprintf(
+			// translators: %d: number of post types exposed to agents.
+			__( 'Site exposes %d post type(s) to agents.', 'ai-readiness-kit' ),
+			a[ 0 ]
+		),
+	disc_no_cpt_exposed: () =>
+		__(
+			'No post types are exposed to agents (Context Profile → Exposed CPTs is empty).',
+			'ai-readiness-kit'
+		),
+	disc_entries_listed: ( a ) =>
+		sprintf(
+			// translators: %d: number of entries listed in /llms.txt.
+			__( '/llms.txt lists %d entries.', 'ai-readiness-kit' ),
+			a[ 0 ]
+		),
+	disc_zero_entries: () =>
+		__( '/llms.txt has zero entries.', 'ai-readiness-kit' ),
+	disc_rewrite_conflict: () =>
+		__(
+			'Another plugin is overriding the /llms.txt rewrite rule.',
+			'ai-readiness-kit'
+		),
+	// content_readability
+	cr_no_exposed_entries: () =>
+		__(
+			'No exposed entries — nothing for agents to read.',
+			'ai-readiness-kit'
+		),
+	cr_coverage_good: ( a ) =>
+		sprintf(
+			// translators: %d: percentage of entries with a curated description.
+			__(
+				'%d%% of exposed entries have a curated description.',
+				'ai-readiness-kit'
+			),
+			a[ 0 ]
+		),
+	cr_coverage_medium: ( a ) =>
+		sprintf(
+			// translators: %d: percentage of entries with a curated description.
+			__(
+				'%d%% of exposed entries have a curated description — room to improve.',
+				'ai-readiness-kit'
+			),
+			a[ 0 ]
+		),
+	cr_coverage_low: ( a ) =>
+		sprintf(
+			// translators: %d: percentage of entries with a curated description.
+			__(
+				'Only %d%% of exposed entries have a curated description.',
+				'ai-readiness-kit'
+			),
+			a[ 0 ]
+		),
+	// schema_coverage
+	sc_seo_plugin_detected: ( a ) =>
+		sprintf(
+			// translators: %s: detected SEO plugin name.
+			__(
+				'Detected SEO plugin (%s) — structured data is likely being emitted.',
+				'ai-readiness-kit'
+			),
+			a[ 0 ]
+		),
+	sc_native_jsonld: () =>
+		__(
+			'AI Readiness Kit is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin.',
+			'ai-readiness-kit'
+		),
+	sc_no_structured_data: () =>
+		__(
+			'No structured data detected on this site. Enable Schema emission in the Context Profile to have AI Readiness Kit emit native JSON-LD, or rely on a third-party SEO plugin.',
+			'ai-readiness-kit'
+		),
+	// exposure_safety
+	es_only_published: () =>
+		__(
+			'Only published content is exposed to agents.',
+			'ai-readiness-kit'
+		),
+	es_risky_statuses: ( a ) =>
+		sprintf(
+			// translators: %s: comma-separated list of non-publish post statuses.
+			__(
+				'Exposed statuses include %s — these can leak unpublished content to agents.',
+				'ai-readiness-kit'
+			),
+			a[ 0 ]
+		),
+	es_cpt_explicit: () =>
+		__(
+			'Exposed CPTs are configured explicitly (no implicit defaults).',
+			'ai-readiness-kit'
+		),
+	es_no_cpt: () =>
+		__(
+			'No CPTs exposed — safe-by-default, but agents will find nothing.',
+			'ai-readiness-kit'
+		),
+	// integration_health
+	ih_llm_configured: () =>
+		__(
+			'AI client configured and LLM features enabled.',
+			'ai-readiness-kit'
+		),
+	ih_llm_disabled: () =>
+		__(
+			'LLM features disabled — no AI client required.',
+			'ai-readiness-kit'
+		),
+	ih_llm_unconfigured: () =>
+		__(
+			'LLM features enabled but AI client is unconfigured — those features are silently degraded.',
+			'ai-readiness-kit'
+		),
+	ih_llms_txt_conflict: ( a ) =>
+		sprintf(
+			// translators: %s: comma-separated list of /llms.txt conflict kinds.
+			__( '/llms.txt conflict detected (%s).', 'ai-readiness-kit' ),
+			a[ 0 ]
+		),
+	// md_conversion_quality
+	mcq_no_cache: () =>
+		__(
+			'No Markdown Views cache rows yet — visit a few `.md` URLs to populate the cache.',
+			'ai-readiness-kit'
+		),
+	mcq_mean_quality: ( a ) =>
+		sprintf(
+			// translators: 1: number of cached posts. 2: mean quality score 0-100.
+			__(
+				'Mean Markdown quality across %1$d cached posts: %2$d/100.',
+				'ai-readiness-kit'
+			),
+			a[ 0 ],
+			a[ 1 ]
+		),
+	mcq_above_threshold: ( a ) =>
+		sprintf(
+			// translators: 1: percentage above threshold. 2: cleanup threshold value.
+			__(
+				'%1$d%% of cached posts are above the cleanup threshold (%2$d).',
+				'ai-readiness-kit'
+			),
+			a[ 0 ],
+			a[ 1 ]
+		),
+	// multi_channel_discovery
+	mcd_no_channels: () =>
+		__(
+			'No agent-discovery channels detected — site is invisible to agents that scan for ai.txt, /.well-known/, or OpenAPI.',
+			'ai-readiness-kit'
+		),
+	mcd_channels_detected: ( a ) =>
+		sprintf(
+			// translators: %d: number of agent-discovery channels detected (of 5).
+			__(
+				'%d of 5 agent-discovery channel(s) detected.',
+				'ai-readiness-kit'
+			),
+			a[ 0 ]
+		),
+	mcd_provider_configurable: ( a ) =>
+		sprintf(
+			// translators: 1: sibling provider name. 2: provider admin config URL.
+			__(
+				'%1$s detected — coordinating multi-channel discovery. Configure at %2$s',
+				'ai-readiness-kit'
+			),
+			a[ 0 ],
+			a[ 1 ]
+		),
+	mcd_provider_detected: ( a ) =>
+		sprintf(
+			// translators: %s: sibling provider name.
+			__(
+				'%s detected — coordinating multi-channel discovery.',
+				'ai-readiness-kit'
+			),
+			a[ 0 ]
+		),
+};
+
+// Render a single Engine reason: localise via its `{code, args}` token when
+// the code is known, otherwise fall back to the English string Engine also
+// emits in the parallel `reasons` array (#139 / AgDR-0047).
+function renderReason( reasonKey, fallback ) {
+	if (
+		reasonKey &&
+		typeof reasonKey === 'object' &&
+		typeof REASON_TEMPLATES[ reasonKey.code ] === 'function'
+	) {
+		const args = Array.isArray( reasonKey.args ) ? reasonKey.args : [];
+		return REASON_TEMPLATES[ reasonKey.code ]( args );
+	}
+	return fallback;
+}
+
+// Localise the full parallel reasons/reason_keys pair into display strings,
+// falling back element-wise to the English reasons.
+function renderReasons( sub ) {
+	const reasons = Array.isArray( sub.reasons ) ? sub.reasons : [];
+	const keys = Array.isArray( sub.reason_keys ) ? sub.reason_keys : [];
+	return reasons.map( ( text, i ) =>
+		renderReason( keys[ i ], String( text ) )
+	);
+}
+
 function readBootstrap() {
 	if ( typeof window === 'undefined' ) {
 		return null;
@@ -435,10 +661,7 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 				name,
 				value: Number( sub.value || 0 ),
 				weight: Number( sub.weight || 0 ),
-				reason:
-					Array.isArray( sub.reasons ) && sub.reasons.length > 0
-						? String( sub.reasons[ 0 ] )
-						: '',
+				reason: renderReasons( sub )[ 0 ] || '',
 				narrative: narrativeFor( breakdown, name ),
 				_leverage: leverage( sub ),
 			} ) )
@@ -598,9 +821,7 @@ function SubScoreBreakdown( { breakdown } ) {
 				{ subs.map( ( [ name, sub ] ) => {
 					const value = Number( sub.value || 0 );
 					const weight = Number( sub.weight || 0 );
-					const reasons = Array.isArray( sub.reasons )
-						? sub.reasons
-						: [];
+					const reasons = renderReasons( sub );
 					const signals =
 						sub.signals && typeof sub.signals === 'object'
 							? sub.signals

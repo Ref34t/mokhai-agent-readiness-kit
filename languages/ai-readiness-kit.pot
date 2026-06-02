@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-02T17:26:55+00:00\n"
+"POT-Creation-Date: 2026-06-02T19:24:16+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: ai-readiness-kit\n"
@@ -863,9 +863,9 @@ msgid "Tagline:"
 msgstr ""
 
 #: src/admin/context-profile/index.js:169
-#: src/admin/context-score/index.js:869
-#: src/admin/context-score/index.js:878
-#: src/admin/context-score/index.js:902
+#: src/admin/context-score/index.js:1090
+#: src/admin/context-score/index.js:1099
+#: src/admin/context-score/index.js:1123
 msgid "(none)"
 msgstr ""
 
@@ -910,7 +910,7 @@ msgid "Post statuses to expose"
 msgstr ""
 
 #: src/admin/context-profile/index.js:317
-#: src/admin/context-score/index.js:829
+#: src/admin/context-score/index.js:1050
 msgid "Schema coordination"
 msgstr ""
 
@@ -1002,196 +1002,325 @@ msgstr ""
 msgid "AI generation exceeded the 10-second budget. Narrative is using deterministic templates."
 msgstr ""
 
+#: src/admin/context-score/index.js:97
+msgid "/llms.txt cache is populated."
+msgstr ""
+
+#: src/admin/context-score/index.js:99
+msgid "/llms.txt cache is empty — agents cannot discover the site index."
+msgstr ""
+
+#. translators: %d: number of post types exposed to agents.
+#: src/admin/context-score/index.js:106
+msgid "Site exposes %d post type(s) to agents."
+msgstr ""
+
+#: src/admin/context-score/index.js:110
+msgid "No post types are exposed to agents (Context Profile → Exposed CPTs is empty)."
+msgstr ""
+
+#. translators: %d: number of entries listed in /llms.txt.
+#: src/admin/context-score/index.js:117
+msgid "/llms.txt lists %d entries."
+msgstr ""
+
 #: src/admin/context-score/index.js:121
+msgid "/llms.txt has zero entries."
+msgstr ""
+
+#: src/admin/context-score/index.js:123
+msgid "Another plugin is overriding the /llms.txt rewrite rule."
+msgstr ""
+
+#: src/admin/context-score/index.js:129
+msgid "No exposed entries — nothing for agents to read."
+msgstr ""
+
+#. translators: %d: percentage of entries with a curated description.
+#: src/admin/context-score/index.js:136
+msgid "%d%% of exposed entries have a curated description."
+msgstr ""
+
+#. translators: %d: percentage of entries with a curated description.
+#: src/admin/context-score/index.js:145
+msgid "%d%% of exposed entries have a curated description — room to improve."
+msgstr ""
+
+#. translators: %d: percentage of entries with a curated description.
+#: src/admin/context-score/index.js:154
+msgid "Only %d%% of exposed entries have a curated description."
+msgstr ""
+
+#. translators: %s: detected SEO plugin name.
+#: src/admin/context-score/index.js:164
+msgid "Detected SEO plugin (%s) — structured data is likely being emitted."
+msgstr ""
+
+#: src/admin/context-score/index.js:171
+msgid "AI Readiness Kit is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin."
+msgstr ""
+
+#: src/admin/context-score/index.js:176
+msgid "No structured data detected on this site. Enable Schema emission in the Context Profile to have AI Readiness Kit emit native JSON-LD, or rely on a third-party SEO plugin."
+msgstr ""
+
+#: src/admin/context-score/index.js:182
+msgid "Only published content is exposed to agents."
+msgstr ""
+
+#. translators: %s: comma-separated list of non-publish post statuses.
+#: src/admin/context-score/index.js:189
+msgid "Exposed statuses include %s — these can leak unpublished content to agents."
+msgstr ""
+
+#: src/admin/context-score/index.js:196
+msgid "Exposed CPTs are configured explicitly (no implicit defaults)."
+msgstr ""
+
+#: src/admin/context-score/index.js:201
+msgid "No CPTs exposed — safe-by-default, but agents will find nothing."
+msgstr ""
+
+#: src/admin/context-score/index.js:207
+msgid "AI client configured and LLM features enabled."
+msgstr ""
+
+#: src/admin/context-score/index.js:212
+msgid "LLM features disabled — no AI client required."
+msgstr ""
+
+#: src/admin/context-score/index.js:217
+msgid "LLM features enabled but AI client is unconfigured — those features are silently degraded."
+msgstr ""
+
+#. translators: %s: comma-separated list of /llms.txt conflict kinds.
+#: src/admin/context-score/index.js:224
+msgid "/llms.txt conflict detected (%s)."
+msgstr ""
+
+#: src/admin/context-score/index.js:229
+msgid "No Markdown Views cache rows yet — visit a few `.md` URLs to populate the cache."
+msgstr ""
+
+#. translators: 1: number of cached posts. 2: mean quality score 0-100.
+#: src/admin/context-score/index.js:236
+msgid "Mean Markdown quality across %1$d cached posts: %2$d/100."
+msgstr ""
+
+#. translators: 1: percentage above threshold. 2: cleanup threshold value.
+#: src/admin/context-score/index.js:246
+msgid "%1$d%% of cached posts are above the cleanup threshold (%2$d)."
+msgstr ""
+
+#: src/admin/context-score/index.js:255
+msgid "No agent-discovery channels detected — site is invisible to agents that scan for ai.txt, /.well-known/, or OpenAPI."
+msgstr ""
+
+#. translators: %d: number of agent-discovery channels detected (of 5).
+#: src/admin/context-score/index.js:262
+msgid "%d of 5 agent-discovery channel(s) detected."
+msgstr ""
+
+#. translators: 1: sibling provider name. 2: provider admin config URL.
+#: src/admin/context-score/index.js:271
+msgid "%1$s detected — coordinating multi-channel discovery. Configure at %2$s"
+msgstr ""
+
+#. translators: %s: sibling provider name.
+#: src/admin/context-score/index.js:281
+msgid "%s detected — coordinating multi-channel discovery."
+msgstr ""
+
+#: src/admin/context-score/index.js:347
 msgid "AI-generated"
 msgstr ""
 
-#: src/admin/context-score/index.js:122
+#: src/admin/context-score/index.js:348
 msgid "Rule-based"
 msgstr ""
 
-#: src/admin/context-score/index.js:154
-#: src/admin/context-score/index.js:158
+#: src/admin/context-score/index.js:380
+#: src/admin/context-score/index.js:384
 msgid "unknown"
 msgstr ""
 
-#: src/admin/context-score/index.js:162
+#: src/admin/context-score/index.js:388
 msgid "just now"
 msgstr ""
 
 #. translators: %d: minutes ago
-#: src/admin/context-score/index.js:168
+#: src/admin/context-score/index.js:394
 msgid "%d minute(s) ago"
 msgstr ""
 
 #. translators: %d: hours ago
-#: src/admin/context-score/index.js:176
+#: src/admin/context-score/index.js:402
 msgid "%d hour(s) ago"
 msgstr ""
 
 #. translators: %d: days ago
-#: src/admin/context-score/index.js:183
+#: src/admin/context-score/index.js:409
 msgid "%d day(s) ago"
 msgstr ""
 
-#: src/admin/context-score/index.js:240
-#: src/admin/context-score/index.js:256
-#: src/admin/context-score/index.js:298
+#: src/admin/context-score/index.js:466
+#: src/admin/context-score/index.js:482
+#: src/admin/context-score/index.js:524
 msgid "Overall score"
 msgstr ""
 
-#: src/admin/context-score/index.js:244
+#: src/admin/context-score/index.js:470
 msgid "Computing Context Score…"
 msgstr ""
 
-#: src/admin/context-score/index.js:259
+#: src/admin/context-score/index.js:485
 msgid "No Context Score breakdown is available yet. Click \"Recompute now\" to generate the first audit."
 msgstr ""
 
-#: src/admin/context-score/index.js:270
-#: src/admin/context-score/index.js:385
+#: src/admin/context-score/index.js:496
+#: src/admin/context-score/index.js:611
 msgid "Recomputing…"
 msgstr ""
 
-#: src/admin/context-score/index.js:271
-#: src/admin/context-score/index.js:386
+#: src/admin/context-score/index.js:497
+#: src/admin/context-score/index.js:612
 msgid "Recompute now"
 msgstr ""
 
-#: src/admin/context-score/index.js:289
+#: src/admin/context-score/index.js:515
 msgid "Narrative is using deterministic templates."
 msgstr ""
 
-#: src/admin/context-score/index.js:349
+#: src/admin/context-score/index.js:575
 msgid "Good"
 msgstr ""
 
-#: src/admin/context-score/index.js:351
+#: src/admin/context-score/index.js:577
 msgid "Needs attention"
 msgstr ""
 
-#: src/admin/context-score/index.js:353
+#: src/admin/context-score/index.js:579
 msgid "Critical"
 msgstr ""
 
-#: src/admin/context-score/index.js:359
+#: src/admin/context-score/index.js:585
 msgid "Overall Context Score (0 to 100)"
 msgstr ""
 
 #. translators: %s: relative time, e.g. "5 minutes ago"
-#: src/admin/context-score/index.js:373
+#: src/admin/context-score/index.js:599
 msgid "Last computed %s."
 msgstr ""
 
-#: src/admin/context-score/index.js:418
+#: src/admin/context-score/index.js:644
 msgid "Configure in Context Profile"
 msgstr ""
 
-#: src/admin/context-score/index.js:456
+#: src/admin/context-score/index.js:679
 msgid "What is missing"
 msgstr ""
 
-#: src/admin/context-score/index.js:460
+#: src/admin/context-score/index.js:683
 msgid "Every sub-score is at 100. Nothing actionable to surface."
 msgstr ""
 
 #. translators: 1: sub-score value 0-100. 2: weight contribution.
 #. translators: 1: sub-score value. 2: weight.
-#: src/admin/context-score/index.js:514
-#: src/admin/context-score/index.js:638
+#: src/admin/context-score/index.js:737
+#: src/admin/context-score/index.js:859
 msgid "%1$d/100 · weight %2$d"
 msgstr ""
 
 #. translators: %s: one-line fix suggestion.
-#: src/admin/context-score/index.js:548
-#: src/admin/context-score/index.js:687
+#: src/admin/context-score/index.js:771
+#: src/admin/context-score/index.js:908
 msgid "Fix: %s"
 msgstr ""
 
-#: src/admin/context-score/index.js:596
+#: src/admin/context-score/index.js:819
 msgid "Full breakdown"
 msgstr ""
 
 #. translators: %s: sub-score label
-#: src/admin/context-score/index.js:651
+#: src/admin/context-score/index.js:872
 msgid "%s score (0 to 100)"
 msgstr ""
 
-#: src/admin/context-score/index.js:714
+#: src/admin/context-score/index.js:935
 msgid "Raw signals"
 msgstr ""
 
-#: src/admin/context-score/index.js:771
+#: src/admin/context-score/index.js:992
 msgid "Yoast SEO"
 msgstr ""
 
-#: src/admin/context-score/index.js:772
+#: src/admin/context-score/index.js:993
 msgid "Rank Math"
 msgstr ""
 
-#: src/admin/context-score/index.js:773
+#: src/admin/context-score/index.js:994
 msgid "All in One SEO"
 msgstr ""
 
 #. translators: %s: SEO plugin name
-#: src/admin/context-score/index.js:835
+#: src/admin/context-score/index.js:1056
 msgid "%s is active. AI Readiness Kit defers JSON-LD coordination to it and only fills schema types it does not already provide."
 msgstr ""
 
-#: src/admin/context-score/index.js:843
+#: src/admin/context-score/index.js:1064
 msgid "No SEO plugin detected. AI Readiness Kit is emitting a minimal baseline schema set (site identity + content type) on the front-end."
 msgstr ""
 
-#: src/admin/context-score/index.js:849
+#: src/admin/context-score/index.js:1070
 msgid "No SEO plugin detected and Schema emission is off in Context Profile. AI Readiness Kit is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage."
 msgstr ""
 
-#: src/admin/context-score/index.js:864
+#: src/admin/context-score/index.js:1085
 msgid "Baseline types"
 msgstr ""
 
-#: src/admin/context-score/index.js:873
+#: src/admin/context-score/index.js:1094
 msgid "Deferred to plugin"
 msgstr ""
 
-#: src/admin/context-score/index.js:889
+#: src/admin/context-score/index.js:1110
 msgid "Filled by AI Readiness Kit"
 msgstr ""
 
-#: src/admin/context-score/index.js:898
+#: src/admin/context-score/index.js:1119
 msgid "(none — every baseline type is covered by the active SEO plugin)"
 msgstr ""
 
-#: src/admin/context-score/index.js:913
+#: src/admin/context-score/index.js:1134
 msgid "Emission on wp_head"
 msgstr ""
 
-#: src/admin/context-score/index.js:916
+#: src/admin/context-score/index.js:1137
 msgid "Enabled"
 msgstr ""
 
-#: src/admin/context-score/index.js:919
+#: src/admin/context-score/index.js:1140
 msgid "Off — toggle in Context Profile → Schema emission"
 msgstr ""
 
-#: src/admin/context-score/index.js:925
+#: src/admin/context-score/index.js:1146
 msgid "Suppressed by agentready_schema_emit filter"
 msgstr ""
 
-#: src/admin/context-score/index.js:965
+#: src/admin/context-score/index.js:1186
 msgid "Failed to load the Context Score."
 msgstr ""
 
 #. translators: 1: overall score. 2: duration in ms.
-#: src/admin/context-score/index.js:1006
+#: src/admin/context-score/index.js:1227
 msgid "Context Score recomputed: %1$d/100 (%2$d ms)."
 msgstr ""
 
-#: src/admin/context-score/index.js:1019
+#: src/admin/context-score/index.js:1240
 msgid "Recompute failed."
 msgstr ""
 
-#: src/admin/context-score/index.js:1042
+#: src/admin/context-score/index.js:1263
 msgid "AI Readiness Kit Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
 msgstr ""
 

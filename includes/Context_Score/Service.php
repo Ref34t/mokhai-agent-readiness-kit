@@ -71,10 +71,14 @@ final class Service {
 	 *       AgDR-0043. Old payloads (v2 shape, 6 sub-scores) read as null
 	 *       and trigger a fresh recompute so the new sub-score is populated
 	 *       on first access after upgrade.
+	 *   4 — adds the additive parallel `reason_keys` array per sub-score from
+	 *       #139 / AgDR-0047 (translatable reason codes). Old payloads (v3
+	 *       shape, no `reason_keys`) read as null and recompute on first
+	 *       access so the admin UI can localise the reasons.
 	 *
 	 * @var int
 	 */
-	public const CACHE_SCHEMA_VERSION = 3;
+	public const CACHE_SCHEMA_VERSION = 4;
 
 	/**
 	 * Wire the WordPress hooks owned by this service.
