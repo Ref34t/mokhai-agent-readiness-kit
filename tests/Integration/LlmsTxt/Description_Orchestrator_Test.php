@@ -403,4 +403,22 @@ final class Description_Orchestrator_Test extends WP_UnitTestCase {
 			self::assertSame( '', (string) get_post_meta( $post->ID, $key, true ), $key . ' should be cleared' );
 		}
 	}
+
+	public function test_build_user_prompt_strips_orphaned_shortcodes(): void {
+		// #147: the description excerpt is built from raw post_content with
+		// wp_strip_all_tags(), which does not remove shortcodes. An orphaned
+		// builder shortcode must not reach the LLM prompt (or it gets parroted
+		// into the published /llms.txt description).
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_status'  => 'publish',
+				'post_content' => '<p>Body paragraph with [vc_btn title="X"] residue.</p>',
+			)
+		);
+
+		$prompt = Description_Orchestrator::build_user_prompt( $post );
+
+		self::assertStringNotContainsString( '[vc_btn', $prompt );
+		self::assertStringContainsString( 'residue.', $prompt );
+	}
 }
