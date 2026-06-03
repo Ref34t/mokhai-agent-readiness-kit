@@ -130,6 +130,48 @@ final class Walker_Test extends TestCase {
 		self::assertStringNotContainsString( '[/caption]', $md );
 	}
 
+	public function test_walker_strips_orphaned_attribute_shortcode(): void {
+		// #145: an unregistered builder shortcode (WPBakery, plugin inactive)
+		// survives do_shortcode() as a literal token; the deterministic pass
+		// must strip it rather than leak it to .md / llms.txt / AI summary.
+		$html = '<p>Body paragraph with [vc_btn title="X"] residue.</p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Body paragraph with', $md );
+		self::assertStringContainsString( 'residue.', $md );
+		self::assertStringNotContainsString( '[vc_btn', $md );
+	}
+
+	public function test_walker_unwraps_nested_paired_builder_shortcodes_keeping_content(): void {
+		// #145: paired builder containers are dropped but their inner copy —
+		// the actual content — is preserved, even when nested.
+		$html = '[vc_row][vc_column width="1/2"][vc_column_text]Real copy here.[/vc_column_text][/vc_column][/vc_row]';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Real copy here.', $md );
+		self::assertStringNotContainsString( '[vc_row', $md );
+		self::assertStringNotContainsString( '[vc_column', $md );
+		self::assertStringNotContainsString( '[/vc_', $md );
+	}
+
+	public function test_walker_strips_self_closing_shortcode(): void {
+		// #145: a self-closing shortcode with no attributes exercises the
+		// `[tag /]` strip path (distinct from the attribute-bearing path).
+		$html = '<p>Embed [my_embed /] here.</p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Embed', $md );
+		self::assertStringContainsString( 'here.', $md );
+		self::assertStringNotContainsString( '[my_embed', $md );
+	}
+
+	public function test_walker_preserves_non_shortcode_bracketed_prose(): void {
+		// #145 guard against over-stripping: bracketed prose with no `=`
+		// attribute, no trailing `/`, and no matching close tag is NOT a
+		// shortcode and must survive.
+		$html = '<p>See footnote [1] and the [citation needed] marker.</p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( '[1]', $md );
+		self::assertStringContainsString( '[citation needed]', $md );
+	}
+
 	public function test_score_is_high_on_clean_classic_post(): void {
 		$html = '<h1>A clean post</h1><p>One paragraph.</p><p>Another paragraph.</p>';
 		$result = Walker::convert( $html );
