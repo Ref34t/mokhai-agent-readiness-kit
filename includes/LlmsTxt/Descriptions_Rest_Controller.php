@@ -29,8 +29,7 @@ use WPContext\Ai\Client_Wrapper;
 \defined( 'ABSPATH' ) || exit;
 
 /**
- * Static REST controller. Same shape conventions as
- * `Markdown_Views\Cleanup_Rest_Controller`.
+ * Static REST controller for the LLM descriptions admin surface.
  */
 final class Descriptions_Rest_Controller {
 

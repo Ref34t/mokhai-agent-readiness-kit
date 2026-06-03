@@ -228,8 +228,6 @@ final class Registrar {
 						'deterministic_markdown' => array( 'type' => 'string' ),
 						'quality_score'          => array( 'type' => array( 'integer', 'null' ) ),
 						'signals'                => array( 'type' => array( 'object', 'null' ) ),
-						'cleaned_markdown'       => array( 'type' => array( 'string', 'null' ) ),
-						'cleaned_status'         => array( 'type' => 'string' ),
 					),
 				),
 				'execute_callback'    => array( Md_View_Ability::class, 'preview' ),

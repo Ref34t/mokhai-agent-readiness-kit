@@ -57,7 +57,6 @@ final class Context_Profile_Settings_Test extends TestCase {
 
 	public function test_defaults_enable_llm_toggles(): void {
 		$defaults = Context_Profile_Settings::get_defaults();
-		self::assertTrue( $defaults['llm_cleanup_enabled'] );
 		self::assertTrue( $defaults['llm_descriptions_enabled'] );
 	}
 
@@ -80,17 +79,15 @@ final class Context_Profile_Settings_Test extends TestCase {
 
 	public function test_get_profile_merges_partial_stored_with_defaults(): void {
 		$GLOBALS['wpctx_test_options'][ Context_Profile_Settings::OPTION_KEY ] = array(
-			'exposed_cpts'        => array( 'post' ),
-			'llm_cleanup_enabled' => false,
-			// Note: exposed_statuses and llm_descriptions_enabled omitted —
-			// should be filled by migrate() from defaults.
+			'exposed_cpts'             => array( 'post' ),
+			'llm_descriptions_enabled' => false,
+			// Note: exposed_statuses omitted — should be filled by migrate() from defaults.
 		);
 
 		$profile = Context_Profile_Settings::get_profile();
 
 		self::assertSame( array( 'post' ), $profile['exposed_cpts'] );
-		self::assertFalse( $profile['llm_cleanup_enabled'] );
-		self::assertTrue( $profile['llm_descriptions_enabled'], 'Missing LLM toggle should default to on.' );
+		self::assertFalse( $profile['llm_descriptions_enabled'] );
 		self::assertSame( array( 'publish' ), $profile['exposed_statuses'], 'Missing statuses should default to [publish].' );
 	}
 
@@ -196,12 +193,10 @@ final class Context_Profile_Settings_Test extends TestCase {
 	public function test_sanitize_coerces_llm_toggles_to_bool(): void {
 		$result = Context_Profile_Settings::sanitize(
 			array(
-				'llm_cleanup_enabled'      => '1',
 				'llm_descriptions_enabled' => '',
 			)
 		);
 
-		self::assertTrue( $result['llm_cleanup_enabled'] );
 		self::assertFalse( $result['llm_descriptions_enabled'] );
 	}
 
@@ -297,7 +292,7 @@ final class Context_Profile_Settings_Test extends TestCase {
 		// New value (first arg) is the migrated profile — defaults merged in.
 		self::assertSame( array( 'post' ), $dispatched[0]['args'][0]['exposed_cpts'] );
 		self::assertSame( array( 'publish' ), $dispatched[0]['args'][0]['exposed_statuses'] );
-		self::assertTrue( $dispatched[0]['args'][0]['llm_cleanup_enabled'] );
+		self::assertTrue( $dispatched[0]['args'][0]['llm_descriptions_enabled'] );
 
 		// Old value (second arg) is the migrated previous profile.
 		self::assertSame( array( 'page' ), $dispatched[0]['args'][1]['exposed_cpts'] );

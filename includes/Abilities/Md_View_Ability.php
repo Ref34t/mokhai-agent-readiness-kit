@@ -10,19 +10,13 @@ declare(strict_types=1);
 namespace WPContext\Abilities;
 
 use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Cleanup_Orchestrator;
 use WPContext\Markdown_Views\Service;
 
 \defined( 'ABSPATH' ) || exit;
 
 /**
  * Preview the Markdown view of a post for an agent — deterministic markdown
- * always, plus the cached LLM-cleaned output read-only.
- *
- * Non-blocking by design (AgDR-0044): the deterministic walker output is
- * computed synchronously; the LLM-cleaned output is whatever the async
- * `Cleanup_Orchestrator` has already produced (or null), never a fresh
- * blocking LLM call.
+ * computed synchronously via the Walker.
  *
  * A non-exposable post returns `exposable: false` + a reason rather than a
  * 404 — the caller holds `manage_options` and the reason is actionable,
@@ -77,8 +71,6 @@ final class Md_View_Ability {
 				'deterministic_markdown' => '',
 				'quality_score'          => null,
 				'signals'                => null,
-				'cleaned_markdown'       => null,
-				'cleaned_status'         => 'none',
 			);
 		}
 
@@ -88,12 +80,6 @@ final class Md_View_Ability {
 		$quality       = null !== $conversion ? $conversion->get_quality_score() : null;
 		$signals       = null !== $conversion ? $conversion->get_signals() : null;
 
-		$status     = Cleanup_Orchestrator::get_status( $post_id );
-		$state      = Cleanup_Orchestrator::get_state( $post_id );
-		$cleaned_md = isset( $state['cleaned_markdown'] ) && \is_string( $state['cleaned_markdown'] )
-			? $state['cleaned_markdown']
-			: null;
-
 		return array(
 			'post_id'                => $post_id,
 			'exposable'              => true,
@@ -101,8 +87,6 @@ final class Md_View_Ability {
 			'deterministic_markdown' => $deterministic,
 			'quality_score'          => $quality,
 			'signals'                => $signals,
-			'cleaned_markdown'       => $cleaned_md,
-			'cleaned_status'         => '' === $status ? 'none' : $status,
 		);
 	}
 

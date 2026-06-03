@@ -512,11 +512,9 @@ final class Engine_Test extends TestCase {
 	private static function perfect_signals(): array {
 		return array(
 			'profile'                 => array(
-				'exposed_cpts'                     => array( 'post', 'page' ),
-				'exposed_statuses'                 => array( 'publish' ),
-				'llm_cleanup_enabled'              => true,
-				'llm_descriptions_enabled'         => true,
-				'markdown_views_cleanup_threshold' => 70,
+				'exposed_cpts'             => array( 'post', 'page' ),
+				'exposed_statuses'         => array( 'publish' ),
+				'llm_descriptions_enabled' => true,
 			),
 			'llms_txt'                => array(
 				'cache_populated' => true,

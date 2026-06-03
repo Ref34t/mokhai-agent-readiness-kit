@@ -233,15 +233,11 @@ final class Description_Orchestrator_Test extends WP_UnitTestCase {
 	/**
 	 * Ref34t/agentready#121 — per-post stale-event recovery.
 	 *
-	 * Same shape as `Cleanup_Orchestrator::schedule` post-#120 — a per-
-	 * post description event left in the cron queue with a past
+	 * A per-post description event left in the cron queue with a past
 	 * timestamp must be cleared before a fresh future event can be
 	 * scheduled. Without the clear, WP de-dups the new event against
 	 * the stale entry and the description never fires, but the meta
 	 * marker keeps reporting `pending`.
-	 *
-	 * Mirrors tests/Integration/Markdown_Views/Cleanup_Orchestrator_State_Test.php::
-	 * test_schedule_clears_stale_past_event_and_reschedules.
 	 */
 	public function test_schedule_clears_stale_past_event_and_reschedules(): void {
 		$post = self::factory()->post->create_and_get(

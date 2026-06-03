@@ -95,8 +95,7 @@ final class Profile_Ability_Test extends WP_UnitTestCase {
 
 		// Exposure changed; an unrelated module flag did not.
 		self::assertSame( array( 'publish', 'pending' ), $after['exposed_statuses'] );
-		self::assertSame( $before['llm_cleanup_enabled'], $after['llm_cleanup_enabled'] );
-		self::assertSame( $before['markdown_views_cleanup_threshold'], $after['markdown_views_cleanup_threshold'] );
+		self::assertSame( $before['llm_descriptions_enabled'], $after['llm_descriptions_enabled'] );
 	}
 
 	public function test_set_exposure_fires_saved_cascade(): void {

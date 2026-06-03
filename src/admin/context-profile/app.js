@@ -345,23 +345,6 @@ export function ContextProfileApp( { bootstrap } ) {
 						<ToggleControl
 							__nextHasNoMarginBottom
 							label={ __(
-								'Enable LLM cleanup pass for messy pages',
-								'ai-readiness-kit'
-							) }
-							help={ __(
-								'When a page is built with a page builder (Elementor, Divi, etc.) or scores low on deterministic conversion, run a cleanup pass via WP AI Client. Admin-previewable; never auto-publishes.',
-								'ai-readiness-kit'
-							) }
-							checked={ profile.llm_cleanup_enabled }
-							onChange={ ( on ) =>
-								updateField( 'llm_cleanup_enabled', on )
-							}
-						/>
-					</PanelRow>
-					<PanelRow>
-						<ToggleControl
-							__nextHasNoMarginBottom
-							label={ __(
 								'Auto-generate /llms.txt entry descriptions',
 								'ai-readiness-kit'
 							) }

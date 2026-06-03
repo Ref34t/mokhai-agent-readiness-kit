@@ -154,9 +154,9 @@ final class Llms_Txt_Descriptions_Command {
 	 *   `exposed_cpts`.
 	 *
 	 * [--limit=<n>]
-	 * : Cap how many jobs this run will schedule. Useful when
-	 *   `markdown_views_cleanup_max_per_run` is small and you want to
-	 *   drive the queue in batches across multiple invocations.
+	 * : Cap how many jobs this run will schedule. Useful when the
+	 *   descriptions cap is small and you want to drive the queue in
+	 *   batches across multiple invocations.
 	 *
 	 * @param array<int, string>    $args       Positional args (unused).
 	 * @param array<string, string> $assoc_args Associative args.
