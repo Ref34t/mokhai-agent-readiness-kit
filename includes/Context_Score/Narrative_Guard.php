@@ -2,12 +2,12 @@
 /**
  * Per-sub-score anti-hallucination guard for the LLM narrative (#11 / AgDR-0032).
  *
- * Sibling to `Markdown_Views\Cleanup_Guard` (AgDR-0018), tailored to the
- * narrower failure surface of the Context Score narrative: two 140-char
- * strings per sub-score, against a 60-word structured breakdown. The
- * common failure modes are fabricated numbers and fabricated proper-noun
- * sequences (plugin names, product names, surface names). Both classes
- * are catchable with a token allowlist drawn from the breakdown itself.
+ * Anti-hallucination guard (AgDR-0018 lineage) tailored to the narrower
+ * failure surface of the Context Score narrative: two 140-char strings per
+ * sub-score, against a 60-word structured breakdown. The common failure
+ * modes are fabricated numbers and fabricated proper-noun sequences (plugin
+ * names, product names, surface names). Both classes are catchable with a
+ * token allowlist drawn from the breakdown itself.
  *
  * @package WPContext
  */

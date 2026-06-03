@@ -404,7 +404,7 @@ if ( ! function_exists( 'wp_ai_client_prompt' ) ) {
 if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 	/**
 	 * Stub: drop tags + collapse whitespace. Matches WP core behaviour
-	 * closely enough for the Cleanup_Guard's allowlist build.
+	 * closely enough for allowlist builds.
 	 */
 	function wp_strip_all_tags( string $text, bool $remove_breaks = false ): string {
 		$text = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', $text ) ?? $text;

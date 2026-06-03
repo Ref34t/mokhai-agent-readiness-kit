@@ -120,66 +120,21 @@ final class Context_Profile_Settings {
 	 */
 	public static function get_defaults(): array {
 		return array(
-			'schema_version'                     => self::CURRENT_SCHEMA_VERSION,
-			'exposed_cpts'                       => array(),
-			'exposed_statuses'                   => array( 'publish' ),
-			'llm_cleanup_enabled'                => true,
-			'llm_descriptions_enabled'           => true,
+			'schema_version'           => self::CURRENT_SCHEMA_VERSION,
+			'exposed_cpts'             => array(),
+			'exposed_statuses'         => array( 'publish' ),
+			'llm_descriptions_enabled' => true,
 			// Native JSON-LD emission opt-in (#73 / AgDR-0034). Default
 			// false: FR-9 safe-by-default. Operator flips this on to
 			// satisfy Context Score's schema_coverage without a third-
 			// party SEO plugin. Site-identity nodes always emit when on;
 			// per-content nodes additionally gate on exposed_cpts /
 			// exposed_statuses.
-			'schema_emit_enabled'                => false,
+			'schema_emit_enabled'      => false,
 			// Per-module enable flags. Adding modules here is an additive
 			// schema change (legacy stored profiles default true via merge()).
-			'markdown_views_enabled'             => true,
-			// Markdown Views LLM cleanup configuration (AgDR-0017, #6).
-			// `markdown_views_cleanup_threshold` is the quality-score cutoff
-			// below which the cleanup pass auto-triggers. Tunable 0–100.
-			// `markdown_views_cleanup_max_per_run` caps cron-batch size so
-			// a flood of low-score posts can't burn the LLM budget in one
-			// tick.
-			'markdown_views_cleanup_threshold'   => 70,
-			'markdown_views_cleanup_max_per_run' => 10,
+			'markdown_views_enabled'   => true,
 		);
-	}
-
-	/**
-	 * Resolve the cleanup threshold for Markdown Views.
-	 *
-	 * Clamps to [0, 100]; out-of-range stored values fall back to the
-	 * default (70). Returned by `Cleanup_Orchestrator::should_clean()`
-	 * when comparing the walker's quality score.
-	 */
-	public static function get_md_cleanup_threshold(): int {
-		$profile = self::get_profile();
-		$raw     = $profile['markdown_views_cleanup_threshold'] ?? 70;
-		$value   = \is_numeric( $raw ) ? (int) $raw : 70;
-
-		if ( $value < 0 || $value > 100 ) {
-			return 70;
-		}
-
-		return $value;
-	}
-
-	/**
-	 * Resolve the per-cron-tick cleanup cap. Defence against an
-	 * unbounded LLM-cost spike if a site has many low-score posts.
-	 * Clamps to [1, 100]; out-of-range values fall back to the default.
-	 */
-	public static function get_md_cleanup_max_per_run(): int {
-		$profile = self::get_profile();
-		$raw     = $profile['markdown_views_cleanup_max_per_run'] ?? 10;
-		$value   = \is_numeric( $raw ) ? (int) $raw : 10;
-
-		if ( $value < 1 || $value > 100 ) {
-			return 10;
-		}
-
-		return $value;
 	}
 
 	/**
@@ -532,7 +487,6 @@ final class Context_Profile_Settings {
 				: array()
 		);
 
-		$out['llm_cleanup_enabled']      = ! empty( $input['llm_cleanup_enabled'] );
 		$out['llm_descriptions_enabled'] = ! empty( $input['llm_descriptions_enabled'] );
 
 		// Native JSON-LD emission opt-in (#73 / AgDR-0034). Inverted form of
@@ -552,23 +506,6 @@ final class Context_Profile_Settings {
 		$out['markdown_views_enabled'] = ! \array_key_exists( 'markdown_views_enabled', $input )
 			? true
 			: ! empty( $input['markdown_views_enabled'] );
-
-		// Cleanup config: clamp to safe ranges, fall back to default on any
-		// non-numeric input. Defence against forged or hand-edited options
-		// without erroring the admin form.
-		$threshold_raw = $input['markdown_views_cleanup_threshold'] ?? $defaults['markdown_views_cleanup_threshold'];
-		$threshold     = \is_numeric( $threshold_raw ) ? (int) $threshold_raw : $defaults['markdown_views_cleanup_threshold'];
-		if ( $threshold < 0 || $threshold > 100 ) {
-			$threshold = $defaults['markdown_views_cleanup_threshold'];
-		}
-		$out['markdown_views_cleanup_threshold'] = $threshold;
-
-		$max_raw = $input['markdown_views_cleanup_max_per_run'] ?? $defaults['markdown_views_cleanup_max_per_run'];
-		$max     = \is_numeric( $max_raw ) ? (int) $max_raw : $defaults['markdown_views_cleanup_max_per_run'];
-		if ( $max < 1 || $max > 100 ) {
-			$max = $defaults['markdown_views_cleanup_max_per_run'];
-		}
-		$out['markdown_views_cleanup_max_per_run'] = $max;
 
 		// Unknown keys are dropped by virtue of not being copied into $out.
 

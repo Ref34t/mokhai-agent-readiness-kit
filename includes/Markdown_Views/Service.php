@@ -57,14 +57,6 @@ final class Service {
 		\add_action( 'wp_trash_post', array( self::class, 'invalidate' ), 10, 1 );
 		\add_action( 'before_delete_post', array( self::class, 'invalidate' ), 10, 1 );
 		\add_action( 'wp_after_insert_post', array( self::class, 'invalidate' ), 10, 1 );
-
-		// AgDR-0016/0017/0018: post-edit lifecycle also clears LLM-cleanup
-		// state. The orchestrator's cleanup output is tied to the same
-		// content-hash semantics as the cache row.
-		\add_action( 'save_post', array( Cleanup_Orchestrator::class, 'invalidate' ), 10, 1 );
-		\add_action( 'wp_trash_post', array( Cleanup_Orchestrator::class, 'invalidate' ), 10, 1 );
-		\add_action( 'before_delete_post', array( Cleanup_Orchestrator::class, 'invalidate' ), 10, 1 );
-		\add_action( 'wp_after_insert_post', array( Cleanup_Orchestrator::class, 'invalidate' ), 10, 1 );
 	}
 
 	/**
@@ -74,18 +66,11 @@ final class Service {
 	 * `ERROR_*` codes on a denied request. Never returns `null`; callers may
 	 * assume the response is one of these two shapes.
 	 *
-	 * @param \WP_Post $post             Post to render.
-	 * @param bool     $schedule_cleanup When true (default), the
-	 *     cache-miss path may schedule an async cleanup via
-	 *     `Cleanup_Orchestrator::schedule()`. Public-route callers
-	 *     pass true; admin REST/CLI callers (preview, state read)
-	 *     pass false so a read doesn't mutate cleanup state. Without
-	 *     this guard, every editor page-load would flip a `done`
-	 *     cleanup back to `pending`.
+	 * @param \WP_Post $post Post to render.
 	 *
 	 * @return string|\WP_Error
 	 */
-	public static function get_markdown_for_post( \WP_Post $post, bool $schedule_cleanup = true ) {
+	public static function get_markdown_for_post( \WP_Post $post ) {
 		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
 			return new \WP_Error(
 				self::ERROR_MODULE_DISABLED,
@@ -102,15 +87,6 @@ final class Service {
 
 		$hash    = self::content_hash( $post );
 		$post_id = (int) $post->ID;
-
-		// Phase B per AgDR-0020: if a cleanup has been approved for the
-		// current content hash, serve the cleaned MD instead of the
-		// deterministic version. Cheap lookup — two post-meta reads.
-		// Falls through to the deterministic cache path otherwise.
-		$approved = Cleanup_Orchestrator::get_approved_output( $post_id, $hash );
-		if ( null !== $approved ) {
-			return $approved;
-		}
 
 		$cached = self::read_cache( $post_id, $hash );
 
@@ -129,29 +105,14 @@ final class Service {
 
 		self::write_cache( $post_id, $hash, $conversion );
 
-		// Schedule async cleanup when the post is a page-builder export
-		// or scores below the configured threshold. The cleaned-MD
-		// output lands in post-meta but is NOT served until the admin
-		// approves it via Phase B's UI (handled by the get_approved_output
-		// check at the top of this method).
-		//
-		// Admin-context callers pass `$schedule_cleanup = false` so
-		// reading an admin preview / state response never mutates
-		// cleanup state.
-		if ( $schedule_cleanup && Cleanup_Orchestrator::should_clean( $post, $conversion, $hash ) ) {
-			Cleanup_Orchestrator::schedule( $post );
-		}
-
 		return $md;
 	}
 
 	/**
-	 * Public re-runner used by the cleanup orchestrator's cron handler.
-	 * Returns a fresh `Conversion_Result` for the post, or null if the
-	 * post is no longer eligible for Markdown Views (module disabled,
-	 * not exposable, walker rejected the input). The orchestrator
-	 * needs this to re-check eligibility at run time, not just at
-	 * schedule time.
+	 * Public re-runner used by the md-view-preview ability to produce a fresh
+	 * deterministic conversion. Returns a fresh `Conversion_Result` for the
+	 * post, or null if the post is no longer eligible for Markdown Views
+	 * (module disabled, not exposable, walker rejected the input).
 	 */
 	public static function regenerate_conversion_for( \WP_Post $post ): ?Conversion_Result {
 		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
@@ -165,15 +126,6 @@ final class Service {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$html = (string) \apply_filters( 'the_content', $post->post_content );
 		return Walker::convert( $html );
-	}
-
-	/**
-	 * Expose the content hash used for cache validation so the cleanup
-	 * orchestrator can correlate its post-meta output with the cache row
-	 * it was generated against.
-	 */
-	public static function current_content_hash( \WP_Post $post ): string {
-		return self::content_hash( $post );
 	}
 
 	/**

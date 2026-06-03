@@ -21,9 +21,9 @@ use WPContext\Support\Shortcode_Stripper;
 \defined( 'ABSPATH' ) || exit;
 
 /**
- * Static orchestrator. Mirrors `Markdown_Views\Cleanup_Orchestrator`'s
- * public-surface shape: `schedule`, `run`, `regenerate`, `invalidate`,
- * `get_status`. Differs from Cleanup_Orchestrator in two ways:
+ * Static async orchestrator for the LLM descriptions pipeline.
+ * Owns the cron-based per-post schedule/run/invalidate lifecycle and
+ * the two-slot storage model:
  *
  *   1. No approval state machine. Descriptions are short factual
  *      sentences with a 160-char cap; approval ceremony isn't worth
@@ -331,25 +331,16 @@ PROMPT;
 	 * Queue an async description job. Idempotent — doesn't double-queue
 	 * an identical event already pending.
 	 *
-	 * The cap re-uses `markdown_views_cleanup_max_per_run` per AgDR-0027
-	 * § "Cap + back-pressure" — single operator-facing tuning surface for
-	 * both LLM workloads in v0.1.
-	 *
-	 * Stale-event recovery (Ref34t/agentready#121, sibling of #103 / #115
-	 * / #120): if a previously-scheduled event for this post is still
-	 * sitting in the cron queue with a past timestamp (the cron didn't
-	 * fire it — common on wp-env without traffic, or any site where the
-	 * LLM call rate-limited / timed out and cron failed during the
-	 * description window), the old event is cleared before a fresh one
-	 * is scheduled. Without this, WP de-dups
-	 * `wp_schedule_single_event` against the stale entry and the new
-	 * schedule is silently dropped — the post's description never fires,
-	 * but `wp ai-readiness-kit llms-txt descriptions status` keeps
-	 * reporting `pending` because the meta marker is rewritten on every
-	 * schedule call. Mirrors `Cleanup_Orchestrator::schedule()` post-#120
-	 * (same per-post shape) and `LlmsTxt\Service::schedule_regen()`
-	 * post-#107 / `Context_Score\Service::schedule_recompute()` post-#115
-	 * (site-level siblings).
+	 * Stale-event recovery (Ref34t/agentready#121, sibling of #103 / #115):
+	 * if a previously-scheduled event for this post is still sitting in the
+	 * cron queue with a past timestamp (the cron didn't fire it — common on
+	 * wp-env without traffic, or any site where the LLM call rate-limited /
+	 * timed out and cron failed during the description window), the old event
+	 * is cleared before a fresh one is scheduled. Without this, WP de-dups
+	 * `wp_schedule_single_event` against the stale entry and the new schedule
+	 * is silently dropped — the post's description never fires, but
+	 * `wp ai-readiness-kit llms-txt descriptions status` keeps reporting
+	 * `pending` because the meta marker is rewritten on every schedule call.
 	 */
 	public static function schedule( \WP_Post $post ): void {
 		$post_id  = (int) $post->ID;
@@ -381,7 +372,6 @@ PROMPT;
 
 	/**
 	 * Count description-orchestrator events currently pending in cron.
-	 * Same shape as `Cleanup_Orchestrator::pending_count`.
 	 */
 	private static function pending_count(): int {
 		if ( ! \function_exists( '_get_cron_array' ) ) {

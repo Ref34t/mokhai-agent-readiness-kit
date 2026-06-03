@@ -114,18 +114,6 @@ final class Main {
 		// only on block-editor screens via `enqueue_block_editor_assets`.
 		Markdown_Views\Sidebar_Assets::register_hooks();
 
-		// Wire the Markdown Views LLM cleanup cron handler (#6 / AgDR-0016-18).
-		// Schedule decisions happen in Service::get_markdown_for_post; the
-		// SCHEDULE_ACTION cron event fires the orchestrator's async cleanup
-		// run. Service::register_hooks above also clears cleanup state on
-		// post-edit lifecycle events.
-		Markdown_Views\Cleanup_Orchestrator::register_hooks();
-
-		// Wire the Phase-B admin REST surface for cleanup actions
-		// (#6 / AgDR-0020). Four routes under ai-readiness-kit/v1/markdown-views/cleanup/*,
-		// each gated by edit_post on the target post.
-		Markdown_Views\Cleanup_Rest_Controller::register_hooks();
-
 		// Wire the LLMs Index module (#7 / AgDR-0021-0023). Router owns the
 		// `/llms.txt` rewrite + template_redirect dispatch; Service owns the
 		// regen-on-save / regen-on-profile-change / regen-on-editorial-change

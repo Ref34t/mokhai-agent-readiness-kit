@@ -15,9 +15,7 @@
  *                  `Entry_Source` so it matches the published file
  *   - summary    — the cached Sample AI Summary, or null
  *
- * Read-only and side-effect-free: the markdown proxy passes
- * `schedule_cleanup = false` so opening the preview never flips a `done`
- * cleanup back to `pending`.
+ * Read-only and side-effect-free.
  *
  * @package WPContext
  */
@@ -142,8 +140,7 @@ final class Preview_Builder {
 			);
 		}
 
-		// Read-only: do not schedule cleanup as a side effect of previewing.
-		$result = Markdown_Service::get_markdown_for_post( $post, false );
+		$result = Markdown_Service::get_markdown_for_post( $post );
 
 		if ( \is_wp_error( $result ) ) {
 			return array(

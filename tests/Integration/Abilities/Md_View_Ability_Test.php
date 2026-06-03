@@ -72,7 +72,6 @@ final class Md_View_Ability_Test extends WP_UnitTestCase {
 		self::assertTrue( $result['exposable'] );
 		self::assertNull( $result['reason'] );
 		self::assertNotSame( '', $result['deterministic_markdown'] );
-		self::assertSame( 'none', $result['cleaned_status'] );
 	}
 
 	public function test_resolves_by_url(): void {
