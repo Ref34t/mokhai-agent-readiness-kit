@@ -50,7 +50,7 @@ final class Signal_Collector {
 		return array(
 			'profile'                 => self::profile_signals( $profile ),
 			'llms_txt'                => $llms_txt,
-			'md_cache'                => self::md_cache_signals( Context_Profile_Settings::get_md_cleanup_threshold() ),
+			'md_cache'                => self::md_cache_signals( Engine::MD_QUALITY_THRESHOLD ),
 			'schema'                  => self::schema_signals(),
 			'ai_client'               => self::ai_client_signals(),
 			'descriptions'            => self::description_signals(),
@@ -74,11 +74,9 @@ final class Signal_Collector {
 			: array( 'publish' );
 
 		return array(
-			'exposed_cpts'                     => $cpts,
-			'exposed_statuses'                 => $statuses,
-			'llm_cleanup_enabled'              => (bool) ( $profile['llm_cleanup_enabled'] ?? false ),
-			'llm_descriptions_enabled'         => (bool) ( $profile['llm_descriptions_enabled'] ?? false ),
-			'markdown_views_cleanup_threshold' => Context_Profile_Settings::get_md_cleanup_threshold(),
+			'exposed_cpts'             => $cpts,
+			'exposed_statuses'         => $statuses,
+			'llm_descriptions_enabled' => (bool) ( $profile['llm_descriptions_enabled'] ?? false ),
 		);
 	}
 
@@ -125,7 +123,7 @@ final class Signal_Collector {
 				'rows_with_score'      => 0,
 				'mean_quality'         => 0.0,
 				'rows_above_threshold' => 0,
-				'cleanup_threshold'    => $threshold,
+				'md_quality_threshold' => $threshold,
 			);
 		}
 
@@ -160,7 +158,7 @@ final class Signal_Collector {
 				'rows_with_score'      => 0,
 				'mean_quality'         => 0.0,
 				'rows_above_threshold' => 0,
-				'cleanup_threshold'    => $threshold,
+				'md_quality_threshold' => $threshold,
 			);
 		}
 
@@ -169,7 +167,7 @@ final class Signal_Collector {
 			'rows_with_score'      => (int) ( $row['rows_with_score'] ?? 0 ),
 			'mean_quality'         => (float) ( $row['mean_quality'] ?? 0.0 ),
 			'rows_above_threshold' => (int) ( $row['rows_above_threshold'] ?? 0 ),
-			'cleanup_threshold'    => $threshold,
+			'md_quality_threshold' => $threshold,
 		);
 	}
 

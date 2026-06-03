@@ -75,10 +75,15 @@ final class Service {
 	 *       #139 / AgDR-0047 (translatable reason codes). Old payloads (v3
 	 *       shape, no `reason_keys`) read as null and recompute on first
 	 *       access so the admin UI can localise the reasons.
+	 *   5 — renames the `md_conversion_quality` signal key `cleanup_threshold`
+	 *       → `md_quality_threshold` and drops `llm_cleanup_enabled` from the
+	 *       `integration_health` signals, as the Markdown Views cleanup pass is
+	 *       retired in #153 / AgDR-0049. Old payloads recompute on first access
+	 *       so the admin UI never renders the stale signal key.
 	 *
 	 * @var int
 	 */
-	public const CACHE_SCHEMA_VERSION = 4;
+	public const CACHE_SCHEMA_VERSION = 5;
 
 	/**
 	 * Wire the WordPress hooks owned by this service.

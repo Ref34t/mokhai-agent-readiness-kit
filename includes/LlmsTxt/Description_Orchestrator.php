@@ -371,7 +371,7 @@ PROMPT;
 			\wp_clear_scheduled_hook( self::SCHEDULE_ACTION, $args );
 		}
 
-		if ( self::pending_count() >= Context_Profile_Settings::get_md_cleanup_max_per_run() ) {
+		if ( self::pending_count() >= Context_Profile_Settings::get_descriptions_max_per_run() ) {
 			return;
 		}
 

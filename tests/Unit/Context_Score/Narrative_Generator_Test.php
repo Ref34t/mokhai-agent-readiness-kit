@@ -310,7 +310,6 @@ final class Narrative_Generator_Test extends TestCase {
 					'value'   => 100,
 					'weight'  => 15,
 					'signals' => array(
-						'llm_cleanup_enabled'      => false,
 						'llm_descriptions_enabled' => false,
 						'ai_client_configured'     => false,
 						'conflict_count'           => 0,
@@ -326,7 +325,7 @@ final class Narrative_Generator_Test extends TestCase {
 						'mean_quality'         => 75,
 						'rows_above_threshold' => 2,
 						'above_threshold_pct'  => 50,
-						'cleanup_threshold'    => 70,
+						'md_quality_threshold' => 70,
 					),
 					'reasons' => array(),
 				),

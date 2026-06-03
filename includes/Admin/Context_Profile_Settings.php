@@ -183,6 +183,28 @@ final class Context_Profile_Settings {
 	}
 
 	/**
+	 * Per-cron-tick cap for the LLM descriptions pipeline.
+	 *
+	 * Descriptions historically borrowed `get_md_cleanup_max_per_run()`; #153
+	 * (AgDR-0049) retires the Markdown Views cleanup pass, so the descriptions
+	 * pipeline owns its own cap. The constant equals the cleanup cap's default
+	 * (10), so per-tick behaviour is unchanged for sites that never customised
+	 * the (now-removed) cleanup cap.
+	 *
+	 * @var int
+	 */
+	public const DESCRIPTIONS_MAX_PER_RUN = 10;
+
+	/**
+	 * Resolve the per-cron-tick cap for the LLM descriptions pipeline.
+	 *
+	 * @return int
+	 */
+	public static function get_descriptions_max_per_run(): int {
+		return self::DESCRIPTIONS_MAX_PER_RUN;
+	}
+
+	/**
 	 * Resolve whether a per-module enable flag is on.
 	 *
 	 * Lookup convention: `{module}_enabled`. Unknown modules default true so

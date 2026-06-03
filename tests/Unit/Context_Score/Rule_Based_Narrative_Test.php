@@ -181,8 +181,7 @@ final class Rule_Based_Narrative_Test extends TestCase {
 				'value'   => 40,
 				'weight'  => 15,
 				'signals' => array(
-					'llm_cleanup_enabled'      => true,
-					'llm_descriptions_enabled' => false,
+					'llm_descriptions_enabled' => true,
 					'ai_client_configured'     => false,
 					'conflict_count'           => 0,
 				),
@@ -205,7 +204,7 @@ final class Rule_Based_Narrative_Test extends TestCase {
 					'mean_quality'         => 0,
 					'rows_above_threshold' => 0,
 					'above_threshold_pct'  => 0,
-					'cleanup_threshold'    => 70,
+					'md_quality_threshold' => 70,
 				),
 			)
 		);
@@ -272,7 +271,6 @@ final class Rule_Based_Narrative_Test extends TestCase {
 					'value'   => 100,
 					'weight'  => 15,
 					'signals' => array(
-						'llm_cleanup_enabled'      => false,
 						'llm_descriptions_enabled' => false,
 						'ai_client_configured'     => false,
 						'conflict_count'           => 0,
@@ -287,7 +285,7 @@ final class Rule_Based_Narrative_Test extends TestCase {
 						'mean_quality'         => 75,
 						'rows_above_threshold' => 2,
 						'above_threshold_pct'  => 50,
-						'cleanup_threshold'    => 70,
+						'md_quality_threshold' => 70,
 					),
 				),
 				'multi_channel_discovery' => array(

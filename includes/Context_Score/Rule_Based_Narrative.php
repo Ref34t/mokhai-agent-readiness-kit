@@ -275,11 +275,10 @@ final class Rule_Based_Narrative {
 	 * @return array{why: string, fix: string}
 	 */
 	private static function for_integration_health( int $value, array $signals ): array {
-		$cleanup_on = (bool) ( $signals['llm_cleanup_enabled'] ?? false );
 		$desc_on    = (bool) ( $signals['llm_descriptions_enabled'] ?? false );
 		$client_cfg = (bool) ( $signals['ai_client_configured'] ?? false );
 		$conflict_n = (int) ( $signals['conflict_count'] ?? 0 );
-		$wants_llm  = $cleanup_on || $desc_on;
+		$wants_llm  = $desc_on;
 
 		if ( $value >= 100 ) {
 			return array(
@@ -340,23 +339,23 @@ final class Rule_Based_Narrative {
 		if ( $value < 50 ) {
 			return array(
 				'why' => \sprintf(
-					/* translators: 1: mean MD quality 0-100. 2: percentage of rows above the cleanup threshold. */
-					\__( 'Critical — mean Markdown quality is %1$d/100 and only %2$d%% of cached posts are above the cleanup threshold.', 'ai-readiness-kit' ),
+					/* translators: 1: mean MD quality 0-100. 2: percentage of rows above the MD-quality threshold. */
+					\__( 'Critical — mean Markdown quality is %1$d/100 and only %2$d%% of cached posts are above the MD-quality threshold.', 'ai-readiness-kit' ),
 					$mean,
 					$above_pct
 				),
-				'fix' => \__( 'Enable LLM cleanup in the Context Profile and approve cleanup runs on the lowest-quality posts.', 'ai-readiness-kit' ),
+				'fix' => \__( 'Improve the source HTML of the lowest-quality posts — cleaner heading structure, fewer nested wrappers and shortcodes — so the deterministic Markdown conversion scores higher, then recompute.', 'ai-readiness-kit' ),
 			);
 		}
 
 		return array(
 			'why' => \sprintf(
-				/* translators: 1: mean MD quality 0-100. 2: percentage of rows above the cleanup threshold. */
-				\__( 'Partial — mean Markdown quality is %1$d/100; %2$d%% of cached posts are above the cleanup threshold.', 'ai-readiness-kit' ),
+				/* translators: 1: mean MD quality 0-100. 2: percentage of rows above the MD-quality threshold. */
+				\__( 'Partial — mean Markdown quality is %1$d/100; %2$d%% of cached posts are above the MD-quality threshold.', 'ai-readiness-kit' ),
 				$mean,
 				$above_pct
 			),
-			'fix' => \__( 'Approve LLM cleanup runs on the posts flagged below the threshold in Markdown Views.', 'ai-readiness-kit' ),
+			'fix' => \__( 'Tidy the source HTML of the posts scoring below the threshold — simpler markup converts to cleaner Markdown — then recompute.', 'ai-readiness-kit' ),
 		);
 	}
 
