@@ -242,9 +242,9 @@ const REASON_TEMPLATES = {
 		),
 	mcq_above_threshold: ( a ) =>
 		sprintf(
-			// translators: 1: percentage above threshold. 2: cleanup threshold value.
+			// translators: 1: percentage above threshold. 2: MD-quality threshold value.
 			__(
-				'%1$d%% of cached posts are above the cleanup threshold (%2$d).',
+				'%1$d%% of cached posts are above the MD-quality threshold (%2$d).',
 				'ai-readiness-kit'
 			),
 			a[ 0 ],

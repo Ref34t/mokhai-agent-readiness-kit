@@ -371,7 +371,7 @@ final class Descriptions_Rest_Controller {
 
 		$requested_limit = (int) $request->get_param( 'limit' );
 		if ( $requested_limit <= 0 ) {
-			$requested_limit = Context_Profile_Settings::get_md_cleanup_max_per_run();
+			$requested_limit = Context_Profile_Settings::get_descriptions_max_per_run();
 		}
 		$limit = \min( self::MAX_BULK_LIMIT, $requested_limit );
 

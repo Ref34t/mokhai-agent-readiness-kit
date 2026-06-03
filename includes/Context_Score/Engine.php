@@ -74,6 +74,20 @@ final class Engine {
 	);
 
 	/**
+	 * Quality-score cutoff for the `md_conversion_quality` sub-score's
+	 * "% of cached rows above threshold" component (40 of its points).
+	 *
+	 * Owned here (not borrowed from the retired Markdown Views cleanup config)
+	 * so the MD-quality sub-score is self-contained. Seeded to the historical
+	 * cleanup-threshold default (70) so the score is unchanged for sites on the
+	 * default — see AgDR-0049 (#153). Sites that had set a non-default cleanup
+	 * threshold see this component recomputed against 70.
+	 *
+	 * @var int
+	 */
+	public const MD_QUALITY_THRESHOLD = 70;
+
+	/**
 	 * Compute the full breakdown from a signals array.
 	 *
 	 * @param array<string, mixed> $signals Output of Signal_Collector::collect().
@@ -374,7 +388,6 @@ final class Engine {
 		$profile     = self::array_at( $signals, 'profile' );
 		$llms_txt    = self::array_at( $signals, 'llms_txt' );
 		$ai_client   = self::array_at( $signals, 'ai_client' );
-		$cleanup_on  = (bool) ( $profile['llm_cleanup_enabled'] ?? false );
 		$desc_on     = (bool) ( $profile['llm_descriptions_enabled'] ?? false );
 		$client_cfg  = (bool) ( $ai_client['configured'] ?? false );
 		$conflicts   = self::array_at( $llms_txt, 'conflicts' );
@@ -387,7 +400,14 @@ final class Engine {
 		// (the silent-degrade trap from AgDR-0003). Every other state is fine,
 		// including "client configured but LLM toggles off" — that's a
 		// "capability present, deliberately unused" state, no penalty.
-		$wants_llm = $cleanup_on || $desc_on;
+		//
+		// `llm_descriptions_enabled` is now the only LLM toggle this guards —
+		// the Markdown Views cleanup pass it also used to cover was retired in
+		// #153 (AgDR-0049). Descriptions already carries the identical
+		// "LLM-on → client-required" check, so the guard is unchanged for every
+		// site except one that had ONLY cleanup on with no client: that site
+		// stops being penalised for a feature that no longer exists.
+		$wants_llm = $desc_on;
 		if ( $wants_llm && ! $client_cfg ) {
 			self::add_reason( $reasons, $reason_keys, 'ih_llm_unconfigured', 'LLM features enabled but AI client is unconfigured — those features are silently degraded.' );
 		} else {
@@ -418,7 +438,6 @@ final class Engine {
 			'value'       => self::clamp( $score ),
 			'weight'      => self::WEIGHTS['integration_health'],
 			'signals'     => array(
-				'llm_cleanup_enabled'      => $cleanup_on,
 				'llm_descriptions_enabled' => $desc_on,
 				'ai_client_configured'     => $client_cfg,
 				'conflict_count'           => count( $conflicts ),
@@ -434,7 +453,7 @@ final class Engine {
 	 *
 	 * Signals:
 	 *   - Mean MD `quality_score` across cached rows (60 pts at 100, scales linearly)
-	 *   - % of rows above the cleanup threshold       (40 pts at 100%, scales linearly)
+	 *   - % of rows above the MD-quality threshold    (40 pts at 100%, scales linearly)
 	 *
 	 * A site with zero cached MD rows scores 0 (nothing to evaluate).
 	 *
@@ -448,7 +467,7 @@ final class Engine {
 		$scored      = (int) ( $md['rows_with_score'] ?? 0 );
 		$mean        = (float) ( $md['mean_quality'] ?? 0.0 );
 		$above       = (int) ( $md['rows_above_threshold'] ?? 0 );
-		$thresh      = (int) ( $md['cleanup_threshold'] ?? 70 );
+		$thresh      = (int) ( $md['md_quality_threshold'] ?? self::MD_QUALITY_THRESHOLD );
 		$reasons     = array();
 		$reason_keys = array();
 
@@ -462,7 +481,7 @@ final class Engine {
 					'rows_with_score'      => $scored,
 					'mean_quality'         => 0,
 					'rows_above_threshold' => 0,
-					'cleanup_threshold'    => $thresh,
+					'md_quality_threshold' => $thresh,
 				),
 				'reasons'     => $reasons,
 				'reason_keys' => $reason_keys,
@@ -476,7 +495,7 @@ final class Engine {
 		$score     = $mean_pts + $above_pts;
 
 		self::add_reason( $reasons, $reason_keys, 'mcq_mean_quality', sprintf( 'Mean Markdown quality across %d cached posts: %d/100.', $scored, $mean_int ), array( $scored, $mean_int ) );
-		self::add_reason( $reasons, $reason_keys, 'mcq_above_threshold', sprintf( '%d%% of cached posts are above the cleanup threshold (%d).', $above_pct, $thresh ), array( $above_pct, $thresh ) );
+		self::add_reason( $reasons, $reason_keys, 'mcq_above_threshold', sprintf( '%d%% of cached posts are above the MD-quality threshold (%d).', $above_pct, $thresh ), array( $above_pct, $thresh ) );
 
 		return array(
 			'value'       => self::clamp( $score ),
@@ -487,7 +506,7 @@ final class Engine {
 				'mean_quality'         => $mean_int,
 				'rows_above_threshold' => $above,
 				'above_threshold_pct'  => $above_pct,
-				'cleanup_threshold'    => $thresh,
+				'md_quality_threshold' => $thresh,
 			),
 			'reasons'     => $reasons,
 			'reason_keys' => $reason_keys,

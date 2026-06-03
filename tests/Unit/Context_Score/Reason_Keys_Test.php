@@ -148,7 +148,6 @@ final class Reason_Keys_Test extends TestCase {
 				'profile'                 => array(
 					'exposed_cpts'             => array( 'post', 'page' ),
 					'exposed_statuses'         => array( 'publish' ),
-					'llm_cleanup_enabled'      => true,
 					'llm_descriptions_enabled' => true,
 				),
 				'llms_txt'                => array(
@@ -161,7 +160,7 @@ final class Reason_Keys_Test extends TestCase {
 					'rows_with_score'      => 10,
 					'mean_quality'         => 100.0,
 					'rows_above_threshold' => 10,
-					'cleanup_threshold'    => 70,
+					'md_quality_threshold' => 70,
 				),
 				'schema'                  => array( 'seo_plugin' => 'yoast' ),
 				'ai_client'               => array( 'configured' => true ),

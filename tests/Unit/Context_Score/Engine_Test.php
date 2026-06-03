@@ -289,7 +289,6 @@ final class Engine_Test extends TestCase {
 		// Toggles off + no conflicts is a valid steady state — no penalty.
 		$signals = array(
 			'profile'  => array(
-				'llm_cleanup_enabled'      => false,
 				'llm_descriptions_enabled' => false,
 			),
 			'llms_txt' => array( 'conflicts' => array() ),
@@ -305,7 +304,6 @@ final class Engine_Test extends TestCase {
 	public function test_integration_health_penalises_llm_on_but_client_unconfigured(): void {
 		$signals = array(
 			'profile'  => array(
-				'llm_cleanup_enabled'      => true,
 				'llm_descriptions_enabled' => true,
 			),
 			'llms_txt' => array( 'conflicts' => array() ),
@@ -321,7 +319,6 @@ final class Engine_Test extends TestCase {
 	public function test_integration_health_penalises_conflicts(): void {
 		$signals = array(
 			'profile'   => array(
-				'llm_cleanup_enabled'      => true,
 				'llm_descriptions_enabled' => true,
 			),
 			'llms_txt'  => array(
@@ -345,7 +342,7 @@ final class Engine_Test extends TestCase {
 				'rows_with_score'      => 0,
 				'mean_quality'         => 0.0,
 				'rows_above_threshold' => 0,
-				'cleanup_threshold'    => 70,
+				'md_quality_threshold' => 70,
 			),
 		);
 
@@ -361,7 +358,7 @@ final class Engine_Test extends TestCase {
 				'rows_with_score'      => 10,
 				'mean_quality'         => 80.0,
 				'rows_above_threshold' => 8,
-				'cleanup_threshold'    => 70,
+				'md_quality_threshold' => 70,
 			),
 		);
 
@@ -384,7 +381,7 @@ final class Engine_Test extends TestCase {
 				'rows_with_score'      => 100,
 				'mean_quality'         => 100.0,
 				'rows_above_threshold' => 100,
-				'cleanup_threshold'    => 70,
+				'md_quality_threshold' => 70,
 			),
 		);
 
@@ -532,7 +529,7 @@ final class Engine_Test extends TestCase {
 				'rows_with_score'      => 10,
 				'mean_quality'         => 100.0,
 				'rows_above_threshold' => 10,
-				'cleanup_threshold'    => 70,
+				'md_quality_threshold' => 70,
 			),
 			'schema'                  => array( 'seo_plugin' => 'yoast' ),
 			'ai_client'               => array( 'configured' => true ),
