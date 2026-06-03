@@ -48,9 +48,15 @@ final class Walker {
 	 * NULL in those fields. Invalidating lazily forces a rewrite that
 	 * populates them.
 	 *
+	 * Bumped to '4' for #145: `preprocess()` now strips orphaned/unregistered
+	 * shortcodes from the deterministic output. The MD for any post containing
+	 * such residue changes, so cached rows must be invalidated to re-emit the
+	 * cleaned conversion (otherwise existing posts keep serving the stale,
+	 * residue-bearing MD until their content next changes).
+	 *
 	 * @var string
 	 */
-	public const WALKER_VERSION = '3';
+	public const WALKER_VERSION = '4';
 
 	/**
 	 * Hard upper bound on input size in bytes. Defends against pathological
@@ -214,6 +220,42 @@ final class Walker {
 		// without expanding to <img> tags, which is the renderer's job not
 		// the walker's.
 		$html = (string) \preg_replace( '/\[gallery[^\]]*\]/u', '', $html );
+
+		// Strip orphaned shortcodes that survived `do_shortcode()` — their
+		// owning plugin is inactive or the tag is unregistered (e.g. WPBakery
+		// `[vc_btn title="X"]`, Divi `[et_pb_section]`). `do_shortcode` only
+		// expands REGISTERED tags and `strip_shortcodes()` likewise ignores
+		// unregistered ones, so a regex sweep is the only deterministic option
+		// (#145). Without it the literal token leaks into the .md view, the
+		// /llms.txt entry description, and the AI-summary preview.
+		//
+		// Conservative by construction — only tokens that are unambiguously
+		// shortcodes are removed:
+		//   1. Paired `[tag …]…[/tag]` — wrappers dropped, inner text KEPT
+		//      (builder containers like `[vc_column_text]real copy[/vc_column_text]`
+		//      carry the actual content). Looped so nested containers unwrap.
+		//   2. Attribute-bearing or self-closing standalone `[tag x="y"]` /
+		//      `[tag /]`.
+		// Bare bracketed prose (`[1]`, `[citation needed]`) has no `=`, no
+		// trailing `/`, and no matching close tag, so it is left intact. This
+		// runs on HTML (pre-walk), so Markdown link syntax `[text](url)` does
+		// not exist yet and cannot be hit.
+		$paired = '/\[([a-z][a-z0-9_-]*)(?:\s[^\]]*)?\](.*?)\[\/\1\]/su';
+		do {
+			$html = (string) \preg_replace_callback(
+				$paired,
+				static function ( array $matches ): string {
+					return $matches[2];
+				},
+				$html,
+				-1,
+				$unwrapped
+			);
+		} while ( $unwrapped > 0 );
+
+		// Self-closing `[tag /]` then attribute-bearing `[tag x="y"]` standalones.
+		$html = (string) \preg_replace( '/\[[a-z][a-z0-9_-]*(?:\s[^\]]*?)?\/\]/u', '', $html );
+		$html = (string) \preg_replace( '/\[[a-z][a-z0-9_-]*\s[^\]]*?=[^\]]*?\]/u', '', $html );
 
 		return $html;
 	}
