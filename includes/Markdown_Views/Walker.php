@@ -242,7 +242,7 @@ final class Walker {
 		// not exist yet and cannot be hit.
 		$paired = '/\[([a-z][a-z0-9_-]*)(?:\s[^\]]*)?\](.*?)\[\/\1\]/su';
 		do {
-			$html = (string) \preg_replace_callback(
+			$result = \preg_replace_callback(
 				$paired,
 				static function ( array $matches ): string {
 					return $matches[2];
@@ -251,6 +251,12 @@ final class Walker {
 				-1,
 				$unwrapped
 			);
+			// A PCRE error returns null — leave the content untouched rather
+			// than silently wiping it to an empty string.
+			if ( null === $result ) {
+				break;
+			}
+			$html = $result;
 		} while ( $unwrapped > 0 );
 
 		// Self-closing `[tag /]` then attribute-bearing `[tag x="y"]` standalones.

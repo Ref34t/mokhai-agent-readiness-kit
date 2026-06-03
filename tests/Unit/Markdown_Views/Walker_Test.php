@@ -152,6 +152,16 @@ final class Walker_Test extends TestCase {
 		self::assertStringNotContainsString( '[/vc_', $md );
 	}
 
+	public function test_walker_strips_self_closing_shortcode(): void {
+		// #145: a self-closing shortcode with no attributes exercises the
+		// `[tag /]` strip path (distinct from the attribute-bearing path).
+		$html = '<p>Embed [my_embed /] here.</p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Embed', $md );
+		self::assertStringContainsString( 'here.', $md );
+		self::assertStringNotContainsString( '[my_embed', $md );
+	}
+
 	public function test_walker_preserves_non_shortcode_bracketed_prose(): void {
 		// #145 guard against over-stripping: bracketed prose with no `=`
 		// attribute, no trailing `/`, and no matching close tag is NOT a
