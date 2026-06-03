@@ -148,7 +148,7 @@ For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is
 
 = How is this different from existing /llms.txt plugins? =
 
-`/llms.txt` is one surface among several. AI Readiness Kit ships the integrated reading layer (Markdown views), the discovery layer (/llms.txt with editorial entries and LLM-powered descriptions), the audit layer (Context Score across six sub-scores), and the schema coordination layer as a single coherent unit driven by one Context Profile. Most existing plugins target one of these surfaces in isolation; AI Readiness Kit treats them as a coordinated stack.
+`/llms.txt` is one surface among several. AI Readiness Kit ships the integrated reading layer (Markdown views), the discovery layer (/llms.txt with editorial entries and LLM-powered descriptions), the audit layer (Context Score across seven sub-scores), and the schema coordination layer as a single coherent unit driven by one Context Profile. Most existing plugins target one of these surfaces in isolation; AI Readiness Kit treats them as a coordinated stack.
 
 = What's on the roadmap after v0.2? =
 
@@ -159,7 +159,7 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 1. Context Profile — the single source of truth for which CPTs and statuses are exposed to agents
 2. Markdown Views — any post rendered as clean Markdown for AI consumption
 3. LLMs Index — `/llms.txt` admin UI with editorial entries and LLM-powered descriptions
-4. Context Score — 0–100 readiness audit with six sub-scores and actionable fixes
+4. Context Score — 0–100 readiness audit with seven sub-scores and actionable fixes
 
 == Changelog ==
 
