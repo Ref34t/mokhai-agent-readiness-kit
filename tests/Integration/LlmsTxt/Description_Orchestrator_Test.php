@@ -136,8 +136,63 @@ final class Description_Orchestrator_Test extends WP_UnitTestCase {
 			Description_Orchestrator::META_KEY_GENERATED_FOR_MODIFIED,
 			$post->post_modified_gmt
 		);
+		// A genuinely fresh description also carries the current generator
+		// version (#149) — without it the post is treated as generator-stale.
+		update_post_meta(
+			$post->ID,
+			Description_Orchestrator::META_KEY_GENERATED_BY_VERSION,
+			Description_Orchestrator::DESCRIPTION_GENERATOR_VERSION
+		);
 
 		self::assertFalse( Description_Orchestrator::should_schedule( $post ) );
+	}
+
+	public function test_should_schedule_returns_true_when_generator_version_stale(): void {
+		// #149: cached `_auto`, NOT modified-stale (generated_for == current),
+		// but no stored generator version (a pre-#149 description) → stale.
+		$post = self::factory()->post->create_and_get(
+			array( 'post_type' => 'post', 'post_status' => 'publish' )
+		);
+		update_post_meta(
+			$post->ID,
+			Description_Orchestrator::META_KEY_AUTO,
+			'Pre-#149 cached description.'
+		);
+		update_post_meta(
+			$post->ID,
+			Description_Orchestrator::META_KEY_GENERATED_FOR_MODIFIED,
+			$post->post_modified_gmt
+		);
+		// No META_KEY_GENERATED_BY_VERSION — represents a description generated
+		// before the version signal existed.
+
+		self::assertTrue( Description_Orchestrator::should_schedule( $post ) );
+		self::assertTrue( Description_Orchestrator::is_stale( $post ) );
+	}
+
+	public function test_is_stale_false_when_version_current_and_not_modified(): void {
+		// #149 regression guard: a description carrying the current generator
+		// version on an unedited post is NOT stale.
+		$post = self::factory()->post->create_and_get(
+			array( 'post_type' => 'post', 'post_status' => 'publish' )
+		);
+		update_post_meta(
+			$post->ID,
+			Description_Orchestrator::META_KEY_AUTO,
+			'Current-generator description.'
+		);
+		update_post_meta(
+			$post->ID,
+			Description_Orchestrator::META_KEY_GENERATED_FOR_MODIFIED,
+			$post->post_modified_gmt
+		);
+		update_post_meta(
+			$post->ID,
+			Description_Orchestrator::META_KEY_GENERATED_BY_VERSION,
+			Description_Orchestrator::DESCRIPTION_GENERATOR_VERSION
+		);
+
+		self::assertFalse( Description_Orchestrator::is_stale( $post ) );
 	}
 
 	public function test_schedule_queues_cron_event_and_records_pending_status(): void {
