@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace WPContext\Markdown_Views;
 
+use WPContext\Support\Shortcode_Stripper;
+
 \defined( 'ABSPATH' ) || exit;
 
 // PHP's DOM API exposes camelCase property names ($node->childNodes,
@@ -223,45 +225,12 @@ final class Walker {
 
 		// Strip orphaned shortcodes that survived `do_shortcode()` — their
 		// owning plugin is inactive or the tag is unregistered (e.g. WPBakery
-		// `[vc_btn title="X"]`, Divi `[et_pb_section]`). `do_shortcode` only
-		// expands REGISTERED tags and `strip_shortcodes()` likewise ignores
-		// unregistered ones, so a regex sweep is the only deterministic option
-		// (#145). Without it the literal token leaks into the .md view, the
-		// /llms.txt entry description, and the AI-summary preview.
-		//
-		// Conservative by construction — only tokens that are unambiguously
-		// shortcodes are removed:
-		//   1. Paired `[tag …]…[/tag]` — wrappers dropped, inner text KEPT
-		//      (builder containers like `[vc_column_text]real copy[/vc_column_text]`
-		//      carry the actual content). Looped so nested containers unwrap.
-		//   2. Attribute-bearing or self-closing standalone `[tag x="y"]` /
-		//      `[tag /]`.
-		// Bare bracketed prose (`[1]`, `[citation needed]`) has no `=`, no
-		// trailing `/`, and no matching close tag, so it is left intact. This
-		// runs on HTML (pre-walk), so Markdown link syntax `[text](url)` does
-		// not exist yet and cannot be hit.
-		$paired = '/\[([a-z][a-z0-9_-]*)(?:\s[^\]]*)?\](.*?)\[\/\1\]/su';
-		do {
-			$result = \preg_replace_callback(
-				$paired,
-				static function ( array $matches ): string {
-					return $matches[2];
-				},
-				$html,
-				-1,
-				$unwrapped
-			);
-			// A PCRE error returns null — leave the content untouched rather
-			// than silently wiping it to an empty string.
-			if ( null === $result ) {
-				break;
-			}
-			$html = $result;
-		} while ( $unwrapped > 0 );
-
-		// Self-closing `[tag /]` then attribute-bearing `[tag x="y"]` standalones.
-		$html = (string) \preg_replace( '/\[[a-z][a-z0-9_-]*(?:\s[^\]]*?)?\/\]/u', '', $html );
-		$html = (string) \preg_replace( '/\[[a-z][a-z0-9_-]*\s[^\]]*?=[^\]]*?\]/u', '', $html );
+		// `[vc_btn title="X"]`, Divi containers). Without it the literal token
+		// leaks into the .md view (#145). Runs on HTML pre-walk, so Markdown
+		// link syntax `[text](url)` does not exist yet and cannot be hit.
+		// Shared with the /llms.txt description generator (#147) so both
+		// agent-facing paths strip residue identically.
+		$html = Shortcode_Stripper::strip_orphaned( $html );
 
 		return $html;
 	}

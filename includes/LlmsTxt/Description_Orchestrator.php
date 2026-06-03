@@ -16,6 +16,7 @@ namespace WPContext\LlmsTxt;
 
 use WPContext\Admin\Context_Profile_Settings;
 use WPContext\Ai\Client_Wrapper;
+use WPContext\Support\Shortcode_Stripper;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -561,9 +562,15 @@ PROMPT;
 	 * what the LLM will see when an operator is debugging.
 	 */
 	public static function build_user_prompt( \WP_Post $post ): string {
-		$title   = (string) \get_the_title( $post );
-		$url     = (string) \get_permalink( $post );
-		$content = \wp_strip_all_tags( (string) $post->post_content );
+		$title = (string) \get_the_title( $post );
+		$url   = (string) \get_permalink( $post );
+		// Strip orphaned/unregistered shortcodes BEFORE flattening to text, so
+		// residue like `[vc_btn title="X"]` never reaches the LLM excerpt and
+		// gets parroted into the published /llms.txt description (#147). This
+		// path uses raw post_content (no the_content / do_shortcode), so the
+		// shared stripper is the only thing removing the tokens here. Same
+		// helper the Markdown walker uses (#145) — one implementation.
+		$content = \wp_strip_all_tags( Shortcode_Stripper::strip_orphaned( (string) $post->post_content ) );
 
 		$excerpt = \trim( $content );
 		if ( \strlen( $excerpt ) > self::MAX_EXCERPT_CHARS ) {
