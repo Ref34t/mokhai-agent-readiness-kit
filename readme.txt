@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.1
+Stable tag: 0.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,8 +18,14 @@ v0.1 ships four coherent modules driven by one profile:
 
 * **Markdown Views** — deterministic HTML → Markdown rendering for any public URL, with three URL forms (`.md` path, `?format=md` query, `Accept: text/markdown` content negotiation) and uniform 404 on denial. Per-post cache with content-hash invalidation, Gutenberg sidebar preview, WP-CLI command, REST endpoint for admin tooling.
 * **LLMs Index** — `/llms.txt` generator that publishes a discovery surface for AI agents, with conflict detection against `robots.txt`, an editorial entries admin UI for site owners to add curated entries, and an optional LLM-powered pass that drafts entry descriptions from post content.
-* **Context Score** — 0–100 readiness audit across six weighted sub-scores (discoverability, content readability, schema coverage, exposure safety, integration health, Markdown conversion quality), surfaced in an admin page, Site Health, and `wp ai-readiness-kit context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
+* **Context Score** — 0–100 readiness audit across seven weighted sub-scores (discoverability, content readability, schema coverage, exposure safety, integration health, Markdown conversion quality, multi-channel discovery), surfaced in an admin page, Site Health, and `wp ai-readiness-kit context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
 * **Schema Coordination** — detects whether your SEO plugin already emits JSON-LD; if not, optionally emits a native WebSite + Organization + per-content schema set so the schema sub-score is achievable without a third-party SEO plugin. Defers gracefully when an SEO plugin is already covering the surface.
+
+v0.2 extends the stack with three agent-facing additions:
+
+* **AI Assistant Preview** — an admin pane that shows any post exactly as an AI assistant consumes it: raw HTML, the Markdown View, and the live `/llms.txt` line side by side, plus an on-demand "sample AI summary" so you can sanity-check what an agent would say about the page.
+* **Agent Abilities + MCP** — exposes core plugin operations (audit run, profile read, exposure toggle, `/llms.txt` regenerate, Markdown preview) through the WordPress Abilities API, and surfaces them to MCP clients via the WordPress MCP adapter. Every ability is `manage_options`-gated.
+* **Multi-channel discovery** — a seventh Context Score sub-score crediting additional agent-discovery surfaces (`ai.txt`, `/.well-known/` declarations, OpenAPI) beyond `/llms.txt`, so a site running several discovery channels scores higher than one running only one.
 
 The plugin is fully free, GPL-2.0+, with no paid tier and no hosted backend. Every module is independently toggleable from the Context Profile. No content leaves your server. The plugin makes no external HTTP calls; AI providers configured via the WP AI Client (an optional dependency) are only consulted by modules that explicitly opt in, and every deterministic surface (Markdown Views, /llms.txt, the rule-based score, the gap-fill schema) runs fully locally without an AI provider.
 
@@ -75,14 +81,15 @@ Optionally, an LLM pass drafts the per-entry descriptions from the post content 
 
 == Context Score ==
 
-Context Score is the 0–100 readiness audit answering "how prepared is this site for AI agent traffic?". It combines six weighted sub-scores:
+Context Score is the 0–100 readiness audit answering "how prepared is this site for AI agent traffic?". It combines seven weighted sub-scores:
 
-1. **Discoverability (weight 20)** — `/llms.txt` cache populated, at least one CPT exposed, entries published, no rewrite conflicts overriding the route
+1. **Discoverability (weight 10)** — `/llms.txt` cache populated, at least one CPT exposed, entries published, no rewrite conflicts overriding the route
 2. **Content readability (weight 15)** — share of exposed entries that have a curated description (post excerpt or LLM-generated cache from the descriptions module)
 3. **Schema coverage (weight 10)** — JSON-LD is being emitted, either by a detected SEO plugin (Yoast / Rank Math / AIOSEO / The SEO Framework) or by AI Readiness Kit's native gap-fill emitter when the Context Profile toggle is on
 4. **Exposure safety (weight 15)** — exposed statuses are limited to `publish` (no risky non-publish exposures) and at least one CPT is configured explicitly rather than implicitly
 5. **Integration health (weight 15)** — LLM features ↔ AI Client posture are consistent (no silent-degrade trap) and no `/llms.txt` conflicts are unresolved
 6. **Markdown conversion quality (weight 25)** — mean quality score across the Markdown Views cache and the percentage of cached posts above the cleanup threshold
+7. **Multi-channel discovery (weight 10)** — how many agent-discovery surfaces beyond `/llms.txt` are present (`ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`, OpenAPI). A site publishing several channels scores higher than one publishing only `/llms.txt`. Sibling-provider plugins (e.g. AI Layer) are detected and credited via the filterable `ai_readiness_kit_multi_channel_providers` registry.
 
 The score is surfaced in three places:
 
@@ -95,6 +102,14 @@ An LLM-generated narrative (uses the WP AI Client provider) explains the score i
 == Schema Coordination ==
 
 When you have an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) active and emitting JSON-LD, AI Readiness Kit defers schema emission to them entirely — no competing markup, no duplicate type declarations. When no SEO plugin is emitting schema, AI Readiness Kit can optionally emit a native WebSite + Organization + per-content schema set so the schema sub-score in Context Score is achievable without a third-party SEO plugin. The toggle lives in the Context Profile; default is off (gap-fill behaviour kicks in only when explicitly enabled).
+
+== AI Assistant Preview ==
+
+The AI Assistant Preview pane (Tools → Context) answers a question every site owner eventually asks: "what does an AI assistant actually see when it reads this page?" Pick any exposed URL and the pane renders three views side by side — the raw HTML, the Markdown View an agent fetches (proxied through the same converter as the live `.md` surface, so the no-hallucination guard applies), and the exact `/llms.txt` line for that entry. A "Sample AI Summary" box generates an on-demand, synchronous summary using the configured WP AI Client provider (no cron, no background queue — it runs and caches in place), so you can sanity-check the agent's-eye view of a page before publishing. The summary degrades gracefully (a structured hint, never a raw error) when no AI provider is configured.
+
+== Agent Abilities (MCP) ==
+
+AI Readiness Kit registers an `ai-readiness-kit` ability category and five core WordPress Abilities (WP 6.9+): audit-run, profile-read, profile-set-exposure, llms-txt-regenerate, and md-view-preview. Each is a thin wrapper over an existing service, gated on `manage_options`, and exposed via the core `wp-abilities/v1` REST surface. When the WordPress MCP adapter is installed, these abilities are also reachable by MCP clients (the abilities are flagged `meta.mcp.public`), making the plugin's operations callable by agent runtimes — a step from agent-*readable* toward agent-*usable*. The MCP flag is inert when no adapter is present, so the abilities work standalone.
 
 == Privacy and Storage ==
 
@@ -135,9 +150,9 @@ For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is
 
 `/llms.txt` is one surface among several. AI Readiness Kit ships the integrated reading layer (Markdown views), the discovery layer (/llms.txt with editorial entries and LLM-powered descriptions), the audit layer (Context Score across six sub-scores), and the schema coordination layer as a single coherent unit driven by one Context Profile. Most existing plugins target one of these surfaces in isolation; AI Readiness Kit treats them as a coordinated stack.
 
-= What's on the roadmap after v0.1? =
+= What's on the roadmap after v0.2? =
 
-v0.1.1 fast-follow: AI Assistant Preview pane (render a page as ChatGPT / Claude consume it), ai.txt + `/.well-known/` discovery surface detection, MCP / WordPress Abilities API integration. v0.2+: agent-activity analytics (per-bot counters), `/.well-known/llms-policy.json` policy declaration surface.
+v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP integration, and the multi-channel discovery sub-score. Looking ahead: a fuller agent-*actionable* layer (callable tools via WebMCP / `navigator.modelContext`), agent-activity analytics (per-bot counters), and a richer `/.well-known/llms-policy.json` policy-declaration surface.
 
 == Screenshots ==
 
@@ -147,6 +162,30 @@ v0.1.1 fast-follow: AI Assistant Preview pane (render a page as ChatGPT / Claude
 4. Context Score — 0–100 readiness audit with six sub-scores and actionable fixes
 
 == Changelog ==
+
+= 0.2.0 — 2026-06-03 =
+
+Feature release. Three new agent-facing modules plus a batch of correctness fixes surfaced through live testing.
+
+**New**
+
+* **AI Assistant Preview pane** — view any post as an AI assistant consumes it (raw HTML / Markdown View / live `/llms.txt` line, side by side) with an on-demand synchronous "sample AI summary". No cron; degrades gracefully without an AI provider. (#45)
+* **WordPress Abilities API + MCP** — five `manage_options`-gated abilities (audit-run, profile-read, profile-set-exposure, llms-txt-regenerate, md-view-preview) exposed via core `wp-abilities/v1`, and reachable by MCP clients through the WordPress MCP adapter when installed. (#21, #131)
+* **Multi-channel discovery sub-score** — Context Score gains a seventh sub-score crediting agent-discovery surfaces beyond `/llms.txt` (`ai.txt`, `/.well-known/` declarations, OpenAPI), with a filterable sibling-provider registry. Discoverability re-weighted 20 → 10 to fund it; total stays 100. (#22)
+
+**Improved**
+
+* Tools → Context rebuilt as a single Card + TabPanel single-page admin, aligned with the WP AI Client / OpenAI Connector design system, with REST write controllers for the Context Profile and editorial entries. (#142)
+* Context Score reason strings are now fully translatable via reason codes, and the sub-score copy across the admin UI and the LLM narrative prompt derives from a single source of truth (`Engine::WEIGHTS`). (#137, #139, #140)
+
+**Fixes**
+
+* JSON-LD is now emitted without `esc_html()` (angle brackets escaped via `JSON_HEX_TAG`), so the structured-data payload validates in every standards-compliant validator. (#118)
+* Stale past-timestamp cron events are cleared before re-scheduling across all four schedulers (`/llms.txt` recompute, Context Score recompute, Markdown cleanup, description generation) — fixes "stuck pending forever" on sites where wp-cron sat stale. (#115, #120, #121)
+* The Markdown cleanup allowlist now preserves word boundaries at block edges, so headings and paragraphs adjacent to block tags are no longer dropped by the no-hallucination guard. (#135)
+* Orphaned shortcodes are stripped from both the deterministic Markdown walker and `/llms.txt` entry descriptions via a shared helper. (#145, #147)
+* `/llms.txt` now recomposes when a post's description changes, and carries a generator-version staleness signal so out-of-date descriptions are detectable. (#149, #151)
+* `package.json` version now tracks the plugin version (was drifting at 0.1.0). (#113)
 
 = 0.1.1 — 2026-05-24 =
 
@@ -203,6 +242,10 @@ First public release. Four coherent modules driven by one Context Profile.
 * Competitive landscape captured (AgDR-0006)
 
 == Upgrade Notice ==
+
+= 0.2.0 =
+
+Adds the AI Assistant Preview pane, WordPress Abilities API + MCP integration, and a multi-channel discovery sub-score, plus correctness fixes for JSON-LD output, stale cron recovery, and Markdown cleanup. Safe in-place upgrade — the Context Score cache auto-invalidates to pick up the new seventh sub-score.
 
 = 0.1.0 =
 
