@@ -110,6 +110,12 @@ final class Main {
 		// (#8 / AgDR-0027). Mounted at `wp ai-readiness-kit llms-txt descriptions`.
 		\WPContext\Cli\Llms_Txt_Descriptions_Command::register();
 
+		// Wire the one-shot dead-cleanup-meta sweep (#159 / AgDR-0050).
+		// Mounted at `wp ai-readiness-kit cleanup-meta sweep`. Deletes the
+		// orphaned `_agentready_md_cleanup_*` post-meta left by the retired
+		// cleanup pass (#153). No-op outside WP-CLI via the register() guard.
+		\WPContext\Cli\Cleanup_Meta_Migration_Command::register();
+
 		// Wire the Gutenberg sidebar React panel (#5 / AgDR-0014). Enqueues
 		// only on block-editor screens via `enqueue_block_editor_assets`.
 		Markdown_Views\Sidebar_Assets::register_hooks();
