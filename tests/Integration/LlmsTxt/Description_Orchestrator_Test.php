@@ -21,6 +21,7 @@ use WP_UnitTestCase;
 use WPContext\Admin\Context_Profile_Settings;
 use WPContext\LlmsTxt\Description_Orchestrator;
 use WPContext\LlmsTxt\Entry_Source;
+use WPContext\LlmsTxt\Service;
 use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Description_Orchestrator_Test extends WP_UnitTestCase {
@@ -475,5 +476,74 @@ final class Description_Orchestrator_Test extends WP_UnitTestCase {
 
 		self::assertStringNotContainsString( '[vc_btn', $prompt );
 		self::assertStringContainsString( 'residue.', $prompt );
+	}
+
+	/**
+	 * Create a published post and clear any /llms.txt recompose that its
+	 * save_post fired, so a subsequent assertion proves the description path
+	 * scheduled it — not the post creation (#151).
+	 */
+	private function post_with_cleared_regen(): \WP_Post {
+		$post = self::factory()->post->create_and_get(
+			array( 'post_type' => 'post', 'post_status' => 'publish' )
+		);
+		wp_clear_scheduled_hook( Service::REGEN_ACTION );
+		self::assertFalse(
+			wp_next_scheduled( Service::REGEN_ACTION ),
+			'precondition: no recompose scheduled before the description change'
+		);
+		return $post;
+	}
+
+	public function test_set_manual_schedules_llms_txt_recompose(): void {
+		$post = $this->post_with_cleared_regen();
+
+		Description_Orchestrator::set_manual( (int) $post->ID, 'A manual description.' );
+
+		self::assertNotFalse(
+			wp_next_scheduled( Service::REGEN_ACTION ),
+			'set_manual must schedule a /llms.txt recompose (#151)'
+		);
+	}
+
+	public function test_clear_manual_schedules_recompose_when_manual_existed(): void {
+		$post = self::factory()->post->create_and_get(
+			array( 'post_type' => 'post', 'post_status' => 'publish' )
+		);
+		update_post_meta( $post->ID, Description_Orchestrator::META_KEY_MANUAL, 'Sticky.' );
+		wp_clear_scheduled_hook( Service::REGEN_ACTION );
+
+		Description_Orchestrator::clear_manual( (int) $post->ID );
+
+		self::assertNotFalse(
+			wp_next_scheduled( Service::REGEN_ACTION ),
+			'clearing an existing manual override must schedule a recompose (#151)'
+		);
+	}
+
+	public function test_invalidate_schedules_recompose_when_description_existed(): void {
+		$post = self::factory()->post->create_and_get(
+			array( 'post_type' => 'post', 'post_status' => 'publish' )
+		);
+		update_post_meta( $post->ID, Description_Orchestrator::META_KEY_AUTO, 'Cached desc.' );
+		wp_clear_scheduled_hook( Service::REGEN_ACTION );
+
+		Description_Orchestrator::invalidate( (int) $post->ID );
+
+		self::assertNotFalse(
+			wp_next_scheduled( Service::REGEN_ACTION ),
+			'invalidating a post that had a description must schedule a recompose (#151)'
+		);
+	}
+
+	public function test_invalidate_does_not_schedule_recompose_when_empty(): void {
+		$post = $this->post_with_cleared_regen();
+
+		Description_Orchestrator::invalidate( (int) $post->ID );
+
+		self::assertFalse(
+			wp_next_scheduled( Service::REGEN_ACTION ),
+			'invalidating a post with no description should be a recompose no-op (#151)'
+		);
 	}
 }

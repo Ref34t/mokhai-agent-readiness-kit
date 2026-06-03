@@ -52,6 +52,18 @@ final class Description_Orchestrator {
 	public const SCHEDULE_ACTION = 'agentready_llms_description_run';
 
 	/**
+	 * Action fired whenever a post's *served* /llms.txt description changes
+	 * (`_auto` regenerated, `_manual` set/cleared, or the whole slot
+	 * invalidated). `LlmsTxt\Service` subscribes this to its debounced
+	 * recompose so the cached /llms.txt document reflects current descriptions
+	 * instead of lagging until the next save / profile / editorial change or
+	 * the daily backstop (#151).
+	 *
+	 * @var string
+	 */
+	public const DESCRIPTION_CHANGED_ACTION = 'agentready_llms_txt_description_changed';
+
+	/**
 	 * LLM-generated description. Regen-overwritable. Empty key when no
 	 * successful LLM run has produced an output for this post.
 	 *
@@ -462,9 +474,18 @@ PROMPT;
 			return;
 		}
 
+		$previous_auto = (string) \get_post_meta( $post_id, self::META_KEY_AUTO, true );
+
 		\update_post_meta( $post_id, self::META_KEY_AUTO, $normalised );
 		\update_post_meta( $post_id, self::META_KEY_GENERATED_FOR_MODIFIED, (string) $post->post_modified_gmt );
 		\update_post_meta( $post_id, self::META_KEY_GENERATED_BY_VERSION, self::DESCRIPTION_GENERATOR_VERSION );
+
+		// Recompose /llms.txt only when the served text actually changed — a
+		// generator-version refresh that produces identical copy needs no
+		// document rewrite (#151).
+		if ( $previous_auto !== $normalised ) {
+			self::notify_description_changed( $post_id );
+		}
 		self::record_diagnostic(
 			$post_id,
 			array(
@@ -540,7 +561,12 @@ PROMPT;
 			return;
 		}
 
+		$previous = (string) \get_post_meta( $post_id, self::META_KEY_MANUAL, true );
 		\update_post_meta( $post_id, self::META_KEY_MANUAL, $cleaned );
+
+		if ( $previous !== $cleaned ) {
+			self::notify_description_changed( $post_id );
+		}
 	}
 
 	/**
@@ -548,7 +574,14 @@ PROMPT;
 	 * `_auto` (or excerpt, if `_auto` is empty too).
 	 */
 	public static function clear_manual( int $post_id ): void {
+		$had = (string) \get_post_meta( $post_id, self::META_KEY_MANUAL, true );
 		\delete_post_meta( $post_id, self::META_KEY_MANUAL );
+
+		// Clearing a manual override changes the served description (it falls
+		// back to `_auto` / excerpt), so recompose /llms.txt (#151).
+		if ( '' !== $had ) {
+			self::notify_description_changed( $post_id );
+		}
 	}
 
 	/**
@@ -612,12 +645,35 @@ PROMPT;
 	 * the post is going away entirely.
 	 */
 	public static function invalidate( int $post_id ): void {
+		$had_description =
+			'' !== (string) \get_post_meta( $post_id, self::META_KEY_AUTO, true )
+			|| '' !== (string) \get_post_meta( $post_id, self::META_KEY_MANUAL, true );
+
 		\delete_post_meta( $post_id, self::META_KEY_AUTO );
 		\delete_post_meta( $post_id, self::META_KEY_MANUAL );
 		\delete_post_meta( $post_id, self::META_KEY_GENERATED_FOR_MODIFIED );
 		\delete_post_meta( $post_id, self::META_KEY_GENERATED_BY_VERSION );
 		\delete_post_meta( $post_id, self::META_KEY_STATUS );
 		\delete_post_meta( $post_id, self::META_KEY_DIAGNOSTICS );
+
+		// Dropping a served description changes /llms.txt — recompose (#151).
+		// Guarded so invalidating an already-empty post is a no-op.
+		if ( $had_description ) {
+			self::notify_description_changed( $post_id );
+		}
+	}
+
+	/**
+	 * Fire the description-changed signal so `LlmsTxt\Service` schedules a
+	 * debounced /llms.txt recompose (#151).
+	 *
+	 * @param int $post_id Post whose served description changed.
+	 */
+	private static function notify_description_changed( int $post_id ): void {
+		// Hook name resolves to `agentready_llms_txt_description_changed` —
+		// the constant is prefixed; phpcs can't see through the const ref.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
+		\do_action( self::DESCRIPTION_CHANGED_ACTION, $post_id );
 	}
 
 	/**
