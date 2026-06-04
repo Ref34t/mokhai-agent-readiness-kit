@@ -48,6 +48,17 @@ final class Service {
 	public const DAILY_RECOMPUTE_ACTION = 'agentready_context_score_daily_recompute';
 
 	/**
+	 * Cron action that generates the LLM narrative off the recompute critical
+	 * path (#167 / AgDR-0051). `recompute_now()` writes the score with a
+	 * rule-based `llm_pending` narrative and schedules this single event; the
+	 * `do_generate_narrative` callback runs the LLM call and merges the result
+	 * back into the cache without re-running the score.
+	 *
+	 * @var string
+	 */
+	public const NARRATIVE_ACTION = 'agentready_context_score_narrative';
+
+	/**
 	 * Debounce window between trigger and async recompute. Matches AgDR-0023's
 	 * 5-second window so a profile-save that ripples through both /llms.txt
 	 * and the Context Score doesn't fire two parallel recomputes on different
@@ -80,10 +91,14 @@ final class Service {
 	 *       `integration_health` signals, as the Markdown Views cleanup pass is
 	 *       retired in #153 / AgDR-0049. Old payloads recompute on first access
 	 *       so the admin UI never renders the stale signal key.
+	 *   6 — the narrative slot gains an `llm_pending` flag and is generated
+	 *       asynchronously (#167 / AgDR-0051). Old payloads (v5, synchronous
+	 *       narrative, no `llm_pending`) read as null and recompute on first
+	 *       access, scheduling the background narrative job.
 	 *
 	 * @var int
 	 */
-	public const CACHE_SCHEMA_VERSION = 5;
+	public const CACHE_SCHEMA_VERSION = 6;
 
 	/**
 	 * Wire the WordPress hooks owned by this service.
@@ -94,6 +109,7 @@ final class Service {
 	public static function register_hooks(): void {
 		\add_action( self::RECOMPUTE_ACTION, array( self::class, 'do_recompute' ) );
 		\add_action( self::DAILY_RECOMPUTE_ACTION, array( self::class, 'do_recompute' ) );
+		\add_action( self::NARRATIVE_ACTION, array( self::class, 'do_generate_narrative' ) );
 
 		\add_action( 'agentready_context_profile_saved', array( self::class, 'schedule_recompute' ) );
 	}
@@ -121,6 +137,7 @@ final class Service {
 	public static function clear_scheduled_recomputes(): void {
 		\wp_clear_scheduled_hook( self::RECOMPUTE_ACTION );
 		\wp_clear_scheduled_hook( self::DAILY_RECOMPUTE_ACTION );
+		\wp_clear_scheduled_hook( self::NARRATIVE_ACTION );
 	}
 
 	/**
@@ -190,12 +207,12 @@ final class Service {
 		$signals   = Signal_Collector::collect();
 		$breakdown = Engine::compute( $signals );
 
-		// Narrative is generated against the just-computed breakdown so the
-		// LLM (or rule-based fallback) and the numeric breakdown can never
-		// drift apart inside a single cache row. The generator absorbs all
-		// failure modes — LLM unavailable, rate-limited, parse failure,
-		// budget overrun — and always returns a usable shape per AgDR-0032.
-		$narrative = Narrative_Generator::generate( $breakdown );
+		// The LLM narrative is generated asynchronously (#167 / AgDR-0051): the
+		// blocking call took ~11-17s and overshot the budget on every recompute,
+		// and blocked the synchronous "Recompute now" request. Here we write the
+		// instant rule-based narrative marked `llm_pending`, then schedule the
+		// background `NARRATIVE_ACTION` job to replace it with the LLM result.
+		$narrative = Narrative_Generator::pending( $breakdown );
 
 		$duration_ms = (int) max( 0, ( (int) ( \microtime( true ) * 1_000_000 ) - $start_us ) / 1000 );
 
@@ -210,7 +227,52 @@ final class Service {
 
 		\update_option( self::CACHE_OPTION, $payload, 'no' );
 
+		// Kick the background narrative job. Deduped — a job already queued for
+		// a prior recompute will pick up the freshest cache row when it runs.
+		if ( false === \wp_next_scheduled( self::NARRATIVE_ACTION ) ) {
+			\wp_schedule_single_event( \time(), self::NARRATIVE_ACTION );
+		}
+
 		return $payload;
+	}
+
+	/**
+	 * Cron callback for `NARRATIVE_ACTION` (#167 / AgDR-0051). Runs the LLM
+	 * narrative off the recompute critical path and merges it into the cached
+	 * breakdown — without re-running the score.
+	 *
+	 * Guarded twice:
+	 *   1. Only acts when the cached narrative is still `llm_pending` (a fresh
+	 *      recompute since the last enrichment, or a first run).
+	 *   2. Re-reads the cache after the (slow) LLM call and only writes when
+	 *      `computed_at` is unchanged — so a job that finishes after a newer
+	 *      recompute is discarded rather than desyncing the narrative from the
+	 *      breakdown it was generated against.
+	 */
+	public static function do_generate_narrative(): void {
+		$cache = \get_option( self::CACHE_OPTION, null );
+		if ( ! is_array( $cache ) || self::CACHE_SCHEMA_VERSION !== (int) ( $cache['schema_version'] ?? 0 ) ) {
+			return;
+		}
+		if ( empty( $cache['narrative']['llm_pending'] ) ) {
+			return; // Already enriched (or a concurrent job won) — nothing to do.
+		}
+
+		$computed_at = (string) ( $cache['computed_at'] ?? '' );
+		$breakdown   = array(
+			'overall'    => (int) ( $cache['overall'] ?? 0 ),
+			'sub_scores' => isset( $cache['sub_scores'] ) && is_array( $cache['sub_scores'] ) ? $cache['sub_scores'] : array(),
+		);
+
+		$narrative = Narrative_Generator::generate( $breakdown );
+
+		// Merge guard: only write if the row we generated against is still current.
+		$fresh = \get_option( self::CACHE_OPTION, null );
+		if ( ! is_array( $fresh ) || (string) ( $fresh['computed_at'] ?? '' ) !== $computed_at ) {
+			return;
+		}
+		$fresh['narrative'] = $narrative;
+		\update_option( self::CACHE_OPTION, $fresh, 'no' );
 	}
 
 	/**

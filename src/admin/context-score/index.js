@@ -23,6 +23,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 } from '@wordpress/element';
 import {
@@ -80,7 +81,7 @@ const DEGRADED_REASON_LABELS = {
 		'ai-readiness-kit'
 	),
 	budget_exceeded: __(
-		'AI generation exceeded the 10-second budget. Narrative is using deterministic templates.',
+		'AI generation exceeded the time budget. Narrative is using deterministic templates; it will retry on the next recompute.',
 		'ai-readiness-kit'
 	),
 };
@@ -507,7 +508,11 @@ function OverallCard( {
 		breakdown.narrative && typeof breakdown.narrative === 'object'
 			? breakdown.narrative
 			: null;
-	const degraded = narrative && narrative.degraded === true;
+	// `llm_pending` is the transient "narrative is generating in the
+	// background" state (#167 / AgDR-0051) — shown as an info notice, NOT a
+	// degraded warning (the LLM hasn't failed, it just hasn't run yet).
+	const llmPending = !! ( narrative && narrative.llm_pending );
+	const degraded = narrative && narrative.degraded === true && ! llmPending;
 	const degradedReason = degraded ? narrative.degraded_reason : null;
 	const degradedMessage =
 		degradedReason && DEGRADED_REASON_LABELS[ degradedReason ]
@@ -526,6 +531,14 @@ function OverallCard( {
 				{ flash && (
 					<Notice status={ flash.type } onRemove={ onDismissFlash }>
 						{ flash.message }
+					</Notice>
+				) }
+				{ llmPending && (
+					<Notice status="info" isDismissible={ false }>
+						{ __(
+							'AI narrative is generating in the background — it will appear here shortly.',
+							'ai-readiness-kit'
+						) }
 					</Notice>
 				) }
 				{ degraded && (
@@ -1166,6 +1179,9 @@ function ContextScorePanel() {
 	);
 	const [ pending, setPending ] = useState( false );
 	const [ flash, setFlash ] = useState( null );
+	// Bounds the llm_pending silent-poll so a never-arriving narrative (e.g.
+	// WP-Cron not firing) can't poll forever while the page sits open.
+	const narrativePollsRef = useRef( 0 );
 
 	const fetchBreakdown = useCallback( async () => {
 		if ( ! bootstrap ) {
@@ -1243,6 +1259,37 @@ function ContextScorePanel() {
 			setPending( false );
 		}
 	}, [ bootstrap ] );
+
+	// While the LLM narrative is generating in the background (#167 /
+	// AgDR-0051), silently re-fetch every few seconds so the UI upgrades from
+	// the rule-based placeholder to the LLM narrative without a manual reload.
+	// Self-terminates when `llm_pending` clears; bounded as a backstop.
+	useEffect( () => {
+		const MAX_NARRATIVE_POLLS = 12;
+		const isPending = !! (
+			bootstrap &&
+			breakdown &&
+			breakdown.narrative &&
+			breakdown.narrative.llm_pending
+		);
+		if ( ! isPending ) {
+			narrativePollsRef.current = 0;
+			return undefined;
+		}
+		if ( narrativePollsRef.current >= MAX_NARRATIVE_POLLS ) {
+			return undefined;
+		}
+		const id = setTimeout( () => {
+			narrativePollsRef.current += 1;
+			apiFetch( {
+				path: `/${ bootstrap.restNamespace }${ bootstrap.restBase }`,
+				headers: { 'X-WP-Nonce': bootstrap.restNonce },
+			} )
+				.then( ( response ) => setBreakdown( response ) )
+				.catch( () => {} );
+		}, 5000 );
+		return () => clearTimeout( id );
+	}, [ bootstrap, breakdown ] );
 
 	// Auto-dismiss the success notice after a few seconds so it doesn't
 	// dominate a screenshot. Error notices stay until manually dismissed.

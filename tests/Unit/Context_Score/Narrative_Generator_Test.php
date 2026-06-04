@@ -226,6 +226,41 @@ final class Narrative_Generator_Test extends TestCase {
 	// Provider doubles
 	// ------------------------------------------------------------------
 
+	public function test_pending_returns_rule_based_marked_llm_pending(): void {
+		// #167 / AgDR-0051: pending() is the synchronous, LLM-free narrative
+		// written by recompute_now before the background job runs.
+		$narrative = Narrative_Generator::pending( self::sample_breakdown() );
+
+		self::assertSame( 'rule_based', $narrative['mode'] );
+		self::assertTrue( $narrative['degraded'] );
+		self::assertSame( 'llm_pending', $narrative['degraded_reason'] );
+		self::assertTrue(
+			$narrative['llm_pending'],
+			'pending() must mark the narrative as awaiting the background LLM job.'
+		);
+
+		// One deterministic rule-based pair per sub-score present in the
+		// breakdown — every pair sourced rule_based, no LLM call.
+		self::assertNotEmpty( $narrative['sub_scores'] );
+		foreach ( $narrative['sub_scores'] as $entry ) {
+			self::assertSame( 'rule_based', $entry['source'] );
+			self::assertNotSame( '', trim( (string) $entry['why'] ) );
+			self::assertNotSame( '', trim( (string) $entry['fix'] ) );
+		}
+	}
+
+	public function test_llm_success_clears_llm_pending(): void {
+		$narrative = Narrative_Generator::generate(
+			self::sample_breakdown(),
+			$this->json_provider( self::valid_llm_response() )
+		);
+
+		self::assertFalse(
+			$narrative['llm_pending'],
+			'A completed generate() is the final state, not pending.'
+		);
+	}
+
 	/**
 	 * @return Provider&object{calls: int}
 	 */

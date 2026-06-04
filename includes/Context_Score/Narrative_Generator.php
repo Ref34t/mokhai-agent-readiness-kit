@@ -49,17 +49,22 @@ final class Narrative_Generator {
 	 *
 	 * @var int
 	 */
-	public const NARRATIVE_SCHEMA_VERSION = 1;
+	public const NARRATIVE_SCHEMA_VERSION = 2;
 
 	/**
 	 * Hard wall-clock budget for the LLM round-trip, in milliseconds.
-	 * AC of #11: "Generation budget < 10s per recompute". A successful
-	 * call that overshoots the budget is discarded and we fall back to
-	 * rule-based with `degraded_reason = 'budget_exceeded'`.
+	 *
+	 * Since #167 / AgDR-0051 the narrative is generated in a background cron
+	 * job (`Service::do_generate_narrative`), NOT inside the user-facing
+	 * recompute. The budget therefore no longer guards UX latency — it only
+	 * trips on a pathologically hung provider. Measured generation is ~11-17s,
+	 * so the ceiling is set generously above that; a call that still overshoots
+	 * is discarded and we fall back to rule-based with
+	 * `degraded_reason = 'budget_exceeded'`.
 	 *
 	 * @var int
 	 */
-	public const GENERATION_BUDGET_MS = 10_000;
+	public const GENERATION_BUDGET_MS = 45_000;
 
 	/**
 	 * Hard per-line ceiling. Matches Rule_Based_Narrative::MAX_OUTPUT_CHARS
@@ -343,6 +348,7 @@ PROMPT;
 			'generation_duration_ms' => $duration_ms,
 			'degraded'               => false,
 			'degraded_reason'        => null,
+			'llm_pending'            => false,
 			'sub_scores'             => $narrative_subs,
 		);
 	}
@@ -354,7 +360,7 @@ PROMPT;
 	 * @param array<string, mixed> $breakdown
 	 * @return array<string, mixed>
 	 */
-	private static function full_fallback( array $breakdown, string $now_iso, string $reason, int $duration_ms ): array {
+	private static function full_fallback( array $breakdown, string $now_iso, string $reason, int $duration_ms, bool $llm_pending = false ): array {
 		$rule_pairs     = Rule_Based_Narrative::compose( $breakdown );
 		$narrative_subs = array();
 		foreach ( $rule_pairs as $name => $pair ) {
@@ -372,8 +378,27 @@ PROMPT;
 			'generation_duration_ms' => $duration_ms,
 			'degraded'               => true,
 			'degraded_reason'        => $reason,
+			'llm_pending'            => $llm_pending,
 			'sub_scores'             => $narrative_subs,
 		);
+	}
+
+	/**
+	 * Immediate, LLM-free narrative for the synchronous recompute path
+	 * (#167 / AgDR-0051). Returns the deterministic rule-based pairs marked
+	 * `llm_pending = true` so the caller can write the cache instantly and
+	 * the UI can show "AI narrative generating…" until the background
+	 * `Service::do_generate_narrative` job replaces this with the LLM result.
+	 *
+	 * `degraded_reason = 'llm_pending'` is distinct from a genuine failure
+	 * (`budget_exceeded`, `rate_limited`, …): it means "not attempted yet",
+	 * not "attempted and fell back".
+	 *
+	 * @param array<string, mixed> $breakdown Engine::compute output.
+	 * @return array<string, mixed> Narrative payload (rule-based, pending LLM).
+	 */
+	public static function pending( array $breakdown ): array {
+		return self::full_fallback( $breakdown, \gmdate( 'c' ), 'llm_pending', 0, true );
 	}
 
 	/**

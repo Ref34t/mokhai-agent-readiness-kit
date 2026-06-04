@@ -48,12 +48,14 @@ final class Service_Test extends WP_UnitTestCase {
 		// state.
 		wp_clear_scheduled_hook( Service::RECOMPUTE_ACTION );
 		wp_clear_scheduled_hook( Service::DAILY_RECOMPUTE_ACTION );
+		wp_clear_scheduled_hook( Service::NARRATIVE_ACTION );
 	}
 
 	protected function tearDown(): void {
 		Service::invalidate();
 		wp_clear_scheduled_hook( Service::RECOMPUTE_ACTION );
 		wp_clear_scheduled_hook( Service::DAILY_RECOMPUTE_ACTION );
+		wp_clear_scheduled_hook( Service::NARRATIVE_ACTION );
 
 		Markdown_Views_Schema::drop();
 
@@ -118,6 +120,59 @@ final class Service_Test extends WP_UnitTestCase {
 
 		$this->assertIsArray( $stored );
 		$this->assertSame( Service::CACHE_SCHEMA_VERSION, $stored['schema_version'] );
+	}
+
+	public function test_recompute_now_writes_pending_llm_narrative(): void {
+		// #167 / AgDR-0051: the narrative is generated asynchronously, so
+		// recompute_now writes an instant rule-based placeholder marked
+		// llm_pending rather than blocking on the LLM.
+		$narrative = Service::recompute_now()['narrative'];
+
+		$this->assertTrue( $narrative['llm_pending'] );
+		$this->assertSame( 'rule_based', $narrative['mode'] );
+		$this->assertSame( 'llm_pending', $narrative['degraded_reason'] );
+	}
+
+	public function test_recompute_now_schedules_the_background_narrative_job(): void {
+		$this->assertFalse( wp_next_scheduled( Service::NARRATIVE_ACTION ) );
+
+		Service::recompute_now();
+
+		$this->assertNotFalse(
+			wp_next_scheduled( Service::NARRATIVE_ACTION ),
+			'recompute_now must schedule the async narrative job.'
+		);
+	}
+
+	public function test_do_generate_narrative_clears_pending(): void {
+		Service::recompute_now();
+		$this->assertTrue( Service::get_breakdown()['narrative']['llm_pending'] );
+
+		// No WP AI client in the test instance → generate() degrades to a
+		// rule-based fallback. The contract under test is that the job reaches
+		// a FINAL state (no longer pending), not which mode it lands in.
+		Service::do_generate_narrative();
+
+		$this->assertFalse( Service::get_breakdown()['narrative']['llm_pending'] );
+	}
+
+	public function test_do_generate_narrative_is_noop_when_not_pending(): void {
+		Service::recompute_now();
+		Service::do_generate_narrative();           // clears pending
+		$first = Service::get_breakdown()['narrative'];
+
+		Service::do_generate_narrative();           // already enriched → early return
+		$second = Service::get_breakdown()['narrative'];
+
+		$this->assertSame( $first['generated_at'], $second['generated_at'] );
+	}
+
+	public function test_do_generate_narrative_is_noop_when_cache_absent(): void {
+		Service::invalidate();
+
+		Service::do_generate_narrative();           // must not crash or write
+
+		$this->assertNull( Service::get_breakdown() );
 	}
 
 	public function test_get_breakdown_returns_cached_payload(): void {
