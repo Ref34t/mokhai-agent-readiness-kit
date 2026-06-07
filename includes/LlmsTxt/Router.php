@@ -18,6 +18,8 @@ declare(strict_types=1);
 
 namespace WPContext\LlmsTxt;
 
+use WPContext\Support\Output_Buffer;
+
 \defined( 'ABSPATH' ) || exit;
 
 /**
@@ -149,6 +151,12 @@ final class Router {
 	 * @param array{status:int, headers:array<string,string>, body:string} $response Response shape.
 	 */
 	private static function dispatch( array $response ): void {
+		// Discard any BOM / whitespace leaked into the output buffer by the
+		// theme or another plugin BEFORE we send headers, so our text/plain
+		// body starts at the intended first byte and the headers below still
+		// send (a flushed buffer would have already sent them). See #175.
+		Output_Buffer::discard_pending();
+
 		\status_header( $response['status'] );
 		\nocache_headers();
 
@@ -157,9 +165,10 @@ final class Router {
 		}
 
 		// Raw text/plain body — no HTML rendering context applies, so the
-		// HTML-escape sniff doesn't apply either.
+		// HTML-escape sniff doesn't apply either. Strip a leading BOM in case
+		// the composed body itself begins with one (#175).
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $response['body'];
+		echo Output_Buffer::strip_leading_bom( $response['body'] );
 
 		exit;
 	}
