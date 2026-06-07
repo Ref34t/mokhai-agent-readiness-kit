@@ -237,6 +237,19 @@ final class Entry_Source {
 	 * once WordPress parses the request — the rewrite handles the path
 	 * form, the query var handles the query form.
 	 *
+	 * **Edge case — a pretty permalink carrying a query string.** The
+	 * branch is chosen by *presence of a query string*, not by the site's
+	 * permalink mode. So a pretty URL that already carries a query string
+	 * (e.g. `/lessons/foo/?ver=2`) takes the query branch and becomes
+	 * `/lessons/foo/?ver=2&format=md` — it does NOT get the `.md` suffix.
+	 * That's intentional: `?format=md` content-negotiation reaches the
+	 * same Markdown response regardless of permalink mode, whereas
+	 * appending `.md` to a path that still has a query string would
+	 * produce a malformed URL. Pretty permalinks only get the `.md` form
+	 * when their permalink is query-free (the common case — WordPress
+	 * pretty permalinks don't carry a query string unless something
+	 * downstream added one).
+	 *
 	 * Idempotent: a URL already in `.md` or `format=md` shape is
 	 * returned unchanged.
 	 */
