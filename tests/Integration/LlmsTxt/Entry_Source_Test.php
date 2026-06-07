@@ -304,8 +304,21 @@ final class Entry_Source_Test extends WP_UnitTestCase {
 	 * If the operator has turned the Markdown Views module off, /llms.txt
 	 * cannot link at the `.md` form — the rewrite is still registered but
 	 * Handler will 404 on it. Fall back to the canonical permalink.
+	 *
+	 * Parameterised across both permalink modes (#116). The MV-disabled
+	 * fall-through must hold regardless of whether the site runs pretty
+	 * (`/%postname%/`) or plain (`?p=N`) permalinks — neither the `.md`
+	 * suffix nor the `?format=md` query may be appended. The earlier
+	 * single-mode version only exercised whatever structure the test
+	 * instance happened to default to (plain), leaving the pretty-permalink
+	 * branch of the disabled path unproven.
+	 *
+	 * @dataProvider permalink_structure_provider
+	 *
+	 * @param string $permalink_structure Value to set for `permalink_structure`.
+	 * @param string $mode_label          Human-readable mode name for assertion messages.
 	 */
-	public function test_entry_url_stays_canonical_when_markdown_views_disabled(): void {
+	public function test_entry_url_stays_canonical_when_markdown_views_disabled( string $permalink_structure, string $mode_label ): void {
 		update_option(
 			Context_Profile_Settings::OPTION_KEY,
 			array_merge(
@@ -318,23 +331,53 @@ final class Entry_Source_Test extends WP_UnitTestCase {
 			)
 		);
 
-		$post_id = self::factory()->post->create(
-			array(
-				'post_title'  => 'MV-off post',
-				'post_status' => 'publish',
-				'post_type'   => 'post',
-			)
-		);
+		$original_structure = (string) \get_option( 'permalink_structure' );
+		\update_option( 'permalink_structure', $permalink_structure );
+		\flush_rewrite_rules( false );
 
-		$sections = Entry_Source::get_sections();
-		$entry    = $sections[0]['entries'][0];
+		try {
+			$post_id = self::factory()->post->create(
+				array(
+					'post_title'  => 'MV-off post',
+					'post_status' => 'publish',
+					'post_type'   => 'post',
+				)
+			);
 
-		$this->assertSame(
-			(string) \get_permalink( $post_id ),
-			$entry['url'],
-			'With MV disabled, the URL must be the canonical permalink — no .md transform.'
+			$sections = Entry_Source::get_sections();
+			$entry    = $sections[0]['entries'][0];
+
+			$this->assertSame(
+				(string) \get_permalink( $post_id ),
+				$entry['url'],
+				sprintf( 'With MV disabled (%s permalinks), the URL must be the canonical permalink — no transform.', $mode_label )
+			);
+			$this->assertStringEndsNotWith(
+				'.md',
+				$entry['url'],
+				sprintf( 'No .md suffix may be appended with MV disabled (%s permalinks).', $mode_label )
+			);
+			$this->assertStringNotContainsString(
+				'format=md',
+				$entry['url'],
+				sprintf( 'No ?format=md query may be appended with MV disabled (%s permalinks).', $mode_label )
+			);
+		} finally {
+			\update_option( 'permalink_structure', $original_structure );
+			\flush_rewrite_rules( false );
+		}
+	}
+
+	/**
+	 * Permalink structures exercised by the MV-disabled canonical-URL test.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public function permalink_structure_provider(): array {
+		return array(
+			'pretty' => array( '/%postname%/', 'pretty' ),
+			'plain'  => array( '', 'plain' ),
 		);
-		$this->assertStringEndsNotWith( '.md', $entry['url'] );
 	}
 
 	/**

@@ -340,6 +340,118 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		self::assertSame( '', $output, 'schema_emit_enabled=false suppresses emission regardless of detected posture.' );
 	}
 
+	/**
+	 * Regression for the static-front-page exposure-gate carve-out (#114).
+	 *
+	 * `build_webpage_node()` treats the front page as site-identity-class:
+	 * when `is_front_page()` is true it deliberately SKIPS the
+	 * `exposed_cpts` / `exposed_statuses` gate so the home URL always gets
+	 * a `WebPage` node, even before any singular content is exposed to
+	 * agents. This pins that carve-out for a *static* front page (a real
+	 * `page` set via `show_on_front` / `page_on_front`) — the harder case,
+	 * because that request is also `is_singular()` and would otherwise be
+	 * gated. Here `page` is intentionally left OUT of `exposed_cpts`, yet a
+	 * WebPage node must still emit.
+	 */
+	public function test_static_front_page_emits_webpage_even_when_page_cpt_not_exposed(): void {
+		// Profile exposes only `post` — `page` is NOT exposable. A gated
+		// singular page would emit no WebPage; the front-page carve-out must
+		// override that.
+		update_option(
+			Context_Profile_Settings::OPTION_KEY,
+			array_merge(
+				Context_Profile_Settings::get_defaults(),
+				array(
+					'schema_emit_enabled' => true,
+					'exposed_cpts'        => array( 'post' ),
+					'exposed_statuses'    => array( 'publish' ),
+				)
+			)
+		);
+
+		$front_id = $this->factory->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'Welcome',
+			)
+		);
+
+		$original_show_on_front = (string) get_option( 'show_on_front' );
+		$original_page_on_front = (int) get_option( 'page_on_front' );
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $front_id );
+
+		try {
+			$this->go_to( home_url( '/' ) );
+
+			self::assertTrue( is_front_page(), 'Test setup must resolve to the static front page.' );
+
+			$output = $this->capture_render( 'none' );
+			$json   = $this->extract_json( $output );
+			$types  = $this->collect_types( $json );
+
+			self::assertContains( 'WebSite', $types );
+			self::assertContains( 'Organization', $types );
+			self::assertContains(
+				'WebPage',
+				$types,
+				'Static front page must emit a WebPage node even though `page` is outside exposed_cpts — front page is site-identity-class.'
+			);
+
+			$webpage = $this->find_node_of_type( $json, 'WebPage' );
+			self::assertNotNull( $webpage );
+			self::assertSame( 'Welcome', $webpage['name'] );
+		} finally {
+			update_option( 'show_on_front', $original_show_on_front );
+			update_option( 'page_on_front', $original_page_on_front );
+		}
+	}
+
+	/**
+	 * Companion to the front-page carve-out (#114): a *non-front* singular
+	 * page whose CPT is outside `exposed_cpts` must stay gated — no WebPage
+	 * node. This proves the carve-out is specific to the front page and the
+	 * per-content gate is otherwise intact for `page`.
+	 */
+	public function test_regular_page_is_gated_when_page_cpt_not_exposed(): void {
+		update_option(
+			Context_Profile_Settings::OPTION_KEY,
+			array_merge(
+				Context_Profile_Settings::get_defaults(),
+				array(
+					'schema_emit_enabled' => true,
+					'exposed_cpts'        => array( 'post' ),
+					'exposed_statuses'    => array( 'publish' ),
+				)
+			)
+		);
+
+		$page_id = $this->factory->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+				'post_title'  => 'About us',
+			)
+		);
+
+		$this->go_to( get_permalink( $page_id ) );
+
+		self::assertFalse( is_front_page(), 'A normal page must not be treated as the front page.' );
+
+		$output = $this->capture_render( 'none' );
+		$json   = $this->extract_json( $output );
+		$types  = $this->collect_types( $json );
+
+		self::assertContains( 'WebSite', $types, 'Site identity always emits when the toggle is on.' );
+		self::assertContains( 'Organization', $types );
+		self::assertNotContains(
+			'WebPage',
+			$types,
+			'A non-front page outside exposed_cpts must not emit a WebPage node — only the front page bypasses the gate.'
+		);
+	}
+
 	private function capture_render( string $posture ): string {
 		ob_start();
 		Schema_Emitter::render_for_posture( $posture );
