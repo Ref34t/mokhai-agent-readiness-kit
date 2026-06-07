@@ -18,6 +18,8 @@ declare(strict_types=1);
 
 namespace WPContext\Markdown_Views;
 
+use WPContext\Support\Output_Buffer;
+
 \defined( 'ABSPATH' ) || exit;
 
 /**
@@ -171,6 +173,12 @@ final class Handler {
 	 * @param array{status:int, headers:array<string,string>, body:string} $response
 	 */
 	private static function dispatch( array $response ): void {
+		// Discard any BOM / whitespace leaked into the output buffer by the
+		// theme or another plugin BEFORE we send headers, so the Markdown body
+		// starts at the intended first byte and the headers below still send
+		// (a flushed buffer would have already sent them). See #175.
+		Output_Buffer::discard_pending();
+
 		\status_header( $response['status'] );
 
 		foreach ( $response['headers'] as $name => $value ) {
@@ -179,8 +187,9 @@ final class Handler {
 
 		// Output is raw Markdown served with `Content-Type: text/markdown` —
 		// no HTML rendering context, so HTML-escape semantics do not apply.
+		// Strip a leading BOM in case the body itself begins with one (#175).
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $response['body'];
+		echo Output_Buffer::strip_leading_bom( $response['body'] );
 
 		exit;
 	}

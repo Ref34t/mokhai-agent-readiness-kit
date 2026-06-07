@@ -56,6 +56,12 @@ final class Main {
 		\register_activation_hook( \WPCTX_FILE, array( $this, 'on_activate' ) );
 		\register_deactivation_hook( \WPCTX_FILE, array( $this, 'on_deactivate' ) );
 
+		// Harden the plugin's REST surfaces against upstream BOM / whitespace
+		// pollution: discard any leaked output buffer before WP echoes the
+		// JSON body, scoped to the plugin's own namespace. See #175. The
+		// /llms.txt and .md routes self-harden in their own dispatch().
+		\WPContext\Support\Output_Buffer::register_hooks();
+
 		// Soft-degrade notice on plugin admin pages when WP AI Client is
 		// unconfigured. See AgDR-0003 + ticket #2.
 		Requirements::register_ai_client_notice();
