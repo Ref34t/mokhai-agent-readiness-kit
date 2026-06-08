@@ -475,3 +475,34 @@ jobs:
           name: ai-readiness-kit-zip
           path: dist/ai-readiness-kit-*.zip
           retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # 9. Production dependency audit (regression guard for GH-173).
+  #    Audits ONLY the shipped surface (`--omit=dev`). The plugin ZIP carries
+  #    no JS dependencies — `node_modules/` is excluded by `.distignore` and
+  #    verified absent in build-zip-verify above — so the true runtime surface
+  #    is the composer prod tree (and that's `composer audit`-clean separately).
+  #    Dev tooling (`@wordpress/env`, `@wordpress/scripts` → webpack / wp-playground)
+  #    carries upstream-pinned transitive advisories with no leaf fix available
+  #    (ajv $data ReDoS, webpack-dev-server, ws). Those are documented and
+  #    deliberately NOT gated here so the gate never goes red on dev noise —
+  #    while still failing loudly the moment a real advisory reaches prod.
+  #    See docs/dependency-audit.md.
+  # ---------------------------------------------------------------------------
+  npm-audit-prod:
+    name: npm audit (production deps)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies (deterministic)
+        run: npm ci
+
+      - name: Audit production dependencies (must stay at 0)
+        run: npm audit --omit=dev

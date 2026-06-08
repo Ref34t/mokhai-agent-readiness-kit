@@ -21,7 +21,12 @@
 		"test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/ai-readiness-kit vendor/bin/phpunit"
 	},
 	"devDependencies": {
-		"@wordpress/env": "^10.0.0",
-		"@wordpress/scripts": "^30.27.0"
+		"@wordpress/env": "^11.8.0",
+		"@wordpress/scripts": "^32.4.0"
+	},
+	"overrides": {
+		"minimatch": "^10.0.3",
+		"serialize-javascript": "^7.0.5",
+		"qs": "^6.15.2"
 	}
 }
