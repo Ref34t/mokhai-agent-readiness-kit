@@ -154,6 +154,51 @@ if ( ! function_exists( 'sanitize_key' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_title' ) ) {
+	/**
+	 * Stub approximating WP's sanitize_title: lowercased, non-alphanumerics
+	 * collapsed to single hyphens, trimmed. Sufficient for the exclude-slug
+	 * deny-list sanitiser (#180).
+	 */
+	function sanitize_title( $title ): string {
+		if ( ! is_string( $title ) ) {
+			return '';
+		}
+		$title = strtolower( trim( $title ) );
+		$title = preg_replace( '/[^a-z0-9]+/', '-', $title ) ?? '';
+		return trim( $title, '-' );
+	}
+}
+
+if ( ! function_exists( 'absint' ) ) {
+	/**
+	 * Stub mirroring WP's absint: non-negative integer.
+	 */
+	function absint( $maybeint ): int {
+		return abs( (int) $maybeint );
+	}
+}
+
+if ( ! function_exists( 'get_post_field' ) ) {
+	/**
+	 * Stub: read a field off a WP_Post test double. Mirrors the subset of
+	 * core's get_post_field() the exposure predicate uses (#180) — given a
+	 * WP_Post object, return the named property as a string.
+	 *
+	 * @param string $field   Field name (e.g. 'post_name').
+	 * @param mixed  $post    WP_Post test double.
+	 * @param string $context Unused in the stub (core applies filters here).
+	 * @return string
+	 */
+	function get_post_field( string $field, $post = null, string $context = 'display' ): string {
+		unset( $context );
+		if ( is_object( $post ) && isset( $post->$field ) ) {
+			return (string) $post->$field;
+		}
+		return '';
+	}
+}
+
 if ( ! isset( $GLOBALS['wpctx_test_post_types'] ) ) {
 	$GLOBALS['wpctx_test_post_types'] = array( 'post', 'page' );
 }
@@ -714,6 +759,7 @@ if ( ! class_exists( 'WP_Post' ) ) {
 		public string $post_type       = 'post';
 		public string $post_status     = 'publish';
 		public string $post_password   = '';
+		public string $post_name       = '';
 		public string $post_content    = '';
 		public string $post_title      = '';
 		public string $post_date_gmt   = '';

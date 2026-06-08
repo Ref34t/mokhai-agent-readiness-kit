@@ -193,6 +193,55 @@ final class Entry_Source_Test extends WP_UnitTestCase {
 		);
 	}
 
+	public function test_excluded_and_sample_posts_are_dropped_from_entries(): void {
+		$visible_id = self::factory()->post->create(
+			array(
+				'post_title'  => 'Real article',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		// Per-post exclude toggle (#180).
+		$meta_excluded_id = self::factory()->post->create(
+			array(
+				'post_title'  => 'Manually excluded',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+		update_post_meta( $meta_excluded_id, Context_Profile_Settings::EXCLUDE_META_KEY, '1' );
+
+		// WordPress sample content excluded by the default exclude_wp_samples
+		// toggle (slug match, regardless of title).
+		$sample_id = self::factory()->post->create(
+			array(
+				'post_title'  => 'Sample Page',
+				'post_name'   => 'sample-page',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		$this->assertTrue( Context_Profile_Settings::is_url_exposable( get_post( $visible_id ) ) );
+		$this->assertFalse(
+			Context_Profile_Settings::is_url_exposable( get_post( $meta_excluded_id ) ),
+			'Per-post exclude meta must deny the post.'
+		);
+		$this->assertFalse(
+			Context_Profile_Settings::is_url_exposable( get_post( $sample_id ) ),
+			'WP sample content must be denied by the default exclude_wp_samples toggle.'
+		);
+
+		$sections = Entry_Source::get_sections();
+
+		$this->assertCount( 1, $sections );
+		$titles = array_column( $sections[0]['entries'], 'title' );
+		$this->assertContains( 'Real article', $titles );
+		$this->assertNotContains( 'Manually excluded', $titles );
+		$this->assertNotContains( 'Sample Page', $titles );
+	}
+
 	public function test_description_filter_takes_precedence_over_post_excerpt(): void {
 		self::factory()->post->create(
 			array(

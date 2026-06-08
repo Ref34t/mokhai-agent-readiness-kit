@@ -79,6 +79,15 @@ final class Main {
 		\WPContext\Admin\Context_Profile_Rest_Controller::register_hooks();
 		\WPContext\Admin\Context_Profile_Page::register_hooks();
 
+		// Content exclusions (#180). Per-post `_agentready_excluded` meta + its
+		// block-editor sidebar toggle, and the SEO-plugin noindex bridge
+		// (folds in #176 — Yoast / Rank Math). All three feed
+		// Context_Profile_Settings::get_exposure_reason(), so an exclusion
+		// applies uniformly to /llms.txt, .md views, and #178 advertising.
+		\WPContext\Admin\Exclude_Meta::register_hooks();
+		\WPContext\Admin\Exclude_Sidebar_Assets::register_hooks();
+		\WPContext\Admin\SEO_Noindex_Detector::register_hooks();
+
 		// Wire the Markdown Views cache schema upgrade-on-admin_init
 		// (#52). Comparison is one option read on every admin
 		// page-load; the `dbDelta()` re-run only fires when the

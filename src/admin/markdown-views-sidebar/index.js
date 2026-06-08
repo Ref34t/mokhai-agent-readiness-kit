@@ -53,6 +53,16 @@ function reasonLabel( reason ) {
 				'Post is flagged noindex by an SEO plugin.',
 				'ai-readiness-kit'
 			);
+		case 'excluded':
+			return __(
+				'Post is on the agentready exclude list (per-post toggle or Context Profile exclude list).',
+				'ai-readiness-kit'
+			);
+		case 'sample':
+			return __(
+				'Post is WordPress sample content excluded by the Context Profile.',
+				'ai-readiness-kit'
+			);
 		default:
 			return __( 'Hidden from agents.', 'ai-readiness-kit' );
 	}
