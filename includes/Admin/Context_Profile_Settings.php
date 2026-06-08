@@ -58,7 +58,7 @@ final class Context_Profile_Settings {
 	 *
 	 * @var int
 	 */
-	public const CURRENT_SCHEMA_VERSION = 1;
+	public const CURRENT_SCHEMA_VERSION = 2;
 
 	/**
 	 * Post statuses the admin is allowed to expose. `publish` is the only
@@ -68,6 +68,25 @@ final class Context_Profile_Settings {
 	 * @var string[]
 	 */
 	public const ALLOWED_STATUSES = array( 'publish', 'private', 'password', 'draft', 'pending' );
+
+	/**
+	 * Per-post meta key. When set to '1', the post is excluded from every
+	 * agent-facing surface regardless of CPT / status. Written by the
+	 * block-editor sidebar toggle (Exclude_Sidebar_Assets / #180) or
+	 * programmatically. Underscore prefix keeps it out of the custom-fields UI.
+	 *
+	 * @var string
+	 */
+	public const EXCLUDE_META_KEY = '_agentready_excluded';
+
+	/**
+	 * Slugs WordPress seeds on a fresh install. Dropped from agent output by
+	 * default (the `exclude_wp_samples` toggle) so "Hello World" / "Sample
+	 * Page" placeholder content never reaches the agent surface. See #180.
+	 *
+	 * @var string[]
+	 */
+	public const WP_SAMPLE_SLUGS = array( 'hello-world', 'sample-page' );
 
 	/**
 	 * Wire the WordPress hooks owned by this class.
@@ -139,6 +158,16 @@ final class Context_Profile_Settings {
 			// Default true — discovery is the whole point; flip off to keep
 			// generating artifacts without announcing them.
 			'advertise_alternates_enabled' => true,
+			// Content exclusions (#180). `excluded_ids` / `excluded_slugs` are
+			// operator-curated deny-lists applied on top of the CPT / status
+			// gates; `exclude_wp_samples` drops WordPress's seeded sample
+			// content. All three feed get_exposure_reason(), so they apply
+			// uniformly to /llms.txt, .md views, and #178 alternate advertising.
+			// `exclude_wp_samples` defaults true: sample content is never
+			// legitimate agent input.
+			'excluded_ids'                 => array(),
+			'excluded_slugs'               => array(),
+			'exclude_wp_samples'           => true,
 		);
 	}
 
@@ -196,7 +225,7 @@ final class Context_Profile_Settings {
 	 * For admin-only consumers (REST preview endpoint, Gutenberg sidebar)
 	 * that need the *reason* a post is hidden so the editor can fix it, use
 	 * {@see self::get_exposure_reason()} which returns one of: 'cpt',
-	 * 'status', 'password', 'noindex', or null on exposable.
+	 * 'status', 'password', 'noindex', 'excluded', 'sample', or null on exposable.
 	 */
 	public static function is_url_exposable( \WP_Post $post ): bool {
 		return null === self::get_exposure_reason( $post );
@@ -210,7 +239,7 @@ final class Context_Profile_Settings {
 	 * and as i18n message keys. Order matches the gate order in
 	 * `is_url_exposable()`.
 	 *
-	 * @return string|null One of 'cpt' | 'status' | 'password' | 'noindex', or null.
+	 * @return string|null One of 'cpt' | 'status' | 'password' | 'noindex' | 'excluded' | 'sample', or null.
 	 */
 	public static function get_exposure_reason( \WP_Post $post ): ?string {
 		$profile = self::get_profile();
@@ -229,6 +258,14 @@ final class Context_Profile_Settings {
 
 		if ( self::is_noindexed( $post ) ) {
 			return 'noindex';
+		}
+
+		if ( self::is_excluded( $post, $profile ) ) {
+			return 'excluded';
+		}
+
+		if ( self::is_wp_sample( $post, $profile ) ) {
+			return 'sample';
 		}
 
 		return null;
@@ -252,6 +289,51 @@ final class Context_Profile_Settings {
 		 * @param \WP_Post $post      Post being evaluated.
 		 */
 		return (bool) \apply_filters( 'agentready_post_is_noindexed', false, $post );
+	}
+
+	/**
+	 * Whether the post sits on an operator-curated exclude list — the per-post
+	 * `_agentready_excluded` meta toggle, or the site-level `excluded_ids` /
+	 * `excluded_slugs` deny-lists. See #180.
+	 *
+	 * @param \WP_Post             $post    Post being evaluated.
+	 * @param array<string, mixed> $profile Already-resolved profile (passed in
+	 *                                      to avoid a second get_profile() on
+	 *                                      the /llms.txt entry-loop hot path).
+	 */
+	private static function is_excluded( \WP_Post $post, array $profile ): bool {
+		if ( '1' === (string) \get_post_meta( $post->ID, self::EXCLUDE_META_KEY, true ) ) {
+			return true;
+		}
+
+		if ( \in_array( (int) $post->ID, $profile['excluded_ids'], true ) ) {
+			return true;
+		}
+
+		$slug = (string) \get_post_field( 'post_name', $post, 'raw' );
+		if ( '' !== $slug && \in_array( $slug, $profile['excluded_slugs'], true ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether the post is WordPress-seeded sample content ("Hello World" /
+	 * "Sample Page") AND the `exclude_wp_samples` toggle is on (default). The
+	 * match is by slug so it survives a renamed title. See #180.
+	 *
+	 * @param \WP_Post             $post    Post being evaluated.
+	 * @param array<string, mixed> $profile Already-resolved profile.
+	 */
+	private static function is_wp_sample( \WP_Post $post, array $profile ): bool {
+		if ( empty( $profile['exclude_wp_samples'] ) ) {
+			return false;
+		}
+
+		$slug = (string) \get_post_field( 'post_name', $post, 'raw' );
+
+		return \in_array( $slug, self::WP_SAMPLE_SLUGS, true );
 	}
 
 	/**
@@ -521,6 +603,27 @@ final class Context_Profile_Settings {
 			? true
 			: ! empty( $input['advertise_alternates_enabled'] );
 
+		// Content exclusions (#180). `excluded_ids` → unique positive ints;
+		// `excluded_slugs` → unique sanitised post-name slugs. Both default to
+		// empty (no exclusions). `exclude_wp_samples` follows the "default true,
+		// explicit false to disable" convention so legacy profiles and
+		// form-less saves keep WP sample content excluded.
+		$out['excluded_ids'] = self::sanitize_id_list(
+			isset( $input['excluded_ids'] ) && \is_array( $input['excluded_ids'] )
+				? $input['excluded_ids']
+				: array()
+		);
+
+		$out['excluded_slugs'] = self::sanitize_slug_list(
+			isset( $input['excluded_slugs'] ) && \is_array( $input['excluded_slugs'] )
+				? $input['excluded_slugs']
+				: array()
+		);
+
+		$out['exclude_wp_samples'] = ! \array_key_exists( 'exclude_wp_samples', $input )
+			? true
+			: ! empty( $input['exclude_wp_samples'] );
+
 		// Unknown keys are dropped by virtue of not being copied into $out.
 
 		return $out;
@@ -597,5 +700,50 @@ final class Context_Profile_Settings {
 		}
 
 		return $valid;
+	}
+
+	/**
+	 * Sanitise the excluded-IDs deny-list to a unique list of positive ints.
+	 * Accepts ints or numeric strings from the SPA / REST body. See #180.
+	 *
+	 * @param array<int|string, mixed> $ids Candidate post IDs.
+	 *
+	 * @return int[]
+	 */
+	private static function sanitize_id_list( array $ids ): array {
+		$valid = array();
+		foreach ( $ids as $id ) {
+			$int = \absint( $id );
+			if ( $int > 0 ) {
+				$valid[] = $int;
+			}
+		}
+
+		return \array_values( \array_unique( $valid ) );
+	}
+
+	/**
+	 * Sanitise the excluded-slugs deny-list to a unique list of post-name
+	 * slugs. `sanitize_title()` makes the field forgiving — an operator can
+	 * paste a title ("Sample Page") and it normalises to the slug. See #180.
+	 *
+	 * @param array<int|string, mixed> $slugs Candidate slugs.
+	 *
+	 * @return string[]
+	 */
+	private static function sanitize_slug_list( array $slugs ): array {
+		$valid = array();
+		foreach ( $slugs as $slug ) {
+			if ( ! \is_string( $slug ) ) {
+				continue;
+			}
+
+			$clean = \sanitize_title( $slug );
+			if ( '' !== $clean ) {
+				$valid[] = $clean;
+			}
+		}
+
+		return \array_values( \array_unique( $valid ) );
 	}
 }

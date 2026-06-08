@@ -146,4 +146,167 @@ final class Context_Profile_Exposure_Test extends TestCase {
 		$post = $this->make_post( array( 'post_type' => 'post', 'post_status' => 'publish' ) );
 		self::assertTrue( Context_Profile_Settings::is_url_exposable( $post ) );
 	}
+
+	// ----------------------------------------------------------------------
+	// is_url_exposable — content exclusions (#180)
+	// ----------------------------------------------------------------------
+
+	public function test_per_post_exclude_meta_denies_an_otherwise_exposable_post(): void {
+		$this->set_profile( array( 'exposed_cpts' => array( 'post' ) ) );
+		$GLOBALS['wpctx_test_post_meta'][42][ Context_Profile_Settings::EXCLUDE_META_KEY ] = '1';
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 42,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		self::assertFalse( Context_Profile_Settings::is_url_exposable( $post ) );
+		self::assertSame( 'excluded', Context_Profile_Settings::get_exposure_reason( $post ) );
+	}
+
+	public function test_exclude_meta_zero_does_not_deny(): void {
+		$this->set_profile( array( 'exposed_cpts' => array( 'post' ) ) );
+		$GLOBALS['wpctx_test_post_meta'][7][ Context_Profile_Settings::EXCLUDE_META_KEY ] = '0';
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 7,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_name'   => 'real-post',
+			)
+		);
+
+		self::assertTrue( Context_Profile_Settings::is_url_exposable( $post ) );
+	}
+
+	public function test_post_on_excluded_ids_list_is_not_exposable(): void {
+		$this->set_profile(
+			array(
+				'exposed_cpts' => array( 'post' ),
+				'excluded_ids' => array( 99 ),
+			)
+		);
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 99,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		self::assertFalse( Context_Profile_Settings::is_url_exposable( $post ) );
+		self::assertSame( 'excluded', Context_Profile_Settings::get_exposure_reason( $post ) );
+	}
+
+	public function test_post_on_excluded_slugs_list_is_not_exposable(): void {
+		$this->set_profile(
+			array(
+				'exposed_cpts'   => array( 'post' ),
+				'excluded_slugs' => array( 'secret-draft' ),
+			)
+		);
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 5,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_name'   => 'secret-draft',
+			)
+		);
+
+		self::assertFalse( Context_Profile_Settings::is_url_exposable( $post ) );
+	}
+
+	public function test_wp_sample_content_is_excluded_by_default(): void {
+		$this->set_profile( array( 'exposed_cpts' => array( 'page' ) ) );
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 2,
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_name'   => 'sample-page',
+			)
+		);
+
+		self::assertFalse( Context_Profile_Settings::is_url_exposable( $post ) );
+		self::assertSame( 'sample', Context_Profile_Settings::get_exposure_reason( $post ) );
+	}
+
+	public function test_wp_sample_content_is_exposable_when_toggle_off(): void {
+		$this->set_profile(
+			array(
+				'exposed_cpts'       => array( 'post' ),
+				'exclude_wp_samples' => false,
+			)
+		);
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 1,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_name'   => 'hello-world',
+			)
+		);
+
+		self::assertTrue( Context_Profile_Settings::is_url_exposable( $post ) );
+	}
+
+	public function test_ordinary_post_with_no_exclusions_is_exposable(): void {
+		$this->set_profile( array( 'exposed_cpts' => array( 'post' ) ) );
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 11,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_name'   => 'a-real-article',
+			)
+		);
+
+		self::assertTrue( Context_Profile_Settings::is_url_exposable( $post ) );
+		self::assertNull( Context_Profile_Settings::get_exposure_reason( $post ) );
+	}
+
+	// ----------------------------------------------------------------------
+	// defaults + deny-list sanitisation (#180)
+	// ----------------------------------------------------------------------
+
+	public function test_defaults_include_exclusion_keys(): void {
+		$defaults = Context_Profile_Settings::get_defaults();
+		self::assertSame( array(), $defaults['excluded_ids'] );
+		self::assertSame( array(), $defaults['excluded_slugs'] );
+		self::assertTrue( $defaults['exclude_wp_samples'] );
+	}
+
+	public function test_excluded_ids_are_sanitised_to_unique_positive_ints(): void {
+		// 'not-a-number' → 0 (dropped); 0 dropped; -3 → 3 (absint takes the
+		// absolute value, mirroring WP); duplicate 42 collapses.
+		$this->set_profile(
+			array(
+				'excluded_ids' => array( '42', 'not-a-number', -3, 0, 42, 7 ),
+			)
+		);
+
+		$profile = Context_Profile_Settings::get_profile();
+		self::assertSame( array( 42, 3, 7 ), $profile['excluded_ids'] );
+	}
+
+	public function test_excluded_slugs_are_sanitised_to_slug_form(): void {
+		$this->set_profile(
+			array(
+				'excluded_slugs' => array( 'Sample Page', 'sample-page', '   ', 'Tender for Restoration' ),
+			)
+		);
+
+		$profile = Context_Profile_Settings::get_profile();
+		self::assertSame( array( 'sample-page', 'tender-for-restoration' ), $profile['excluded_slugs'] );
+	}
 }

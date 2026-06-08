@@ -19,6 +19,7 @@ import {
 	PanelRow,
 	ToggleControl,
 	CheckboxControl,
+	TextareaControl,
 	Notice,
 	Button,
 	Spinner,
@@ -93,6 +94,35 @@ export function ContextProfileApp( { bootstrap } ) {
 
 	const updateField = ( field, value ) => {
 		setProfile( ( prev ) => ( { ...prev, [ field ]: value } ) );
+	};
+
+	// The exclude list is two server-side arrays (numeric IDs + slugs) but a
+	// single textarea here: one entry per line, numeric lines become IDs and
+	// everything else a slug. The server re-sanitises both arrays on save.
+	const excludeText = useMemo( () => {
+		const ids = ( profile.excluded_ids || [] ).map( String );
+		const slugs = profile.excluded_slugs || [];
+		return [ ...ids, ...slugs ].join( '\n' );
+	}, [ profile.excluded_ids, profile.excluded_slugs ] );
+
+	const onExcludeListChange = ( text ) => {
+		const ids = [];
+		const slugs = [];
+		text.split( '\n' )
+			.map( ( line ) => line.trim() )
+			.filter( Boolean )
+			.forEach( ( line ) => {
+				if ( /^\d+$/.test( line ) ) {
+					ids.push( parseInt( line, 10 ) );
+				} else {
+					slugs.push( line );
+				}
+			} );
+		setProfile( ( prev ) => ( {
+			...prev,
+			excluded_ids: ids,
+			excluded_slugs: slugs,
+		} ) );
 	};
 
 	const save = async () => {
@@ -288,6 +318,52 @@ export function ContextProfileApp( { bootstrap } ) {
 							/>
 						) ) }
 					</fieldset>
+				</PanelBody>
+			</Panel>
+
+			<Panel
+				header={ __( 'Content exclusions', 'ai-readiness-kit' ) }
+				className="agentready-context-profile-panel"
+			>
+				<PanelBody opened>
+					<PanelRow>
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __(
+								'Exclude WordPress sample content',
+								'ai-readiness-kit'
+							) }
+							help={ __(
+								'Drops the default "Hello World" post and "Sample Page" from agent output so seeded placeholder content never reaches /llms.txt or .md views. On by default.',
+								'ai-readiness-kit'
+							) }
+							checked={ !! profile.exclude_wp_samples }
+							onChange={ ( on ) =>
+								updateField( 'exclude_wp_samples', on )
+							}
+						/>
+					</PanelRow>
+					<PanelRow>
+						<TextareaControl
+							__nextHasNoMarginBottom
+							label={ __( 'Exclude list', 'ai-readiness-kit' ) }
+							help={ __(
+								'One entry per line. A number is treated as a post ID; anything else as a slug (e.g. "sample-page"). Excluded content is removed from /llms.txt, .md views, and alternate-link advertising. You can also exclude a single post from its editor sidebar.',
+								'ai-readiness-kit'
+							) }
+							value={ excludeText }
+							onChange={ onExcludeListChange }
+							rows={ 4 }
+						/>
+					</PanelRow>
+					<PanelRow>
+						<p className="description">
+							{ __(
+								'Posts marked noindex by a supported SEO plugin (Yoast, Rank Math) are excluded automatically.',
+								'ai-readiness-kit'
+							) }
+						</p>
+					</PanelRow>
 				</PanelBody>
 			</Panel>
 
