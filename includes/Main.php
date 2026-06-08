@@ -195,6 +195,13 @@ final class Main {
 		// (WebSite + Organization + WebPage/Article).
 		Seo\Schema_Emitter::register_hooks();
 
+		// Advertise the agent surfaces (#178 / AgDR-0053) so any agent reading
+		// standard response metadata discovers them: per-page `.md` `<link>` +
+		// `Link` header on exposable singular views, and a `/llms.txt` reference
+		// in robots.txt. Gated on `advertise_alternates_enabled` + the exposure
+		// model — noindex / excluded content is never advertised.
+		Discovery\Alternate_Advertiser::register_hooks();
+
 		// Wire the WordPress Abilities API surface (#21 / AgDR-0044). Registers
 		// the `ai-readiness-kit` ability category + five abilities (audit-run,
 		// profile-read, profile-set-exposure, llms-txt-regenerate,

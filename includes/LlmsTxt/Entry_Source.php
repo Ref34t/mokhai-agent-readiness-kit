@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace WPContext\LlmsTxt;
 
 use WPContext\Admin\Context_Profile_Settings;
+use WPContext\Markdown_Views\Url_Mapper;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -252,25 +253,12 @@ final class Entry_Source {
 	 *
 	 * Idempotent: a URL already in `.md` or `format=md` shape is
 	 * returned unchanged.
+	 *
+	 * Delegates to the canonical {@see Url_Mapper::to_md_url()} so `/llms.txt`
+	 * links and agent-surface advertising (#178) never drift apart.
 	 */
 	private static function to_md_url( string $url ): string {
-		$parsed = \wp_parse_url( $url );
-		$query  = isset( $parsed['query'] ) ? (string) $parsed['query'] : '';
-
-		if ( '' !== $query ) {
-			// Plain-permalink mode (or any URL carrying a query string).
-			if ( false !== \stripos( $query, 'format=md' ) ) {
-				return $url;
-			}
-			return $url . '&format=md';
-		}
-
-		// Pretty-permalink mode (or any URL with no query).
-		$path = isset( $parsed['path'] ) ? (string) $parsed['path'] : '';
-		if ( '' !== $path && \substr( $path, -3 ) === '.md' ) {
-			return $url;
-		}
-		return \rtrim( $url, '/' ) . '.md';
+		return Url_Mapper::to_md_url( $url );
 	}
 
 	/**

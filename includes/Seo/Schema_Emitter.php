@@ -364,23 +364,12 @@ final class Schema_Emitter {
 	 * Compare a post's `post_type` + `post_status` against the Context
 	 * Profile allowlists. Returns true when both pass — the exposure
 	 * model the rest of agentready honours (#73 AC #2).
+	 *
+	 * Delegates to the canonical {@see Context_Profile_Settings::is_post_exposed()}
+	 * so this and agent-surface advertising (#178) share one definition.
 	 */
 	private static function post_is_exposed( \WP_Post $post ): bool {
-		$profile  = Context_Profile_Settings::get_profile();
-		$cpts     = isset( $profile['exposed_cpts'] ) && \is_array( $profile['exposed_cpts'] )
-			? $profile['exposed_cpts']
-			: array();
-		$statuses = isset( $profile['exposed_statuses'] ) && \is_array( $profile['exposed_statuses'] )
-			? $profile['exposed_statuses']
-			: array();
-
-		if ( ! \in_array( $post->post_type, $cpts, true ) ) {
-			return false;
-		}
-		if ( ! \in_array( $post->post_status, $statuses, true ) ) {
-			return false;
-		}
-		return true;
+		return Context_Profile_Settings::is_post_exposed( $post );
 	}
 
 	/**
