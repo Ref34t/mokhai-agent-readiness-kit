@@ -71,9 +71,12 @@ final class Service_Test extends WP_UnitTestCase {
 	}
 
 	public function test_regen_sync_writes_cache_with_metadata(): void {
+		// Title deliberately not "Hello world" — that slug (hello-world) is
+		// excluded by the default exclude_wp_samples toggle (#180), which would
+		// empty the regen body and defeat this test's intent.
 		self::factory()->post->create(
 			array(
-				'post_title'   => 'Hello world',
+				'post_title'   => 'A published note',
 				'post_status'  => 'publish',
 				'post_type'    => 'post',
 			)
