@@ -78,11 +78,31 @@ jobs:
       - name: Install dependencies
         run: composer install --no-progress --no-interaction --prefer-dist
 
-      - name: Run PHPCS (report=checkstyle for cs2pr)
-        run: ./vendor/bin/phpcs --report=checkstyle --report-file=phpcs-report.xml || true
+      # PHPCS is the hard gate. It emits a full human-readable report to the
+      # step log (so violations are visible even when cs2pr can't fetch) AND a
+      # checkstyle file for the annotation step. continue-on-error lets the job
+      # reach the annotation + gate steps; the gate below re-asserts the result.
+      - name: Run PHPCS (full log + checkstyle for cs2pr)
+        id: phpcs
+        continue-on-error: true
+        run: ./vendor/bin/phpcs --report-full --report-checkstyle=phpcs-report.xml
 
+      # Annotations are best-effort. cs2pr is fetched by setup-php and has been
+      # observed to come back as a 504 HTML page on transient upstream flakes
+      # (GH-184); when that happens this step fails but MUST NOT fail the job —
+      # the PHPCS result is gated below, independent of annotation delivery.
       - name: cs2pr (inline annotations on PR diff)
+        continue-on-error: true
         run: cs2pr phpcs-report.xml
+
+      # Re-assert the PHPCS result as the authoritative gate. A genuine sniff
+      # violation fails the job here regardless of whether cs2pr ran; a clean
+      # PHPCS run passes even if the annotation fetch flaked.
+      - name: Gate on PHPCS result
+        if: steps.phpcs.outcome == 'failure'
+        run: |
+          echo "::error::PHPCS reported violations — see the 'Run PHPCS' step log above (and PR annotations if cs2pr was available)."
+          exit 1
 
   # ---------------------------------------------------------------------------
   # 3. PHPStan static analysis at level 5 (AgDR-0007).
