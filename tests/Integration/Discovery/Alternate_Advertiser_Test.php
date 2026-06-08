@@ -87,6 +87,40 @@ final class Alternate_Advertiser_Test extends WP_UnitTestCase {
 		self::assertStringNotContainsString( 'type="text/markdown"', $this->capture_head() );
 	}
 
+	public function test_password_protected_post_advertises_nothing(): void {
+		// cpt + status pass, but the .md route denies password-protected posts
+		// (is_url_exposable → 'password'), so advertising one would 404.
+		$post_id = $this->factory->post->create(
+			array(
+				'post_status'   => 'publish',
+				'post_type'     => 'post',
+				'post_password' => 'secret',
+			)
+		);
+		$this->go_to( get_permalink( $post_id ) );
+
+		self::assertStringNotContainsString( 'type="text/markdown"', $this->capture_head() );
+	}
+
+	public function test_noindexed_post_advertises_nothing(): void {
+		// The #12 SEO-coordination surface marks a post noindex; the .md route
+		// denies it (is_url_exposable → 'noindex'), so we must not advertise it.
+		$post_id = $this->factory->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+		add_filter( 'agentready_post_is_noindexed', '__return_true' );
+		$this->go_to( get_permalink( $post_id ) );
+
+		try {
+			self::assertStringNotContainsString( 'type="text/markdown"', $this->capture_head() );
+		} finally {
+			remove_filter( 'agentready_post_is_noindexed', '__return_true' );
+		}
+	}
+
 	public function test_markdown_views_disabled_suppresses_md_alternate(): void {
 		$this->set_profile(
 			array(

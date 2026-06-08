@@ -3,8 +3,8 @@
 > In the context of agentready generating `/llms.txt` and per-page `.md` twins
 > that nothing announces, facing the fact that only convention-aware agents find
 > them, I decided to advertise them via a single cross-cutting module hooking
-> `wp_head`, `send_headers`, and `robots_txt` (with two extract-to-single-source
-> refactors), to achieve discovery by any agent that reads standard response
+> `wp_head`, `send_headers`, and `robots_txt` (reusing the route's own exposability
+> predicate and a new shared `.md` URL mapper), to achieve discovery by any agent that reads standard response
 > metadata, accepting that the `robots_txt` reference is a comment (not a bespoke
 > directive) and only covers WP's virtual robots.txt.
 
@@ -27,7 +27,7 @@ uses. Two pieces of that model were private to single callers.
 |----------|---------|--------|
 | Where the logic lives | (a) scatter across `Markdown_Views` + `LlmsTxt`; (b) one new cross-cutting module | **(b)** new `WPContext\Discovery\Alternate_Advertiser` — the concern (announcing surfaces) spans both the `.md` and `/llms.txt` features, so one module hooking the three discovery points is cohesive and testable |
 | `.md` URL building | (a) duplicate `Entry_Source`'s private `to_md_url`; (b) promote to a public shared mapper | **(b)** new `Markdown_Views\Url_Mapper::to_md_url()`; `Entry_Source` delegates — one definition of the rewrite contract so advertising can't drift from `/llms.txt` links |
-| Exposability check | (a) re-implement the allowlist compare; (b) promote `Schema_Emitter`'s private `post_is_exposed` | **(b)** `Context_Profile_Settings::is_post_exposed()`; `Schema_Emitter` delegates — single source of truth shared with the advertiser |
+| Which exposability check | (a) cpt+status only (`is_post_exposed`); (b) the route's own predicate `is_url_exposable()` | **(b)** `Context_Profile_Settings::is_url_exposable()` — the EXACT predicate `Markdown_Views\Service::get_markdown_for_post()` serves on (it additionally denies password-protected + noindexed posts). Gating on the weaker cpt+status check would advertise `.md` URLs that 404 — the bug Rex caught in review. Schema_Emitter keeps its own cpt+status check (schema emission is a separate concern from `.md` serving). |
 | robots.txt form | (a) bespoke directive (e.g. `Llms-Txt:`); (b) a comment carrying the absolute URL | **(b)** a comment — robots.txt has no standard `llms.txt` field, and an unknown directive can trip strict parsers; the absolute URL in a comment satisfies discovery without that risk |
 | Settings surface | (a) reuse `markdown_views_enabled`; (b) dedicated toggle + admin checkbox; (c) dedicated toggle, no UI | **(c)** `advertise_alternates_enabled` (default true), plumbed through defaults/migrate/sanitize and filterable, but **no admin checkbox** — honours the issue's "No UI changes" note and avoids the design-review gate; a checkbox is a clean fast-follow |
 
@@ -66,8 +66,8 @@ from the hook callbacks, mirroring `LlmsTxt\Router` / `Markdown_Views\Handler`.
 
 - Issue: Ref34t/agentready#178
 - `includes/Discovery/Alternate_Advertiser.php`, `includes/Markdown_Views/Url_Mapper.php`
-- `includes/LlmsTxt/Entry_Source.php`, `includes/Seo/Schema_Emitter.php`,
-  `includes/Admin/Context_Profile_Settings.php`, `includes/Main.php`
+- `includes/LlmsTxt/Entry_Source.php` (delegates `to_md_url`),
+  `includes/Admin/Context_Profile_Settings.php` (toggle), `includes/Main.php` (wiring)
 - Tests: `tests/Unit/Markdown_Views/Url_Mapper_Test.php`,
   `tests/Unit/Discovery/Alternate_Advertiser_Test.php`,
   `tests/Integration/Discovery/Alternate_Advertiser_Test.php`

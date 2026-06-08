@@ -186,38 +186,6 @@ final class Context_Profile_Settings {
 	}
 
 	/**
-	 * Whether a post is exposed to agent-facing surfaces.
-	 *
-	 * Compares the post's `post_type` + `post_status` against the Context
-	 * Profile allowlists — the single exposure model the rest of the plugin
-	 * honours (#73). Both must pass. This is the canonical predicate; callers
-	 * that decide what to advertise (`Discovery\Alternate_Advertiser`, #178) or
-	 * emit schema for (`Seo\Schema_Emitter`) delegate here so advertising can
-	 * never drift from what the `.md` route actually resolves.
-	 *
-	 * @param \WP_Post $post The post to test.
-	 *
-	 * @return bool True when both post_type and post_status are allowlisted.
-	 */
-	public static function is_post_exposed( \WP_Post $post ): bool {
-		$profile  = self::get_profile();
-		$cpts     = isset( $profile['exposed_cpts'] ) && \is_array( $profile['exposed_cpts'] )
-			? $profile['exposed_cpts']
-			: array();
-		$statuses = isset( $profile['exposed_statuses'] ) && \is_array( $profile['exposed_statuses'] )
-			? $profile['exposed_statuses']
-			: array();
-
-		if ( ! \in_array( $post->post_type, $cpts, true ) ) {
-			return false;
-		}
-		if ( ! \in_array( $post->post_status, $statuses, true ) ) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
 	 * Decide whether a post may be exposed on agent-facing surfaces.
 	 *
 	 * Strict-inherit single-source-of-truth API per AgDR-0012: every consumer

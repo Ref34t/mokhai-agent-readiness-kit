@@ -197,8 +197,14 @@ final class Alternate_Advertiser {
 
 	/**
 	 * The `.md` URL for the current request, or `''` when nothing should be
-	 * advertised: not a singular view, not an exposed post, or the Markdown
-	 * Views module is off (so no `.md` would resolve).
+	 * advertised: not a singular view, the Markdown Views module is off, or the
+	 * post isn't exposable.
+	 *
+	 * Gates on EXACTLY what `Markdown_Views\Service::get_markdown_for_post()`
+	 * serves on — `is_module_enabled('markdown_views')` + `is_url_exposable()`
+	 * (the latter denies cpt / status / password-protected / noindexed posts).
+	 * Using the route's own predicate is what guarantees an advertised `.md`
+	 * always resolves (no 404 / soft-404). See AgDR-0053.
 	 */
 	private static function current_md_url(): string {
 		if ( ! \function_exists( 'is_singular' ) || ! \is_singular() ) {
@@ -214,7 +220,7 @@ final class Alternate_Advertiser {
 			return '';
 		}
 
-		if ( ! Context_Profile_Settings::is_post_exposed( $post ) ) {
+		if ( ! Context_Profile_Settings::is_url_exposable( $post ) ) {
 			return '';
 		}
 
