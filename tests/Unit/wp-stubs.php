@@ -462,6 +462,41 @@ if ( ! function_exists( 'esc_url_raw' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_parse_url' ) ) {
+	/**
+	 * Stub: WordPress's `wp_parse_url` is `parse_url` with PHP-version
+	 * normalisation. For unit-test purposes plain `parse_url` (full component
+	 * mode) is faithful enough — callers read `path` / `query` keys.
+	 *
+	 * @param string $url       URL to parse.
+	 * @param int    $component Component to return (-1 = all, as an array).
+	 *
+	 * @return array<string, int|string>|string|int|null|false
+	 */
+	function wp_parse_url( $url, $component = -1 ) {
+		return parse_url( (string) $url, $component );
+	}
+}
+
+if ( ! function_exists( 'esc_url' ) ) {
+	/**
+	 * Stub: display-context URL escaper. The real function HTML-encodes
+	 * ampersands (`&` → `&#038;`) among other things; for unit-test purposes
+	 * we reproduce that one transform on top of the `esc_url_raw` scheme guard
+	 * so attribute-context assertions are meaningful.
+	 *
+	 * @param string|null   $url       URL to escape.
+	 * @param string[]|null $protocols Allowed schemes.
+	 */
+	function esc_url( $url, $protocols = null ): string {
+		$raw = esc_url_raw( $url, $protocols );
+		if ( '' === $raw ) {
+			return '';
+		}
+		return str_replace( '&', '&#038;', $raw );
+	}
+}
+
 if ( ! function_exists( 'wp_json_encode' ) ) {
 	/**
 	 * Stub: delegate to PHP's json_encode. The real wp_json_encode adds

@@ -120,20 +120,25 @@ final class Context_Profile_Settings {
 	 */
 	public static function get_defaults(): array {
 		return array(
-			'schema_version'           => self::CURRENT_SCHEMA_VERSION,
-			'exposed_cpts'             => array(),
-			'exposed_statuses'         => array( 'publish' ),
-			'llm_descriptions_enabled' => true,
+			'schema_version'               => self::CURRENT_SCHEMA_VERSION,
+			'exposed_cpts'                 => array(),
+			'exposed_statuses'             => array( 'publish' ),
+			'llm_descriptions_enabled'     => true,
 			// Native JSON-LD emission opt-in (#73 / AgDR-0034). Default
 			// false: FR-9 safe-by-default. Operator flips this on to
 			// satisfy Context Score's schema_coverage without a third-
 			// party SEO plugin. Site-identity nodes always emit when on;
 			// per-content nodes additionally gate on exposed_cpts /
 			// exposed_statuses.
-			'schema_emit_enabled'      => false,
+			'schema_emit_enabled'          => false,
 			// Per-module enable flags. Adding modules here is an additive
 			// schema change (legacy stored profiles default true via merge()).
-			'markdown_views_enabled'   => true,
+			'markdown_views_enabled'       => true,
+			// Advertise agent surfaces (#178): per-page `.md` Link header +
+			// `<head>` alternate, and the /llms.txt reference in robots.txt.
+			// Default true — discovery is the whole point; flip off to keep
+			// generating artifacts without announcing them.
+			'advertise_alternates_enabled' => true,
 		);
 	}
 
@@ -506,6 +511,15 @@ final class Context_Profile_Settings {
 		$out['markdown_views_enabled'] = ! \array_key_exists( 'markdown_views_enabled', $input )
 			? true
 			: ! empty( $input['markdown_views_enabled'] );
+
+		// Agent-surface advertising (#178) — same "default true, explicit false
+		// to disable" convention. No UI checkbox ships (the issue's "No UI
+		// changes" note), so the array_key_exists guard keeps legacy and
+		// form-less saves at the default-true state; the key is still settable
+		// via the option directly, WP-CLI, or a filter.
+		$out['advertise_alternates_enabled'] = ! \array_key_exists( 'advertise_alternates_enabled', $input )
+			? true
+			: ! empty( $input['advertise_alternates_enabled'] );
 
 		// Unknown keys are dropped by virtue of not being copied into $out.
 
