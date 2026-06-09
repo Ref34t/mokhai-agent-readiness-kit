@@ -111,6 +111,16 @@ final class Service {
 		// must recompose the cached document, or /llms.txt serves stale
 		// descriptions until another trigger or the daily backstop (#151).
 		\add_action( 'agentready_llms_txt_description_changed', array( self::class, 'schedule_regen' ) );
+
+		// A programmatic exclude-meta write (update_post_meta / WP-CLI / REST
+		// meta endpoints) fires none of the save_post-family hooks above, so
+		// the composed cache kept listing a freshly-excluded post for up to
+		// 24h until the daily backstop (#190). The block-editor sidebar path
+		// is already covered via save_post; these listeners close the
+		// editor-less write paths. Same trigger class as #151/#103.
+		\add_action( 'added_post_meta', array( self::class, 'on_exclude_meta_change' ), 10, 3 );
+		\add_action( 'updated_post_meta', array( self::class, 'on_exclude_meta_change' ), 10, 3 );
+		\add_action( 'deleted_post_meta', array( self::class, 'on_exclude_meta_change' ), 10, 3 );
 	}
 
 	/**
@@ -286,6 +296,31 @@ final class Service {
 		unset( $status_match );
 
 		self::schedule_regen();
+	}
+
+	/**
+	 * Hook callback for the `{added,updated,deleted}_post_meta` actions.
+	 * Schedules a regen when the touched key is the per-post exclude flag
+	 * (#180), so an exclusion takes effect on /llms.txt promptly no matter
+	 * which write path set it. All other meta keys are ignored.
+	 *
+	 * Delegates to {@see on_post_change()} so the exposed-CPT pre-check
+	 * applies — toggling the flag on a never-exposed post type doesn't drag
+	 * a regen cycle into the cron queue.
+	 *
+	 * @param int|array<int, int> $meta_id   Meta row ID (array of IDs on
+	 *                                       `deleted_post_meta`). Unused.
+	 * @param int                 $object_id Post ID whose meta changed.
+	 * @param string              $meta_key  Meta key being written.
+	 */
+	public static function on_exclude_meta_change( $meta_id, $object_id, $meta_key ): void {
+		unset( $meta_id );
+
+		if ( Context_Profile_Settings::EXCLUDE_META_KEY !== (string) $meta_key ) {
+			return;
+		}
+
+		self::on_post_change( (int) $object_id );
 	}
 
 	/**
