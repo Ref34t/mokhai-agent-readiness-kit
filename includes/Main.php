@@ -21,6 +21,22 @@ namespace WPContext;
 final class Main {
 
 	/**
+	 * Option storing the plugin version last seen by the activation routine.
+	 *
+	 * Feeds upgrade detection and the admin asset cache-bust. Owned here so
+	 * the uninstall cleanup list (Support\Uninstaller) can reference it
+	 * instead of re-typing the literal.
+	 */
+	public const VERSION_OPTION = 'agentready_version';
+
+	/**
+	 * Option storing the SEO-plugin posture snapshot taken at activation
+	 * (#12 AC #1). Diagnostic only — runtime reads stay live via
+	 * `Schema_Coordination_Detector::detect()`.
+	 */
+	public const SEO_POSTURE_OPTION = 'agentready_seo_posture_last_seen';
+
+	/**
 	 * Singleton instance.
 	 *
 	 * @var Main|null
@@ -239,10 +255,10 @@ final class Main {
 		// never runs (correct: nothing was activated).
 		Requirements::check_activation();
 
-		if ( false === \get_option( 'agentready_version' ) ) {
-			\add_option( 'agentready_version', \WPCTX_VERSION, '', false );
+		if ( false === \get_option( self::VERSION_OPTION ) ) {
+			\add_option( self::VERSION_OPTION, \WPCTX_VERSION, '', false );
 		} else {
-			\update_option( 'agentready_version', \WPCTX_VERSION, false );
+			\update_option( self::VERSION_OPTION, \WPCTX_VERSION, false );
 		}
 
 		// Markdown Views cache table (#5 / AgDR-0011). Multisite-aware:
@@ -279,7 +295,7 @@ final class Main {
 		// `Schema_Coordination_Detector::detect()` — this is purely a
 		// post-activation snapshot.
 		$posture = \WPContext\Admin\Schema_Coordination_Detector::detect();
-		\update_option( 'agentready_seo_posture_last_seen', $posture, false );
+		\update_option( self::SEO_POSTURE_OPTION, $posture, false );
 	}
 
 	/**
