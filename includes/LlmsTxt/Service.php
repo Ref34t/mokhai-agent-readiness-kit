@@ -21,6 +21,8 @@ declare(strict_types=1);
 namespace WPContext\LlmsTxt;
 
 use WPContext\Admin\Context_Profile_Settings;
+use WPContext\Markdown_Views\Service as Markdown_Views_Service;
+use WPContext\Markdown_Views\Walker;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -38,6 +40,19 @@ final class Service {
 	 * @var string
 	 */
 	public const CACHE_OPTION = 'agentready_llms_txt_cache';
+
+	/**
+	 * Option key holding the cached composed `/llms-full.txt` body (#179 /
+	 * AgDR-0057). Separate option from {@see CACHE_OPTION} — the full body
+	 * inlines every indexed document's Markdown, so it can be MBs on a large
+	 * site and must never ride along on reads of the small index payload.
+	 * Non-autoloaded for the same reason.
+	 *
+	 * Listed in `Support\Uninstaller::option_keys()` per the #189 contract.
+	 *
+	 * @var string
+	 */
+	public const FULL_CACHE_OPTION = 'agentready_llms_full_txt_cache';
 
 	/**
 	 * Transient guarding the regen-under-lock path. Held only for the
@@ -87,6 +102,22 @@ final class Service {
 	 * @var int
 	 */
 	public const CACHE_SCHEMA_VERSION = 1;
+
+	/**
+	 * Full-cache payload schema version. Independent of
+	 * {@see CACHE_SCHEMA_VERSION} — the two payloads can evolve separately.
+	 *
+	 * @var int
+	 */
+	public const FULL_CACHE_SCHEMA_VERSION = 1;
+
+	/**
+	 * Module key consumed by `Context_Profile_Settings::is_module_enabled()`
+	 * (profile field `llms_full_txt_enabled`).
+	 *
+	 * @var string
+	 */
+	public const FULL_MODULE = 'llms_full_txt';
 
 	/**
 	 * Per-post-type filter passed to schedule_regen-from-hook. Pre-checks
@@ -167,7 +198,34 @@ final class Service {
 			return (string) $cache['body'];
 		}
 
-		return self::regen_under_lock();
+		self::regen_under_lock();
+
+		$cache = \get_option( self::CACHE_OPTION, null );
+		return self::is_valid_cache_payload( $cache ) ? (string) $cache['body'] : '';
+	}
+
+	/**
+	 * Public reader for the consolidated `/llms-full.txt` body (#179), used
+	 * by `Router` and WP-CLI. Same cache-hit / regen-under-lock semantics as
+	 * {@see get_composed_body()} — one regen writes both caches, so the two
+	 * documents can never drift more than one debounce window apart.
+	 *
+	 * The module toggle is NOT consulted here — `Router::build_full_response()`
+	 * 404s on a disabled module before this reader runs, and `regen_sync()`
+	 * skips composing (and clears) the full cache while the module is off, so
+	 * a disabled module reads as an empty body on any non-Router caller.
+	 */
+	public static function get_composed_full_body(): string {
+		$cache = \get_option( self::FULL_CACHE_OPTION, null );
+
+		if ( self::is_valid_full_cache_payload( $cache ) ) {
+			return (string) $cache['body'];
+		}
+
+		self::regen_under_lock();
+
+		$cache = \get_option( self::FULL_CACHE_OPTION, null );
+		return self::is_valid_full_cache_payload( $cache ) ? (string) $cache['body'] : '';
 	}
 
 	/**
@@ -188,15 +246,45 @@ final class Service {
 	}
 
 	/**
+	 * Validate a stored full-cache payload — mirror of
+	 * {@see is_valid_cache_payload()} against {@see FULL_CACHE_SCHEMA_VERSION}.
+	 *
+	 * @param mixed $cache Raw `get_option` result.
+	 */
+	private static function is_valid_full_cache_payload( $cache ): bool {
+		if ( ! is_array( $cache ) ) {
+			return false;
+		}
+		if ( ! isset( $cache['body'] ) ) {
+			return false;
+		}
+		$version = isset( $cache['schema_version'] ) ? (int) $cache['schema_version'] : 0;
+		return self::FULL_CACHE_SCHEMA_VERSION === $version;
+	}
+
+	/**
 	 * Synchronous regen used by the cache-miss path and the WP-CLI command.
 	 * Always writes the cache before returning; returns the freshly-composed
-	 * body. Unlike `regen_under_lock()`, this does not consult the lock and
-	 * always runs the composer — callers that need lock-aware semantics use
-	 * `get_composed_body()` instead.
+	 * index body. Unlike `regen_under_lock()`, this does not consult the lock
+	 * and always runs the composer — callers that need lock-aware semantics
+	 * use `get_composed_body()` instead.
+	 *
+	 * The full document (#179) regenerates in the same pass: AC "regenerated
+	 * on the same cadence/triggers as llms.txt" holds by construction because
+	 * there is exactly one regen pipeline. With the `llms_full_txt` module
+	 * off, the full cache is cleared instead — a toggle-off takes effect on
+	 * the next regen, not just on the routing 404.
 	 */
 	public static function regen_sync(): string {
 		$body = self::compose_now();
 		self::write_cache( $body );
+
+		if ( Context_Profile_Settings::is_module_enabled( self::FULL_MODULE ) ) {
+			self::write_full_cache( self::compose_full_now() );
+		} else {
+			\delete_option( self::FULL_CACHE_OPTION );
+		}
+
 		return $body;
 	}
 
@@ -324,13 +412,15 @@ final class Service {
 	}
 
 	/**
-	 * Force-invalidate the cache. Drops the option so the next reader regens.
-	 * Exposed for WP-CLI and admin REST callers — the regen path proper
-	 * uses `write_cache()` directly to avoid the read-after-write window
-	 * an `invalidate()` → `regen_sync()` sequence would open.
+	 * Force-invalidate the caches. Drops both options (index + full) so the
+	 * next reader regens. Exposed for WP-CLI and admin REST callers — the
+	 * regen path proper uses `write_cache()` / `write_full_cache()` directly
+	 * to avoid the read-after-write window an `invalidate()` → `regen_sync()`
+	 * sequence would open.
 	 */
 	public static function invalidate(): void {
 		\delete_option( self::CACHE_OPTION );
+		\delete_option( self::FULL_CACHE_OPTION );
 	}
 
 	/**
@@ -368,26 +458,97 @@ final class Service {
 	}
 
 	/**
-	 * Lock-guarded compose: if the lock is unheld, take it, compose, write,
-	 * release, and return the fresh body. If another process holds the
-	 * lock, return an empty body — the next request (or the scheduled
-	 * regen) will get the fresh one.
+	 * Run the full-document composer with the current WP state (#179).
+	 *
+	 * Reuses `Entry_Source::get_sections()` — the same query, exposure gates,
+	 * exclusion rules, and per-CPT cap that drive `/llms.txt` — so the parity
+	 * AC ("every page in llms.txt appears in llms-full.txt") holds by
+	 * construction. Each entry's `post_id` resolves the source post, whose
+	 * Markdown body comes from {@see markdown_for_post()}.
 	 */
-	private static function regen_under_lock(): string {
+	public static function compose_full_now(): string {
+		$identity  = self::resolve_identity();
+		$editorial = self::resolve_editorial();
+		$sections  = Entry_Source::get_sections();
+
+		$documents = array();
+		foreach ( $sections as $section ) {
+			$entries = array();
+			foreach ( $section['entries'] as $entry ) {
+				$doc = array(
+					'title' => $entry['title'],
+					'url'   => $entry['url'],
+				);
+
+				$post_id = isset( $entry['post_id'] ) ? (int) $entry['post_id'] : 0;
+				$post    = $post_id > 0 ? \get_post( $post_id ) : null;
+				if ( $post instanceof \WP_Post ) {
+					$doc['markdown'] = self::markdown_for_post( $post );
+				}
+
+				$entries[] = $doc;
+			}
+
+			$documents[] = array(
+				'label'   => $section['label'],
+				'entries' => $entries,
+			);
+		}
+
+		return Full_Composer::compose(
+			array(
+				'identity'  => $identity,
+				'editorial' => $editorial,
+				'documents' => $documents,
+			)
+		);
+	}
+
+	/**
+	 * Resolve the full Markdown body for one document (#179).
+	 *
+	 * With Markdown Views enabled, delegates to
+	 * `Markdown_Views\Service::get_markdown_for_post()` so the per-post cache
+	 * table amortises conversions across regens and the inlined body is
+	 * byte-identical to the served `.md` companion. With the module disabled
+	 * (or on the unexpected error path), falls back to a direct Walker
+	 * conversion — `/llms-full.txt` content doesn't disappear just because
+	 * the per-page `.md` routes are off, and the fallback never writes the
+	 * Markdown Views cache table.
+	 */
+	private static function markdown_for_post( \WP_Post $post ): string {
+		if ( Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
+			$md = Markdown_Views_Service::get_markdown_for_post( $post );
+			if ( is_string( $md ) ) {
+				return $md;
+			}
+		}
+
+		// `the_content` is a WordPress core filter we consume, not one we
+		// define — same rationale as Markdown_Views\Service.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$html = (string) \apply_filters( 'the_content', $post->post_content );
+		return Walker::convert( $html )->get_markdown();
+	}
+
+	/**
+	 * Lock-guarded regen: if the lock is unheld, take it and run one
+	 * `regen_sync()` pass (which writes both caches), then release. If
+	 * another process holds the lock, return immediately — the caller
+	 * re-reads its cache option and serves empty until the holder finishes.
+	 */
+	private static function regen_under_lock(): void {
 		if ( false !== \get_transient( self::REGEN_LOCK_TRANSIENT ) ) {
-			return '';
+			return;
 		}
 
 		\set_transient( self::REGEN_LOCK_TRANSIENT, \time(), self::LOCK_TTL );
 
 		try {
-			$body = self::compose_now();
-			self::write_cache( $body );
+			self::regen_sync();
 		} finally {
 			\delete_transient( self::REGEN_LOCK_TRANSIENT );
 		}
-
-		return $body;
 	}
 
 	/**
@@ -482,5 +643,21 @@ final class Service {
 		);
 
 		\update_option( self::CACHE_OPTION, $payload, 'no' );
+	}
+
+	/**
+	 * Persist a freshly-composed full body to the full-cache option (#179).
+	 * Same structured shape as {@see write_cache()}; `doc_count` counts the
+	 * `###` document headings the Full_Composer emits.
+	 */
+	private static function write_full_cache( string $body ): void {
+		$payload = array(
+			'schema_version' => self::FULL_CACHE_SCHEMA_VERSION,
+			'body'           => $body,
+			'generated_at'   => \gmdate( 'c' ),
+			'doc_count'      => substr_count( $body, "\n### " ),
+		);
+
+		\update_option( self::FULL_CACHE_OPTION, $payload, 'no' );
 	}
 }

@@ -30,6 +30,7 @@ use WPContext\Discovery\Channel_Router;
 use WPContext\LlmsTxt\Conflict_Notice;
 use WPContext\LlmsTxt\Description_Orchestrator;
 use WPContext\LlmsTxt\Editorial_Settings;
+use WPContext\LlmsTxt\Router as Llms_Txt_Router;
 use WPContext\LlmsTxt\Service as Llms_Txt_Service;
 use WPContext\Main;
 use WPContext\Markdown_Views\Schema;
@@ -55,6 +56,8 @@ final class Uninstaller {
 			Main::SEO_POSTURE_OPTION,
 			Schema::SCHEMA_VERSION_OPTION,
 			Llms_Txt_Service::CACHE_OPTION,
+			Llms_Txt_Service::FULL_CACHE_OPTION,
+			Llms_Txt_Router::ROUTES_VERSION_OPTION,
 			Editorial_Settings::OPTION_KEY,
 			Context_Score_Service::CACHE_OPTION,
 			Channel_Router::ROUTES_VERSION_OPTION,

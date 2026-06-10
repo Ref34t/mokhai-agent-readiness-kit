@@ -55,7 +55,7 @@ final class Entry_Source {
 	/**
 	 * Build the auto-listed sections from the current Context Profile.
 	 *
-	 * @return array<int, array{label: string, entries: array<int, array{title: string, url: string, description?: string}>}>
+	 * @return array<int, array{label: string, entries: array<int, array{title: string, url: string, post_id: int, description?: string}>}>
 	 */
 	public static function get_sections(): array {
 		$profile  = Context_Profile_Settings::get_profile();
@@ -102,7 +102,7 @@ final class Entry_Source {
 	 * @param string             $cpt      Post-type slug.
 	 * @param array<int, string> $statuses Allowed statuses.
 	 *
-	 * @return array<int, array{title: string, url: string, description?: string}>
+	 * @return array<int, array{title: string, url: string, post_id: int, description?: string}>
 	 */
 	private static function collect_entries_for_cpt( string $cpt, array $statuses ): array {
 		$query = new \WP_Query(
@@ -150,9 +150,15 @@ final class Entry_Source {
 	 * this directly so its "llms.txt entry" column matches the live file
 	 * byte-for-byte rather than re-deriving the shape.
 	 *
+	 * The `post_id` key rides along so consumers that need to resolve the
+	 * source post (the `/llms-full.txt` composition, #179) don't have to
+	 * reverse-map the URL. `Composer::compose()` normalises entries down to
+	 * title / url / description, so the extra key never reaches the
+	 * published `/llms.txt` body.
+	 *
 	 * @param \WP_Post $post Post to project.
 	 *
-	 * @return array{title: string, url: string, description?: string}|null
+	 * @return array{title: string, url: string, post_id: int, description?: string}|null
 	 */
 	public static function entry_for_post( \WP_Post $post ): ?array {
 		if ( ! Context_Profile_Settings::is_url_exposable( $post ) ) {
@@ -160,8 +166,9 @@ final class Entry_Source {
 		}
 
 		$entry = array(
-			'title' => self::resolve_title( $post ),
-			'url'   => self::resolve_url( $post ),
+			'title'   => self::resolve_title( $post ),
+			'url'     => self::resolve_url( $post ),
+			'post_id' => (int) $post->ID,
 		);
 
 		$description = self::resolve_description( $post );

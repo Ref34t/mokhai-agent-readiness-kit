@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace WPContext\LlmsTxt;
 
+use WPContext\Admin\Context_Profile_Settings;
 use WPContext\Support\Output_Buffer;
 
 \defined( 'ABSPATH' ) || exit;
@@ -36,12 +37,47 @@ final class Router {
 	public const REWRITE_VAR = 'agentready_llms_txt';
 
 	/**
+	 * Query var for the consolidated `/llms-full.txt` route (#179).
+	 *
+	 * @var string
+	 */
+	public const FULL_REWRITE_VAR = 'agentready_llms_full_txt';
+
+	/**
+	 * Module key consumed by `Context_Profile_Settings::is_module_enabled()`
+	 * for the `/llms-full.txt` route (profile field `llms_full_txt_enabled`).
+	 *
+	 * @var string
+	 */
+	public const FULL_MODULE = Service::FULL_MODULE;
+
+	/**
+	 * Routes version persisted to {@see ROUTES_VERSION_OPTION}. Bump when a
+	 * rewrite rule is added/changed so `maybe_flush()` re-flushes on plugin
+	 * UPDATE — activation-hook flushes only cover install/reactivate, the
+	 * same gap `Discovery\Channel_Router` closes for the #172 channels.
+	 * Version 1 = the `/llms-full.txt` rule (#179).
+	 *
+	 * @var int
+	 */
+	public const ROUTES_VERSION = 1;
+
+	/**
+	 * Option storing the last-flushed routes version. Listed in
+	 * `Support\Uninstaller::option_keys()` per the #189 cleanup contract.
+	 *
+	 * @var string
+	 */
+	public const ROUTES_VERSION_OPTION = 'agentready_llms_txt_routes_version';
+
+	/**
 	 * Wire the WordPress hooks owned by this class.
 	 */
 	public static function register_hooks(): void {
 		\add_action( 'init', array( self::class, 'add_rewrite_rule' ) );
 		\add_filter( 'query_vars', array( self::class, 'register_query_var' ) );
 		\add_action( 'template_redirect', array( self::class, 'maybe_serve' ), 0 );
+		\add_action( 'admin_init', array( self::class, 'maybe_flush' ) );
 	}
 
 	/**
@@ -58,6 +94,13 @@ final class Router {
 			'index.php?' . self::REWRITE_VAR . '=1',
 			'top'
 		);
+
+		\add_rewrite_tag( '%' . self::FULL_REWRITE_VAR . '%', '1' );
+		\add_rewrite_rule(
+			'^llms-full\.txt/?$',
+			'index.php?' . self::FULL_REWRITE_VAR . '=1',
+			'top'
+		);
 	}
 
 	/**
@@ -69,16 +112,35 @@ final class Router {
 	 */
 	public static function register_query_var( array $vars ): array {
 		$vars[] = self::REWRITE_VAR;
+		$vars[] = self::FULL_REWRITE_VAR;
 		return $vars;
 	}
 
 	/**
-	 * Activation lifecycle: register the rule, then flush so the rewrite is
-	 * persisted into the `rewrite_rules` option.
+	 * Activation lifecycle: register the rules, flush so the rewrites are
+	 * persisted into the `rewrite_rules` option, and stamp the routes version
+	 * so `maybe_flush()` is a no-op until the next bump.
 	 */
 	public static function flush_on_activation(): void {
 		self::add_rewrite_rule();
 		\flush_rewrite_rules();
+		\update_option( self::ROUTES_VERSION_OPTION, self::ROUTES_VERSION, false );
+	}
+
+	/**
+	 * `admin_init` upgrade path: a plugin UPDATE that ships new/changed rules
+	 * (the `/llms-full.txt` route, #179) never runs the activation hook, so
+	 * the persisted rewrite_rules option would lack them until a manual
+	 * flush. One cheap option read per admin page-load; the flush only fires
+	 * when the stored version lags. Mirrors `Discovery\Channel_Router`.
+	 */
+	public static function maybe_flush(): void {
+		if ( (int) \get_option( self::ROUTES_VERSION_OPTION, 0 ) >= self::ROUTES_VERSION ) {
+			return;
+		}
+
+		\flush_rewrite_rules();
+		\update_option( self::ROUTES_VERSION_OPTION, self::ROUTES_VERSION, false );
 	}
 
 	/**
@@ -94,6 +156,11 @@ final class Router {
 	 * the llms.txt route; otherwise dispatches the response.
 	 */
 	public static function maybe_serve(): void {
+		if ( self::is_llms_full_txt_request() ) {
+			self::dispatch( self::build_full_response() );
+			return;
+		}
+
 		if ( ! self::is_llms_txt_request() ) {
 			return;
 		}
@@ -108,6 +175,13 @@ final class Router {
 	 */
 	public static function is_llms_txt_request(): bool {
 		return '1' === (string) \get_query_var( self::REWRITE_VAR );
+	}
+
+	/**
+	 * Decide whether the current request is the llms-full.txt route (#179).
+	 */
+	public static function is_llms_full_txt_request(): bool {
+		return '1' === (string) \get_query_var( self::FULL_REWRITE_VAR );
 	}
 
 	/**
@@ -132,6 +206,41 @@ final class Router {
 				'Cache-Control' => 'no-store, must-revalidate',
 			),
 			'body'    => $body,
+		);
+	}
+
+	/**
+	 * Build the `/llms-full.txt` response shape (#179) — pure, no globals
+	 * mutated, no headers emitted.
+	 *
+	 * Soft-disable (AgDR-0015 convention): `llms_full_txt_enabled` off →
+	 * explicit 404, never a fall-through that would render the homepage
+	 * under the route. With the module on, the same uniform 200-or-404
+	 * contract as `/llms.txt` applies — an empty composition is a valid
+	 * `200` with an empty body.
+	 *
+	 * @return array{status:int, headers:array<string,string>, body:string}
+	 */
+	public static function build_full_response(): array {
+		if ( ! Context_Profile_Settings::is_module_enabled( self::FULL_MODULE ) ) {
+			return array(
+				'status'  => 404,
+				'headers' => array(
+					'Content-Type' => 'text/plain; charset=' . self::charset(),
+					'X-Robots-Tag' => 'noindex, nofollow',
+				),
+				'body'    => '',
+			);
+		}
+
+		return array(
+			'status'  => 200,
+			'headers' => array(
+				'Content-Type'  => 'text/plain; charset=' . self::charset(),
+				'X-Robots-Tag'  => 'noindex, nofollow',
+				'Cache-Control' => 'no-store, must-revalidate',
+			),
+			'body'    => Service::get_composed_full_body(),
 		);
 	}
 
