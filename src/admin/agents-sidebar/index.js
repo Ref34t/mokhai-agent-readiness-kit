@@ -1,5 +1,5 @@
 /**
- * Gutenberg PluginDocumentSettingPanel: "AI agents (agentready)" (#201).
+ * Gutenberg PluginDocumentSettingPanel: "AI Readiness" (#201, polished in #203).
  *
  * Consolidates the former "Agent output" exclude toggle (#180) and the
  * "Markdown view" preview (Phase 5 / AgDR-0014) into one panel, ordered
@@ -30,7 +30,9 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
+import { humanTimeDiff } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
+import { Pill } from '../shared/Pill';
 import '../shared/admin-ui.css';
 
 const META_KEY = '_agentready_excluded';
@@ -82,36 +84,24 @@ function reasonLabel( reason ) {
 }
 
 /**
- * Resolve the verdict line from the unsaved toggle state + the server's
- * saved-state visibility. The toggle wins for the exclude case so the
- * consequence is visible before saving.
+ * Resolve the verdict line. The toggle-driven states (excluded ON, or
+ * plain exposable) render nothing — the ToggleControl help text already
+ * says it. The line only appears when the post is hidden for a reason the
+ * toggle does NOT explain: server reason codes, or a saved exclusion the
+ * unsaved toggle no longer reflects.
  *
  * @param {boolean}     excluded   Unsaved toggle state.
  * @param {Object|null} visibility Server visibility { verdict, reason }.
- * @return {string} User-facing verdict line, empty while the preview loads.
+ * @return {string} Hidden-reason sentence, or empty when the toggle help text covers it.
  */
 function verdictLabel( excluded, visibility ) {
-	if ( excluded ) {
-		const base = __(
-			'Hidden from agents — excluded by the toggle above.',
-			'ai-readiness-kit'
-		);
-		return visibility && visibility.verdict === 'exposable'
-			? base + ' ' + __( '(applies on save)', 'ai-readiness-kit' )
-			: base;
-	}
-
-	if ( ! visibility ) {
+	if ( excluded || ! visibility || visibility.verdict === 'exposable' ) {
 		return '';
-	}
-
-	if ( visibility.verdict === 'exposable' ) {
-		return __( 'Exposed to agents.', 'ai-readiness-kit' );
 	}
 
 	if ( visibility.reason === 'excluded' ) {
 		return __(
-			'Exposed to agents after save — the saved state still excludes this post.',
+			'Your last save excluded this post — it becomes visible to agents once you save again.',
 			'ai-readiness-kit'
 		);
 	}
@@ -202,7 +192,7 @@ function AgentsPanel() {
 	return (
 		<PluginDocumentSettingPanel
 			name="agentready-agents"
-			title={ __( 'AI agents (agentready)', 'ai-readiness-kit' ) }
+			title={ __( 'AI Readiness', 'ai-readiness-kit' ) }
 			className="agentready-agents-panel"
 		>
 			<ToggleControl
@@ -226,8 +216,10 @@ function AgentsPanel() {
 			/>
 
 			{ verdict && (
-				<p>
-					<strong>{ __( 'Visibility:', 'ai-readiness-kit' ) }</strong>{ ' ' }
+				<p className="agentready-verdict">
+					<Pill kind="stale">
+						{ __( 'Hidden', 'ai-readiness-kit' ) }
+					</Pill>{ ' ' }
 					{ verdict }
 				</p>
 			) }
@@ -279,7 +271,7 @@ function AgentsPanel() {
 							{ __( 'walker v', 'ai-readiness-kit' ) }
 							{ data.cache_state.walker_version }
 							{ ' · ' }
-							{ data.cache_state.generated_at }
+							{ humanTimeDiff( data.cache_state.generated_at ) }
 						</p>
 					) }
 				</>
