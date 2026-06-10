@@ -58,7 +58,7 @@ final class Context_Profile_Settings {
 	 *
 	 * @var int
 	 */
-	public const CURRENT_SCHEMA_VERSION = 2;
+	public const CURRENT_SCHEMA_VERSION = 3;
 
 	/**
 	 * Post statuses the admin is allowed to expose. `publish` is the only
@@ -168,6 +168,19 @@ final class Context_Profile_Settings {
 			'excluded_ids'                 => array(),
 			'excluded_slugs'               => array(),
 			'exclude_wp_samples'           => true,
+			// Served AI-discovery channels (#172 / AgDR-0056): ai.txt +
+			// /.well-known/llms-policy.json + /.well-known/ai-layer, emitted
+			// virtually via rewrites. Default true — channel payloads are
+			// site metadata + pointers, no content exposure, so FR-9 isn't
+			// implicated and discovery is the plugin's point.
+			'discovery_channels_enabled'   => true,
+			// Access stance declared in llms-policy.json (+ echoed in
+			// ai.txt). Declarative only — never enforced. Inference defaults
+			// allowed (the reason a site installs an AI-readiness plugin);
+			// training defaults DENIED — the operator must opt in to the
+			// consequential dimension. See AgDR-0056 § Decision.
+			'policy_allow_inference'       => true,
+			'policy_allow_training'        => false,
 		);
 	}
 
@@ -623,6 +636,22 @@ final class Context_Profile_Settings {
 		$out['exclude_wp_samples'] = ! \array_key_exists( 'exclude_wp_samples', $input )
 			? true
 			: ! empty( $input['exclude_wp_samples'] );
+
+		// Served discovery channels (#172 / AgDR-0056). The module toggle and
+		// allow_inference follow the "default true, explicit false to disable"
+		// convention; allow_training follows the inverted schema_emit_enabled
+		// form — default FALSE, set only when the input explicitly opts in,
+		// so legacy profiles and form-less saves never silently declare
+		// training as allowed.
+		$out['discovery_channels_enabled'] = ! \array_key_exists( 'discovery_channels_enabled', $input )
+			? true
+			: ! empty( $input['discovery_channels_enabled'] );
+
+		$out['policy_allow_inference'] = ! \array_key_exists( 'policy_allow_inference', $input )
+			? true
+			: ! empty( $input['policy_allow_inference'] );
+
+		$out['policy_allow_training'] = ! empty( $input['policy_allow_training'] );
 
 		// Unknown keys are dropped by virtue of not being copied into $out.
 

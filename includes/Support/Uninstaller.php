@@ -26,6 +26,7 @@ use WPContext\Admin\Context_Profile_Settings;
 use WPContext\Ai_Preview\Summary_Generator;
 use WPContext\Cli\Cleanup_Meta_Migration_Command;
 use WPContext\Context_Score\Service as Context_Score_Service;
+use WPContext\Discovery\Channel_Router;
 use WPContext\LlmsTxt\Conflict_Notice;
 use WPContext\LlmsTxt\Description_Orchestrator;
 use WPContext\LlmsTxt\Editorial_Settings;
@@ -56,6 +57,7 @@ final class Uninstaller {
 			Llms_Txt_Service::CACHE_OPTION,
 			Editorial_Settings::OPTION_KEY,
 			Context_Score_Service::CACHE_OPTION,
+			Channel_Router::ROUTES_VERSION_OPTION,
 		);
 	}
 
