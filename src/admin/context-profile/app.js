@@ -368,6 +368,65 @@ export function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
+				header={ __( 'Discovery channels', 'ai-readiness-kit' ) }
+				className="agentready-context-profile-panel"
+			>
+				<PanelBody opened>
+					<PanelRow>
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __(
+								'Serve AI discovery channels',
+								'ai-readiness-kit'
+							) }
+							help={ __(
+								'Serves ai.txt, /.well-known/llms-policy.json, and /.well-known/ai-layer dynamically — no files are written, and a file you place at any of these paths always wins. Turning this off removes the routes (404). On by default.',
+								'ai-readiness-kit'
+							) }
+							checked={ !! profile.discovery_channels_enabled }
+							onChange={ ( on ) =>
+								updateField( 'discovery_channels_enabled', on )
+							}
+						/>
+					</PanelRow>
+					<PanelRow>
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __(
+								'Declare inference allowed',
+								'ai-readiness-kit'
+							) }
+							help={ __(
+								'Published in llms-policy.json and echoed in ai.txt: AI systems may read your content to answer questions. Declarative only — nothing is enforced.',
+								'ai-readiness-kit'
+							) }
+							checked={ !! profile.policy_allow_inference }
+							onChange={ ( on ) =>
+								updateField( 'policy_allow_inference', on )
+							}
+						/>
+					</PanelRow>
+					<PanelRow>
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __(
+								'Declare training allowed',
+								'ai-readiness-kit'
+							) }
+							help={ __(
+								'Published in llms-policy.json and echoed in ai.txt: AI systems may use your content to train models. Off by default — opt in deliberately. Declarative only — nothing is enforced.',
+								'ai-readiness-kit'
+							) }
+							checked={ !! profile.policy_allow_training }
+							onChange={ ( on ) =>
+								updateField( 'policy_allow_training', on )
+							}
+						/>
+					</PanelRow>
+				</PanelBody>
+			</Panel>
+
+			<Panel
 				header={ __( 'Schema coordination', 'ai-readiness-kit' ) }
 				className="agentready-context-profile-panel"
 			>

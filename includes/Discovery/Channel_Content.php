@@ -121,10 +121,14 @@ final class Channel_Content {
 
 	/**
 	 * Site display name with a deterministic fallback for unnamed installs.
+	 *
+	 * Newlines are stripped defensively: the name is interpolated into the
+	 * line-oriented ai.txt body, and an admin-set multi-line blogname must
+	 * not be able to inject extra lines there.
 	 */
 	private static function site_name(): string {
-		$name = (string) \get_option( 'blogname', '' );
-		return '' !== trim( $name ) ? $name : \wp_parse_url( \home_url( '/' ), \PHP_URL_HOST );
+		$name = trim( (string) \preg_replace( '/[\r\n]+/', ' ', (string) \get_option( 'blogname', '' ) ) );
+		return '' !== $name ? $name : (string) \wp_parse_url( \home_url( '/' ), \PHP_URL_HOST );
 	}
 
 	/**
