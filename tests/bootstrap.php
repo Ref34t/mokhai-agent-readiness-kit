@@ -44,8 +44,9 @@ if ( $tests_dir && file_exists( $tests_dir . '/includes/functions.php' ) ) {
 	/*
 	 * Drop the agentready cache table created at wp-env env-boot.
 	 *
-	 * wp-env auto-activates this plugin during environment provisioning
-	 * (per `plugins: ["."]` in .wp-env.json). That activation runs
+	 * wp-env activates this plugin on the tests site at env-boot (the
+	 * `lifecycleScripts.afterStart` activation in .wp-env.json, #195 —
+	 * previously the auto-activated `plugins: ["."]` entry). That activation runs
 	 * `Main::on_activate()` → `Schema::create_for_all_sites()` → emits
 	 * `CREATE TABLE wp_agentready_md_cache (...)` against the test database
 	 * WITHOUT the per-test query filter active. The result is a REGULAR

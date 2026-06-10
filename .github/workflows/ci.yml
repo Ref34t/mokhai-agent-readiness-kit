@@ -189,14 +189,13 @@ jobs:
           WP_ENV_CORE: WordPress/WordPress#7.0-branch
         run: npx wp-env start
 
-      - name: Install Plugin Check; activate only the canonical slug
-        # .wp-env.json mounts the plugin source under BOTH `agentready`
-        # (plugins:["."]) and `ai-readiness-kit` (mappings). Activating both
-        # double-declares the plugin's classes (fatal), so deactivate
-        # `agentready` and keep only `ai-readiness-kit` (the wp.org slug) live.
+      - name: Install Plugin Check; activate the plugin
+        # .wp-env.json mounts the plugin source once, at the wp.org slug path
+        # `wp-content/plugins/ai-readiness-kit` (#195). The activate below is
+        # idempotent with the config's afterStart lifecycle script — kept
+        # explicit so this job doesn't silently depend on lifecycle ordering.
         run: |
           npx wp-env run cli wp plugin install plugin-check --activate
-          npx wp-env run cli wp plugin deactivate agentready || true
           npx wp-env run cli wp plugin activate ai-readiness-kit
 
       - name: Run Plugin Check (errors fail the job)
