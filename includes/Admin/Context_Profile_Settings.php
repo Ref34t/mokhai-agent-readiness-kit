@@ -58,7 +58,7 @@ final class Context_Profile_Settings {
 	 *
 	 * @var int
 	 */
-	public const CURRENT_SCHEMA_VERSION = 3;
+	public const CURRENT_SCHEMA_VERSION = 4;
 
 	/**
 	 * Post statuses the admin is allowed to expose. `publish` is the only
@@ -181,6 +181,14 @@ final class Context_Profile_Settings {
 			// consequential dimension. See AgDR-0056 § Decision.
 			'policy_allow_inference'       => true,
 			'policy_allow_training'        => false,
+			// Consolidated /llms-full.txt (#179 / AgDR-0057). Default true —
+			// it inlines only content the exposure gates already publish via
+			// /llms.txt and the per-page surfaces, so FR-9 isn't implicated
+			// (fresh install with empty exposed_cpts serves an empty file).
+			// No UI checkbox ships (the issue's "No UI changes" note); the
+			// key is settable via the option, WP-CLI, or a filter — same
+			// shape as advertise_alternates_enabled (#178).
+			'llms_full_txt_enabled'        => true,
 		);
 	}
 
@@ -652,6 +660,12 @@ final class Context_Profile_Settings {
 			: ! empty( $input['policy_allow_inference'] );
 
 		$out['policy_allow_training'] = ! empty( $input['policy_allow_training'] );
+
+		// Consolidated /llms-full.txt (#179) — "default true, explicit false
+		// to disable" convention, matching advertise_alternates_enabled.
+		$out['llms_full_txt_enabled'] = ! \array_key_exists( 'llms_full_txt_enabled', $input )
+			? true
+			: ! empty( $input['llms_full_txt_enabled'] );
 
 		// Unknown keys are dropped by virtue of not being copied into $out.
 

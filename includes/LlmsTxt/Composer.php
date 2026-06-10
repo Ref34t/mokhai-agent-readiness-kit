@@ -102,11 +102,15 @@ final class Composer {
 	 * Within each section, entries preserve the input order — admins arrange
 	 * editorial entries deliberately and we don't re-sort.
 	 *
+	 * Public so `Full_Composer` (#179) groups the same editorial input with
+	 * identical semantics — the two documents must never disagree on how an
+	 * editorial entry is bucketed.
+	 *
 	 * @param array<int, array<string, mixed>> $editorial Raw editorial list.
 	 *
 	 * @return array<int, array{label: string, entries: array<int, array<string, mixed>>}>
 	 */
-	private static function group_editorial( array $editorial ): array {
+	public static function group_editorial( array $editorial ): array {
 		$buckets = array();
 		$order   = array();
 
@@ -270,9 +274,12 @@ final class Composer {
 	 *
 	 * Description is rendered when present and non-empty.
 	 *
+	 * Public so `Full_Composer` (#179) renders editorial link lines in the
+	 * exact shape `/llms.txt` uses.
+	 *
 	 * @param array<string, mixed> $entry Entry shape with title/url/description.
 	 */
-	private static function format_entry( array $entry ): string {
+	public static function format_entry( array $entry ): string {
 		$title = self::escape_link_text( (string) $entry['title'] );
 		$url   = self::escape_link_url( (string) $entry['url'] );
 
@@ -298,8 +305,11 @@ final class Composer {
 	 * so entity codes render literally to the consumer. Decoding at the
 	 * bottom of the composition pipeline catches every entity introduced
 	 * anywhere upstream without per-source patching. See #106.
+	 *
+	 * Public so `Full_Composer` (#179) escapes headings / labels with the
+	 * same rules — one escaping implementation for both documents.
 	 */
-	private static function escape_inline( string $text ): string {
+	public static function escape_inline( string $text ): string {
 		$text = \html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		$text = str_replace( array( "\r\n", "\r", "\n" ), ' ', $text );
 		$text = trim( $text );
@@ -333,8 +343,10 @@ final class Composer {
 	 * surrounding `(...)` boundary intact. WP-produced permalinks won't
 	 * normally contain literal parens, but custom permalink structures and
 	 * archive URLs occasionally do.
+	 *
+	 * Public so `Full_Composer` (#179) sanitises document URLs identically.
 	 */
-	private static function escape_link_url( string $url ): string {
+	public static function escape_link_url( string $url ): string {
 		$url = preg_replace( '/\s+/', '', $url );
 		if ( ! is_string( $url ) ) {
 			return '';
