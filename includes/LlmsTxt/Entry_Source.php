@@ -217,10 +217,13 @@ final class Entry_Source {
 	/**
 	 * Whether the Markdown Views module is enabled in the Context Profile.
 	 * Drives whether `/llms.txt` links point at the `.md` form (#105).
+	 *
+	 * Delegates to the canonical module-toggle accessor like every other
+	 * call site, so this consumer can't drift from the
+	 * "unknown module defaults to enabled" contract (#191).
 	 */
 	private static function markdown_views_enabled(): bool {
-		$profile = Context_Profile_Settings::get_profile();
-		return ! empty( $profile['markdown_views_enabled'] );
+		return Context_Profile_Settings::is_module_enabled( 'markdown_views' );
 	}
 
 	/**
