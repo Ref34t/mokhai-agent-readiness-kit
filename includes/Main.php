@@ -227,6 +227,13 @@ final class Main {
 		// model — noindex / excluded content is never advertised.
 		Discovery\Alternate_Advertiser::register_hooks();
 
+		// Serve the sibling AI-discovery channels (#172 / AgDR-0056): ai.txt
+		// + /.well-known/llms-policy.json + /.well-known/ai-layer, emitted
+		// virtually via rewrites (same model as /llms.txt). Gated on the
+		// `discovery_channels_enabled` profile toggle; defers to operator-
+		// owned static files; deterministic — no AI, no external HTTP.
+		Discovery\Channel_Router::register_hooks();
+
 		// Wire the WordPress Abilities API surface (#21 / AgDR-0044). Registers
 		// the `ai-readiness-kit` ability category + five abilities (audit-run,
 		// profile-read, profile-set-exposure, llms-txt-regenerate,
@@ -282,6 +289,9 @@ final class Main {
 		LlmsTxt\Service::schedule_daily_regen();
 		LlmsTxt\Service::regen_sync();
 
+		// Discovery channels rewrite persistence (#172 / AgDR-0056).
+		Discovery\Channel_Router::flush_on_activation();
+
 		// Context Score daily cron backstop (#9 / AgDR-0030). Mirrors the
 		// LlmsTxt daily regen — fires once per day so the cached breakdown
 		// never sits stale longer than 24h, even if `agentready_context_profile_saved`
@@ -318,6 +328,10 @@ final class Main {
 		// the plugin is reactivated. Full purge happens on uninstall.
 		LlmsTxt\Router::flush_on_deactivation();
 		LlmsTxt\Service::clear_scheduled_regens();
+
+		// Drop the discovery-channel rewrites (#172 / AgDR-0056) — disabling
+		// the plugin removes the served channels.
+		Discovery\Channel_Router::flush_on_deactivation();
 
 		// Context Score cron cleanup (#9 / AgDR-0030). Cached breakdown
 		// in wp_options is preserved per AgDR-0015 — only uninstall purges.

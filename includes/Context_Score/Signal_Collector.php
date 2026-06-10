@@ -18,6 +18,7 @@ use WPContext\Admin\Context_Profile_Settings;
 use WPContext\Admin\Multi_Channel_Provider_Detector;
 use WPContext\Admin\Schema_Coordination_Detector;
 use WPContext\Ai\Client_Wrapper;
+use WPContext\Discovery\Channel_Router;
 use WPContext\LlmsTxt\Conflict_Detector;
 use WPContext\LlmsTxt\Entry_Source;
 use WPContext\LlmsTxt\Service as Llms_Txt_Service;
@@ -279,6 +280,16 @@ final class Signal_Collector {
 		// rewrite rules).
 		if ( null !== $active_provider ) {
 			$wk_ai_layer = true;
+		}
+
+		// This plugin's own served channels (#172 / AgDR-0056) count the same
+		// way: a channel emitted via Discovery\Channel_Router is present even
+		// though no file is on disk. The file_exists probes above are kept so
+		// operator-static files are still credited when the module is off.
+		if ( Context_Profile_Settings::is_module_enabled( Channel_Router::MODULE ) ) {
+			$ai_txt         = true;
+			$wk_ai_layer    = true;
+			$wk_llms_policy = true;
 		}
 
 		return array(
