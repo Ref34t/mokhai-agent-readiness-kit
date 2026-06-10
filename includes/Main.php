@@ -101,8 +101,13 @@ final class Main {
 		// Context_Profile_Settings::get_exposure_reason(), so an exclusion
 		// applies uniformly to /llms.txt, .md views, and #178 advertising.
 		\WPContext\Admin\Exclude_Meta::register_hooks();
-		\WPContext\Admin\Exclude_Sidebar_Assets::register_hooks();
 		\WPContext\Admin\SEO_Noindex_Detector::register_hooks();
+
+		// Wire the consolidated "AI agents" Gutenberg sidebar panel (#201).
+		// One panel carries the exclude toggle (#180) and the Markdown view
+		// preview (AgDR-0014); enqueues only on block-editor screens via
+		// `enqueue_block_editor_assets`.
+		\WPContext\Admin\Agents_Sidebar_Assets::register_hooks();
 
 		// Wire the Markdown Views cache schema upgrade-on-admin_init
 		// (#52). Comparison is one option read on every admin
@@ -146,10 +151,6 @@ final class Main {
 		// orphaned `_agentready_md_cleanup_*` post-meta left by the retired
 		// cleanup pass (#153). No-op outside WP-CLI via the register() guard.
 		\WPContext\Cli\Cleanup_Meta_Migration_Command::register();
-
-		// Wire the Gutenberg sidebar React panel (#5 / AgDR-0014). Enqueues
-		// only on block-editor screens via `enqueue_block_editor_assets`.
-		Markdown_Views\Sidebar_Assets::register_hooks();
 
 		// Wire the LLMs Index module (#7 / AgDR-0021-0023). Router owns the
 		// `/llms.txt` rewrite + template_redirect dispatch; Service owns the
