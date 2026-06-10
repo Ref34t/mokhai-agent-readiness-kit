@@ -248,3 +248,26 @@
 .agentready-md-error {
 	color: #a00;
 }
+
+/* ---- AI Readiness sidebar panel (#203) ------------------------------- */
+
+/* Vertical rhythm between the panel's sections (toggle → verdict →
+   preview → cache) — whitespace only, no separator lines (CEO call on
+   #203: borders read as visual noise in the narrow sidebar). */
+.agentready-verdict {
+	margin: 10px 0 12px;
+}
+.agentready-agents-panel .agentready-md-meta {
+	margin-top: 10px;
+}
+.agentready-agents-panel .agentready-md-pre {
+	margin-top: 10px;
+}
+
+/* Gutenberg zeroes margin-top on every sidebar <p> via
+   `.interface-complementary-area p:not(...)` at (0,2,1) specificity —
+   these (0,3,0) selectors win it back for the two section lines. */
+.interface-complementary-area .agentready-agents-panel .agentready-verdict,
+.interface-complementary-area .agentready-agents-panel .agentready-md-meta {
+	margin-top: 10px;
+}
