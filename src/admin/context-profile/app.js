@@ -392,7 +392,7 @@ export function ContextProfileApp( { bootstrap } ) {
 								'ai-readiness-kit'
 							) }
 							help={ __(
-								'One category or tag per line. A number is treated as a term ID; anything else as a term slug (e.g. "internal"). Posts carrying any listed term are removed from agent output.',
+								'One category or tag per line. A number is treated as a term ID; anything else as a term slug (e.g. "internal"). Posts carrying any listed term are excluded from /llms.txt, .md views, and alternate-link advertising. Custom taxonomy terms are not evaluated.',
 								'ai-readiness-kit'
 							) }
 							value={ excludeTermsText }
