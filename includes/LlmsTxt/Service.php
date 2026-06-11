@@ -152,6 +152,13 @@ final class Service {
 		\add_action( 'added_post_meta', array( self::class, 'on_exclude_meta_change' ), 10, 3 );
 		\add_action( 'updated_post_meta', array( self::class, 'on_exclude_meta_change' ), 10, 3 );
 		\add_action( 'deleted_post_meta', array( self::class, 'on_exclude_meta_change' ), 10, 3 );
+
+		// Term-assignment listener (#188) — programmatic wp_set_post_terms()
+		// fires set_object_terms but NOT save_post, so a post gaining/losing
+		// an excluded category/tag outside the editor would leave the
+		// composed cache stale for up to 24h. Same trigger class as the
+		// exclude-meta listeners above (#190).
+		\add_action( 'set_object_terms', array( self::class, 'on_terms_change' ), 10, 4 );
 	}
 
 	/**
@@ -405,6 +412,36 @@ final class Service {
 		unset( $meta_id );
 
 		if ( Context_Profile_Settings::EXCLUDE_META_KEY !== (string) $meta_key ) {
+			return;
+		}
+
+		self::on_post_change( (int) $object_id );
+	}
+
+	/**
+	 * Hook callback for `set_object_terms` (#188). Schedules a regen when a
+	 * post's categories / tags change while term deny-lists are configured —
+	 * the assignment may flip the post's excluded verdict without any
+	 * save_post firing (programmatic `wp_set_post_terms()`).
+	 *
+	 * No-ops on non-content taxonomies and — the common case — when both term
+	 * deny-lists are empty, so sites without term exclusion pay one profile
+	 * read and nothing else.
+	 *
+	 * @param int                    $object_id Post ID whose terms changed.
+	 * @param array<int, int|string> $terms     New terms. Unused.
+	 * @param array<int, int>        $tt_ids    New term-taxonomy IDs. Unused.
+	 * @param string                 $taxonomy  Taxonomy being assigned.
+	 */
+	public static function on_terms_change( $object_id, $terms, $tt_ids, $taxonomy ): void {
+		unset( $terms, $tt_ids );
+
+		if ( ! \in_array( (string) $taxonomy, array( 'category', 'post_tag' ), true ) ) {
+			return;
+		}
+
+		$profile = Context_Profile_Settings::get_profile();
+		if ( array() === $profile['excluded_term_ids'] && array() === $profile['excluded_term_slugs'] ) {
 			return;
 		}
 

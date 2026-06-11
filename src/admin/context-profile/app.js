@@ -125,6 +125,34 @@ export function ContextProfileApp( { bootstrap } ) {
 		} ) );
 	};
 
+	// Term deny-lists (#188) — same single-textarea shape as the exclude
+	// list: numeric lines become term IDs, everything else a term slug.
+	const excludeTermsText = useMemo( () => {
+		const ids = ( profile.excluded_term_ids || [] ).map( String );
+		const slugs = profile.excluded_term_slugs || [];
+		return [ ...ids, ...slugs ].join( '\n' );
+	}, [ profile.excluded_term_ids, profile.excluded_term_slugs ] );
+
+	const onExcludeTermsChange = ( text ) => {
+		const ids = [];
+		const slugs = [];
+		text.split( '\n' )
+			.map( ( line ) => line.trim() )
+			.filter( Boolean )
+			.forEach( ( line ) => {
+				if ( /^\d+$/.test( line ) ) {
+					ids.push( parseInt( line, 10 ) );
+				} else {
+					slugs.push( line );
+				}
+			} );
+		setProfile( ( prev ) => ( {
+			...prev,
+			excluded_term_ids: ids,
+			excluded_term_slugs: slugs,
+		} ) );
+	};
+
 	const save = async () => {
 		setSaving( true );
 		setFlash( null );
@@ -354,6 +382,22 @@ export function ContextProfileApp( { bootstrap } ) {
 							value={ excludeText }
 							onChange={ onExcludeListChange }
 							rows={ 4 }
+						/>
+					</PanelRow>
+					<PanelRow>
+						<TextareaControl
+							__nextHasNoMarginBottom
+							label={ __(
+								'Exclude by category / tag',
+								'ai-readiness-kit'
+							) }
+							help={ __(
+								'One category or tag per line. A number is treated as a term ID; anything else as a term slug (e.g. "internal"). Posts carrying any listed term are removed from agent output.',
+								'ai-readiness-kit'
+							) }
+							value={ excludeTermsText }
+							onChange={ onExcludeTermsChange }
+							rows={ 3 }
 						/>
 					</PanelRow>
 					<PanelRow>

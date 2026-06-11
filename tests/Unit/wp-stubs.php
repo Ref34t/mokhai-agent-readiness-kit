@@ -21,6 +21,36 @@ if ( ! isset( $GLOBALS['wpctx_test_post_meta'] ) ) {
 	$GLOBALS['wpctx_test_post_meta'] = array();
 }
 
+if ( ! isset( $GLOBALS['wpctx_test_post_terms'] ) ) {
+	$GLOBALS['wpctx_test_post_terms'] = array();
+}
+
+if ( ! function_exists( 'has_term' ) ) {
+	/**
+	 * Stub: report whether a post carries any of the given terms in a
+	 * taxonomy. Seam: $GLOBALS['wpctx_test_post_terms'][post_id][taxonomy]
+	 * holds a mixed array of assigned term IDs (int) and slugs (string),
+	 * mirroring core's mixed-needle acceptance.
+	 *
+	 * @param string|int|array<int, string|int> $term     Term needle(s).
+	 * @param string                            $taxonomy Taxonomy slug.
+	 * @param \WP_Post|int|null                 $post     Post or post ID.
+	 */
+	function has_term( $term = '', string $taxonomy = '', $post = null ): bool {
+		$post_id  = is_object( $post ) ? (int) $post->ID : (int) $post;
+		$assigned = $GLOBALS['wpctx_test_post_terms'][ $post_id ][ $taxonomy ] ?? array();
+
+		foreach ( (array) $term as $needle ) {
+			$needle = is_numeric( $needle ) ? (int) $needle : (string) $needle;
+			if ( in_array( $needle, $assigned, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}
+
 if ( ! function_exists( 'update_post_meta' ) ) {
 	/**
 	 * Stub: store a single post-meta value in the global map. Single-value
