@@ -58,7 +58,7 @@ final class Context_Profile_Settings {
 	 *
 	 * @var int
 	 */
-	public const CURRENT_SCHEMA_VERSION = 4;
+	public const CURRENT_SCHEMA_VERSION = 5;
 
 	/**
 	 * Post statuses the admin is allowed to expose. `publish` is the only
@@ -167,6 +167,12 @@ final class Context_Profile_Settings {
 			// legitimate agent input.
 			'excluded_ids'                 => array(),
 			'excluded_slugs'               => array(),
+			// Term-based exclusions (#188). A post carrying ANY listed
+			// category / tag (by term ID or slug) is denied — drops whole
+			// content classes (e.g. an "internal" category) without listing
+			// every post. Same deny-list semantics as the two lists above.
+			'excluded_term_ids'            => array(),
+			'excluded_term_slugs'          => array(),
 			'exclude_wp_samples'           => true,
 			// Served AI-discovery channels (#172 / AgDR-0056): ai.txt +
 			// /.well-known/llms-policy.json + /.well-known/ai-layer, emitted
@@ -314,8 +320,9 @@ final class Context_Profile_Settings {
 
 	/**
 	 * Whether the post sits on an operator-curated exclude list — the per-post
-	 * `_agentready_excluded` meta toggle, or the site-level `excluded_ids` /
-	 * `excluded_slugs` deny-lists. See #180.
+	 * `_agentready_excluded` meta toggle, the site-level `excluded_ids` /
+	 * `excluded_slugs` deny-lists (#180), or a category / tag on the
+	 * `excluded_term_ids` / `excluded_term_slugs` term deny-lists (#188).
 	 *
 	 * @param \WP_Post             $post    Post being evaluated.
 	 * @param array<string, mixed> $profile Already-resolved profile (passed in
@@ -334,6 +341,34 @@ final class Context_Profile_Settings {
 		$slug = (string) \get_post_field( 'post_name', $post, 'raw' );
 		if ( '' !== $slug && \in_array( $slug, $profile['excluded_slugs'], true ) ) {
 			return true;
+		}
+
+		return self::in_excluded_terms( $post, $profile );
+	}
+
+	/**
+	 * Whether the post carries any category / tag on the term deny-lists (#188).
+	 *
+	 * Empty lists short-circuit before any term lookup, so sites that don't
+	 * use term exclusion pay nothing on the /llms.txt entry loop. When lists
+	 * are set, `has_term()` rides the object term cache (primed by WP_Query
+	 * on the entry loop), so the per-post cost is one cached lookup per
+	 * taxonomy, not a query.
+	 *
+	 * @param \WP_Post             $post    Post being evaluated.
+	 * @param array<string, mixed> $profile Already-resolved profile.
+	 */
+	private static function in_excluded_terms( \WP_Post $post, array $profile ): bool {
+		$terms = \array_merge( $profile['excluded_term_ids'], $profile['excluded_term_slugs'] );
+
+		if ( array() === $terms ) {
+			return false;
+		}
+
+		foreach ( array( 'category', 'post_tag' ) as $taxonomy ) {
+			if ( \has_term( $terms, $taxonomy, $post ) ) {
+				return true;
+			}
 		}
 
 		return false;
@@ -638,6 +673,20 @@ final class Context_Profile_Settings {
 		$out['excluded_slugs'] = self::sanitize_slug_list(
 			isset( $input['excluded_slugs'] ) && \is_array( $input['excluded_slugs'] )
 				? $input['excluded_slugs']
+				: array()
+		);
+
+		// Term deny-lists (#188) — same shapes as the post lists above:
+		// unique positive ints (term IDs) + unique sanitised term slugs.
+		$out['excluded_term_ids'] = self::sanitize_id_list(
+			isset( $input['excluded_term_ids'] ) && \is_array( $input['excluded_term_ids'] )
+				? $input['excluded_term_ids']
+				: array()
+		);
+
+		$out['excluded_term_slugs'] = self::sanitize_slug_list(
+			isset( $input['excluded_term_slugs'] ) && \is_array( $input['excluded_term_slugs'] )
+				? $input['excluded_term_slugs']
 				: array()
 		);
 

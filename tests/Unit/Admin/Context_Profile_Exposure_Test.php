@@ -29,6 +29,7 @@ final class Context_Profile_Exposure_Test extends TestCase {
 		$GLOBALS['wpctx_test_active_plugins'] = array();
 		$GLOBALS['wpctx_test_added_actions']  = array();
 		$GLOBALS['wpctx_test_filters']        = array();
+		$GLOBALS['wpctx_test_post_terms']     = array();
 	}
 
 	private function set_profile( array $overrides ): void {
@@ -223,6 +224,90 @@ final class Context_Profile_Exposure_Test extends TestCase {
 		self::assertFalse( Context_Profile_Settings::is_url_exposable( $post ) );
 	}
 
+	// ----------------------------------------------------------------------
+	// is_url_exposable — term-based exclusions (#188)
+	// ----------------------------------------------------------------------
+
+	public function test_post_in_excluded_category_id_is_not_exposable(): void {
+		$this->set_profile(
+			array(
+				'exposed_cpts'      => array( 'post' ),
+				'excluded_term_ids' => array( 12 ),
+			)
+		);
+		$GLOBALS['wpctx_test_post_terms'][5]['category'] = array( 12, 'news' );
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 5,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		self::assertFalse( Context_Profile_Settings::is_url_exposable( $post ) );
+		self::assertSame( 'excluded', Context_Profile_Settings::get_exposure_reason( $post ) );
+	}
+
+	public function test_post_with_excluded_tag_slug_is_not_exposable(): void {
+		$this->set_profile(
+			array(
+				'exposed_cpts'        => array( 'post' ),
+				'excluded_term_slugs' => array( 'internal' ),
+			)
+		);
+		$GLOBALS['wpctx_test_post_terms'][5]['post_tag'] = array( 'internal' );
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 5,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+			)
+		);
+
+		self::assertFalse( Context_Profile_Settings::is_url_exposable( $post ) );
+		self::assertSame( 'excluded', Context_Profile_Settings::get_exposure_reason( $post ) );
+	}
+
+	public function test_post_without_excluded_terms_stays_exposable(): void {
+		$this->set_profile(
+			array(
+				'exposed_cpts'        => array( 'post' ),
+				'excluded_term_ids'   => array( 12 ),
+				'excluded_term_slugs' => array( 'internal' ),
+			)
+		);
+		$GLOBALS['wpctx_test_post_terms'][5]['category'] = array( 'news', 33 );
+		$GLOBALS['wpctx_test_post_terms'][5]['post_tag'] = array( 'public' );
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 5,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_name'   => 'real-post',
+			)
+		);
+
+		self::assertTrue( Context_Profile_Settings::is_url_exposable( $post ) );
+	}
+
+	public function test_empty_term_lists_do_not_deny(): void {
+		$this->set_profile( array( 'exposed_cpts' => array( 'post' ) ) );
+
+		$post = $this->make_post(
+			array(
+				'ID'          => 5,
+				'post_type'   => 'post',
+				'post_status' => 'publish',
+				'post_name'   => 'real-post',
+			)
+		);
+
+		self::assertTrue( Context_Profile_Settings::is_url_exposable( $post ) );
+	}
+
 	public function test_wp_sample_content_is_excluded_by_default(): void {
 		$this->set_profile( array( 'exposed_cpts' => array( 'page' ) ) );
 
@@ -308,5 +393,22 @@ final class Context_Profile_Exposure_Test extends TestCase {
 
 		$profile = Context_Profile_Settings::get_profile();
 		self::assertSame( array( 'sample-page', 'tender-for-restoration' ), $profile['excluded_slugs'] );
+	}
+
+	public function test_term_lists_default_empty_and_sanitise_like_post_lists(): void {
+		$defaults = Context_Profile_Settings::get_defaults();
+		self::assertSame( array(), $defaults['excluded_term_ids'] );
+		self::assertSame( array(), $defaults['excluded_term_slugs'] );
+
+		$this->set_profile(
+			array(
+				'excluded_term_ids'   => array( '12', 'junk', -4, 0, 12 ),
+				'excluded_term_slugs' => array( 'Internal Docs', 'internal-docs', '   ' ),
+			)
+		);
+
+		$profile = Context_Profile_Settings::get_profile();
+		self::assertSame( array( 12, 4 ), $profile['excluded_term_ids'] );
+		self::assertSame( array( 'internal-docs' ), $profile['excluded_term_slugs'] );
 	}
 }
