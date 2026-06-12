@@ -89,7 +89,7 @@ Context Score is the 0–100 readiness audit answering "how prepared is this sit
 4. **Exposure safety (weight 15)** — exposed statuses are limited to `publish` (no risky non-publish exposures) and at least one CPT is configured explicitly rather than implicitly
 5. **Integration health (weight 15)** — LLM features ↔ AI Client posture are consistent (no silent-degrade trap) and no `/llms.txt` conflicts are unresolved
 6. **Markdown conversion quality (weight 25)** — mean quality score across the Markdown Views cache and the percentage of cached posts above the cleanup threshold
-7. **Multi-channel discovery (weight 10)** — how many agent-discovery surfaces beyond `/llms.txt` are present (`ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`, OpenAPI). A site publishing several channels scores higher than one publishing only `/llms.txt`. Sibling-provider plugins (e.g. AI Layer) are detected and credited via the filterable `ai_readiness_kit_multi_channel_providers` registry.
+7. **Multi-channel discovery (weight 10)** — how many of the four plugin-served agent-discovery surfaces are present (`/llms.txt`, `ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`); all four = 100, so a plugin-only site can reach full marks. OpenAPI is detected and credited as a bonus channel for sites exposing an API but does not change the score. Sibling-provider plugins (e.g. AI Layer) are detected and credited via the filterable `ai_readiness_kit_multi_channel_providers` registry.
 
 The score is surfaced in three places:
 

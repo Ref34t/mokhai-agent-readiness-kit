@@ -405,7 +405,51 @@ final class Engine_Test extends TestCase {
 		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
 
 		$this->assertSame( 100, $sub['value'] );
-		$this->assertSame( 5, $sub['signals']['surfaces_present_count'] );
+		// surfaces_present_count counts the 4 plugin-served channels; OpenAPI is
+		// a bonus and not counted (AgDR-0058 / #212).
+		$this->assertSame( 4, $sub['signals']['surfaces_present_count'] );
+	}
+
+	public function test_multi_channel_discovery_reaches_100_on_plugin_served_channels_without_openapi(): void {
+		// #212 regression: a plugin-only site running the four channels it can
+		// serve must reach 100 — OpenAPI absence no longer caps it at 80.
+		$signals = array(
+			'multi_channel_discovery' => array(
+				'llms_txt_present'       => true,
+				'ai_txt_present'         => true,
+				'well_known_ai_layer'    => true,
+				'well_known_llms_policy' => true,
+				'openapi_spec_present'   => false,
+				'active_provider'        => null,
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
+
+		$this->assertSame( 100, $sub['value'] );
+		$this->assertSame( 4, $sub['signals']['surfaces_present_count'] );
+	}
+
+	public function test_multi_channel_discovery_credits_openapi_as_a_bonus_without_changing_score(): void {
+		// OpenAPI present alongside 3 plugin-served channels: score reflects the
+		// 3 core channels (75), and a bonus reason credits the OpenAPI spec.
+		$signals = array(
+			'multi_channel_discovery' => array(
+				'llms_txt_present'       => true,
+				'ai_txt_present'         => true,
+				'well_known_ai_layer'    => true,
+				'well_known_llms_policy' => false,
+				'openapi_spec_present'   => true,
+				'active_provider'        => null,
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
+
+		$this->assertSame( 75, $sub['value'] );
+		$this->assertSame( 3, $sub['signals']['surfaces_present_count'] );
+		$reasons = implode( ' ', $sub['reasons'] );
+		$this->assertStringContainsString( 'OpenAPI spec detected', $reasons );
 	}
 
 	public function test_multi_channel_discovery_yields_0_when_no_surfaces(): void {
@@ -427,8 +471,9 @@ final class Engine_Test extends TestCase {
 		$this->assertStringContainsString( 'No agent-discovery channels detected', $sub['reasons'][0] );
 	}
 
-	public function test_multi_channel_discovery_credits_20_per_surface(): void {
-		// Three of five surfaces present → 3 × 20 = 60 internal.
+	public function test_multi_channel_discovery_credits_25_per_plugin_served_channel(): void {
+		// Two plugin-served channels present (OpenAPI is a bonus, not counted)
+		// → 2 × 25 = 50 internal (AgDR-0058 / #212).
 		$signals = array(
 			'multi_channel_discovery' => array(
 				'llms_txt_present'       => true,
@@ -442,8 +487,8 @@ final class Engine_Test extends TestCase {
 
 		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
 
-		$this->assertSame( 60, $sub['value'] );
-		$this->assertSame( 3, $sub['signals']['surfaces_present_count'] );
+		$this->assertSame( 50, $sub['value'] );
+		$this->assertSame( 2, $sub['signals']['surfaces_present_count'] );
 	}
 
 	public function test_multi_channel_discovery_emits_provider_config_link_when_sibling_active(): void {
@@ -464,7 +509,7 @@ final class Engine_Test extends TestCase {
 
 		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
 
-		$this->assertSame( 40, $sub['value'] );
+		$this->assertSame( 50, $sub['value'] );
 		// Reasons[0] is the per-channel count, reasons[1] is the provider line.
 		$this->assertCount( 2, $sub['reasons'] );
 		$this->assertStringContainsString( 'AI Layer', $sub['reasons'][1] );
@@ -488,7 +533,7 @@ final class Engine_Test extends TestCase {
 
 		$sub = Engine::compute( $signals )['sub_scores']['multi_channel_discovery'];
 
-		$this->assertSame( 20, $sub['value'] );
+		$this->assertSame( 25, $sub['value'] );
 		$this->assertCount( 1, $sub['reasons'] );
 	}
 

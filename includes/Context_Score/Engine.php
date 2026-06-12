@@ -557,16 +557,25 @@ final class Engine {
 			? $bundle['active_provider']
 			: null;
 
-		$surfaces_present = (int) $llms_txt + (int) $ai_txt + (int) $wk_ai_layer
-			+ (int) $wk_llms_policy + (int) $openapi;
-		$score            = $surfaces_present * 20;
-		$reasons          = array();
-		$reason_keys      = array();
+		// The four plugin-served channels each contribute 25 points so a
+		// plugin-only install can reach 100 on the surfaces it actually serves.
+		// OpenAPI is a bonus channel (AgDR-0058 / #212): detected and credited
+		// in the narrative for API-exposing sites, but it does not change the
+		// score — the plugin can't generate an OpenAPI spec for a REST surface
+		// it doesn't own, so gating the score on it created a dead-end gauge.
+		$core_present = (int) $llms_txt + (int) $ai_txt + (int) $wk_ai_layer + (int) $wk_llms_policy;
+		$score        = $core_present * 25;
+		$reasons      = array();
+		$reason_keys  = array();
 
-		if ( $surfaces_present <= 0 ) {
-			self::add_reason( $reasons, $reason_keys, 'mcd_no_channels', 'No agent-discovery channels detected — site is invisible to agents that scan for ai.txt, /.well-known/, or OpenAPI.' );
+		if ( $core_present <= 0 ) {
+			self::add_reason( $reasons, $reason_keys, 'mcd_no_channels', 'No agent-discovery channels detected — site is invisible to agents that scan for ai.txt or /.well-known/ declarations.' );
 		} else {
-			self::add_reason( $reasons, $reason_keys, 'mcd_channels_detected', sprintf( '%d of 5 agent-discovery channel(s) detected.', $surfaces_present ), array( $surfaces_present ) );
+			self::add_reason( $reasons, $reason_keys, 'mcd_channels_detected', sprintf( '%d of 4 plugin-served agent-discovery channel(s) detected.', $core_present ), array( $core_present ) );
+		}
+
+		if ( $openapi ) {
+			self::add_reason( $reasons, $reason_keys, 'mcd_openapi_bonus', 'OpenAPI spec detected — bonus discovery channel for sites exposing an API.' );
 		}
 
 		if ( null !== $active_provider && $wk_ai_layer ) {
@@ -588,7 +597,7 @@ final class Engine {
 				'well_known_ai_layer'    => $wk_ai_layer,
 				'well_known_llms_policy' => $wk_llms_policy,
 				'openapi_spec_present'   => $openapi,
-				'surfaces_present_count' => $surfaces_present,
+				'surfaces_present_count' => $core_present,
 				'active_provider'        => null !== $active_provider
 					? array(
 						'slug'       => (string) ( $active_provider['slug'] ?? '' ),
