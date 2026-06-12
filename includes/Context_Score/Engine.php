@@ -209,6 +209,8 @@ final class Engine {
 	 */
 	private static function score_content_readability( array $signals ): array {
 		$desc        = self::array_at( $signals, 'descriptions' );
+		$profile     = self::array_at( $signals, 'profile' );
+		$desc_on     = (bool) ( $profile['llm_descriptions_enabled'] ?? false );
 		$total       = (int) ( $desc['total_entries'] ?? 0 );
 		$with_desc   = (int) ( $desc['entries_with_description'] ?? 0 );
 		$with_desc   = min( $with_desc, $total );
@@ -224,6 +226,7 @@ final class Engine {
 					'total_entries'            => 0,
 					'entries_with_description' => 0,
 					'coverage_pct'             => 0,
+					'llm_descriptions_enabled' => $desc_on,
 				),
 				'reasons'     => $reasons,
 				'reason_keys' => $reason_keys,
@@ -247,6 +250,7 @@ final class Engine {
 				'total_entries'            => $total,
 				'entries_with_description' => $with_desc,
 				'coverage_pct'             => $coverage_pct,
+				'llm_descriptions_enabled' => $desc_on,
 			),
 			'reasons'     => $reasons,
 			'reason_keys' => $reason_keys,

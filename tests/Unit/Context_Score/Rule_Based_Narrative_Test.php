@@ -130,6 +130,46 @@ final class Rule_Based_Narrative_Test extends TestCase {
 		self::assertStringContainsString( '30%', $pair['why'] );
 	}
 
+	public function test_content_readability_fix_points_to_descriptions_tab_when_already_enabled(): void {
+		// Regression (#209): when auto-descriptions are already on, the fix must
+		// not tell the user to "enable" them again — it points at the GUI
+		// Descriptions tab "Regenerate" path that actually resolves the gap.
+		$pair = Rule_Based_Narrative::compose_one(
+			'content_readability',
+			array(
+				'value'   => 0,
+				'weight'  => 15,
+				'signals' => array(
+					'total_entries'            => 10,
+					'entries_with_description' => 0,
+					'coverage_pct'             => 0,
+					'llm_descriptions_enabled' => true,
+				),
+			)
+		);
+
+		self::assertStringContainsString( 'Regenerate stale descriptions', $pair['fix'] );
+		self::assertStringNotContainsString( 'Enable', $pair['fix'] );
+	}
+
+	public function test_content_readability_fix_says_enable_when_descriptions_off(): void {
+		$pair = Rule_Based_Narrative::compose_one(
+			'content_readability',
+			array(
+				'value'   => 0,
+				'weight'  => 15,
+				'signals' => array(
+					'total_entries'            => 10,
+					'entries_with_description' => 0,
+					'coverage_pct'             => 0,
+					'llm_descriptions_enabled' => false,
+				),
+			)
+		);
+
+		self::assertStringContainsString( 'Enable auto-descriptions', $pair['fix'] );
+	}
+
 	public function test_schema_coverage_working_names_detected_plugin(): void {
 		$pair = Rule_Based_Narrative::compose_one(
 			'schema_coverage',
@@ -154,6 +194,29 @@ final class Rule_Based_Narrative_Test extends TestCase {
 		);
 
 		self::assertStringContainsString( 'No structured data', $pair['why'] );
+		// Regression (#208): the fix line must not promise a future release —
+		// native emission already shipped and is reachable from the profile.
+		self::assertStringNotContainsString( 'future release', $pair['fix'] );
+		self::assertStringContainsString( 'Schema emission', $pair['fix'] );
+	}
+
+	public function test_schema_coverage_native_emission_does_not_claim_no_structured_data(): void {
+		// Regression (#208): native JSON-LD on (no SEO plugin) scores 100/100;
+		// the narrative previously fell through to "No structured data".
+		$pair = Rule_Based_Narrative::compose_one(
+			'schema_coverage',
+			array(
+				'value'   => 100,
+				'weight'  => 10,
+				'signals' => array(
+					'seo_plugin'          => '',
+					'native_emit_enabled' => true,
+				),
+			)
+		);
+
+		self::assertStringContainsString( 'native JSON-LD', $pair['why'] );
+		self::assertStringNotContainsString( 'No structured data', $pair['why'] );
 	}
 
 	public function test_exposure_safety_risky_statuses_drives_the_fix(): void {
