@@ -73,6 +73,8 @@ Most sites have URLs that aren't WordPress posts but are valuable agent context 
 
 Optionally, an LLM pass drafts the per-entry descriptions from the post content (uses the WP AI Client provider configured at the site level). The deterministic floor — title-only, no description — runs without an AI provider.
 
+Posts whose body is below a minimum length are skipped by the LLM pass rather than padded with filler (e.g. a bare "Title is available at URL."). Such entries show a "skipped" status in the Descriptions tab and fall back to the title-only floor in `/llms.txt`. Adjust the threshold with the `agentready_description_min_content_chars` filter.
+
 = WP-CLI =
 
 * `wp ai-readiness-kit llms-txt status` — current generation state, conflict report, entry count

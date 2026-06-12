@@ -542,4 +542,70 @@ final class Description_Orchestrator_Test extends WP_UnitTestCase {
 			'invalidating a post with no description should be a recompose no-op (#151)'
 		);
 	}
+
+	public function test_run_skips_thin_content_without_calling_the_llm(): void {
+		// #214: a near-empty post must not get a filler description. run()
+		// returns at the quality floor before the LLM call, so no provider is
+		// needed for this assertion.
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_content' => 'Hi.',
+			)
+		);
+
+		Description_Orchestrator::run( (int) $post->ID );
+
+		self::assertSame(
+			Description_Orchestrator::STATUS_SKIPPED,
+			Description_Orchestrator::get_status( (int) $post->ID )
+		);
+		self::assertSame(
+			'',
+			(string) get_post_meta( (int) $post->ID, Description_Orchestrator::META_KEY_AUTO, true ),
+			'thin content must not write an _auto description'
+		);
+	}
+
+	public function test_run_clears_prior_filler_auto_when_content_falls_below_floor(): void {
+		// #214: a post that previously received a filler _auto and is now thin
+		// must have the filler cleared so /llms.txt drops to the title-only floor.
+		$post = self::factory()->post->create_and_get(
+			array(
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_content' => 'Hi.',
+			)
+		);
+		// Stale filler: _auto set, no generated_for marker → should_schedule true.
+		update_post_meta( (int) $post->ID, Description_Orchestrator::META_KEY_AUTO, 'Hi is available at http://example.test/hi/.' );
+
+		Description_Orchestrator::run( (int) $post->ID );
+
+		self::assertSame(
+			Description_Orchestrator::STATUS_SKIPPED,
+			Description_Orchestrator::get_status( (int) $post->ID )
+		);
+		self::assertSame(
+			'',
+			(string) get_post_meta( (int) $post->ID, Description_Orchestrator::META_KEY_AUTO, true ),
+			'prior filler _auto must be cleared on skip'
+		);
+	}
+
+	public function test_min_content_chars_respects_the_filter(): void {
+		$filter = static function () {
+			return 5;
+		};
+		add_filter( 'agentready_description_min_content_chars', $filter );
+
+		self::assertSame( 5, Description_Orchestrator::min_content_chars() );
+
+		remove_filter( 'agentready_description_min_content_chars', $filter );
+		self::assertSame(
+			Description_Orchestrator::MIN_CONTENT_CHARS,
+			Description_Orchestrator::min_content_chars()
+		);
+	}
 }
