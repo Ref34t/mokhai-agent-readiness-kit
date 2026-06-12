@@ -14,7 +14,8 @@
  *
  * Translations: managed by wp.org under plugin slug 'agentready-ai-readiness-kit' (no manual
  * textdomain loading needed since WP 4.6). See AgDR-0009 (slug value updated
- * per AgDR-0036 and the AI Readiness Kit rebrand, #101).
+ * per AgDR-0036 and the AI Readiness Kit rebrand, #101; renamed again to
+ * agentready-ai-readiness-kit per AgDR-0059, #224).
  *
  * @package WPContext
  */

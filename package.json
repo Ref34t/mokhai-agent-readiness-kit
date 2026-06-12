@@ -18,7 +18,7 @@
 		"env:start": "wp-env start",
 		"env:stop": "wp-env stop",
 		"env:clean": "wp-env clean all",
-		"test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/ai-readiness-kit vendor/bin/phpunit"
+		"test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/agentready-ai-readiness-kit vendor/bin/phpunit"
 	},
 	"devDependencies": {
 		"@wordpress/env": "^11.8.0",

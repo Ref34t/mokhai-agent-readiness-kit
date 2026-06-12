@@ -24,7 +24,7 @@ if ( ! defined( 'WPCTX_DIR' ) ) {
 	define( 'WPCTX_DIR', __DIR__ . '/../' );
 }
 if ( ! defined( 'WPCTX_URL' ) ) {
-	define( 'WPCTX_URL', 'https://example.test/wp-content/plugins/ai-readiness-kit/' );
+	define( 'WPCTX_URL', 'https://example.test/wp-content/plugins/agentready-ai-readiness-kit/' );
 }
 if ( ! defined( 'WPCTX_REQUIRES_PHP' ) ) {
 	define( 'WPCTX_REQUIRES_PHP', '7.4' );
