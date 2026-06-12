@@ -44,18 +44,18 @@ const BOOTSTRAP_KEY = 'agentreadyContextScore';
 const SUCCESS_NOTICE_TIMEOUT_MS = 4000;
 
 const SUB_SCORE_LABELS = {
-	discoverability: __( 'Discoverability', 'ai-readiness-kit' ),
-	content_readability: __( 'Description coverage', 'ai-readiness-kit' ),
-	schema_coverage: __( 'Schema coverage', 'ai-readiness-kit' ),
-	exposure_safety: __( 'Exposure safety', 'ai-readiness-kit' ),
-	integration_health: __( 'Integration health', 'ai-readiness-kit' ),
+	discoverability: __( 'Discoverability', 'agentready-ai-readiness-kit' ),
+	content_readability: __( 'Description coverage', 'agentready-ai-readiness-kit' ),
+	schema_coverage: __( 'Schema coverage', 'agentready-ai-readiness-kit' ),
+	exposure_safety: __( 'Exposure safety', 'agentready-ai-readiness-kit' ),
+	integration_health: __( 'Integration health', 'agentready-ai-readiness-kit' ),
 	md_conversion_quality: __(
 		'Markdown conversion quality',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 	multi_channel_discovery: __(
 		'Multi-channel discovery',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 };
 
@@ -66,27 +66,27 @@ const SUB_SCORE_LABELS = {
 const DEGRADED_REASON_LABELS = {
 	unconfigured: __(
 		'AI Client is not configured. Narrative is using deterministic templates.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 	rate_limit: __(
 		'AI provider rate-limited the request. Narrative is using deterministic templates; the next recompute will retry.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 	network_error: __(
 		'AI provider was unreachable. Narrative is using deterministic templates; the next recompute will retry.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 	permanent_error: __(
 		'AI provider rejected the request (configuration issue). Narrative is using deterministic templates.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 	parse_error: __(
 		'AI response could not be parsed. Narrative is using deterministic templates.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 	budget_exceeded: __(
 		'AI generation exceeded the time budget. Narrative is using deterministic templates; it will retry on the next recompute.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 };
 
@@ -99,48 +99,48 @@ const DEGRADED_REASON_LABELS = {
 const REASON_TEMPLATES = {
 	// discoverability
 	disc_llms_txt_populated: () =>
-		__( '/llms.txt cache is populated.', 'ai-readiness-kit' ),
+		__( '/llms.txt cache is populated.', 'agentready-ai-readiness-kit' ),
 	disc_llms_txt_empty: () =>
 		__(
 			'/llms.txt cache is empty — agents cannot discover the site index.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	disc_cpt_exposed: ( a ) =>
 		sprintf(
 			// translators: %d: number of post types exposed to agents.
-			__( 'Site exposes %d post type(s) to agents.', 'ai-readiness-kit' ),
+			__( 'Site exposes %d post type(s) to agents.', 'agentready-ai-readiness-kit' ),
 			a[ 0 ]
 		),
 	disc_no_cpt_exposed: () =>
 		__(
 			'No post types are exposed to agents (Context Profile → Exposed CPTs is empty).',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	disc_entries_listed: ( a ) =>
 		sprintf(
 			// translators: %d: number of entries listed in /llms.txt.
-			__( '/llms.txt lists %d entries.', 'ai-readiness-kit' ),
+			__( '/llms.txt lists %d entries.', 'agentready-ai-readiness-kit' ),
 			a[ 0 ]
 		),
 	disc_zero_entries: () =>
-		__( '/llms.txt has zero entries.', 'ai-readiness-kit' ),
+		__( '/llms.txt has zero entries.', 'agentready-ai-readiness-kit' ),
 	disc_rewrite_conflict: () =>
 		__(
 			'Another plugin is overriding the /llms.txt rewrite rule.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	// content_readability
 	cr_no_exposed_entries: () =>
 		__(
 			'No exposed entries — nothing for agents to read.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	cr_coverage_good: ( a ) =>
 		sprintf(
 			// translators: %d: percentage of entries with a curated description.
 			__(
 				'%d%% of exposed entries have a curated description.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ]
 		),
@@ -149,7 +149,7 @@ const REASON_TEMPLATES = {
 			// translators: %d: percentage of entries with a curated description.
 			__(
 				'%d%% of exposed entries have a curated description — room to improve.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ]
 		),
@@ -158,7 +158,7 @@ const REASON_TEMPLATES = {
 			// translators: %d: percentage of entries with a curated description.
 			__(
 				'Only %d%% of exposed entries have a curated description.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ]
 		),
@@ -168,79 +168,79 @@ const REASON_TEMPLATES = {
 			// translators: %s: detected SEO plugin name.
 			__(
 				'Detected SEO plugin (%s) — structured data is likely being emitted.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ]
 		),
 	sc_native_jsonld: () =>
 		__(
 			'AI Readiness Kit is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	sc_no_structured_data: () =>
 		__(
 			'No structured data detected on this site. Enable Schema emission in the Context Profile to have AI Readiness Kit emit native JSON-LD, or rely on a third-party SEO plugin.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	// exposure_safety
 	es_only_published: () =>
 		__(
 			'Only published content is exposed to agents.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	es_risky_statuses: ( a ) =>
 		sprintf(
 			// translators: %s: comma-separated list of non-publish post statuses.
 			__(
 				'Exposed statuses include %s — these can leak unpublished content to agents.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ]
 		),
 	es_cpt_explicit: () =>
 		__(
 			'Exposed CPTs are configured explicitly (no implicit defaults).',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	es_no_cpt: () =>
 		__(
 			'No CPTs exposed — safe-by-default, but agents will find nothing.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	// integration_health
 	ih_llm_configured: () =>
 		__(
 			'AI client configured and LLM features enabled.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	ih_llm_disabled: () =>
 		__(
 			'LLM features disabled — no AI client required.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	ih_llm_unconfigured: () =>
 		__(
 			'LLM features enabled but AI client is unconfigured — those features are silently degraded.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	ih_llms_txt_conflict: ( a ) =>
 		sprintf(
 			// translators: %s: comma-separated list of /llms.txt conflict kinds.
-			__( '/llms.txt conflict detected (%s).', 'ai-readiness-kit' ),
+			__( '/llms.txt conflict detected (%s).', 'agentready-ai-readiness-kit' ),
 			a[ 0 ]
 		),
 	// md_conversion_quality
 	mcq_no_cache: () =>
 		__(
 			'No Markdown Views cache rows yet — visit a few `.md` URLs to populate the cache.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	mcq_mean_quality: ( a ) =>
 		sprintf(
 			// translators: 1: number of cached posts. 2: mean quality score 0-100.
 			__(
 				'Mean Markdown quality across %1$d cached posts: %2$d/100.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ],
 			a[ 1 ]
@@ -250,7 +250,7 @@ const REASON_TEMPLATES = {
 			// translators: 1: percentage above threshold. 2: MD-quality threshold value.
 			__(
 				'%1$d%% of cached posts are above the MD-quality threshold (%2$d).',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ],
 			a[ 1 ]
@@ -259,28 +259,28 @@ const REASON_TEMPLATES = {
 	mcd_no_channels: () =>
 		__(
 			'No agent-discovery channels detected — site is invisible to agents that scan for ai.txt or /.well-known/ declarations.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	mcd_channels_detected: ( a ) =>
 		sprintf(
 			// translators: %d: number of plugin-served agent-discovery channels detected (of 4).
 			__(
 				'%d of 4 plugin-served agent-discovery channel(s) detected.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ]
 		),
 	mcd_openapi_bonus: () =>
 		__(
 			'OpenAPI spec detected — bonus discovery channel for sites exposing an API.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		),
 	mcd_provider_configurable: ( a ) =>
 		sprintf(
 			// translators: 1: sibling provider name. 2: provider admin config URL.
 			__(
 				'%1$s detected — coordinating multi-channel discovery. Configure at %2$s',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ],
 			a[ 1 ]
@@ -290,7 +290,7 @@ const REASON_TEMPLATES = {
 			// translators: %s: sibling provider name.
 			__(
 				'%s detected — coordinating multi-channel discovery.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			a[ 0 ]
 		),
@@ -354,8 +354,8 @@ function narrativeFor( breakdown, name ) {
 function SourceBadge( { source } ) {
 	const isLlm = source === 'llm';
 	const label = isLlm
-		? __( 'AI-generated', 'ai-readiness-kit' )
-		: __( 'Rule-based', 'ai-readiness-kit' );
+		? __( 'AI-generated', 'agentready-ai-readiness-kit' )
+		: __( 'Rule-based', 'agentready-ai-readiness-kit' );
 	return (
 		<span
 			style={ {
@@ -387,15 +387,15 @@ function statusBucket( overall ) {
 
 function relativeTime( iso ) {
 	if ( ! iso ) {
-		return __( 'unknown', 'ai-readiness-kit' );
+		return __( 'unknown', 'agentready-ai-readiness-kit' );
 	}
 	const then = Date.parse( iso );
 	if ( Number.isNaN( then ) ) {
-		return __( 'unknown', 'ai-readiness-kit' );
+		return __( 'unknown', 'agentready-ai-readiness-kit' );
 	}
 	const diffSec = Math.max( 0, Math.round( ( Date.now() - then ) / 1000 ) );
 	if ( diffSec < 60 ) {
-		return __( 'just now', 'ai-readiness-kit' );
+		return __( 'just now', 'agentready-ai-readiness-kit' );
 	}
 	const diffMin = Math.round( diffSec / 60 );
 	if ( diffMin < 60 ) {
@@ -405,7 +405,7 @@ function relativeTime( iso ) {
 				'%d minute ago',
 				'%d minutes ago',
 				diffMin,
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			),
 			diffMin
 		);
@@ -414,14 +414,14 @@ function relativeTime( iso ) {
 	if ( diffHr < 24 ) {
 		return sprintf(
 			/* translators: %d: number of hours ago */
-			_n( '%d hour ago', '%d hours ago', diffHr, 'ai-readiness-kit' ),
+			_n( '%d hour ago', '%d hours ago', diffHr, 'agentready-ai-readiness-kit' ),
 			diffHr
 		);
 	}
 	const diffDay = Math.round( diffHr / 24 );
 	return sprintf(
 		/* translators: %d: number of days ago */
-		_n( '%d day ago', '%d days ago', diffDay, 'ai-readiness-kit' ),
+		_n( '%d day ago', '%d days ago', diffDay, 'agentready-ai-readiness-kit' ),
 		diffDay
 	);
 }
@@ -478,11 +478,11 @@ function OverallCard( {
 			<Panel>
 				<PanelBody
 					initialOpen
-					title={ __( 'Overall score', 'ai-readiness-kit' ) }
+					title={ __( 'Overall score', 'agentready-ai-readiness-kit' ) }
 				>
 					<Spinner />
 					<p>
-						{ __( 'Computing Context Score…', 'ai-readiness-kit' ) }
+						{ __( 'Computing Context Score…', 'agentready-ai-readiness-kit' ) }
 					</p>
 				</PanelBody>
 			</Panel>
@@ -494,12 +494,12 @@ function OverallCard( {
 			<Panel>
 				<PanelBody
 					initialOpen
-					title={ __( 'Overall score', 'ai-readiness-kit' ) }
+					title={ __( 'Overall score', 'agentready-ai-readiness-kit' ) }
 				>
 					<Notice status="warning" isDismissible={ false }>
 						{ __(
 							'No Context Score breakdown is available yet. Click "Recompute now" to generate the first audit.',
-							'ai-readiness-kit'
+							'agentready-ai-readiness-kit'
 						) }
 					</Notice>
 					<Button
@@ -508,8 +508,8 @@ function OverallCard( {
 						disabled={ pending }
 					>
 						{ pending
-							? __( 'Recomputing…', 'ai-readiness-kit' )
-							: __( 'Recompute now', 'ai-readiness-kit' ) }
+							? __( 'Recomputing…', 'agentready-ai-readiness-kit' )
+							: __( 'Recompute now', 'agentready-ai-readiness-kit' ) }
 					</Button>
 				</PanelBody>
 			</Panel>
@@ -533,14 +533,14 @@ function OverallCard( {
 			? DEGRADED_REASON_LABELS[ degradedReason ]
 			: __(
 					'Narrative is using deterministic templates.',
-					'ai-readiness-kit'
+					'agentready-ai-readiness-kit'
 			  );
 
 	return (
 		<Panel>
 			<PanelBody
 				initialOpen
-				title={ __( 'Overall score', 'ai-readiness-kit' ) }
+				title={ __( 'Overall score', 'agentready-ai-readiness-kit' ) }
 			>
 				{ flash && (
 					<Notice status={ flash.type } onRemove={ onDismissFlash }>
@@ -551,7 +551,7 @@ function OverallCard( {
 					<Notice status="info" isDismissible={ false }>
 						{ __(
 							'AI narrative is generating in the background — it will appear here shortly.',
-							'ai-readiness-kit'
+							'agentready-ai-readiness-kit'
 						) }
 					</Notice>
 				) }
@@ -599,11 +599,11 @@ function OverallCard( {
 							} }
 						>
 							{ bucket.tone === 'good' &&
-								__( 'Good', 'ai-readiness-kit' ) }
+								__( 'Good', 'agentready-ai-readiness-kit' ) }
 							{ bucket.tone === 'recommended' &&
-								__( 'Needs attention', 'ai-readiness-kit' ) }
+								__( 'Needs attention', 'agentready-ai-readiness-kit' ) }
 							{ bucket.tone === 'critical' &&
-								__( 'Critical', 'ai-readiness-kit' ) }
+								__( 'Critical', 'agentready-ai-readiness-kit' ) }
 						</div>
 					</div>
 					<div style={ { flex: 1, minWidth: '200px' } }>
@@ -611,7 +611,7 @@ function OverallCard( {
 							value={ overall }
 							label={ __(
 								'Overall Context Score (0 to 100)',
-								'ai-readiness-kit'
+								'agentready-ai-readiness-kit'
 							) }
 						/>
 						<div
@@ -623,7 +623,7 @@ function OverallCard( {
 						>
 							{ sprintf(
 								/* translators: %s: relative time, e.g. "5 minutes ago" */
-								__( 'Last computed %s.', 'ai-readiness-kit' ),
+								__( 'Last computed %s.', 'agentready-ai-readiness-kit' ),
 								relativeTime( breakdown.computed_at )
 							) }
 						</div>
@@ -635,8 +635,8 @@ function OverallCard( {
 							disabled={ pending }
 						>
 							{ pending
-								? __( 'Recomputing…', 'ai-readiness-kit' )
-								: __( 'Recompute now', 'ai-readiness-kit' ) }
+								? __( 'Recomputing…', 'agentready-ai-readiness-kit' )
+								: __( 'Recompute now', 'agentready-ai-readiness-kit' ) }
 						</Button>
 					</div>
 				</div>
@@ -668,7 +668,7 @@ function fixActionFor( name, urls ) {
 		case 'integration_health':
 			return {
 				href: urls.profilePageUrl,
-				label: __( 'Configure in Context Profile', 'ai-readiness-kit' ),
+				label: __( 'Configure in Context Profile', 'agentready-ai-readiness-kit' ),
 			};
 		case 'schema_coverage':
 		case 'md_conversion_quality':
@@ -703,13 +703,13 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 		<Panel>
 			<PanelBody
 				initialOpen
-				title={ __( 'What is missing', 'ai-readiness-kit' ) }
+				title={ __( 'What is missing', 'agentready-ai-readiness-kit' ) }
 			>
 				{ rows.length === 0 && (
 					<p>
 						{ __(
 							'Every sub-score is at 100. Nothing actionable to surface.',
-							'ai-readiness-kit'
+							'agentready-ai-readiness-kit'
 						) }
 					</p>
 				) }
@@ -763,7 +763,7 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 													/* translators: 1: sub-score value 0-100. 2: weight contribution. */
 													__(
 														'%1$d/100 · weight %2$d',
-														'ai-readiness-kit'
+														'agentready-ai-readiness-kit'
 													),
 													row.value,
 													row.weight
@@ -797,7 +797,7 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 														/* translators: %s: one-line fix suggestion. */
 														__(
 															'Fix: %s',
-															'ai-readiness-kit'
+															'agentready-ai-readiness-kit'
 														),
 														row.narrative.fix
 													) }
@@ -843,7 +843,7 @@ function SubScoreBreakdown( { breakdown } ) {
 		<Panel>
 			<PanelBody
 				initialOpen={ false }
-				title={ __( 'Full breakdown', 'ai-readiness-kit' ) }
+				title={ __( 'Full breakdown', 'agentready-ai-readiness-kit' ) }
 			>
 				{ subs.map( ( [ name, sub ] ) => {
 					const value = Number( sub.value || 0 );
@@ -885,7 +885,7 @@ function SubScoreBreakdown( { breakdown } ) {
 										/* translators: 1: sub-score value. 2: weight. */
 										__(
 											'%1$d/100 · weight %2$d',
-											'ai-readiness-kit'
+											'agentready-ai-readiness-kit'
 										),
 										value,
 										weight
@@ -898,7 +898,7 @@ function SubScoreBreakdown( { breakdown } ) {
 									/* translators: %s: sub-score label */
 									__(
 										'%s score (0 to 100)',
-										'ai-readiness-kit'
+										'agentready-ai-readiness-kit'
 									),
 									SUB_SCORE_LABELS[ name ] || name
 								) }
@@ -932,7 +932,7 @@ function SubScoreBreakdown( { breakdown } ) {
 									>
 										{ sprintf(
 											/* translators: %s: one-line fix suggestion. */
-											__( 'Fix: %s', 'ai-readiness-kit' ),
+											__( 'Fix: %s', 'agentready-ai-readiness-kit' ),
 											narrative.fix
 										) }
 									</div>
@@ -961,7 +961,7 @@ function SubScoreBreakdown( { breakdown } ) {
 									>
 										{ __(
 											'Raw signals',
-											'ai-readiness-kit'
+											'agentready-ai-readiness-kit'
 										) }
 									</summary>
 									<dl
@@ -1016,9 +1016,9 @@ function SubScoreBreakdown( { breakdown } ) {
 // Posture slug → human-readable label. Mirrors Schema_Coordination_Detector
 // signatures so a posture coming back from the server always resolves.
 const POSTURE_LABELS = {
-	yoast: __( 'Yoast SEO', 'ai-readiness-kit' ),
-	rank_math: __( 'Rank Math', 'ai-readiness-kit' ),
-	aioseo: __( 'All in One SEO', 'ai-readiness-kit' ),
+	yoast: __( 'Yoast SEO', 'agentready-ai-readiness-kit' ),
+	rank_math: __( 'Rank Math', 'agentready-ai-readiness-kit' ),
+	aioseo: __( 'All in One SEO', 'agentready-ai-readiness-kit' ),
 };
 
 function TypeChip( { children, tone } ) {
@@ -1074,7 +1074,7 @@ function SchemaCoordinationPanel( { coordination } ) {
 		<Panel>
 			<PanelBody
 				initialOpen={ false }
-				title={ __( 'Schema coordination', 'ai-readiness-kit' ) }
+				title={ __( 'Schema coordination', 'agentready-ai-readiness-kit' ) }
 			>
 				<p style={ { marginTop: 0 } }>
 					{ hasPlugin &&
@@ -1082,7 +1082,7 @@ function SchemaCoordinationPanel( { coordination } ) {
 							/* translators: %s: SEO plugin name */
 							__(
 								'%s is active. AI Readiness Kit defers JSON-LD coordination to it and only fills schema types it does not already provide.',
-								'ai-readiness-kit'
+								'agentready-ai-readiness-kit'
 							),
 							label
 						) }
@@ -1090,13 +1090,13 @@ function SchemaCoordinationPanel( { coordination } ) {
 						profileOptIn &&
 						__(
 							'No SEO plugin detected. AI Readiness Kit is emitting a minimal baseline schema set (site identity + content type) on the front-end.',
-							'ai-readiness-kit'
+							'agentready-ai-readiness-kit'
 						) }
 					{ ! hasPlugin &&
 						! profileOptIn &&
 						__(
 							'No SEO plugin detected and Schema emission is off in Context Profile. AI Readiness Kit is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage.',
-							'ai-readiness-kit'
+							'agentready-ai-readiness-kit'
 						) }
 				</p>
 				<div
@@ -1109,21 +1109,21 @@ function SchemaCoordinationPanel( { coordination } ) {
 					} }
 				>
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Baseline types', 'ai-readiness-kit' ) }
+						{ __( 'Baseline types', 'agentready-ai-readiness-kit' ) }
 					</div>
 					<div>
 						{ baseline.length > 0
 							? baseline.join( ', ' )
-							: __( '(none)', 'ai-readiness-kit' ) }
+							: __( '(none)', 'agentready-ai-readiness-kit' ) }
 					</div>
 
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Deferred to plugin', 'ai-readiness-kit' ) }
+						{ __( 'Deferred to plugin', 'agentready-ai-readiness-kit' ) }
 					</div>
 					<div>
 						{ deferred.length === 0 && (
 							<span style={ { color: '#777' } }>
-								{ __( '(none)', 'ai-readiness-kit' ) }
+								{ __( '(none)', 'agentready-ai-readiness-kit' ) }
 							</span>
 						) }
 						{ deferred.map( ( type ) => (
@@ -1136,7 +1136,7 @@ function SchemaCoordinationPanel( { coordination } ) {
 					<div style={ { color: '#555', fontWeight: 600 } }>
 						{ __(
 							'Filled by AI Readiness Kit',
-							'ai-readiness-kit'
+							'agentready-ai-readiness-kit'
 						) }
 					</div>
 					<div>
@@ -1145,9 +1145,9 @@ function SchemaCoordinationPanel( { coordination } ) {
 								{ hasPlugin
 									? __(
 											'(none — every baseline type is covered by the active SEO plugin)',
-											'ai-readiness-kit'
+											'agentready-ai-readiness-kit'
 									  )
-									: __( '(none)', 'ai-readiness-kit' ) }
+									: __( '(none)', 'agentready-ai-readiness-kit' ) }
 							</span>
 						) }
 						{ filled.map( ( type ) => (
@@ -1158,21 +1158,21 @@ function SchemaCoordinationPanel( { coordination } ) {
 					</div>
 
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Emission on wp_head', 'ai-readiness-kit' ) }
+						{ __( 'Emission on wp_head', 'agentready-ai-readiness-kit' ) }
 					</div>
 					<div>
-						{ emitting && __( 'Enabled', 'ai-readiness-kit' ) }
+						{ emitting && __( 'Enabled', 'agentready-ai-readiness-kit' ) }
 						{ ! emitting &&
 							! profileOptIn &&
 							__(
 								'Off — toggle in Context Profile → Schema emission',
-								'ai-readiness-kit'
+								'agentready-ai-readiness-kit'
 							) }
 						{ ! emitting &&
 							profileOptIn &&
 							__(
 								'Suppressed by agentready_schema_emit filter',
-								'ai-readiness-kit'
+								'agentready-ai-readiness-kit'
 							) }
 					</div>
 				</div>
@@ -1215,7 +1215,7 @@ function ContextScorePanel() {
 					err.message ||
 					__(
 						'Failed to load the Context Score.',
-						'ai-readiness-kit'
+						'agentready-ai-readiness-kit'
 					),
 			} );
 		} finally {
@@ -1256,7 +1256,7 @@ function ContextScorePanel() {
 					/* translators: 1: overall score. 2: duration in ms. */
 					__(
 						'Context Score recomputed: %1$d/100 (%2$d ms).',
-						'ai-readiness-kit'
+						'agentready-ai-readiness-kit'
 					),
 					Number( response.overall || 0 ),
 					Number( response.recompute_duration_ms || 0 )
@@ -1267,7 +1267,7 @@ function ContextScorePanel() {
 				type: 'error',
 				message:
 					err.message ||
-					__( 'Recompute failed.', 'ai-readiness-kit' ),
+					__( 'Recompute failed.', 'agentready-ai-readiness-kit' ),
 			} );
 		} finally {
 			setPending( false );
@@ -1323,7 +1323,7 @@ function ContextScorePanel() {
 			<Notice status="error" isDismissible={ false }>
 				{ __(
 					'AI Readiness Kit Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
-					'ai-readiness-kit'
+					'agentready-ai-readiness-kit'
 				) }
 			</Notice>
 		);

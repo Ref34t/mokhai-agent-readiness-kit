@@ -31,9 +31,9 @@ function readGlobal( key ) {
 }
 
 const TABS = [
-	{ name: 'profile', title: __( 'Profile', 'ai-readiness-kit' ) },
-	{ name: 'editorial', title: __( 'Editorial', 'ai-readiness-kit' ) },
-	{ name: 'descriptions', title: __( 'Descriptions', 'ai-readiness-kit' ) },
+	{ name: 'profile', title: __( 'Profile', 'agentready-ai-readiness-kit' ) },
+	{ name: 'editorial', title: __( 'Editorial', 'agentready-ai-readiness-kit' ) },
+	{ name: 'descriptions', title: __( 'Descriptions', 'agentready-ai-readiness-kit' ) },
 ];
 
 function ContextApp() {
@@ -58,7 +58,7 @@ function ContextApp() {
 								<Notice status="error" isDismissible={ false }>
 									{ __(
 										'Context Profile failed to load. Reload the page or contact support.',
-										'ai-readiness-kit'
+										'agentready-ai-readiness-kit'
 									) }
 								</Notice>
 							) ) }
@@ -72,7 +72,7 @@ function ContextApp() {
 								<Notice status="error" isDismissible={ false }>
 									{ __(
 										'Editorial entries failed to load. Reload the page or contact support.',
-										'ai-readiness-kit'
+										'agentready-ai-readiness-kit'
 									) }
 								</Notice>
 							) ) }

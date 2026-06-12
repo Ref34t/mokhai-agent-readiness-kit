@@ -42,27 +42,27 @@ const BOOTSTRAP_KEY = 'agentreadyAiPreview';
 const NOT_EXPOSABLE_REASONS = {
 	cpt: __(
 		'This post type is not exposed in the Context Profile.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 	status: __(
 		'This post status is not exposed in the Context Profile.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 	password: __(
 		'This page is password-protected, so it is hidden from AI agents.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 	noindex: __(
 		'This page is marked noindex, so it is hidden from AI agents.',
-		'ai-readiness-kit'
+		'agentready-ai-readiness-kit'
 	),
 };
 
 // Source of the /llms.txt entry description, for the badge.
 const DESCRIPTION_SOURCE_LABELS = {
-	llm: __( 'AI-generated description', 'ai-readiness-kit' ),
-	excerpt: __( 'From the post excerpt', 'ai-readiness-kit' ),
-	none: __( 'No description', 'ai-readiness-kit' ),
+	llm: __( 'AI-generated description', 'agentready-ai-readiness-kit' ),
+	excerpt: __( 'From the post excerpt', 'agentready-ai-readiness-kit' ),
+	none: __( 'No description', 'agentready-ai-readiness-kit' ),
 };
 
 function readBootstrap() {
@@ -106,7 +106,7 @@ function EmptyContentNotice() {
 		<Notice status="info" isDismissible={ false }>
 			{ __(
 				'This post has no content — nothing for agents to read.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			) }
 		</Notice>
 	);
@@ -134,15 +134,15 @@ function RawHtmlPane( { rawHtml } ) {
 				/* translators: %s: full content length in characters. */
 				__(
 					'What bots parse without the plugin — showing the first %s characters.',
-					'ai-readiness-kit'
+					'agentready-ai-readiness-kit'
 				),
 				Number( rawHtml.full_length ).toLocaleString()
 		  )
-		: __( 'What bots parse without the plugin.', 'ai-readiness-kit' );
+		: __( 'What bots parse without the plugin.', 'agentready-ai-readiness-kit' );
 
 	return (
 		<Pane
-			title={ __( 'Raw HTML', 'ai-readiness-kit' ) }
+			title={ __( 'Raw HTML', 'agentready-ai-readiness-kit' ) }
 			caption={ caption }
 		>
 			{ Number( rawHtml.full_length ) === 0 ? (
@@ -161,12 +161,12 @@ function MarkdownPane( { markdown, profilePageUrl } ) {
 	if ( 'module_disabled' === verdict ) {
 		body = (
 			<Notice status="warning" isDismissible={ false }>
-				{ __( 'Markdown Views is disabled.', 'ai-readiness-kit' ) }{ ' ' }
+				{ __( 'Markdown Views is disabled.', 'agentready-ai-readiness-kit' ) }{ ' ' }
 				{ profilePageUrl && (
 					<a href={ profilePageUrl }>
 						{ __(
 							'Enable it in the Context Profile.',
-							'ai-readiness-kit'
+							'agentready-ai-readiness-kit'
 						) }
 					</a>
 				) }
@@ -178,7 +178,7 @@ function MarkdownPane( { markdown, profilePageUrl } ) {
 				{ NOT_EXPOSABLE_REASONS[ reason ] ||
 					__(
 						'This URL is not exposed to AI agents.',
-						'ai-readiness-kit'
+						'agentready-ai-readiness-kit'
 					) }
 			</Notice>
 		);
@@ -187,7 +187,7 @@ function MarkdownPane( { markdown, profilePageUrl } ) {
 			<Notice status="error" isDismissible={ false }>
 				{ __(
 					'Could not render the Markdown View for this URL.',
-					'ai-readiness-kit'
+					'agentready-ai-readiness-kit'
 				) }
 			</Notice>
 		);
@@ -200,10 +200,10 @@ function MarkdownPane( { markdown, profilePageUrl } ) {
 
 	return (
 		<Pane
-			title={ __( 'Markdown View', 'ai-readiness-kit' ) }
+			title={ __( 'Markdown View', 'agentready-ai-readiness-kit' ) }
 			caption={ __(
 				'What bots get with the plugin.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			) }
 		>
 			{ body }
@@ -224,17 +224,17 @@ function LlmsEntryPane( { llmsEntry } ) {
 		<Notice status="info" isDismissible={ false }>
 			{ __(
 				'This URL has no line in /llms.txt because it is not exposed.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			) }
 		</Notice>
 	);
 
 	return (
 		<Pane
-			title={ __( 'llms.txt entry', 'ai-readiness-kit' ) }
+			title={ __( 'llms.txt entry', 'agentready-ai-readiness-kit' ) }
 			caption={ __(
 				'The line describing this URL in /llms.txt.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			) }
 		>
 			{ body }
@@ -251,13 +251,13 @@ function SummaryBox( { summary, pending, onGenerate } ) {
 	return (
 		<Panel>
 			<PanelBody
-				title={ __( 'Sample AI Summary', 'ai-readiness-kit' ) }
+				title={ __( 'Sample AI Summary', 'agentready-ai-readiness-kit' ) }
 				initialOpen={ true }
 			>
 				<p className="description">
 					{ __(
 						'A preview of what an AI assistant would say about this page, generated from its Markdown View.',
-						'ai-readiness-kit'
+						'agentready-ai-readiness-kit'
 					) }
 				</p>
 
@@ -280,8 +280,8 @@ function SummaryBox( { summary, pending, onGenerate } ) {
 				>
 					{ pending && <Spinner /> }
 					{ hasText
-						? __( 'Regenerate summary', 'ai-readiness-kit' )
-						: __( 'Generate sample summary', 'ai-readiness-kit' ) }
+						? __( 'Regenerate summary', 'agentready-ai-readiness-kit' )
+						: __( 'Generate sample summary', 'agentready-ai-readiness-kit' ) }
 				</Button>
 			</PanelBody>
 		</Panel>
@@ -323,7 +323,7 @@ function AiPreviewPanel() {
 						err.message ||
 						__(
 							'Failed to load the URL list.',
-							'ai-readiness-kit'
+							'agentready-ai-readiness-kit'
 						),
 				} );
 			} finally {
@@ -354,7 +354,7 @@ function AiPreviewPanel() {
 					type: 'error',
 					message:
 						err.message ||
-						__( 'Failed to load the preview.', 'ai-readiness-kit' ),
+						__( 'Failed to load the preview.', 'agentready-ai-readiness-kit' ),
 				} );
 			} finally {
 				setLoadingPreview( false );
@@ -392,7 +392,7 @@ function AiPreviewPanel() {
 				type: 'error',
 				message:
 					err.message ||
-					__( 'Failed to generate the summary.', 'ai-readiness-kit' ),
+					__( 'Failed to generate the summary.', 'agentready-ai-readiness-kit' ),
 			} );
 		} finally {
 			setSummaryPending( false );
@@ -404,14 +404,14 @@ function AiPreviewPanel() {
 			<Notice status="error" isDismissible={ false }>
 				{ __(
 					'AI Assistant Preview failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
-					'ai-readiness-kit'
+					'agentready-ai-readiness-kit'
 				) }
 			</Notice>
 		);
 	}
 
 	const options = [
-		{ label: __( '— Select a URL —', 'ai-readiness-kit' ), value: '' },
+		{ label: __( '— Select a URL —', 'agentready-ai-readiness-kit' ), value: '' },
 		...posts.map( ( post ) => ( {
 			label: `${ post.title } (${ post.type })`,
 			value: String( post.id ),
@@ -420,11 +420,11 @@ function AiPreviewPanel() {
 
 	return (
 		<div style={ { marginTop: '24px' } }>
-			<h2>{ __( 'AI Assistant Preview', 'ai-readiness-kit' ) }</h2>
+			<h2>{ __( 'AI Assistant Preview', 'agentready-ai-readiness-kit' ) }</h2>
 			<p className="description">
 				{ __(
 					'See exactly what an AI assistant reads when it visits a page on your site.',
-					'ai-readiness-kit'
+					'agentready-ai-readiness-kit'
 				) }
 			</p>
 
@@ -438,7 +438,7 @@ function AiPreviewPanel() {
 			) }
 
 			<SelectControl
-				label={ __( 'URL to preview', 'ai-readiness-kit' ) }
+				label={ __( 'URL to preview', 'agentready-ai-readiness-kit' ) }
 				value={ selectedId }
 				options={ options }
 				onChange={ onSelect }

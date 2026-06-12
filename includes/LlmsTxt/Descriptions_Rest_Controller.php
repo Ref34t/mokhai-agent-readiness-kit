@@ -330,7 +330,7 @@ final class Descriptions_Rest_Controller {
 		if ( ! Client_Wrapper::has_ai_client() ) {
 			return new \WP_Error(
 				'rest_ai_client_unavailable',
-				\__( 'WP AI Client is not configured.', 'ai-readiness-kit' ),
+				\__( 'WP AI Client is not configured.', 'agentready-ai-readiness-kit' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -355,7 +355,7 @@ final class Descriptions_Rest_Controller {
 		if ( ! Client_Wrapper::has_ai_client() ) {
 			return new \WP_Error(
 				'rest_ai_client_unavailable',
-				\__( 'WP AI Client is not configured.', 'ai-readiness-kit' ),
+				\__( 'WP AI Client is not configured.', 'agentready-ai-readiness-kit' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -363,7 +363,7 @@ final class Descriptions_Rest_Controller {
 		if ( empty( Context_Profile_Settings::get_profile()['llm_descriptions_enabled'] ) ) {
 			return new \WP_Error(
 				'rest_descriptions_disabled',
-				\__( 'LLM descriptions are disabled in the Context Profile.', 'ai-readiness-kit' ),
+				\__( 'LLM descriptions are disabled in the Context Profile.', 'agentready-ai-readiness-kit' ),
 				array( 'status' => 409 )
 			);
 		}
@@ -450,7 +450,7 @@ final class Descriptions_Rest_Controller {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				\__( 'You are not allowed to manage entry descriptions.', 'ai-readiness-kit' ),
+				\__( 'You are not allowed to manage entry descriptions.', 'agentready-ai-readiness-kit' ),
 				array( 'status' => \rest_authorization_required_code() )
 			);
 		}
@@ -466,7 +466,7 @@ final class Descriptions_Rest_Controller {
 		if ( $post_id <= 0 ) {
 			return new \WP_Error(
 				'rest_invalid_post',
-				\__( 'A valid post ID is required.', 'ai-readiness-kit' ),
+				\__( 'A valid post ID is required.', 'agentready-ai-readiness-kit' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -474,7 +474,7 @@ final class Descriptions_Rest_Controller {
 		if ( ! $post instanceof \WP_Post ) {
 			return new \WP_Error(
 				'rest_post_not_found',
-				\__( 'Post not found.', 'ai-readiness-kit' ),
+				\__( 'Post not found.', 'agentready-ai-readiness-kit' ),
 				array( 'status' => 404 )
 			);
 		}

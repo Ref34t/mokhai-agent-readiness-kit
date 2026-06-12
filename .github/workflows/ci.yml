@@ -173,7 +173,7 @@ jobs:
           tools: composer:v2
 
       - name: Install runtime Composer deps (no dev)
-        # ai-readiness-kit.php's `require vendor/autoload.php` must resolve when
+        # agentready-ai-readiness-kit.php's `require vendor/autoload.php` must resolve when
         # WP loads the plugin. vendor/ is gitignored; install it here. --no-dev
         # mirrors what ships to wp.org.
         run: composer install --no-dev --no-progress --no-interaction --prefer-dist --optimize-autoloader
@@ -191,12 +191,12 @@ jobs:
 
       - name: Install Plugin Check; activate the plugin
         # .wp-env.json mounts the plugin source once, at the wp.org slug path
-        # `wp-content/plugins/ai-readiness-kit` (#195). The activate below is
+        # `wp-content/plugins/agentready-ai-readiness-kit` (#195). The activate below is
         # idempotent with the config's afterStart lifecycle script — kept
         # explicit so this job doesn't silently depend on lifecycle ordering.
         run: |
           npx wp-env run cli wp plugin install plugin-check --activate
-          npx wp-env run cli wp plugin activate ai-readiness-kit
+          npx wp-env run cli wp plugin activate agentready-ai-readiness-kit
 
       - name: Run Plugin Check (errors fail the job)
         run: |
@@ -205,7 +205,7 @@ jobs:
           # aren't part of the wp.org zip — exclude them so the scan focuses on
           # plugin runtime code. Mirrors the old action's exclude lists, plus
           # .distignore (a repo-only dev dotfile).
-          npx wp-env run cli wp plugin check ai-readiness-kit \
+          npx wp-env run cli wp plugin check agentready-ai-readiness-kit \
             --exclude-directories=vendor,node_modules,tests,tools,.github,docs,languages \
             --exclude-files=.gitignore,.gitattributes,.editorconfig,.distignore,.wp-env.json,composer.json,composer.lock,package.json,package-lock.json,phpcs.xml.dist,phpstan-baseline.neon,phpstan.neon.dist,phpunit.xml.dist \
             --format=csv --fields=file,line,type,code 2>/dev/null > pc.csv || true
@@ -326,7 +326,7 @@ jobs:
         # bash -c wrapper avoids wp-env / docker-exec arg-splitting weirdness
         # (the quoted form `"phpunit --testsuite integration"` would otherwise
         # land in docker exec as one argv element and fail with ENOENT).
-        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/ai-readiness-kit bash -c "vendor/bin/phpunit --testsuite integration"
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/agentready-ai-readiness-kit bash -c "vendor/bin/phpunit --testsuite integration"
 
       - name: Stop wp-env
         if: always()
@@ -417,7 +417,7 @@ jobs:
 
       - name: Inspect ZIP structure
         run: |
-          ZIP=$(ls -1 dist/ai-readiness-kit-*.zip | head -n1)
+          ZIP=$(ls -1 dist/agentready-ai-readiness-kit-*.zip | head -n1)
           echo "Built: $ZIP"
           unzip -l "$ZIP" | head -20
           echo ""
@@ -425,27 +425,27 @@ jobs:
 
       - name: Verify ZIP excludes dev paths
         run: |
-          ZIP=$(ls -1 dist/ai-readiness-kit-*.zip | head -n1)
+          ZIP=$(ls -1 dist/agentready-ai-readiness-kit-*.zip | head -n1)
           # Paths that MUST NOT appear inside the ZIP — mirrors `.distignore`.
           # Any of these slipping through means a regression in either the
           # exclude list or rsync invocation in tools/build-zip.sh.
           BANNED=(
-            'ai-readiness-kit/\.claude/'
-            'ai-readiness-kit/\.github/'
-            'ai-readiness-kit/tests/'
-            'ai-readiness-kit/tools/'
-            'ai-readiness-kit/docs/'
-            'ai-readiness-kit/src/'
-            'ai-readiness-kit/node_modules/'
-            'ai-readiness-kit/assets/'
-            'ai-readiness-kit/package\.json'
-            'ai-readiness-kit/package-lock\.json'
-            'ai-readiness-kit/webpack\.config\.js'
-            'ai-readiness-kit/README\.md'
-            'ai-readiness-kit/\.distignore'
-            'ai-readiness-kit/phpcs\.xml\.dist'
-            'ai-readiness-kit/phpstan\.neon\.dist'
-            'ai-readiness-kit/phpunit\.xml\.dist'
+            'agentready-ai-readiness-kit/\.claude/'
+            'agentready-ai-readiness-kit/\.github/'
+            'agentready-ai-readiness-kit/tests/'
+            'agentready-ai-readiness-kit/tools/'
+            'agentready-ai-readiness-kit/docs/'
+            'agentready-ai-readiness-kit/src/'
+            'agentready-ai-readiness-kit/node_modules/'
+            'agentready-ai-readiness-kit/assets/'
+            'agentready-ai-readiness-kit/package\.json'
+            'agentready-ai-readiness-kit/package-lock\.json'
+            'agentready-ai-readiness-kit/webpack\.config\.js'
+            'agentready-ai-readiness-kit/README\.md'
+            'agentready-ai-readiness-kit/\.distignore'
+            'agentready-ai-readiness-kit/phpcs\.xml\.dist'
+            'agentready-ai-readiness-kit/phpstan\.neon\.dist'
+            'agentready-ai-readiness-kit/phpunit\.xml\.dist'
           )
           fail=0
           for p in "${BANNED[@]}"; do
@@ -458,15 +458,15 @@ jobs:
 
       - name: Verify required paths present
         run: |
-          ZIP=$(ls -1 dist/ai-readiness-kit-*.zip | head -n1)
+          ZIP=$(ls -1 dist/agentready-ai-readiness-kit-*.zip | head -n1)
           REQUIRED=(
-            'ai-readiness-kit/ai-readiness-kit\.php'
-            'ai-readiness-kit/readme\.txt'
-            'ai-readiness-kit/LICENSE'
-            'ai-readiness-kit/uninstall\.php'
-            'ai-readiness-kit/includes/Main\.php'
-            'ai-readiness-kit/build/admin/'
-            'ai-readiness-kit/vendor/autoload\.php'
+            'agentready-ai-readiness-kit/agentready-ai-readiness-kit\.php'
+            'agentready-ai-readiness-kit/readme\.txt'
+            'agentready-ai-readiness-kit/LICENSE'
+            'agentready-ai-readiness-kit/uninstall\.php'
+            'agentready-ai-readiness-kit/includes/Main\.php'
+            'agentready-ai-readiness-kit/build/admin/'
+            'agentready-ai-readiness-kit/vendor/autoload\.php'
           )
           fail=0
           for p in "${REQUIRED[@]}"; do
@@ -479,7 +479,7 @@ jobs:
 
       - name: Verify ZIP size under wp.org 10 MB ceiling
         run: |
-          ZIP=$(ls -1 dist/ai-readiness-kit-*.zip | head -n1)
+          ZIP=$(ls -1 dist/agentready-ai-readiness-kit-*.zip | head -n1)
           SIZE=$(stat -c%s "$ZIP")
           MB=$(awk "BEGIN{printf \"%.2f\", $SIZE/1048576}")
           echo "ZIP size: $MB MB ($SIZE bytes)"
@@ -491,8 +491,8 @@ jobs:
       - name: Upload built ZIP as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ai-readiness-kit-zip
-          path: dist/ai-readiness-kit-*.zip
+          name: agentready-ai-readiness-kit-zip
+          path: dist/agentready-ai-readiness-kit-*.zip
           retention-days: 7
 
   # ---------------------------------------------------------------------------

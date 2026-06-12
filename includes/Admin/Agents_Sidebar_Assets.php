@@ -82,7 +82,7 @@ final class Agents_Sidebar_Assets {
 
 		\wp_set_script_translations(
 			self::SCRIPT_HANDLE,
-			'ai-readiness-kit',
+			'agentready-ai-readiness-kit',
 			\WPCTX_DIR . 'languages'
 		);
 

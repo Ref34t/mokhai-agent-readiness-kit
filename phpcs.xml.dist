@@ -108,7 +108,7 @@
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="ai-readiness-kit"/>
+				<element value="agentready-ai-readiness-kit"/>
 			</property>
 		</properties>
 	</rule>

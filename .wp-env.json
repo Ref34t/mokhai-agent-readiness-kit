@@ -2,10 +2,10 @@
 	"core": "WordPress/WordPress#master",
 	"phpVersion": "7.4",
 	"mappings": {
-		"wp-content/plugins/ai-readiness-kit": "."
+		"wp-content/plugins/agentready-ai-readiness-kit": "."
 	},
 	"lifecycleScripts": {
-		"afterStart": "npx wp-env run cli wp plugin activate ai-readiness-kit && npx wp-env run tests-cli wp plugin activate ai-readiness-kit"
+		"afterStart": "npx wp-env run cli wp plugin activate agentready-ai-readiness-kit && npx wp-env run tests-cli wp plugin activate agentready-ai-readiness-kit"
 	},
 	"config": {
 		"WP_DEBUG": true,

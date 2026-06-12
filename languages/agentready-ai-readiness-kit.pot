@@ -2,51 +2,54 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AI Readiness Kit 0.1.1\n"
+"Project-Id-Version: AgentReady – AI Readiness Kit 0.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/agentready\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-02T19:24:16+00:00\n"
+"POT-Creation-Date: 2026-06-12T11:10:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
-"X-Domain: ai-readiness-kit\n"
+"X-Domain: agentready-ai-readiness-kit\n"
 
 #. Plugin Name of the plugin
-#: ai-readiness-kit.php
-#: includes/Abilities/Registrar.php:61
-#: includes/Context_Score/Site_Health.php:209
-msgid "AI Readiness Kit"
+#: agentready-ai-readiness-kit.php
+msgid "AgentReady – AI Readiness Kit"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: ai-readiness-kit.php
+#: agentready-ai-readiness-kit.php
 msgid "https://github.com/Ref34t/agentready"
 msgstr ""
 
 #. Description of the plugin
-#: ai-readiness-kit.php
+#: agentready-ai-readiness-kit.php
 msgid "AI Readiness for WordPress: context, policy, audit, analytics. Makes sites readable, discoverable, governable, and measurable for AI agents."
 msgstr ""
 
 #. Author of the plugin
-#: ai-readiness-kit.php
+#: agentready-ai-readiness-kit.php
 msgid "Mohamed Khaled"
 msgstr ""
 
 #. Author URI of the plugin
-#: ai-readiness-kit.php
+#: agentready-ai-readiness-kit.php
 msgid "https://profiles.wordpress.org/mokhaled"
 msgstr ""
 
-#: includes/Abilities/Md_View_Ability.php:56
+#: includes/Abilities/Md_View_Ability.php:50
 msgid "No post resolves from the supplied url / post_id."
 msgstr ""
 
-#: includes/Abilities/Md_View_Ability.php:64
+#: includes/Abilities/Md_View_Ability.php:58
 msgid "The Markdown Views module is disabled in the Context Profile."
+msgstr ""
+
+#: includes/Abilities/Registrar.php:61
+#: includes/Context_Score/Site_Health.php:209
+msgid "AI Readiness Kit"
 msgstr ""
 
 #: includes/Abilities/Registrar.php:62
@@ -93,94 +96,79 @@ msgstr ""
 msgid "Return the deterministic Markdown view of a post (by url or post_id), plus any cached LLM-cleaned output. Never blocks on the LLM."
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:58
+#: includes/Admin/Context_Profile_Page.php:64
+#: src/admin/context-profile/app.js:188
 msgid "AI Readiness Kit Context Profile"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:59
-msgid "Context"
+#: includes/Admin/Context_Profile_Page.php:65
+msgid "AI Readiness — Context"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:77
+#: includes/Admin/Context_Profile_Page.php:85
+msgid "Settings"
+msgstr ""
+
+#: includes/Admin/Context_Profile_Page.php:103
 #: includes/Admin/Context_Score_Page.php:110
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:78
-#: includes/Admin/Context_Profile_Settings.php:385
+#: includes/Admin/Context_Profile_Page.php:104
+#: includes/Admin/Context_Profile_Settings.php:533
 #: includes/Admin/Context_Score_Page.php:111
 msgid "Forbidden"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:85
+#: includes/Admin/Context_Profile_Page.php:111
 msgid "Context Profile"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:88
+#: includes/Admin/Context_Profile_Page.php:114
 msgid "Configure how AI Readiness Kit exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below."
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:98
-msgid "AI Readiness Kit Context Profile editor"
+#: includes/Admin/Context_Profile_Page.php:125
+msgid "AI Readiness Kit Context editor"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:101
-msgid "LLMs Index — editorial entries"
+#: includes/Admin/Context_Profile_Page.php:132
+msgid "The Context editor requires JavaScript. Enable JavaScript and reload this page."
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:104
-msgid "Hand-curated entries published in /llms.txt alongside the auto-listed posts above. Each entry has a title, URL, optional description, and a section heading."
-msgstr ""
-
-#: includes/Admin/Context_Profile_Page.php:114
-msgid "AI Readiness Kit LLMs Index editorial entries editor"
-msgstr ""
-
-#: includes/Admin/Context_Profile_Page.php:117
-msgid "LLMs Index — auto-generated descriptions"
-msgstr ""
-
-#: includes/Admin/Context_Profile_Page.php:120
-msgid "One-line descriptions for the auto-listed entries above, generated via the configured LLM and cached on post meta. Edit any description inline to set a sticky manual override that survives regeneration."
-msgstr ""
-
-#: includes/Admin/Context_Profile_Page.php:130
-msgid "AI Readiness Kit LLM-powered /llms.txt entry descriptions"
-msgstr ""
-
-#: includes/Admin/Context_Profile_Page.php:137
-msgid "The Context Profile editor and LLMs Index editor both require JavaScript. Enable JavaScript and reload this page."
-msgstr ""
-
-#: includes/Admin/Context_Profile_Page.php:419
+#: includes/Admin/Context_Profile_Page.php:296
 msgid "AI Readiness Kit Context Profile UI bundle not found. Run:"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:456
+#: includes/Admin/Context_Profile_Page.php:333
 msgid "Published"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:460
+#: includes/Admin/Context_Profile_Page.php:337
 msgid "Private"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:464
+#: includes/Admin/Context_Profile_Page.php:341
 msgid "Password-protected"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:468
+#: includes/Admin/Context_Profile_Page.php:345
 msgid "Draft"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Page.php:472
+#: includes/Admin/Context_Profile_Page.php:349
 msgid "Pending review"
 msgstr ""
 
-#: includes/Admin/Context_Profile_Settings.php:104
+#: includes/Admin/Context_Profile_Rest_Controller.php:120
+msgid "You are not allowed to manage the Context Profile."
+msgstr ""
+
+#: includes/Admin/Context_Profile_Settings.php:123
 msgid "AI Readiness Kit Context Profile (single source of truth for agent-facing surfaces)."
 msgstr ""
 
-#: includes/Admin/Context_Profile_Settings.php:384
+#: includes/Admin/Context_Profile_Settings.php:532
 msgid "You do not have permission to save the Context Profile."
 msgstr ""
 
@@ -190,13 +178,16 @@ msgid "AI Readiness Kit Context Score"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:70
-#: includes/Admin/Context_Score_Page.php:118
-msgid "Context Score"
+msgid "AI Readiness — Score"
 msgstr ""
 
 #. translators: 1: number of sub-scores. 2: comma-and-joined list of sub-score names.
 #: includes/Admin/Context_Score_Page.php:98
 msgid "A site-level audit of how prepared this WordPress install is for AI agent traffic. The overall score is a weighted sum of %1$d sub-scores covering %2$s."
+msgstr ""
+
+#: includes/Admin/Context_Score_Page.php:118
+msgid "Context Score"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:126
@@ -208,7 +199,7 @@ msgid "The Context Score panel requires JavaScript. Enable JavaScript and reload
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:146
-#: src/admin/ai-preview/index.js:403
+#: src/admin/ai-preview/index.js:423
 msgid "AI Assistant Preview"
 msgstr ""
 
@@ -216,17 +207,20 @@ msgstr ""
 msgid "AI Readiness Kit Context Score UI bundle not found. Run:"
 msgstr ""
 
+#: includes/Admin/Exclude_Meta.php:58
+msgid "Exclude this content from AI Readiness Kit agent output (/llms.txt, .md views)."
+msgstr ""
+
 #. translators: shown in the AI preview dropdown for posts saved without a title.
 #. translators: placeholder shown in /llms.txt for posts saved without a title.
-#: includes/Ai_Preview/Preview_Builder.php:242
-#: includes/LlmsTxt/Entry_Source.php:183
-#: src/admin/llms-txt-descriptions/index.js:233
+#: includes/Ai_Preview/Preview_Builder.php:239
+#: includes/LlmsTxt/Entry_Source.php:191
+#: src/admin/llms-txt-descriptions/app.js:198
 msgid "(no title)"
 msgstr ""
 
 #: includes/Ai_Preview/Rest_Controller.php:258
-#: includes/LlmsTxt/Descriptions_Rest_Controller.php:478
-#: includes/Markdown_Views/Cleanup_Rest_Controller.php:268
+#: includes/LlmsTxt/Descriptions_Rest_Controller.php:477
 #: includes/Markdown_Views/Rest_Controller.php:144
 msgid "Post not found."
 msgstr ""
@@ -266,9 +260,8 @@ msgid "--bypass-exposure requires the manage_options capability. Run with `--use
 msgstr ""
 
 #: includes/Cli/Markdown_Views_Command.php:118
-#: includes/Markdown_Views/Cleanup_Rest_Controller.php:249
 #: includes/Markdown_Views/Rest_Controller.php:152
-#: includes/Markdown_Views/Service.php:92
+#: includes/Markdown_Views/Service.php:77
 msgid "Markdown Views is disabled in the Context Profile."
 msgstr ""
 
@@ -319,7 +312,7 @@ msgid "No post types are exposed to agents, so /llms.txt has no surface to adver
 msgstr ""
 
 #: includes/Context_Score/Rule_Based_Narrative.php:150
-#: includes/Context_Score/Rule_Based_Narrative.php:263
+#: includes/Context_Score/Rule_Based_Narrative.php:280
 msgid "Open the Context Profile and add at least one post type to Exposed CPTs."
 msgstr ""
 
@@ -339,202 +332,207 @@ msgstr ""
 msgid "Open the Context Profile and review Exposed CPTs and /llms.txt entry coverage."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:177
+#: includes/Context_Score/Rule_Based_Narrative.php:178
 msgid "Working well — every exposed entry has a curated description for agents to read."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:178
+#: includes/Context_Score/Rule_Based_Narrative.php:179
 msgid "Review descriptions on newly published entries during regular editorial passes."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:184
+#: includes/Context_Score/Rule_Based_Narrative.php:185
 msgid "No exposed entries — there is nothing for agents to read yet."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:185
+#: includes/Context_Score/Rule_Based_Narrative.php:186
 msgid "Add at least one post type to Exposed CPTs in the Context Profile and publish a post."
 msgstr ""
 
-#. translators: %d: description-coverage percentage.
-#: includes/Context_Score/Rule_Based_Narrative.php:193
-msgid "Critical — only %d%% of exposed entries have a curated description."
+#: includes/Context_Score/Rule_Based_Narrative.php:195
+msgid "Open Context Profile → Descriptions and run \"Regenerate stale descriptions\" (or wp ai-readiness-kit llms-txt descriptions backfill)."
 msgstr ""
 
 #: includes/Context_Score/Rule_Based_Narrative.php:196
-msgid "Enable LLM descriptions in the Context Profile and run wp ai-readiness-kit llms-txt descriptions backfill."
+msgid "Enable auto-descriptions in Context Profile → Descriptions, then run \"Regenerate stale descriptions\"."
 msgstr ""
 
 #. translators: %d: description-coverage percentage.
-#: includes/Context_Score/Rule_Based_Narrative.php:203
+#: includes/Context_Score/Rule_Based_Narrative.php:202
+msgid "Critical — only %d%% of exposed entries have a curated description."
+msgstr ""
+
+#. translators: %d: description-coverage percentage.
+#: includes/Context_Score/Rule_Based_Narrative.php:212
 msgid "Partial — %d%% of exposed entries have a curated description; the rest fall back to the excerpt."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:206
-msgid "Run wp ai-readiness-kit llms-txt descriptions backfill to fill the gaps."
-msgstr ""
-
 #. translators: %s: detected SEO plugin name.
-#: includes/Context_Score/Rule_Based_Narrative.php:221
+#: includes/Context_Score/Rule_Based_Narrative.php:231
 msgid "Working well — an SEO plugin (%s) is emitting structured data alongside published content."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:224
+#: includes/Context_Score/Rule_Based_Narrative.php:234
 msgid "Audit JSON-LD output on key landing pages once per release."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:229
+#: includes/Context_Score/Rule_Based_Narrative.php:240
+msgid "Working well — the plugin emits native JSON-LD (WebSite, Organization, per-content), so agents get structured data without an SEO plugin."
+msgstr ""
+
+#: includes/Context_Score/Rule_Based_Narrative.php:241
+msgid "Audit the native JSON-LD output on key landing pages once per release."
+msgstr ""
+
+#: includes/Context_Score/Rule_Based_Narrative.php:246
 msgid "No structured data was detected. Exposed content reaches agents without schema metadata for now."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:230
-msgid "AI Readiness Kit will emit JSON-LD natively in a future release; until then, an SEO plugin can fill the gap."
+#: includes/Context_Score/Rule_Based_Narrative.php:247
+msgid "Enable Schema emission in the Context Profile to emit native JSON-LD, or rely on an SEO plugin to fill the gap."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:244
+#: includes/Context_Score/Rule_Based_Narrative.php:261
 msgid "Working well — only published content is exposed and Exposed CPTs are configured explicitly."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:245
+#: includes/Context_Score/Rule_Based_Narrative.php:262
 msgid "Re-audit Exposed Statuses when new post statuses are introduced by other plugins."
 msgstr ""
 
 #. translators: %d: count of non-publish statuses currently exposed.
-#: includes/Context_Score/Rule_Based_Narrative.php:253
+#: includes/Context_Score/Rule_Based_Narrative.php:270
 msgid "%d non-publish status is exposed to agents, which can leak unpublished content."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:256
+#: includes/Context_Score/Rule_Based_Narrative.php:273
 msgid "Open the Context Profile and reduce Exposed Statuses to publish only."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:262
+#: includes/Context_Score/Rule_Based_Narrative.php:279
 msgid "No CPTs are exposed, which is safe by default but means agents will find nothing."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:268
+#: includes/Context_Score/Rule_Based_Narrative.php:285
 msgid "Partial — at least one exposure signal is below target."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:269
+#: includes/Context_Score/Rule_Based_Narrative.php:286
 msgid "Open the Context Profile and review Exposed CPTs and Exposed Statuses."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:287
+#: includes/Context_Score/Rule_Based_Narrative.php:303
 msgid "Working well — the AI Client is configured and the enabled LLM features have a backend to call."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:288
+#: includes/Context_Score/Rule_Based_Narrative.php:304
 msgid "Working well — LLM features are off, so no AI Client is required."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:289
+#: includes/Context_Score/Rule_Based_Narrative.php:305
 msgid "Re-run this check after toggling any LLM feature in the Context Profile."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:295
+#: includes/Context_Score/Rule_Based_Narrative.php:311
 msgid "LLM features are enabled but the AI Client is unconfigured, so those features silently degrade."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:296
+#: includes/Context_Score/Rule_Based_Narrative.php:312
 msgid "Configure the AI Client in WordPress Settings, or disable the LLM toggles in the Context Profile."
 msgstr ""
 
 #. translators: %d: number of detected /llms.txt conflicts.
-#: includes/Context_Score/Rule_Based_Narrative.php:304
+#: includes/Context_Score/Rule_Based_Narrative.php:320
 msgid "%d /llms.txt conflict was detected with another plugin."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:307
+#: includes/Context_Score/Rule_Based_Narrative.php:323
 msgid "Open Tools → Context and follow the conflict notice to resolve the override."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:312
+#: includes/Context_Score/Rule_Based_Narrative.php:328
 msgid "Partial — at least one integration signal is below target."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:313
+#: includes/Context_Score/Rule_Based_Narrative.php:329
 msgid "Open the Context Profile and verify the AI Client status and /llms.txt conflicts."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:328
+#: includes/Context_Score/Rule_Based_Narrative.php:344
 msgid "Working well — Markdown conversion quality is at the ceiling across the cached posts."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:329
+#: includes/Context_Score/Rule_Based_Narrative.php:345
 msgid "Re-run the audit after large editorial passes to catch drift."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:335
+#: includes/Context_Score/Rule_Based_Narrative.php:351
 msgid "No Markdown Views cache rows yet, so there is nothing to evaluate."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:336
+#: includes/Context_Score/Rule_Based_Narrative.php:352
 msgid "Visit a few .md URLs on the site to populate the cache, then recompute."
 msgstr ""
 
-#. translators: 1: mean MD quality 0-100. 2: percentage of rows above the cleanup threshold.
-#: includes/Context_Score/Rule_Based_Narrative.php:344
-msgid "Critical — mean Markdown quality is %1$d/100 and only %2$d%% of cached posts are above the cleanup threshold."
+#. translators: 1: mean MD quality 0-100. 2: percentage of rows above the MD-quality threshold.
+#: includes/Context_Score/Rule_Based_Narrative.php:360
+msgid "Critical — mean Markdown quality is %1$d/100 and only %2$d%% of cached posts are above the MD-quality threshold."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:348
-msgid "Enable LLM cleanup in the Context Profile and approve cleanup runs on the lowest-quality posts."
+#: includes/Context_Score/Rule_Based_Narrative.php:364
+msgid "Improve the source HTML of the lowest-quality posts — cleaner heading structure, fewer nested wrappers and shortcodes — so the deterministic Markdown conversion scores higher, then recompute."
 msgstr ""
 
-#. translators: 1: mean MD quality 0-100. 2: percentage of rows above the cleanup threshold.
-#: includes/Context_Score/Rule_Based_Narrative.php:355
-msgid "Partial — mean Markdown quality is %1$d/100; %2$d%% of cached posts are above the cleanup threshold."
+#. translators: 1: mean MD quality 0-100. 2: percentage of rows above the MD-quality threshold.
+#: includes/Context_Score/Rule_Based_Narrative.php:371
+msgid "Partial — mean Markdown quality is %1$d/100; %2$d%% of cached posts are above the MD-quality threshold."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:359
-msgid "Approve LLM cleanup runs on the posts flagged below the threshold in Markdown Views."
+#: includes/Context_Score/Rule_Based_Narrative.php:375
+msgid "Tidy the source HTML of the posts scoring below the threshold — simpler markup converts to cleaner Markdown — then recompute."
 msgstr ""
 
 #. translators: %s: detected sibling provider name (e.g. "AI Layer").
-#: includes/Context_Score/Rule_Based_Narrative.php:381
-msgid "Working well — every agent-discovery channel is published and %s is coordinating multi-channel coverage."
+#: includes/Context_Score/Rule_Based_Narrative.php:397
+msgid "Working well — every plugin-served discovery channel is published and %s is coordinating multi-channel coverage."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:384
-msgid "Working well — every agent-discovery channel is published."
+#: includes/Context_Score/Rule_Based_Narrative.php:400
+msgid "Working well — every plugin-served discovery channel is published."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:385
+#: includes/Context_Score/Rule_Based_Narrative.php:401
 msgid "Re-audit after adding or removing sibling AI-readiness plugins to keep coverage consistent."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:391
-msgid "No agent-discovery channels detected — agents that scan ai.txt, /.well-known/, or OpenAPI will miss this site."
+#: includes/Context_Score/Rule_Based_Narrative.php:407
+msgid "No agent-discovery channels detected — agents that scan ai.txt or /.well-known/ declarations will miss this site."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:392
+#: includes/Context_Score/Rule_Based_Narrative.php:408
 msgid "Open the Context Profile and save it to seed /llms.txt as a first discovery channel."
 msgstr ""
 
-#. translators: 1: count of channels detected (0-5). 2: sibling provider name.
-#: includes/Context_Score/Rule_Based_Narrative.php:400
-msgid "Partial — %1$d of 5 agent-discovery channels detected; %2$s is contributing to coverage."
+#. translators: 1: count of plugin-served channels detected (0-4). 2: sibling provider name.
+#: includes/Context_Score/Rule_Based_Narrative.php:416
+msgid "Partial — %1$d of 4 plugin-served discovery channels detected; %2$s is contributing to coverage."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:404
-msgid "Add the missing channels (ai.txt at site root, OpenAPI spec, /.well-known/llms-policy.json) to broaden discoverability."
+#: includes/Context_Score/Rule_Based_Narrative.php:420
+#: includes/Context_Score/Rule_Based_Narrative.php:430
+msgid "Enable the missing channels (ai.txt, ai-layer, llms-policy.json) in the Context Profile. OpenAPI is an optional bonus for API sites."
 msgstr ""
 
-#. translators: %d: count of channels detected (0-5).
-#: includes/Context_Score/Rule_Based_Narrative.php:411
-msgid "Partial — %d of 5 agent-discovery channels detected."
-msgstr ""
-
-#: includes/Context_Score/Rule_Based_Narrative.php:414
-msgid "Add ai.txt at the site root, publish an OpenAPI spec, or install a sibling AI-readiness plugin to broaden discovery."
+#. translators: %d: count of plugin-served channels detected (0-4).
+#: includes/Context_Score/Rule_Based_Narrative.php:427
+msgid "Partial — %d of 4 plugin-served discovery channels detected."
 msgstr ""
 
 #. translators: 1: sub-score machine name. 2: value 0-100.
-#: includes/Context_Score/Rule_Based_Narrative.php:429
+#: includes/Context_Score/Rule_Based_Narrative.php:445
 msgid "Sub-score \"%1$s\" scored %2$d/100; no template is configured for this sub-score yet."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:433
+#: includes/Context_Score/Rule_Based_Narrative.php:449
 msgid "Review the raw signals in the Full breakdown panel."
 msgstr ""
 
@@ -579,7 +577,7 @@ msgid "discoverability"
 msgstr ""
 
 #: includes/Context_Score/Sub_Score_Names.php:48
-msgid "content readability"
+msgid "description coverage"
 msgstr ""
 
 #: includes/Context_Score/Sub_Score_Names.php:50
@@ -595,7 +593,7 @@ msgid "integration health"
 msgstr ""
 
 #: includes/Context_Score/Sub_Score_Names.php:56
-#: src/admin/context-score/index.js:51
+#: src/admin/context-score/index.js:52
 msgid "Markdown conversion quality"
 msgstr ""
 
@@ -643,39 +641,38 @@ msgstr ""
 msgid "Identify the responsible plugin from the rewrite target above and deactivate it from the Plugins screen."
 msgstr ""
 
-#: includes/LlmsTxt/Descriptions_Rest_Controller.php:334
-#: includes/LlmsTxt/Descriptions_Rest_Controller.php:359
-#: src/admin/llms-txt-descriptions/index.js:137
+#: includes/LlmsTxt/Descriptions_Rest_Controller.php:333
+#: includes/LlmsTxt/Descriptions_Rest_Controller.php:358
+#: src/admin/llms-txt-descriptions/app.js:108
 msgid "WP AI Client is not configured."
 msgstr ""
 
-#: includes/LlmsTxt/Descriptions_Rest_Controller.php:367
+#: includes/LlmsTxt/Descriptions_Rest_Controller.php:366
 msgid "LLM descriptions are disabled in the Context Profile."
 msgstr ""
 
-#: includes/LlmsTxt/Descriptions_Rest_Controller.php:454
+#: includes/LlmsTxt/Descriptions_Rest_Controller.php:453
 msgid "You are not allowed to manage entry descriptions."
 msgstr ""
 
-#: includes/LlmsTxt/Descriptions_Rest_Controller.php:470
-#: includes/Markdown_Views/Cleanup_Rest_Controller.php:233
+#: includes/LlmsTxt/Descriptions_Rest_Controller.php:469
 #: includes/Markdown_Views/Rest_Controller.php:114
 msgid "A valid post ID is required."
+msgstr ""
+
+#: includes/LlmsTxt/Editorial_Rest_Controller.php:129
+msgid "You are not allowed to manage editorial entries."
 msgstr ""
 
 #: includes/LlmsTxt/Editorial_Settings.php:109
 msgid "AI Readiness Kit editorial entries for /llms.txt."
 msgstr ""
 
-#: includes/Markdown_Views/Cleanup_Rest_Controller.php:241
-msgid "You are not allowed to manage cleanup for this post."
-msgstr ""
-
 #: includes/Markdown_Views/Rest_Controller.php:122
 msgid "You are not allowed to preview this post."
 msgstr ""
 
-#: includes/Markdown_Views/Service.php:99
+#: includes/Markdown_Views/Service.php:84
 msgid "This post is not exposable."
 msgstr ""
 
@@ -712,6 +709,98 @@ msgstr ""
 msgid "AI Readiness Kit is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives."
 msgstr ""
 
+#: src/admin/agents-sidebar/index.js:52
+msgid "Post type is not in the Context Profile’s exposed CPTs."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:57
+msgid "Post status is not in the Context Profile’s exposed statuses."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:62
+msgid "Post is password-protected. Markdown view never serves password-protected content."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:67
+msgid "Post is flagged noindex by an SEO plugin."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:72
+msgid "Post is on the agentready exclude list (per-post toggle or Context Profile exclude list)."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:77
+msgid "Post is WordPress sample content excluded by the Context Profile."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:82
+msgid "Hidden from agents."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:103
+msgid "Your last save excluded this post — it becomes visible to agents once you save again."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:148
+msgid "Failed to load preview."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:172
+msgid "Copy to clipboard failed."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:195
+msgid "AI Readiness"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:200
+msgid "Exclude from agent output"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:203
+msgid "Hidden from /llms.txt and .md views — agents will not ingest this content."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:207
+msgid "Available to AI agents via /llms.txt and .md views."
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:221
+msgid "Hidden"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:229
+msgid "Loading preview…"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:250
+msgid "Copied!"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:251
+msgid "Copy to clipboard"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:258
+msgid "Refresh"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:265
+msgid "Cache:"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:268
+msgid "hit"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:269
+msgid "miss"
+msgstr ""
+
+#: src/admin/agents-sidebar/index.js:271
+msgid "walker v"
+msgstr ""
+
 #: src/admin/ai-preview/index.js:43
 msgid "This post type is not exposed in the Context Profile."
 msgstr ""
@@ -740,986 +829,944 @@ msgstr ""
 msgid "No description"
 msgstr ""
 
+#: src/admin/ai-preview/index.js:107
+msgid "This post has no content — nothing for agents to read."
+msgstr ""
+
 #. translators: %s: full content length in characters.
-#: src/admin/ai-preview/index.js:122
+#: src/admin/ai-preview/index.js:135
 msgid "What bots parse without the plugin — showing the first %s characters."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:128
+#: src/admin/ai-preview/index.js:141
 msgid "What bots parse without the plugin."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:132
+#: src/admin/ai-preview/index.js:145
 msgid "Raw HTML"
 msgstr ""
 
-#: src/admin/ai-preview/index.js:147
+#: src/admin/ai-preview/index.js:164
 msgid "Markdown Views is disabled."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:150
+#: src/admin/ai-preview/index.js:167
 msgid "Enable it in the Context Profile."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:162
+#: src/admin/ai-preview/index.js:179
 msgid "This URL is not exposed to AI agents."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:171
+#: src/admin/ai-preview/index.js:188
 msgid "Could not render the Markdown View for this URL."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:183
+#: src/admin/ai-preview/index.js:203
 msgid "Markdown View"
 msgstr ""
 
-#: src/admin/ai-preview/index.js:184
+#: src/admin/ai-preview/index.js:204
 msgid "What bots get with the plugin."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:205
+#: src/admin/ai-preview/index.js:225
 msgid "This URL has no line in /llms.txt because it is not exposed."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:214
+#: src/admin/ai-preview/index.js:234
 msgid "llms.txt entry"
 msgstr ""
 
-#: src/admin/ai-preview/index.js:215
+#: src/admin/ai-preview/index.js:235
 msgid "The line describing this URL in /llms.txt."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:234
+#: src/admin/ai-preview/index.js:254
 msgid "Sample AI Summary"
 msgstr ""
 
-#: src/admin/ai-preview/index.js:238
+#: src/admin/ai-preview/index.js:258
 msgid "A preview of what an AI assistant would say about this page, generated from its Markdown View."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:263
+#: src/admin/ai-preview/index.js:283
 msgid "Regenerate summary"
 msgstr ""
 
-#: src/admin/ai-preview/index.js:264
+#: src/admin/ai-preview/index.js:284
 msgid "Generate sample summary"
 msgstr ""
 
-#: src/admin/ai-preview/index.js:304
+#: src/admin/ai-preview/index.js:324
 msgid "Failed to load the URL list."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:337
+#: src/admin/ai-preview/index.js:357
 msgid "Failed to load the preview."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:375
+#: src/admin/ai-preview/index.js:395
 msgid "Failed to generate the summary."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:385
+#: src/admin/ai-preview/index.js:405
 msgid "AI Assistant Preview failed to bootstrap. Reload the page; if the issue persists, check the browser console."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:394
+#: src/admin/ai-preview/index.js:414
 msgid "— Select a URL —"
 msgstr ""
 
-#: src/admin/ai-preview/index.js:405
+#: src/admin/ai-preview/index.js:425
 msgid "See exactly what an AI assistant reads when it visits a page on your site."
 msgstr ""
 
-#: src/admin/ai-preview/index.js:421
+#: src/admin/ai-preview/index.js:441
 msgid "URL to preview"
 msgstr ""
 
-#: src/admin/context-profile/index.js:84
+#: src/admin/context-app/index.js:34
+msgid "Profile"
+msgstr ""
+
+#: src/admin/context-app/index.js:35
+msgid "Editorial"
+msgstr ""
+
+#: src/admin/context-app/index.js:36
+msgid "Descriptions"
+msgstr ""
+
+#: src/admin/context-app/index.js:59
+msgid "Context Profile failed to load. Reload the page or contact support."
+msgstr ""
+
+#: src/admin/context-app/index.js:73
+msgid "Editorial entries failed to load. Reload the page or contact support."
+msgstr ""
+
+#: src/admin/context-profile/app.js:70
 msgid "WP AI Client is not configured. The LLM toggles below stay on but degrade silently — outputs fall back to deterministic equivalents until a provider is configured."
 msgstr ""
 
-#: src/admin/context-profile/index.js:94
+#: src/admin/context-profile/app.js:80
 msgid "No SEO plugin detected — AI Readiness Kit will emit its own JSON-LD schema."
 msgstr ""
 
 #. translators: %s: SEO plugin label (e.g. "Yoast SEO")
-#: src/admin/context-profile/index.js:101
+#: src/admin/context-profile/app.js:87
 msgid "Deferring JSON-LD to %s. AI Readiness Kit fills only the schema gaps that plugin does not provide."
 msgstr ""
 
-#: src/admin/context-profile/index.js:126
-msgid "AI Readiness Kit Context Profile form"
+#: src/admin/context-profile/app.js:173
+msgid "Context Profile saved."
 msgstr ""
 
-#: src/admin/context-profile/index.js:151
+#: src/admin/context-profile/app.js:179
+#: src/admin/llms-txt-descriptions/app.js:124
+#: src/admin/llms-txt-editorial/app.js:219
+msgid "Save failed."
+msgstr ""
+
+#: src/admin/context-profile/app.js:203
 msgid "Site identity"
 msgstr ""
 
-#: src/admin/context-profile/index.js:158
+#: src/admin/context-profile/app.js:210
 msgid "Site name:"
 msgstr ""
 
-#: src/admin/context-profile/index.js:166
+#: src/admin/context-profile/app.js:218
 msgid "Tagline:"
 msgstr ""
 
-#: src/admin/context-profile/index.js:169
-#: src/admin/context-score/index.js:1090
-#: src/admin/context-score/index.js:1099
-#: src/admin/context-score/index.js:1123
+#: src/admin/context-profile/app.js:221
+#: src/admin/context-score/index.js:1117
+#: src/admin/context-score/index.js:1126
+#: src/admin/context-score/index.js:1150
 msgid "(none)"
 msgstr ""
 
-#: src/admin/context-profile/index.js:175
+#: src/admin/context-profile/app.js:227
 msgid "Locale:"
 msgstr ""
 
-#: src/admin/context-profile/index.js:182
+#: src/admin/context-profile/app.js:234
 msgid "Site identity is read live from WordPress General Settings. Edit it there to change what AI Readiness Kit emits."
 msgstr ""
 
-#: src/admin/context-profile/index.js:192
+#: src/admin/context-profile/app.js:244
 msgid "Exposed content"
 msgstr ""
 
-#: src/admin/context-profile/index.js:196
+#: src/admin/context-profile/app.js:248
 msgid "Custom post types"
 msgstr ""
 
-#: src/admin/context-profile/index.js:201
+#: src/admin/context-profile/app.js:253
 msgid "A fresh install exposes nothing. Tick every post type you want available to AI agents via /llms.txt and .md views."
 msgstr ""
 
-#: src/admin/context-profile/index.js:215
+#: src/admin/context-profile/app.js:267
 msgid "Custom post types to expose"
 msgstr ""
 
-#: src/admin/context-profile/index.js:222
+#: src/admin/context-profile/app.js:274
 msgid "No public custom post types registered on this site."
 msgstr ""
 
-#: src/admin/context-profile/index.js:259
+#: src/admin/context-profile/app.js:304
 msgid "Post statuses"
 msgstr ""
 
-#: src/admin/context-profile/index.js:264
+#: src/admin/context-profile/app.js:309
 msgid "\"Published\" is the only status enabled by default. Exposing private / draft / pending content to agents requires deliberate opt-in."
 msgstr ""
 
-#: src/admin/context-profile/index.js:278
+#: src/admin/context-profile/app.js:323
 msgid "Post statuses to expose"
 msgstr ""
 
-#: src/admin/context-profile/index.js:317
-#: src/admin/context-score/index.js:1050
+#: src/admin/context-profile/app.js:353
+msgid "Content exclusions"
+msgstr ""
+
+#: src/admin/context-profile/app.js:360
+msgid "Exclude WordPress sample content"
+msgstr ""
+
+#: src/admin/context-profile/app.js:364
+msgid "Drops the default \"Hello World\" post and \"Sample Page\" from agent output so seeded placeholder content never reaches /llms.txt or .md views. On by default."
+msgstr ""
+
+#: src/admin/context-profile/app.js:377
+msgid "Exclude list"
+msgstr ""
+
+#: src/admin/context-profile/app.js:378
+msgid "One entry per line. A number is treated as a post ID; anything else as a slug (e.g. \"sample-page\"). Excluded content is removed from /llms.txt, .md views, and alternate-link advertising. You can also exclude a single post from its editor sidebar."
+msgstr ""
+
+#: src/admin/context-profile/app.js:390
+msgid "Exclude by category / tag"
+msgstr ""
+
+#: src/admin/context-profile/app.js:394
+msgid "One category or tag per line. A number is treated as a term ID; anything else as a term slug (e.g. \"internal\"). Posts carrying any listed term are excluded from /llms.txt, .md views, and alternate-link advertising. Custom taxonomy terms are not evaluated."
+msgstr ""
+
+#: src/admin/context-profile/app.js:405
+msgid "Posts marked noindex by a supported SEO plugin (Yoast, Rank Math) are excluded automatically."
+msgstr ""
+
+#: src/admin/context-profile/app.js:415
+msgid "Discovery channels"
+msgstr ""
+
+#: src/admin/context-profile/app.js:422
+msgid "Serve AI discovery channels"
+msgstr ""
+
+#: src/admin/context-profile/app.js:426
+msgid "Serves ai.txt, /.well-known/llms-policy.json, and /.well-known/ai-layer dynamically — no files are written, and a file you place at any of these paths always wins. Turning this off removes the routes (404). On by default."
+msgstr ""
+
+#: src/admin/context-profile/app.js:439
+msgid "Declare inference allowed"
+msgstr ""
+
+#: src/admin/context-profile/app.js:443
+msgid "Published in llms-policy.json and echoed in ai.txt: AI systems may read your content to answer questions. Declarative only — nothing is enforced."
+msgstr ""
+
+#: src/admin/context-profile/app.js:456
+msgid "Declare training allowed"
+msgstr ""
+
+#: src/admin/context-profile/app.js:460
+msgid "Published in llms-policy.json and echoed in ai.txt: AI systems may use your content to train models. Off by default — opt in deliberately. Declarative only — nothing is enforced."
+msgstr ""
+
+#: src/admin/context-profile/app.js:474
+#: src/admin/context-score/index.js:1077
 msgid "Schema coordination"
 msgstr ""
 
-#: src/admin/context-profile/index.js:326
+#: src/admin/context-profile/app.js:483
 msgid "Auto-detected. Activate or deactivate your SEO plugin to change this."
 msgstr ""
 
-#: src/admin/context-profile/index.js:336
+#: src/admin/context-profile/app.js:493
 msgid "Schema emission"
 msgstr ""
 
-#: src/admin/context-profile/index.js:342
+#: src/admin/context-profile/app.js:500
 msgid "Emit native JSON-LD on the front-end"
 msgstr ""
 
-#: src/admin/context-profile/index.js:346
+#: src/admin/context-profile/app.js:504
 msgid "When on, AI Readiness Kit emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin."
 msgstr ""
 
-#: src/admin/context-profile/index.js:367
+#: src/admin/context-profile/app.js:518
 msgid "LLM features"
 msgstr ""
 
-#: src/admin/context-profile/index.js:374
-msgid "Enable LLM cleanup pass for messy pages"
-msgstr ""
-
-#: src/admin/context-profile/index.js:378
-msgid "When a page is built with a page builder (Elementor, Divi, etc.) or scores low on deterministic conversion, run a cleanup pass via WP AI Client. Admin-previewable; never auto-publishes."
-msgstr ""
-
-#: src/admin/context-profile/index.js:397
+#: src/admin/context-profile/app.js:526
 msgid "Auto-generate /llms.txt entry descriptions"
 msgstr ""
 
-#: src/admin/context-profile/index.js:401
+#: src/admin/context-profile/app.js:530
 msgid "Use WP AI Client to write one-line descriptions for auto-listed entries. Falls back to the post excerpt when the AI Client is unconfigured."
 msgstr ""
 
-#: src/admin/context-profile/index.js:423
+#: src/admin/context-profile/app.js:551
+#: src/admin/llms-txt-editorial/app.js:283
+msgid "Saving…"
+msgstr ""
+
+#: src/admin/context-profile/app.js:552
 msgid "Save Context Profile"
 msgstr ""
 
-#: src/admin/context-profile/index.js:438
-msgid "AI Readiness Kit Context Profile failed to load. Reload the page or contact support."
-msgstr ""
-
-#: src/admin/context-score/index.js:46
+#: src/admin/context-score/index.js:47
 msgid "Discoverability"
 msgstr ""
 
-#: src/admin/context-score/index.js:47
-msgid "Content readability"
-msgstr ""
-
 #: src/admin/context-score/index.js:48
-msgid "Schema coverage"
+msgid "Description coverage"
 msgstr ""
 
 #: src/admin/context-score/index.js:49
-msgid "Exposure safety"
+msgid "Schema coverage"
 msgstr ""
 
 #: src/admin/context-score/index.js:50
+msgid "Exposure safety"
+msgstr ""
+
+#: src/admin/context-score/index.js:51
 msgid "Integration health"
 msgstr ""
 
-#: src/admin/context-score/index.js:62
+#: src/admin/context-score/index.js:56
+msgid "Multi-channel discovery"
+msgstr ""
+
+#: src/admin/context-score/index.js:67
 msgid "AI Client is not configured. Narrative is using deterministic templates."
 msgstr ""
 
-#: src/admin/context-score/index.js:66
+#: src/admin/context-score/index.js:71
 msgid "AI provider rate-limited the request. Narrative is using deterministic templates; the next recompute will retry."
 msgstr ""
 
-#: src/admin/context-score/index.js:70
+#: src/admin/context-score/index.js:75
 msgid "AI provider was unreachable. Narrative is using deterministic templates; the next recompute will retry."
 msgstr ""
 
-#: src/admin/context-score/index.js:74
+#: src/admin/context-score/index.js:79
 msgid "AI provider rejected the request (configuration issue). Narrative is using deterministic templates."
 msgstr ""
 
-#: src/admin/context-score/index.js:78
+#: src/admin/context-score/index.js:83
 msgid "AI response could not be parsed. Narrative is using deterministic templates."
 msgstr ""
 
-#: src/admin/context-score/index.js:82
-msgid "AI generation exceeded the 10-second budget. Narrative is using deterministic templates."
+#: src/admin/context-score/index.js:87
+msgid "AI generation exceeded the time budget. Narrative is using deterministic templates; it will retry on the next recompute."
 msgstr ""
 
-#: src/admin/context-score/index.js:97
+#: src/admin/context-score/index.js:102
 msgid "/llms.txt cache is populated."
 msgstr ""
 
-#: src/admin/context-score/index.js:99
+#: src/admin/context-score/index.js:104
 msgid "/llms.txt cache is empty — agents cannot discover the site index."
 msgstr ""
 
 #. translators: %d: number of post types exposed to agents.
-#: src/admin/context-score/index.js:106
+#: src/admin/context-score/index.js:111
 msgid "Site exposes %d post type(s) to agents."
 msgstr ""
 
-#: src/admin/context-score/index.js:110
+#: src/admin/context-score/index.js:115
 msgid "No post types are exposed to agents (Context Profile → Exposed CPTs is empty)."
 msgstr ""
 
 #. translators: %d: number of entries listed in /llms.txt.
-#: src/admin/context-score/index.js:117
+#: src/admin/context-score/index.js:122
 msgid "/llms.txt lists %d entries."
 msgstr ""
 
-#: src/admin/context-score/index.js:121
+#: src/admin/context-score/index.js:126
 msgid "/llms.txt has zero entries."
 msgstr ""
 
-#: src/admin/context-score/index.js:123
+#: src/admin/context-score/index.js:128
 msgid "Another plugin is overriding the /llms.txt rewrite rule."
 msgstr ""
 
-#: src/admin/context-score/index.js:129
+#: src/admin/context-score/index.js:134
 msgid "No exposed entries — nothing for agents to read."
 msgstr ""
 
 #. translators: %d: percentage of entries with a curated description.
-#: src/admin/context-score/index.js:136
+#: src/admin/context-score/index.js:141
 msgid "%d%% of exposed entries have a curated description."
 msgstr ""
 
 #. translators: %d: percentage of entries with a curated description.
-#: src/admin/context-score/index.js:145
+#: src/admin/context-score/index.js:150
 msgid "%d%% of exposed entries have a curated description — room to improve."
 msgstr ""
 
 #. translators: %d: percentage of entries with a curated description.
-#: src/admin/context-score/index.js:154
+#: src/admin/context-score/index.js:159
 msgid "Only %d%% of exposed entries have a curated description."
 msgstr ""
 
 #. translators: %s: detected SEO plugin name.
-#: src/admin/context-score/index.js:164
+#: src/admin/context-score/index.js:169
 msgid "Detected SEO plugin (%s) — structured data is likely being emitted."
 msgstr ""
 
-#: src/admin/context-score/index.js:171
+#: src/admin/context-score/index.js:176
 msgid "AI Readiness Kit is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin."
 msgstr ""
 
-#: src/admin/context-score/index.js:176
+#: src/admin/context-score/index.js:181
 msgid "No structured data detected on this site. Enable Schema emission in the Context Profile to have AI Readiness Kit emit native JSON-LD, or rely on a third-party SEO plugin."
 msgstr ""
 
-#: src/admin/context-score/index.js:182
+#: src/admin/context-score/index.js:187
 msgid "Only published content is exposed to agents."
 msgstr ""
 
 #. translators: %s: comma-separated list of non-publish post statuses.
-#: src/admin/context-score/index.js:189
+#: src/admin/context-score/index.js:194
 msgid "Exposed statuses include %s — these can leak unpublished content to agents."
 msgstr ""
 
-#: src/admin/context-score/index.js:196
+#: src/admin/context-score/index.js:201
 msgid "Exposed CPTs are configured explicitly (no implicit defaults)."
 msgstr ""
 
-#: src/admin/context-score/index.js:201
+#: src/admin/context-score/index.js:206
 msgid "No CPTs exposed — safe-by-default, but agents will find nothing."
 msgstr ""
 
-#: src/admin/context-score/index.js:207
+#: src/admin/context-score/index.js:212
 msgid "AI client configured and LLM features enabled."
 msgstr ""
 
-#: src/admin/context-score/index.js:212
+#: src/admin/context-score/index.js:217
 msgid "LLM features disabled — no AI client required."
 msgstr ""
 
-#: src/admin/context-score/index.js:217
+#: src/admin/context-score/index.js:222
 msgid "LLM features enabled but AI client is unconfigured — those features are silently degraded."
 msgstr ""
 
 #. translators: %s: comma-separated list of /llms.txt conflict kinds.
-#: src/admin/context-score/index.js:224
+#: src/admin/context-score/index.js:229
 msgid "/llms.txt conflict detected (%s)."
 msgstr ""
 
-#: src/admin/context-score/index.js:229
+#: src/admin/context-score/index.js:234
 msgid "No Markdown Views cache rows yet — visit a few `.md` URLs to populate the cache."
 msgstr ""
 
 #. translators: 1: number of cached posts. 2: mean quality score 0-100.
-#: src/admin/context-score/index.js:236
+#: src/admin/context-score/index.js:241
 msgid "Mean Markdown quality across %1$d cached posts: %2$d/100."
 msgstr ""
 
-#. translators: 1: percentage above threshold. 2: cleanup threshold value.
-#: src/admin/context-score/index.js:246
-msgid "%1$d%% of cached posts are above the cleanup threshold (%2$d)."
+#. translators: 1: percentage above threshold. 2: MD-quality threshold value.
+#: src/admin/context-score/index.js:251
+msgid "%1$d%% of cached posts are above the MD-quality threshold (%2$d)."
 msgstr ""
 
-#: src/admin/context-score/index.js:255
-msgid "No agent-discovery channels detected — site is invisible to agents that scan for ai.txt, /.well-known/, or OpenAPI."
+#: src/admin/context-score/index.js:260
+msgid "No agent-discovery channels detected — site is invisible to agents that scan for ai.txt or /.well-known/ declarations."
 msgstr ""
 
-#. translators: %d: number of agent-discovery channels detected (of 5).
-#: src/admin/context-score/index.js:262
-msgid "%d of 5 agent-discovery channel(s) detected."
+#. translators: %d: number of plugin-served agent-discovery channels detected (of 4).
+#: src/admin/context-score/index.js:267
+msgid "%d of 4 plugin-served agent-discovery channel(s) detected."
+msgstr ""
+
+#: src/admin/context-score/index.js:274
+msgid "OpenAPI spec detected — bonus discovery channel for sites exposing an API."
 msgstr ""
 
 #. translators: 1: sibling provider name. 2: provider admin config URL.
-#: src/admin/context-score/index.js:271
+#: src/admin/context-score/index.js:281
 msgid "%1$s detected — coordinating multi-channel discovery. Configure at %2$s"
 msgstr ""
 
 #. translators: %s: sibling provider name.
-#: src/admin/context-score/index.js:281
+#: src/admin/context-score/index.js:291
 msgid "%s detected — coordinating multi-channel discovery."
 msgstr ""
 
-#: src/admin/context-score/index.js:347
+#: src/admin/context-score/index.js:357
 msgid "AI-generated"
 msgstr ""
 
-#: src/admin/context-score/index.js:348
+#: src/admin/context-score/index.js:358
 msgid "Rule-based"
 msgstr ""
 
-#: src/admin/context-score/index.js:380
-#: src/admin/context-score/index.js:384
+#: src/admin/context-score/index.js:390
+#: src/admin/context-score/index.js:394
 msgid "unknown"
 msgstr ""
 
-#: src/admin/context-score/index.js:388
+#: src/admin/context-score/index.js:398
 msgid "just now"
 msgstr ""
 
-#. translators: %d: minutes ago
-#: src/admin/context-score/index.js:394
-msgid "%d minute(s) ago"
-msgstr ""
+#. translators: %d: number of minutes ago
+#: src/admin/context-score/index.js:404
+msgid "%d minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] ""
+msgstr[1] ""
 
-#. translators: %d: hours ago
-#: src/admin/context-score/index.js:402
-msgid "%d hour(s) ago"
-msgstr ""
+#. translators: %d: number of hours ago
+#: src/admin/context-score/index.js:417
+msgid "%d hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] ""
+msgstr[1] ""
 
-#. translators: %d: days ago
-#: src/admin/context-score/index.js:409
-msgid "%d day(s) ago"
-msgstr ""
+#. translators: %d: number of days ago
+#: src/admin/context-score/index.js:424
+msgid "%d day ago"
+msgid_plural "%d days ago"
+msgstr[0] ""
+msgstr[1] ""
 
-#: src/admin/context-score/index.js:466
-#: src/admin/context-score/index.js:482
-#: src/admin/context-score/index.js:524
+#: src/admin/context-score/index.js:481
+#: src/admin/context-score/index.js:497
+#: src/admin/context-score/index.js:543
 msgid "Overall score"
 msgstr ""
 
-#: src/admin/context-score/index.js:470
+#: src/admin/context-score/index.js:485
 msgid "Computing Context Score…"
 msgstr ""
 
-#: src/admin/context-score/index.js:485
+#: src/admin/context-score/index.js:500
 msgid "No Context Score breakdown is available yet. Click \"Recompute now\" to generate the first audit."
 msgstr ""
 
-#: src/admin/context-score/index.js:496
-#: src/admin/context-score/index.js:611
+#: src/admin/context-score/index.js:511
+#: src/admin/context-score/index.js:638
 msgid "Recomputing…"
 msgstr ""
 
-#: src/admin/context-score/index.js:497
-#: src/admin/context-score/index.js:612
+#: src/admin/context-score/index.js:512
+#: src/admin/context-score/index.js:639
 msgid "Recompute now"
 msgstr ""
 
-#: src/admin/context-score/index.js:515
+#: src/admin/context-score/index.js:534
 msgid "Narrative is using deterministic templates."
 msgstr ""
 
-#: src/admin/context-score/index.js:575
+#: src/admin/context-score/index.js:552
+msgid "AI narrative is generating in the background — it will appear here shortly."
+msgstr ""
+
+#: src/admin/context-score/index.js:602
 msgid "Good"
 msgstr ""
 
-#: src/admin/context-score/index.js:577
+#: src/admin/context-score/index.js:604
 msgid "Needs attention"
 msgstr ""
 
-#: src/admin/context-score/index.js:579
+#: src/admin/context-score/index.js:606
 msgid "Critical"
 msgstr ""
 
-#: src/admin/context-score/index.js:585
+#: src/admin/context-score/index.js:612
 msgid "Overall Context Score (0 to 100)"
 msgstr ""
 
 #. translators: %s: relative time, e.g. "5 minutes ago"
-#: src/admin/context-score/index.js:599
+#: src/admin/context-score/index.js:626
 msgid "Last computed %s."
 msgstr ""
 
-#: src/admin/context-score/index.js:644
+#: src/admin/context-score/index.js:671
 msgid "Configure in Context Profile"
 msgstr ""
 
-#: src/admin/context-score/index.js:679
+#: src/admin/context-score/index.js:706
 msgid "What is missing"
 msgstr ""
 
-#: src/admin/context-score/index.js:683
+#: src/admin/context-score/index.js:710
 msgid "Every sub-score is at 100. Nothing actionable to surface."
 msgstr ""
 
 #. translators: 1: sub-score value 0-100. 2: weight contribution.
 #. translators: 1: sub-score value. 2: weight.
-#: src/admin/context-score/index.js:737
-#: src/admin/context-score/index.js:859
+#: src/admin/context-score/index.js:764
+#: src/admin/context-score/index.js:886
 msgid "%1$d/100 · weight %2$d"
 msgstr ""
 
 #. translators: %s: one-line fix suggestion.
-#: src/admin/context-score/index.js:771
-#: src/admin/context-score/index.js:908
+#: src/admin/context-score/index.js:798
+#: src/admin/context-score/index.js:935
 msgid "Fix: %s"
 msgstr ""
 
-#: src/admin/context-score/index.js:819
+#: src/admin/context-score/index.js:846
 msgid "Full breakdown"
 msgstr ""
 
 #. translators: %s: sub-score label
-#: src/admin/context-score/index.js:872
+#: src/admin/context-score/index.js:899
 msgid "%s score (0 to 100)"
 msgstr ""
 
-#: src/admin/context-score/index.js:935
+#: src/admin/context-score/index.js:962
 msgid "Raw signals"
 msgstr ""
 
-#: src/admin/context-score/index.js:992
+#: src/admin/context-score/index.js:1019
 msgid "Yoast SEO"
 msgstr ""
 
-#: src/admin/context-score/index.js:993
+#: src/admin/context-score/index.js:1020
 msgid "Rank Math"
 msgstr ""
 
-#: src/admin/context-score/index.js:994
+#: src/admin/context-score/index.js:1021
 msgid "All in One SEO"
 msgstr ""
 
 #. translators: %s: SEO plugin name
-#: src/admin/context-score/index.js:1056
+#: src/admin/context-score/index.js:1083
 msgid "%s is active. AI Readiness Kit defers JSON-LD coordination to it and only fills schema types it does not already provide."
 msgstr ""
 
-#: src/admin/context-score/index.js:1064
+#: src/admin/context-score/index.js:1091
 msgid "No SEO plugin detected. AI Readiness Kit is emitting a minimal baseline schema set (site identity + content type) on the front-end."
 msgstr ""
 
-#: src/admin/context-score/index.js:1070
+#: src/admin/context-score/index.js:1097
 msgid "No SEO plugin detected and Schema emission is off in Context Profile. AI Readiness Kit is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage."
 msgstr ""
 
-#: src/admin/context-score/index.js:1085
+#: src/admin/context-score/index.js:1112
 msgid "Baseline types"
 msgstr ""
 
-#: src/admin/context-score/index.js:1094
+#: src/admin/context-score/index.js:1121
 msgid "Deferred to plugin"
 msgstr ""
 
-#: src/admin/context-score/index.js:1110
+#: src/admin/context-score/index.js:1137
 msgid "Filled by AI Readiness Kit"
 msgstr ""
 
-#: src/admin/context-score/index.js:1119
+#: src/admin/context-score/index.js:1146
 msgid "(none — every baseline type is covered by the active SEO plugin)"
 msgstr ""
 
-#: src/admin/context-score/index.js:1134
+#: src/admin/context-score/index.js:1161
 msgid "Emission on wp_head"
 msgstr ""
 
-#: src/admin/context-score/index.js:1137
+#: src/admin/context-score/index.js:1164
 msgid "Enabled"
 msgstr ""
 
-#: src/admin/context-score/index.js:1140
+#: src/admin/context-score/index.js:1167
 msgid "Off — toggle in Context Profile → Schema emission"
 msgstr ""
 
-#: src/admin/context-score/index.js:1146
+#: src/admin/context-score/index.js:1173
 msgid "Suppressed by agentready_schema_emit filter"
 msgstr ""
 
-#: src/admin/context-score/index.js:1186
+#: src/admin/context-score/index.js:1216
 msgid "Failed to load the Context Score."
 msgstr ""
 
 #. translators: 1: overall score. 2: duration in ms.
-#: src/admin/context-score/index.js:1227
+#: src/admin/context-score/index.js:1257
 msgid "Context Score recomputed: %1$d/100 (%2$d ms)."
 msgstr ""
 
-#: src/admin/context-score/index.js:1240
+#: src/admin/context-score/index.js:1270
 msgid "Recompute failed."
 msgstr ""
 
-#: src/admin/context-score/index.js:1263
+#: src/admin/context-score/index.js:1324
 msgid "AI Readiness Kit Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:42
+#: src/admin/llms-txt-descriptions/app.js:40
 msgid "All entries"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:45
+#: src/admin/llms-txt-descriptions/app.js:43
 msgid "Missing (no description)"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:47
+#: src/admin/llms-txt-descriptions/app.js:45
 msgid "Cached (auto)"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:48
-#: src/admin/llms-txt-descriptions/index.js:267
+#: src/admin/llms-txt-descriptions/app.js:46
+#: src/admin/llms-txt-descriptions/app.js:218
 msgid "Manual override"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:49
+#: src/admin/llms-txt-descriptions/app.js:47
 msgid "Pending (queued)"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:50
+#: src/admin/llms-txt-descriptions/app.js:48
 msgid "Needs retry"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:51
+#: src/admin/llms-txt-descriptions/app.js:49
 msgid "Failed"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:54
+#: src/admin/llms-txt-descriptions/app.js:52
 msgid "Stale (post edited after generation)"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:109
+#: src/admin/llms-txt-descriptions/app.js:72
+msgid "excluded"
+msgstr ""
+
+#: src/admin/llms-txt-descriptions/app.js:80
 msgid "stale"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:132
+#: src/admin/llms-txt-descriptions/app.js:103
 msgid "Manual override is sticky. Use \"Clear manual\" first to regenerate."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:153
-msgid "Save failed."
-msgstr ""
-
-#: src/admin/llms-txt-descriptions/index.js:180
+#: src/admin/llms-txt-descriptions/app.js:151
 msgid "Clear failed."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:205
+#: src/admin/llms-txt-descriptions/app.js:176
 msgid "Regenerate failed."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:260
+#: src/admin/llms-txt-descriptions/app.js:211
 msgid "(no description)"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:272
+#: src/admin/llms-txt-descriptions/app.js:223
 msgid "Sticky — never overwritten by automatic regeneration. Max 160 characters; longer entries are truncated."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:306
+#: src/admin/llms-txt-descriptions/app.js:244
 msgid "Edit"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:316
-#: src/admin/markdown-views-sidebar/index.js:624
+#: src/admin/llms-txt-descriptions/app.js:254
 msgid "Regenerate"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:334
+#: src/admin/llms-txt-descriptions/app.js:266
 msgid "Save"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:341
+#: src/admin/llms-txt-descriptions/app.js:273
 msgid "Cancel"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:350
+#: src/admin/llms-txt-descriptions/app.js:282
 msgid "Clear manual"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:419
+#: src/admin/llms-txt-descriptions/app.js:351
 msgid "Failed to load descriptions."
 msgstr ""
 
 #. translators: 1: scheduled count, 2: skipped count
-#: src/admin/llms-txt-descriptions/index.js:500
+#: src/admin/llms-txt-descriptions/app.js:432
 msgid "Scheduled %1$d description job(s); %2$d skipped."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:514
+#: src/admin/llms-txt-descriptions/app.js:446
 msgid "Bulk regenerate failed."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:524
+#: src/admin/llms-txt-descriptions/app.js:456
 msgid "AI Readiness Kit descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:535
+#: src/admin/llms-txt-descriptions/app.js:467
 msgid "LLM descriptions are disabled in the Context Profile above. Toggle \"Auto-generate entry descriptions\" on to surface this table."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:546
+#: src/admin/llms-txt-descriptions/app.js:478
 msgid "WP AI Client is not configured. Install/activate it and add API credentials before running description backfills."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:566
+#: src/admin/llms-txt-descriptions/app.js:488
+msgid "LLMs Index — auto-generated descriptions"
+msgstr ""
+
+#: src/admin/llms-txt-descriptions/app.js:496
+msgid "One-line descriptions for entries in your exposed post types, generated via the configured LLM and cached on post meta. Rows marked \"excluded\" (password-protected, noindex, or manually excluded) are listed for visibility but skipped — they never reach /llms.txt. Edit any description inline to set a sticky manual override that survives regeneration."
+msgstr ""
+
+#: src/admin/llms-txt-descriptions/app.js:504
 msgid "Post type"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:571
+#: src/admin/llms-txt-descriptions/app.js:509
 msgid "All exposed types"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:588
+#: src/admin/llms-txt-descriptions/app.js:526
 msgid "Filter"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:603
+#: src/admin/llms-txt-descriptions/app.js:541
 msgid "Scheduling…"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:604
+#: src/admin/llms-txt-descriptions/app.js:542
 msgid "Regenerate stale descriptions"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:622
+#: src/admin/llms-txt-descriptions/app.js:560
 msgid "Refreshing while cron processes the queued jobs…"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:632
+#: src/admin/llms-txt-descriptions/app.js:570
 msgid "Description jobs have been pending for over 60 seconds. WP cron fires on every front-end page hit — load any post in another tab, or run \"wp cron event run --due-now\" from the command line to drain the queue. Auto-refresh has paused."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:645
+#: src/admin/llms-txt-descriptions/app.js:583
 msgid "Check again now"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:655
+#: src/admin/llms-txt-descriptions/app.js:593
 msgid "No entries match the current filter."
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:678
+#: src/admin/llms-txt-descriptions/app.js:604
 msgid "Post"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:681
+#: src/admin/llms-txt-descriptions/app.js:605
 msgid "Status"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:684
+#: src/admin/llms-txt-descriptions/app.js:607
 msgid "Description"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:692
+#: src/admin/llms-txt-descriptions/app.js:610
 msgid "Actions"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:727
+#: src/admin/llms-txt-descriptions/app.js:638
 msgid "← Previous"
 msgstr ""
 
 #. translators: 1: current page, 2: total pages
-#: src/admin/llms-txt-descriptions/index.js:732
+#: src/admin/llms-txt-descriptions/app.js:643
 msgid "Page %1$d of %2$d"
 msgstr ""
 
-#: src/admin/llms-txt-descriptions/index.js:744
+#: src/admin/llms-txt-descriptions/app.js:657
 msgid "Next →"
 msgstr ""
 
 #. translators: %d: total entries
-#: src/admin/llms-txt-descriptions/index.js:749
+#: src/admin/llms-txt-descriptions/app.js:662
 msgid "%d total"
 msgstr ""
 
 #. translators: %d: entry index
-#: src/admin/llms-txt-editorial/index.js:79
+#: src/admin/llms-txt-editorial/app.js:52
 msgid "Entry %d"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:89
+#: src/admin/llms-txt-editorial/app.js:62
 msgid "Move entry up"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:98
+#: src/admin/llms-txt-editorial/app.js:71
 msgid "Move entry down"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:110
+#: src/admin/llms-txt-editorial/app.js:83
 msgid "Remove entry"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:112
+#: src/admin/llms-txt-editorial/app.js:85
 msgid "Remove"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:118
+#: src/admin/llms-txt-editorial/app.js:91
 msgid "Title"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:127
+#: src/admin/llms-txt-editorial/app.js:100
 msgid "URL"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:135
+#: src/admin/llms-txt-editorial/app.js:108
 msgid "External URLs allowed. Schemes: http, https, mailto."
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:142
+#: src/admin/llms-txt-editorial/app.js:115
 msgid "Description (optional)"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:152
+#: src/admin/llms-txt-editorial/app.js:125
 msgid "Section"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:162
+#: src/admin/llms-txt-editorial/app.js:135
 msgid "Custom section heading"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:170
+#: src/admin/llms-txt-editorial/app.js:143
 msgid "Heading rendered in /llms.txt when section is Custom."
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:227
-msgid "AI Readiness Kit LLMs Index editorial entries form"
+#: src/admin/llms-txt-editorial/app.js:213
+msgid "Editorial entries saved."
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:249
+#: src/admin/llms-txt-editorial/app.js:227
+msgid "Editorial entries"
+msgstr ""
+
+#: src/admin/llms-txt-editorial/app.js:229
+msgid "Hand-curated entries published in /llms.txt alongside the auto-listed posts. Each entry has a title, URL, optional description, and a section heading."
+msgstr ""
+
+#: src/admin/llms-txt-editorial/app.js:246
 msgid "No editorial entries yet. Add hand-picked URLs to surface them in /llms.txt alongside auto-listed posts."
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:322
+#: src/admin/llms-txt-editorial/app.js:273
 msgid "Add entry"
 msgstr ""
 
-#: src/admin/llms-txt-editorial/index.js:325
+#: src/admin/llms-txt-editorial/app.js:284
 msgid "Save editorial entries"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:36
-msgid "Post type is not in the Context Profile’s exposed CPTs."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:41
-msgid "Post status is not in the Context Profile’s exposed statuses."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:46
-msgid "Post is password-protected. Markdown view never serves password-protected content."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:51
-msgid "Post is flagged noindex by an SEO plugin."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:56
-msgid "Hidden from agents."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:100
-msgid "Failed to load preview."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:124
-msgid "Copy to clipboard failed."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:131
-msgid "Markdown view (agentready)"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:136
-msgid "Loading preview…"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:150
-msgid "Visibility:"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:153
-msgid "Exposed to agents."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:188
-msgid "Copied!"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:189
-msgid "Copy to clipboard"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:199
-#: src/admin/markdown-views-sidebar/index.js:633
-msgid "Refresh"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:212
-msgid "Cache:"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:215
-msgid "hit"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:216
-msgid "miss"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:218
-msgid "walker v"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:264
-msgid "Cleanup running…"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:269
-msgid "Cleanup ready — review needed"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:277
-msgid "Cleanup approved — serving cleaned MD"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:285
-msgid "Cleanup rejected — serving deterministic"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:293
-msgid "Cleanup needs retry"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:298
-msgid "Cleanup failed"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:303
-msgid "Cleanup not yet evaluated for this post"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:356
-msgid "Failed to load cleanup state."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:421
-msgid "Cleanup action failed."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:441
-#: src/admin/markdown-views-sidebar/index.js:472
-msgid "Markdown cleanup (agentready)"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:448
-msgid "Loading cleanup state…"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:498
-msgid "Cleanup is queued but waiting for WordPress cron. WP cron only fires on page visits — on a low-traffic site this can take a few minutes. Visiting any page on the site (or running `wp cron event run agentready_md_cleanup_run` via WP-CLI) will trigger it immediately."
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:508
-msgid "Quality score:"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:518
-msgid "Deterministic MD:"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:539
-msgid "LLM-cleaned MD:"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:566
-msgid "Cleanup diagnostics"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:570
-msgid "Sentences kept:"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:575
-msgid "dropped:"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:581
-msgid "Error:"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:604
-msgid "Approve"
-msgstr ""
-
-#: src/admin/markdown-views-sidebar/index.js:612
-msgid "Reject"
 msgstr ""

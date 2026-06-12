@@ -18,13 +18,13 @@ if ( ! defined( 'WPCTX_VERSION' ) ) {
 	define( 'WPCTX_VERSION', '0.1.0' );
 }
 if ( ! defined( 'WPCTX_FILE' ) ) {
-	define( 'WPCTX_FILE', __DIR__ . '/../ai-readiness-kit.php' );
+	define( 'WPCTX_FILE', __DIR__ . '/../agentready-ai-readiness-kit.php' );
 }
 if ( ! defined( 'WPCTX_DIR' ) ) {
 	define( 'WPCTX_DIR', __DIR__ . '/../' );
 }
 if ( ! defined( 'WPCTX_URL' ) ) {
-	define( 'WPCTX_URL', 'https://example.test/wp-content/plugins/ai-readiness-kit/' );
+	define( 'WPCTX_URL', 'https://example.test/wp-content/plugins/agentready-ai-readiness-kit/' );
 }
 if ( ! defined( 'WPCTX_REQUIRES_PHP' ) ) {
 	define( 'WPCTX_REQUIRES_PHP', '7.4' );
