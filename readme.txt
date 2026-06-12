@@ -1,4 +1,4 @@
-=== AI Readiness Kit ===
+=== AgentReady – AI Readiness Kit ===
 Contributors: mokhaled
 Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
@@ -167,7 +167,7 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 
 = 0.3.0 — 2026-06-12 =
 
-Polish release. Refinements surfaced through a full live UX walkthrough of the v0.2.0 admin surfaces — score-narrative correctness, clearer labels, and a more discoverable plugin.
+Polish release. Refinements surfaced through a full live UX walkthrough of the v0.2.0 admin surfaces — score-narrative correctness, clearer labels, and a more discoverable plugin. Also renamed to "AgentReady – AI Readiness Kit" (text domain `agentready-ai-readiness-kit`); REST, WP-CLI, and stored data keys are unchanged. (#224, AgDR-0059)
 
 **Improved**
 

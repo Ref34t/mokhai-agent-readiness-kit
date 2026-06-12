@@ -43,19 +43,19 @@ final class Sub_Score_Names {
 	public static function label( string $name ): string {
 		switch ( $name ) {
 			case 'discoverability':
-				return \__( 'discoverability', 'ai-readiness-kit' );
+				return \__( 'discoverability', 'agentready-ai-readiness-kit' );
 			case 'content_readability':
-				return \__( 'description coverage', 'ai-readiness-kit' );
+				return \__( 'description coverage', 'agentready-ai-readiness-kit' );
 			case 'schema_coverage':
-				return \__( 'schema coverage', 'ai-readiness-kit' );
+				return \__( 'schema coverage', 'agentready-ai-readiness-kit' );
 			case 'exposure_safety':
-				return \__( 'exposure safety', 'ai-readiness-kit' );
+				return \__( 'exposure safety', 'agentready-ai-readiness-kit' );
 			case 'integration_health':
-				return \__( 'integration health', 'ai-readiness-kit' );
+				return \__( 'integration health', 'agentready-ai-readiness-kit' );
 			case 'md_conversion_quality':
-				return \__( 'Markdown conversion quality', 'ai-readiness-kit' );
+				return \__( 'Markdown conversion quality', 'agentready-ai-readiness-kit' );
 			case 'multi_channel_discovery':
-				return \__( 'multi-channel discovery', 'ai-readiness-kit' );
+				return \__( 'multi-channel discovery', 'agentready-ai-readiness-kit' );
 			default:
 				return \str_replace( '_', ' ', $name );
 		}

@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       AI Readiness Kit
+ * Plugin Name:       AgentReady – AI Readiness Kit
  * Plugin URI:        https://github.com/Ref34t/agentready
  * Description:       AI Readiness for WordPress: context, policy, audit, analytics. Makes sites readable, discoverable, governable, and measurable for AI agents.
  * Version:           0.3.0
@@ -10,9 +10,9 @@
  * Author URI:        https://profiles.wordpress.org/mokhaled
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       ai-readiness-kit
+ * Text Domain:       agentready-ai-readiness-kit
  *
- * Translations: managed by wp.org under plugin slug 'ai-readiness-kit' (no manual
+ * Translations: managed by wp.org under plugin slug 'agentready-ai-readiness-kit' (no manual
  * textdomain loading needed since WP 4.6). See AgDR-0009 (slug value updated
  * per AgDR-0036 and the AI Readiness Kit rebrand, #101).
  *

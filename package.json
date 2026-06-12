@@ -13,7 +13,7 @@
 		"start": "wp-scripts start",
 		"lint:js": "wp-scripts lint-js src",
 		"format": "wp-scripts format src",
-		"makepot": "wp i18n make-pot . languages/ai-readiness-kit.pot --domain=ai-readiness-kit --exclude=vendor,node_modules,build,tests",
+		"makepot": "wp i18n make-pot . languages/agentready-ai-readiness-kit.pot --domain=agentready-ai-readiness-kit --exclude=vendor,node_modules,build,tests",
 		"wp-env": "wp-env",
 		"env:start": "wp-env start",
 		"env:stop": "wp-env stop",

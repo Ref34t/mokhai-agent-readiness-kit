@@ -51,35 +51,35 @@ function reasonLabel( reason ) {
 		case 'cpt':
 			return __(
 				'Post type is not in the Context Profile’s exposed CPTs.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			);
 		case 'status':
 			return __(
 				'Post status is not in the Context Profile’s exposed statuses.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			);
 		case 'password':
 			return __(
 				'Post is password-protected. Markdown view never serves password-protected content.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			);
 		case 'noindex':
 			return __(
 				'Post is flagged noindex by an SEO plugin.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			);
 		case 'excluded':
 			return __(
 				'Post is on the agentready exclude list (per-post toggle or Context Profile exclude list).',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			);
 		case 'sample':
 			return __(
 				'Post is WordPress sample content excluded by the Context Profile.',
-				'ai-readiness-kit'
+				'agentready-ai-readiness-kit'
 			);
 		default:
-			return __( 'Hidden from agents.', 'ai-readiness-kit' );
+			return __( 'Hidden from agents.', 'agentready-ai-readiness-kit' );
 	}
 }
 
@@ -102,7 +102,7 @@ function verdictLabel( excluded, visibility ) {
 	if ( visibility.reason === 'excluded' ) {
 		return __(
 			'Your last save excluded this post — it becomes visible to agents once you save again.',
-			'ai-readiness-kit'
+			'agentready-ai-readiness-kit'
 		);
 	}
 
@@ -145,7 +145,7 @@ function AgentsPanel() {
 			setError(
 				err && err.message
 					? err.message
-					: __( 'Failed to load preview.', 'ai-readiness-kit' )
+					: __( 'Failed to load preview.', 'agentready-ai-readiness-kit' )
 			);
 			setData( null );
 		} finally {
@@ -169,7 +169,7 @@ function AgentsPanel() {
 			setCopied( true );
 			setTimeout( () => setCopied( false ), 2000 );
 		} catch {
-			setError( __( 'Copy to clipboard failed.', 'ai-readiness-kit' ) );
+			setError( __( 'Copy to clipboard failed.', 'agentready-ai-readiness-kit' ) );
 		}
 	}, [ data ] );
 
@@ -192,21 +192,21 @@ function AgentsPanel() {
 	return (
 		<PluginDocumentSettingPanel
 			name="agentready-agents"
-			title={ __( 'AI Readiness', 'ai-readiness-kit' ) }
+			title={ __( 'AI Readiness', 'agentready-ai-readiness-kit' ) }
 			className="agentready-agents-panel"
 		>
 			<ToggleControl
 				__nextHasNoMarginBottom
-				label={ __( 'Exclude from agent output', 'ai-readiness-kit' ) }
+				label={ __( 'Exclude from agent output', 'agentready-ai-readiness-kit' ) }
 				help={
 					excluded
 						? __(
 								'Hidden from /llms.txt and .md views — agents will not ingest this content.',
-								'ai-readiness-kit'
+								'agentready-ai-readiness-kit'
 						  )
 						: __(
 								'Available to AI agents via /llms.txt and .md views.',
-								'ai-readiness-kit'
+								'agentready-ai-readiness-kit'
 						  )
 				}
 				checked={ excluded }
@@ -218,7 +218,7 @@ function AgentsPanel() {
 			{ verdict && (
 				<p className="agentready-verdict">
 					<Pill kind="stale">
-						{ __( 'Hidden', 'ai-readiness-kit' ) }
+						{ __( 'Hidden', 'agentready-ai-readiness-kit' ) }
 					</Pill>{ ' ' }
 					{ verdict }
 				</p>
@@ -226,7 +226,7 @@ function AgentsPanel() {
 
 			{ moduleEnabled && loading && (
 				<p>
-					<Spinner /> { __( 'Loading preview…', 'ai-readiness-kit' ) }
+					<Spinner /> { __( 'Loading preview…', 'agentready-ai-readiness-kit' ) }
 				</p>
 			) }
 
@@ -247,28 +247,28 @@ function AgentsPanel() {
 							disabled={ ! data.markdown }
 						>
 							{ copied
-								? __( 'Copied!', 'ai-readiness-kit' )
+								? __( 'Copied!', 'agentready-ai-readiness-kit' )
 								: __(
 										'Copy to clipboard',
-										'ai-readiness-kit'
+										'agentready-ai-readiness-kit'
 								  ) }
 						</Button>
 
 						<Button variant="tertiary" onClick={ loadPreview }>
-							{ __( 'Refresh', 'ai-readiness-kit' ) }
+							{ __( 'Refresh', 'agentready-ai-readiness-kit' ) }
 						</Button>
 					</div>
 
 					{ data.cache_state && (
 						<p className="agentready-md-meta">
 							<strong>
-								{ __( 'Cache:', 'ai-readiness-kit' ) }
+								{ __( 'Cache:', 'agentready-ai-readiness-kit' ) }
 							</strong>{ ' ' }
 							{ data.cache_state.cached
-								? __( 'hit', 'ai-readiness-kit' )
-								: __( 'miss', 'ai-readiness-kit' ) }
+								? __( 'hit', 'agentready-ai-readiness-kit' )
+								: __( 'miss', 'agentready-ai-readiness-kit' ) }
 							{ ' · ' }
-							{ __( 'walker v', 'ai-readiness-kit' ) }
+							{ __( 'walker v', 'agentready-ai-readiness-kit' ) }
 							{ data.cache_state.walker_version }
 							{ ' · ' }
 							{ humanTimeDiff( data.cache_state.generated_at ) }
