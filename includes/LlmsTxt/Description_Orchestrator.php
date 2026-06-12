@@ -450,6 +450,7 @@ PROMPT;
 			if ( '' !== $previous_auto ) {
 				\delete_post_meta( $post_id, self::META_KEY_AUTO );
 				\delete_post_meta( $post_id, self::META_KEY_GENERATED_FOR_MODIFIED );
+				\delete_post_meta( $post_id, self::META_KEY_GENERATED_BY_VERSION );
 				self::notify_description_changed( $post_id );
 			}
 			self::record_diagnostic(
