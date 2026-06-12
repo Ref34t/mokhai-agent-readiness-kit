@@ -45,6 +45,28 @@ final class Description_Orchestrator {
 	public const STATUS_FAILED      = 'failed';
 
 	/**
+	 * Generation skipped because the post body is below the quality floor
+	 * (#214). The LLM is never called, no `_auto` is written, and /llms.txt
+	 * falls back to the deterministic title-only floor. Distinct from FAILED
+	 * (a provider/parse error) — a skip is a deliberate "not worth a
+	 * description" verdict, not an error.
+	 *
+	 * @var string
+	 */
+	public const STATUS_SKIPPED = 'skipped';
+
+	/**
+	 * Default minimum stripped-content length (characters) a post must have
+	 * before the LLM description job runs. Below this, generation is skipped
+	 * so the index is not padded with filler ("X is available at URL.") and
+	 * LLM spend is not wasted on near-empty posts. Filterable — see
+	 * {@see min_content_chars()}.
+	 *
+	 * @var int
+	 */
+	public const MIN_CONTENT_CHARS = 50;
+
+	/**
 	 * Cron action fired by `schedule()` and handled by `run()`.
 	 *
 	 * @var string
@@ -417,6 +439,32 @@ PROMPT;
 			return;
 		}
 
+		// Quality floor (#214): skip near-empty posts before spending any LLM
+		// budget. A description like "Real Article is available at <url>." adds
+		// nothing for agents and pads /llms.txt. Clear any prior filler `_auto`
+		// so the index drops back to the deterministic title-only floor, then
+		// record a distinct SKIPPED status (not FAILED — this is a deliberate
+		// verdict, not an error).
+		if ( self::content_chars( $post ) < self::min_content_chars() ) {
+			$previous_auto = (string) \get_post_meta( $post_id, self::META_KEY_AUTO, true );
+			if ( '' !== $previous_auto ) {
+				\delete_post_meta( $post_id, self::META_KEY_AUTO );
+				\delete_post_meta( $post_id, self::META_KEY_GENERATED_FOR_MODIFIED );
+				\delete_post_meta( $post_id, self::META_KEY_GENERATED_BY_VERSION );
+				self::notify_description_changed( $post_id );
+			}
+			self::record_diagnostic(
+				$post_id,
+				array(
+					'stage'        => 'pre_generation',
+					'error_code'   => 'content_below_floor',
+					'attempted_at' => \current_time( 'mysql', true ),
+				)
+			);
+			\update_post_meta( $post_id, self::META_KEY_STATUS, self::STATUS_SKIPPED );
+			return;
+		}
+
 		$prompt = self::build_user_prompt( $post );
 		// `temperature` deliberately omitted — OpenAI reasoning models
 		// (o1 / o3 family) reject the parameter with a 400. `max_tokens`
@@ -670,6 +718,26 @@ PROMPT;
 	 * Build the user-prompt body. Public so the WP-CLI command can show
 	 * what the LLM will see when an operator is debugging.
 	 */
+	/**
+	 * Minimum stripped-content length a post must have before the LLM
+	 * description job runs. Adopters can raise/lower the floor via the
+	 * `agentready_description_min_content_chars` filter (#214).
+	 */
+	public static function min_content_chars(): int {
+		$min = (int) \apply_filters( 'agentready_description_min_content_chars', self::MIN_CONTENT_CHARS );
+		return \max( 0, $min );
+	}
+
+	/**
+	 * Stripped, shortcode-cleaned body length in characters. Uses the same
+	 * extraction as {@see build_user_prompt()} so the floor check and the
+	 * prompt see the identical text (#214).
+	 */
+	public static function content_chars( \WP_Post $post ): int {
+		$content = \wp_strip_all_tags( Shortcode_Stripper::strip_orphaned( (string) $post->post_content ) );
+		return \strlen( \trim( $content ) );
+	}
+
 	public static function build_user_prompt( \WP_Post $post ): string {
 		$title = (string) \get_the_title( $post );
 		$url   = (string) \get_permalink( $post );
