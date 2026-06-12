@@ -89,6 +89,10 @@
 	background: #fff3e0;
 	color: #bf360c;
 }
+.agentready-pill--excluded {
+	background: #eceff1;
+	color: #455a64;
+}
 
 /* ---- Button clusters ------------------------------------------------- */
 

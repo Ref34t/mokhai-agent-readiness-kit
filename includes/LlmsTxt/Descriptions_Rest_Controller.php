@@ -531,6 +531,11 @@ final class Descriptions_Rest_Controller {
 			'status'                     => Description_Orchestrator::get_status( $post_id ),
 			'generated_for_modified_gmt' => $gen_for,
 			'is_stale'                   => Description_Orchestrator::is_stale( $post ),
+			// Posts in an exposed CPT/status can still be excluded from
+			// /llms.txt by the password / noindex / manual-exclusion gates.
+			// The table lists them for visibility; this flag lets the UI mark
+			// them as excluded so the "N skipped" behaviour is self-explanatory.
+			'excluded'                   => ! Context_Profile_Settings::is_url_exposable( $post ),
 			'diagnostics'                => $diagnostics,
 		);
 	}

@@ -34,7 +34,7 @@ import {
 	Spinner,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 
 const MOUNT_SELECTOR = '#agentready-context-score-root';
 const BOOTSTRAP_KEY = 'agentreadyContextScore';
@@ -45,12 +45,16 @@ const SUCCESS_NOTICE_TIMEOUT_MS = 4000;
 
 const SUB_SCORE_LABELS = {
 	discoverability: __( 'Discoverability', 'ai-readiness-kit' ),
-	content_readability: __( 'Content readability', 'ai-readiness-kit' ),
+	content_readability: __( 'Description coverage', 'ai-readiness-kit' ),
 	schema_coverage: __( 'Schema coverage', 'ai-readiness-kit' ),
 	exposure_safety: __( 'Exposure safety', 'ai-readiness-kit' ),
 	integration_health: __( 'Integration health', 'ai-readiness-kit' ),
 	md_conversion_quality: __(
 		'Markdown conversion quality',
+		'ai-readiness-kit'
+	),
+	multi_channel_discovery: __(
+		'Multi-channel discovery',
 		'ai-readiness-kit'
 	),
 };
@@ -391,23 +395,28 @@ function relativeTime( iso ) {
 	const diffMin = Math.round( diffSec / 60 );
 	if ( diffMin < 60 ) {
 		return sprintf(
-			/* translators: %d: minutes ago */
-			__( '%d minute(s) ago', 'ai-readiness-kit' ),
+			/* translators: %d: number of minutes ago */
+			_n(
+				'%d minute ago',
+				'%d minutes ago',
+				diffMin,
+				'ai-readiness-kit'
+			),
 			diffMin
 		);
 	}
 	const diffHr = Math.round( diffMin / 60 );
 	if ( diffHr < 24 ) {
 		return sprintf(
-			/* translators: %d: hours ago */
-			__( '%d hour(s) ago', 'ai-readiness-kit' ),
+			/* translators: %d: number of hours ago */
+			_n( '%d hour ago', '%d hours ago', diffHr, 'ai-readiness-kit' ),
 			diffHr
 		);
 	}
 	const diffDay = Math.round( diffHr / 24 );
 	return sprintf(
-		/* translators: %d: days ago */
-		__( '%d day(s) ago', 'ai-readiness-kit' ),
+		/* translators: %d: number of days ago */
+		_n( '%d day ago', '%d days ago', diffDay, 'ai-readiness-kit' ),
 		diffDay
 	);
 }
