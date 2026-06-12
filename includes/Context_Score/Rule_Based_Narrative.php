@@ -171,6 +171,7 @@ final class Rule_Based_Narrative {
 	private static function for_content_readability( int $value, array $signals ): array {
 		$total    = (int) ( $signals['total_entries'] ?? 0 );
 		$coverage = (int) ( $signals['coverage_pct'] ?? 0 );
+		$desc_on  = (bool) ( $signals['llm_descriptions_enabled'] ?? false );
 
 		if ( $value >= 100 ) {
 			return array(
@@ -186,6 +187,14 @@ final class Rule_Based_Narrative {
 			);
 		}
 
+		// Fix advice depends on whether auto-descriptions are already on. If
+		// enabled, the user just needs to regenerate from the Descriptions tab
+		// (the GUI path that resolved this in the live test); if not, the first
+		// step is enabling it there. CLI stays as the alternative either way.
+		$fix = $desc_on
+			? \__( 'Open Context Profile → Descriptions and run "Regenerate stale descriptions" (or wp ai-readiness-kit llms-txt descriptions backfill).', 'ai-readiness-kit' )
+			: \__( 'Enable auto-descriptions in Context Profile → Descriptions, then run "Regenerate stale descriptions".', 'ai-readiness-kit' );
+
 		if ( $value < 50 ) {
 			return array(
 				'why' => \sprintf(
@@ -193,7 +202,7 @@ final class Rule_Based_Narrative {
 					\__( 'Critical — only %d%% of exposed entries have a curated description.', 'ai-readiness-kit' ),
 					$coverage
 				),
-				'fix' => \__( 'Enable LLM descriptions in the Context Profile and run wp ai-readiness-kit llms-txt descriptions backfill.', 'ai-readiness-kit' ),
+				'fix' => $fix,
 			);
 		}
 
@@ -203,7 +212,7 @@ final class Rule_Based_Narrative {
 				\__( 'Partial — %d%% of exposed entries have a curated description; the rest fall back to the excerpt.', 'ai-readiness-kit' ),
 				$coverage
 			),
-			'fix' => \__( 'Run wp ai-readiness-kit llms-txt descriptions backfill to fill the gaps.', 'ai-readiness-kit' ),
+			'fix' => $fix,
 		);
 	}
 
@@ -213,6 +222,7 @@ final class Rule_Based_Narrative {
 	 */
 	private static function for_schema_coverage( int $value, array $signals ): array {
 		$plugin = isset( $signals['seo_plugin'] ) ? (string) $signals['seo_plugin'] : '';
+		$native = (bool) ( $signals['native_emit_enabled'] ?? false );
 
 		if ( $value >= 100 && '' !== $plugin ) {
 			return array(
@@ -225,9 +235,16 @@ final class Rule_Based_Narrative {
 			);
 		}
 
+		if ( $value >= 100 && $native ) {
+			return array(
+				'why' => \__( 'Working well — the plugin emits native JSON-LD (WebSite, Organization, per-content), so agents get structured data without an SEO plugin.', 'ai-readiness-kit' ),
+				'fix' => \__( 'Audit the native JSON-LD output on key landing pages once per release.', 'ai-readiness-kit' ),
+			);
+		}
+
 		return array(
 			'why' => \__( 'No structured data was detected. Exposed content reaches agents without schema metadata for now.', 'ai-readiness-kit' ),
-			'fix' => \__( 'AI Readiness Kit will emit JSON-LD natively in a future release; until then, an SEO plugin can fill the gap.', 'ai-readiness-kit' ),
+			'fix' => \__( 'Enable Schema emission in the Context Profile to emit native JSON-LD, or rely on an SEO plugin to fill the gap.', 'ai-readiness-kit' ),
 		);
 	}
 
