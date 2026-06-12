@@ -107,7 +107,20 @@ echo "→ Installing production composer dependencies (--no-dev)"
 # the vendor tree look opaque to a reviewer). Keep both files so the
 # scanner can see what produced vendor/.
 
-# --- 6. Create the ZIP. --------------------------------------------------
+# --- 6. Guard: no hidden files in the staged tree. -----------------------
+# wp.org rejects ANY dotfile in the distribution ("hidden_files"). Catching it
+# here closes the whole class — including untracked local files (e.g.
+# .wp-env.override.json) that .distignore may not enumerate and that a fresh CI
+# checkout never sees, so CI can't catch them. See #226.
+HIDDEN=$(find "$DEST" -name '.*' \( -type f -o -type d \) 2>/dev/null)
+if [[ -n "$HIDDEN" ]]; then
+	echo "Error: hidden files staged for the ZIP (wp.org bans these):" >&2
+	echo "$HIDDEN" | sed "s#$DEST#  $SLUG#" >&2
+	echo "Add them to .distignore (or remove them) and rebuild." >&2
+	exit 1
+fi
+
+# --- 7. Create the ZIP. --------------------------------------------------
 DIST_DIR="$REPO_ROOT/dist"
 mkdir -p "$DIST_DIR"
 ZIP_PATH="$DIST_DIR/${SLUG}-${VERSION}.zip"

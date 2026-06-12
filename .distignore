@@ -18,7 +18,9 @@
 .phpunit.result.cache
 
 # Dev environment
-.wp-env.json
+# Glob covers .wp-env.json AND .wp-env.override.json (the latter may hold a
+# local secret — see #226). wp.org also rejects any hidden file in the ZIP.
+.wp-env*
 .distignore
 
 # Repo-internal directories not part of the runtime plugin
