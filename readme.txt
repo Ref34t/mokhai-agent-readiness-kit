@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -164,6 +164,25 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 4. Context Score — 0–100 readiness audit with seven sub-scores and actionable fixes
 
 == Changelog ==
+
+= 0.3.0 — 2026-06-12 =
+
+Polish release. Refinements surfaced through a full live UX walkthrough of the v0.2.0 admin surfaces — score-narrative correctness, clearer labels, and a more discoverable plugin.
+
+**Improved**
+
+* **Multi-channel discovery is reachable at 100 for plugin-only sites** — the four plugin-served discovery channels (`/llms.txt`, `ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`) now score 100 on their own; OpenAPI is credited as a bonus channel for API-exposing sites rather than capping the score at 80. (#212, AgDR-0058)
+* **"Content readability" renamed to "Description coverage"** across the Context Score page, Site Health, and readme, to match what the sub-score actually measures (curated `/llms.txt` description coverage). Internal key unchanged. (#211)
+* **Plugin is now findable in wp-admin** — the Tools entries read "AI Readiness — Context" / "AI Readiness — Score", and the Plugins list carries a "Settings" link to the Context Profile. (#207)
+* **Quality floor for auto-descriptions** — near-empty posts are skipped (distinct "skipped" status) instead of padded with filler like "Title is available at URL."; threshold filterable via `agentready_description_min_content_chars`. (#214)
+
+**Fixes**
+
+* Schema-coverage narrative no longer reads "No structured data was detected" beside a 100/100 score when native JSON-LD emission is on; the stale "future release" fix advice is replaced with the reachable Context Profile action. (#208)
+* Content-readability fix advice now points to the Descriptions tab "Regenerate stale descriptions" GUI path and stops telling users to enable a setting that is already on. (#209)
+* The multi-channel discovery sub-score renders a human label instead of the raw `multi_channel_discovery` key. (#210)
+* AI Assistant Preview shows an explicit "no content" message for empty posts instead of blank dark panes. (#213)
+* Relative-time copy uses proper `_n()` plural forms ("1 minute ago" / "5 minutes ago"); excluded posts in the Descriptions table are labelled "excluded" and the intro copy matches. (#215)
 
 = 0.2.0 — 2026-06-03 =
 

@@ -3,7 +3,7 @@
  * Plugin Name:       AI Readiness Kit
  * Plugin URI:        https://github.com/Ref34t/agentready
  * Description:       AI Readiness for WordPress: context, policy, audit, analytics. Makes sites readable, discoverable, governable, and measurable for AI agents.
- * Version:           0.2.0
+ * Version:           0.3.0
  * Requires at least: 6.9
  * Requires PHP:      7.4
  * Author:            Mohamed Khaled
@@ -32,7 +32,7 @@ namespace WPContext;
  * WPContext\ namespace can reference them without imports.
  */
 function constants(): void {
-	\define( 'WPCTX_VERSION', '0.2.0' );
+	\define( 'WPCTX_VERSION', '0.3.0' );
 	\define( 'WPCTX_FILE', __FILE__ );
 	\define( 'WPCTX_DIR', \plugin_dir_path( __FILE__ ) );
 	\define( 'WPCTX_URL', \plugin_dir_url( __FILE__ ) );
