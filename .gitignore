@@ -32,6 +32,9 @@ dist/
 
 # wp-env (PHPUnit harness — see #3)
 .wp-env/
+# Local wp-env overrides may hold secrets (e.g. an injected API key) — never
+# commit or ship them (#226).
+.wp-env.override.json
 
 # Testing
 coverage/
