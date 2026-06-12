@@ -99,6 +99,19 @@ function CodeBox( { children } ) {
 	);
 }
 
+// Shown in the Raw HTML / Markdown panes when the post has no content, so the
+// panes don't render as empty dark boxes indistinguishable from a load failure.
+function EmptyContentNotice() {
+	return (
+		<Notice status="info" isDismissible={ false }>
+			{ __(
+				'This post has no content — nothing for agents to read.',
+				'ai-readiness-kit'
+			) }
+		</Notice>
+	);
+}
+
 // One of the three side-by-side panes, with a title and a sub-caption.
 function Pane( { title, caption, children } ) {
 	return (
@@ -132,7 +145,11 @@ function RawHtmlPane( { rawHtml } ) {
 			title={ __( 'Raw HTML', 'ai-readiness-kit' ) }
 			caption={ caption }
 		>
-			<CodeBox>{ rawHtml.html }</CodeBox>
+			{ Number( rawHtml.full_length ) === 0 ? (
+				<EmptyContentNotice />
+			) : (
+				<CodeBox>{ rawHtml.html }</CodeBox>
+			) }
 		</Pane>
 	);
 }
@@ -174,6 +191,9 @@ function MarkdownPane( { markdown, profilePageUrl } ) {
 				) }
 			</Notice>
 		);
+	} else if ( '' === String( markdown.markdown || '' ).trim() ) {
+		// Exposable, but the post body is empty — distinguish from "denied".
+		body = <EmptyContentNotice />;
 	} else {
 		body = <CodeBox>{ markdown.markdown }</CodeBox>;
 	}
