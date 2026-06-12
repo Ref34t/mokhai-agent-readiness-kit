@@ -70,6 +70,7 @@ final class Reason_Keys_Test extends TestCase {
 		// multi_channel_discovery
 		'mcd_no_channels',
 		'mcd_channels_detected',
+		'mcd_openapi_bonus',
 		'mcd_provider_configurable',
 		'mcd_provider_detected',
 	);
@@ -169,10 +170,11 @@ final class Reason_Keys_Test extends TestCase {
 					'entries_with_description' => 10,
 				),
 				'multi_channel_discovery' => array(
-					'llms_txt_present'    => true,
-					'ai_txt_present'      => true,
-					'well_known_ai_layer' => true,
-					'active_provider'     => array(
+					'llms_txt_present'     => true,
+					'ai_txt_present'       => true,
+					'well_known_ai_layer'  => true,
+					'openapi_spec_present' => true,
+					'active_provider'      => array(
 						'slug'       => 'ai_layer',
 						'name'       => 'AI Layer',
 						'config_url' => 'https://example.test/wp-admin/admin.php?page=ai-layer',

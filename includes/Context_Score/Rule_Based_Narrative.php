@@ -394,17 +394,17 @@ final class Rule_Based_Narrative {
 				'why' => '' !== $provider_name
 					? \sprintf(
 						/* translators: %s: detected sibling provider name (e.g. "AI Layer"). */
-						\__( 'Working well — every agent-discovery channel is published and %s is coordinating multi-channel coverage.', 'ai-readiness-kit' ),
+						\__( 'Working well — every plugin-served discovery channel is published and %s is coordinating multi-channel coverage.', 'ai-readiness-kit' ),
 						$provider_name
 					)
-					: \__( 'Working well — every agent-discovery channel is published.', 'ai-readiness-kit' ),
+					: \__( 'Working well — every plugin-served discovery channel is published.', 'ai-readiness-kit' ),
 				'fix' => \__( 'Re-audit after adding or removing sibling AI-readiness plugins to keep coverage consistent.', 'ai-readiness-kit' ),
 			);
 		}
 
 		if ( $value <= 0 ) {
 			return array(
-				'why' => \__( 'No agent-discovery channels detected — agents that scan ai.txt, /.well-known/, or OpenAPI will miss this site.', 'ai-readiness-kit' ),
+				'why' => \__( 'No agent-discovery channels detected — agents that scan ai.txt or /.well-known/ declarations will miss this site.', 'ai-readiness-kit' ),
 				'fix' => \__( 'Open the Context Profile and save it to seed /llms.txt as a first discovery channel.', 'ai-readiness-kit' ),
 			);
 		}
@@ -412,22 +412,22 @@ final class Rule_Based_Narrative {
 		if ( '' !== $provider_name ) {
 			return array(
 				'why' => \sprintf(
-					/* translators: 1: count of channels detected (0-5). 2: sibling provider name. */
-					\__( 'Partial — %1$d of 5 agent-discovery channels detected; %2$s is contributing to coverage.', 'ai-readiness-kit' ),
+					/* translators: 1: count of plugin-served channels detected (0-4). 2: sibling provider name. */
+					\__( 'Partial — %1$d of 4 plugin-served discovery channels detected; %2$s is contributing to coverage.', 'ai-readiness-kit' ),
 					$present_count,
 					$provider_name
 				),
-				'fix' => \__( 'Add the missing channels (ai.txt at site root, OpenAPI spec, /.well-known/llms-policy.json) to broaden discoverability.', 'ai-readiness-kit' ),
+				'fix' => \__( 'Enable the missing channels (ai.txt, ai-layer, llms-policy.json) in the Context Profile. OpenAPI is an optional bonus for API sites.', 'ai-readiness-kit' ),
 			);
 		}
 
 		return array(
 			'why' => \sprintf(
-				/* translators: %d: count of channels detected (0-5). */
-				\__( 'Partial — %d of 5 agent-discovery channels detected.', 'ai-readiness-kit' ),
+				/* translators: %d: count of plugin-served channels detected (0-4). */
+				\__( 'Partial — %d of 4 plugin-served discovery channels detected.', 'ai-readiness-kit' ),
 				$present_count
 			),
-			'fix' => \__( 'Add ai.txt at the site root, publish an OpenAPI spec, or install a sibling AI-readiness plugin to broaden discovery.', 'ai-readiness-kit' ),
+			'fix' => \__( 'Enable the missing channels (ai.txt, ai-layer, llms-policy.json) in the Context Profile. OpenAPI is an optional bonus for API sites.', 'ai-readiness-kit' ),
 		);
 	}
 

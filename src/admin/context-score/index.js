@@ -258,17 +258,22 @@ const REASON_TEMPLATES = {
 	// multi_channel_discovery
 	mcd_no_channels: () =>
 		__(
-			'No agent-discovery channels detected — site is invisible to agents that scan for ai.txt, /.well-known/, or OpenAPI.',
+			'No agent-discovery channels detected — site is invisible to agents that scan for ai.txt or /.well-known/ declarations.',
 			'ai-readiness-kit'
 		),
 	mcd_channels_detected: ( a ) =>
 		sprintf(
-			// translators: %d: number of agent-discovery channels detected (of 5).
+			// translators: %d: number of plugin-served agent-discovery channels detected (of 4).
 			__(
-				'%d of 5 agent-discovery channel(s) detected.',
+				'%d of 4 plugin-served agent-discovery channel(s) detected.',
 				'ai-readiness-kit'
 			),
 			a[ 0 ]
+		),
+	mcd_openapi_bonus: () =>
+		__(
+			'OpenAPI spec detected — bonus discovery channel for sites exposing an API.',
+			'ai-readiness-kit'
 		),
 	mcd_provider_configurable: ( a ) =>
 		sprintf(
