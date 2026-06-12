@@ -28,6 +28,7 @@ export const PILL_KINDS = [
 	'failed',
 	'done',
 	'stale',
+	'excluded',
 ];
 
 /**

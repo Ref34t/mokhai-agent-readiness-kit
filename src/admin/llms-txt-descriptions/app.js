@@ -67,6 +67,11 @@ function readBootstrap() {
 function StatusBadges( { row } ) {
 	return (
 		<div className="agentready-pill-group">
+			{ row.excluded && (
+				<Pill kind="excluded">
+					{ __( 'excluded', 'ai-readiness-kit' ) }
+				</Pill>
+			) }
 			<Pill kind={ row.source }>{ row.source }</Pill>
 			{ row.status && row.status !== 'done' && (
 				<Pill kind={ row.status }>{ row.status }</Pill>
@@ -489,7 +494,7 @@ export function DescriptionsTable() {
 			<PanelBody opened>
 				<p className="description">
 					{ __(
-						'One-line descriptions for the auto-listed entries above, generated via the configured LLM and cached on post meta. Edit any description inline to set a sticky manual override that survives regeneration.',
+						'One-line descriptions for entries in your exposed post types, generated via the configured LLM and cached on post meta. Rows marked "excluded" (password-protected, noindex, or manually excluded) are listed for visibility but skipped — they never reach /llms.txt. Edit any description inline to set a sticky manual override that survives regeneration.',
 						'ai-readiness-kit'
 					) }
 				</p>

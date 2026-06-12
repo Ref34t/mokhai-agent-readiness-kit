@@ -45,7 +45,7 @@ final class Sub_Score_Names {
 			case 'discoverability':
 				return \__( 'discoverability', 'ai-readiness-kit' );
 			case 'content_readability':
-				return \__( 'content readability', 'ai-readiness-kit' );
+				return \__( 'description coverage', 'ai-readiness-kit' );
 			case 'schema_coverage':
 				return \__( 'schema coverage', 'ai-readiness-kit' );
 			case 'exposure_safety':

@@ -165,6 +165,28 @@ final class Descriptions_Rest_Controller_Test extends WP_UnitTestCase {
 		self::assertSame( 'auto', $row['source'] );
 	}
 
+	public function test_get_list_row_flags_non_exposable_posts_as_excluded(): void {
+		// Regression (#215): the table lists posts in an exposed CPT/status even
+		// when a gate (password / noindex / manual exclusion) keeps them out of
+		// /llms.txt. The row must carry an `excluded` flag so the UI can mark them.
+		\wp_set_current_user( $this->make_admin() );
+		$exposable = $this->seed_post();
+		$protected = $this->seed_post( array( 'post_password' => 'secret' ) );
+
+		$response = \rest_do_request( new WP_REST_Request( 'GET', $this->path() ) );
+		$rows     = $response->get_data()['items'];
+
+		$by_id = array();
+		foreach ( $rows as $candidate ) {
+			$by_id[ $candidate['post_id'] ] = $candidate;
+		}
+
+		self::assertArrayHasKey( $exposable, $by_id );
+		self::assertArrayHasKey( $protected, $by_id );
+		self::assertFalse( $by_id[ $exposable ]['excluded'] );
+		self::assertTrue( $by_id[ $protected ]['excluded'] );
+	}
+
 	public function test_patch_writes_manual_and_returns_updated_row(): void {
 		\wp_set_current_user( $this->make_admin() );
 		$post_id = $this->seed_post();
