@@ -67,7 +67,7 @@ final class Context_Score_Page {
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
 			\__( 'AI Readiness Kit Context Score', 'ai-readiness-kit' ),
-			\__( 'Context Score', 'ai-readiness-kit' ),
+			\__( 'AI Readiness — Score', 'ai-readiness-kit' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( self::class, 'render' )

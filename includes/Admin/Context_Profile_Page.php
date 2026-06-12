@@ -48,6 +48,12 @@ final class Context_Profile_Page {
 	public static function register_hooks(): void {
 		\add_action( 'admin_menu', array( self::class, 'register_menu' ) );
 		\add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
+		if ( \defined( 'WPCTX_FILE' ) ) {
+			\add_filter(
+				'plugin_action_links_' . \plugin_basename( WPCTX_FILE ),
+				array( self::class, 'add_settings_action_link' )
+			);
+		}
 	}
 
 	/**
@@ -56,11 +62,31 @@ final class Context_Profile_Page {
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
 			\__( 'AI Readiness Kit Context Profile', 'ai-readiness-kit' ),
-			\__( 'Context', 'ai-readiness-kit' ),
+			\__( 'AI Readiness — Context', 'ai-readiness-kit' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( self::class, 'render' )
 		);
+	}
+
+	/**
+	 * Add a "Settings" row-action on the Plugins list pointing at the Context
+	 * Profile page, so the plugin is reachable from the standard place users
+	 * look after activation (#207).
+	 *
+	 * @param array<int|string, string> $links Existing action links.
+	 *
+	 * @return array<int|string, string>
+	 */
+	public static function add_settings_action_link( array $links ): array {
+		$settings = \sprintf(
+			'<a href="%s">%s</a>',
+			\esc_url( \admin_url( 'tools.php?page=' . self::PAGE_SLUG ) ),
+			\esc_html__( 'Settings', 'ai-readiness-kit' )
+		);
+		\array_unshift( $links, $settings );
+
+		return $links;
 	}
 
 	/**
