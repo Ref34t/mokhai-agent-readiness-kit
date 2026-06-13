@@ -266,7 +266,7 @@ First public release. Four coherent modules driven by one Context Profile.
 
 = 0.2.0 =
 
-Adds the AI Assistant Preview pane, WordPress Abilities API + MCP integration, and a multi-channel discovery sub-score, plus correctness fixes for JSON-LD output, stale cron recovery, and Markdown cleanup. Safe in-place upgrade — the Context Score cache auto-invalidates to pick up the new seventh sub-score.
+Adds AI Assistant Preview, WordPress Abilities API + MCP, and a multi-channel discovery sub-score, plus fixes for JSON-LD output, stale cron recovery, and Markdown cleanup. Safe in-place upgrade — the Context Score cache auto-invalidates.
 
 = 0.1.0 =
 

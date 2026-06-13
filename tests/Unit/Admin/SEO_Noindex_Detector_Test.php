@@ -126,7 +126,13 @@ final class SEO_Noindex_Detector_Test extends TestCase {
 			}
 
 			public function prepare( string $query, ...$args ): string {
-				return \vsprintf( \str_replace( array( '%s', '%d' ), array( "'%s'", '%d' ), $query ), $args );
+				// Model WP core's placeholder rendering: %s → quoted value, %i →
+				// backtick-quoted identifier (WP 6.2+). %i is substituted last so
+				// the %s it introduces is not re-wrapped by the %s pass.
+				return \vsprintf(
+					\str_replace( array( '%s', '%d', '%i' ), array( "'%s'", '%d', '`%s`' ), $query ),
+					$args
+				);
 			}
 
 			public function get_var( string $query ): ?string {
