@@ -112,7 +112,7 @@ final class SEO_Noindex_Detector {
 
 		$table = $wpdb->prefix . 'aioseo_posts';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- third-party table read; no WP API exists for it, table name derives from $wpdb->prefix + a literal, and the per-request static is the cache.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- third-party table read; no WP API exists for it, the table name is bound via the %i identifier placeholder, and the per-request static is the cache.
 		if ( null === self::$aioseo_table_exists ) {
 			self::$aioseo_table_exists = $table === $wpdb->get_var(
 				$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
@@ -125,11 +125,12 @@ final class SEO_Noindex_Detector {
 
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT robots_default, robots_noindex FROM {$table} WHERE post_id = %d",
+				'SELECT robots_default, robots_noindex FROM %i WHERE post_id = %d',
+				$table,
 				$post_id
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		if ( null === $row || ! empty( $row->robots_default ) ) {
 			return false;
