@@ -448,7 +448,7 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 
 		$this->assertNotSame( '', $html, 'Expected maybe_render() to echo notice HTML for a plugin conflict fixture.' );
 		$this->assertStringContainsString( 'agentready-llms-txt-conflict-notice', $html );
-		$this->assertStringContainsString( 'AI Readiness Kit — /llms.txt conflict detected', $html );
+		$this->assertStringContainsString( 'Agentable — /llms.txt conflict detected', $html );
 		$this->assertStringContainsString( 'Website LLMs.txt', $html );
 		$this->assertStringContainsString( 'https://wordpress.org/plugins/website-llms-txt/', $html );
 		$this->assertStringContainsString( 'data-agentready-dismiss-fingerprint=', $html );

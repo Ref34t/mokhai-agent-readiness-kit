@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration smoke test — verifies AI Readiness Kit loads correctly inside the
+ * Integration smoke test — verifies Agentable loads correctly inside the
  * WP test instance booted by wp-phpunit / wp-env.
  *
  * @package WPContext\Tests
