@@ -8,7 +8,7 @@ Stable tag: 0.3.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-AI Readiness for WordPress: one coherent layer that makes a site readable, discoverable, governable, and measurable for AI agents.
+Help AI agents read your WordPress site correctly: llms.txt, clean Markdown views, structured data, and a readiness score — from one Context Profile.
 
 == Description ==
 
