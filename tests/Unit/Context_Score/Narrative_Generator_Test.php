@@ -120,7 +120,7 @@ final class Narrative_Generator_Test extends TestCase {
 		// the guard rejects it.
 		$response = self::valid_llm_response();
 		$response = str_replace(
-			'"fix": "A future AI Readiness Kit release will emit JSON-LD natively."',
+			'"fix": "A future Agentable release will emit JSON-LD natively."',
 			'"fix": "Install Yoast SEO to emit structured data."',
 			$response
 		);
@@ -382,11 +382,11 @@ final class Narrative_Generator_Test extends TestCase {
   },
   "content_readability": {
     "why": "Coverage is at 60%, leaving room to improve.",
-    "fix": "Run the AI Readiness Kit descriptions backfill on the gaps."
+    "fix": "Run the Agentable descriptions backfill on the gaps."
   },
   "schema_coverage": {
     "why": "No structured-data plugin was detected on this site.",
-    "fix": "A future AI Readiness Kit release will emit JSON-LD natively."
+    "fix": "A future Agentable release will emit JSON-LD natively."
   },
   "exposure_safety": {
     "why": "Only published statuses are exposed, which is the safe baseline.",

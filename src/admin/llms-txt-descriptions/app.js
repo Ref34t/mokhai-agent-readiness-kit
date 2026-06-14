@@ -1,5 +1,5 @@
 /**
- * AI Readiness Kit — LLM-powered /llms.txt entry descriptions admin UI
+ * Agentable — LLM-powered /llms.txt entry descriptions admin UI
  * (#8 Phase B / AgDR-0029).
  *
  * Server-paginated table of exposed posts with per-row inline edit /
@@ -37,19 +37,19 @@ const PENDING_POLL_INTERVAL_MS = 4000;
 const STUCK_PENDING_THRESHOLD_MS = 60000;
 
 const STATUS_FILTERS = [
-	{ value: 'any', label: __( 'All entries', 'agentready-ai-readiness-kit' ) },
+	{ value: 'any', label: __( 'All entries', 'agentable' ) },
 	{
 		value: 'missing',
-		label: __( 'Missing (no description)', 'agentready-ai-readiness-kit' ),
+		label: __( 'Missing (no description)', 'agentable' ),
 	},
-	{ value: 'cached', label: __( 'Cached (auto)', 'agentready-ai-readiness-kit' ) },
-	{ value: 'manual', label: __( 'Manual override', 'agentready-ai-readiness-kit' ) },
-	{ value: 'pending', label: __( 'Pending (queued)', 'agentready-ai-readiness-kit' ) },
-	{ value: 'needs-retry', label: __( 'Needs retry', 'agentready-ai-readiness-kit' ) },
-	{ value: 'failed', label: __( 'Failed', 'agentready-ai-readiness-kit' ) },
+	{ value: 'cached', label: __( 'Cached (auto)', 'agentable' ) },
+	{ value: 'manual', label: __( 'Manual override', 'agentable' ) },
+	{ value: 'pending', label: __( 'Pending (queued)', 'agentable' ) },
+	{ value: 'needs-retry', label: __( 'Needs retry', 'agentable' ) },
+	{ value: 'failed', label: __( 'Failed', 'agentable' ) },
 	{
 		value: 'stale',
-		label: __( 'Stale (post edited after generation)', 'agentready-ai-readiness-kit' ),
+		label: __( 'Stale (post edited after generation)', 'agentable' ),
 	},
 ];
 
@@ -69,7 +69,7 @@ function StatusBadges( { row } ) {
 		<div className="agentready-pill-group">
 			{ row.excluded && (
 				<Pill kind="excluded">
-					{ __( 'excluded', 'agentready-ai-readiness-kit' ) }
+					{ __( 'excluded', 'agentable' ) }
 				</Pill>
 			) }
 			<Pill kind={ row.source }>{ row.source }</Pill>
@@ -77,7 +77,7 @@ function StatusBadges( { row } ) {
 				<Pill kind={ row.status }>{ row.status }</Pill>
 			) }
 			{ row.is_stale && (
-				<Pill kind="stale">{ __( 'stale', 'agentready-ai-readiness-kit' ) }</Pill>
+				<Pill kind="stale">{ __( 'stale', 'agentable' ) }</Pill>
 			) }
 		</div>
 	);
@@ -102,10 +102,10 @@ function DescriptionRow( {
 	const regenDisabledReason = isManual
 		? __(
 				'Manual override is sticky. Use "Clear manual" first to regenerate.',
-				'agentready-ai-readiness-kit'
+				'agentable'
 		  )
 		: ! bootstrap.llmAvailable
-		? __( 'WP AI Client is not configured.', 'agentready-ai-readiness-kit' )
+		? __( 'WP AI Client is not configured.', 'agentable' )
 		: null;
 
 	const saveManual = useCallback( async () => {
@@ -121,7 +121,7 @@ function DescriptionRow( {
 			onRowUpdated( updated );
 			setEditing( false );
 		} catch ( err ) {
-			setError( err.message || __( 'Save failed.', 'agentready-ai-readiness-kit' ) );
+			setError( err.message || __( 'Save failed.', 'agentable' ) );
 		} finally {
 			setPendingAction( null );
 		}
@@ -148,7 +148,7 @@ function DescriptionRow( {
 			setEditing( false );
 		} catch ( err ) {
 			setError(
-				err.message || __( 'Clear failed.', 'agentready-ai-readiness-kit' )
+				err.message || __( 'Clear failed.', 'agentable' )
 			);
 		} finally {
 			setPendingAction( null );
@@ -173,7 +173,7 @@ function DescriptionRow( {
 			onRowUpdated( updated );
 		} catch ( err ) {
 			setError(
-				err.message || __( 'Regenerate failed.', 'agentready-ai-readiness-kit' )
+				err.message || __( 'Regenerate failed.', 'agentable' )
 			);
 		} finally {
 			setPendingAction( null );
@@ -195,7 +195,7 @@ function DescriptionRow( {
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						{ row.title || __( '(no title)', 'agentready-ai-readiness-kit' ) }
+						{ row.title || __( '(no title)', 'agentable' ) }
 					</a>
 				</div>
 				<div className="agentready-muted--sm">{ row.post_type }</div>
@@ -208,21 +208,21 @@ function DescriptionRow( {
 					<div className="agentready-descriptions__resolved">
 						{ row.resolved || (
 							<em className="agentready-muted">
-								{ __( '(no description)', 'agentready-ai-readiness-kit' ) }
+								{ __( '(no description)', 'agentable' ) }
 							</em>
 						) }
 					</div>
 				) }
 				{ editing && (
 					<TextareaControl
-						label={ __( 'Manual override', 'agentready-ai-readiness-kit' ) }
+						label={ __( 'Manual override', 'agentable' ) }
 						value={ draft }
 						onChange={ ( v ) => setDraft( v ) }
 						rows={ 2 }
 						maxLength={ 200 }
 						help={ __(
 							'Sticky — never overwritten by automatic regeneration. Max 160 characters; longer entries are truncated.',
-							'agentready-ai-readiness-kit'
+							'agentable'
 						) }
 						__nextHasNoMarginBottom
 					/>
@@ -241,7 +241,7 @@ function DescriptionRow( {
 							onClick={ () => setEditing( true ) }
 							disabled={ isBusy }
 						>
-							{ __( 'Edit', 'agentready-ai-readiness-kit' ) }
+							{ __( 'Edit', 'agentable' ) }
 						</Button>
 						<span title={ regenDisabledReason || undefined }>
 							<Button
@@ -251,7 +251,7 @@ function DescriptionRow( {
 									isBusy || regenDisabledReason !== null
 								}
 							>
-								{ __( 'Regenerate', 'agentready-ai-readiness-kit' ) }
+								{ __( 'Regenerate', 'agentable' ) }
 							</Button>
 						</span>
 					</div>
@@ -263,14 +263,14 @@ function DescriptionRow( {
 							onClick={ saveManual }
 							disabled={ isBusy }
 						>
-							{ __( 'Save', 'agentready-ai-readiness-kit' ) }
+							{ __( 'Save', 'agentable' ) }
 						</Button>
 						<Button
 							variant="secondary"
 							onClick={ () => setEditing( false ) }
 							disabled={ isBusy }
 						>
-							{ __( 'Cancel', 'agentready-ai-readiness-kit' ) }
+							{ __( 'Cancel', 'agentable' ) }
 						</Button>
 						{ row.manual && (
 							<Button
@@ -279,7 +279,7 @@ function DescriptionRow( {
 								onClick={ clearManual }
 								disabled={ isBusy }
 							>
-								{ __( 'Clear manual', 'agentready-ai-readiness-kit' ) }
+								{ __( 'Clear manual', 'agentable' ) }
 							</Button>
 						) }
 					</div>
@@ -350,7 +350,7 @@ export function DescriptionsTable() {
 						err.message ||
 						__(
 							'Failed to load descriptions.',
-							'agentready-ai-readiness-kit'
+							'agentable'
 						),
 				} );
 			} finally {
@@ -431,7 +431,7 @@ export function DescriptionsTable() {
 					/* translators: 1: scheduled count, 2: skipped count */
 					__(
 						'Scheduled %1$d description job(s); %2$d skipped.',
-						'agentready-ai-readiness-kit'
+						'agentable'
 					),
 					response.scheduled,
 					response.skipped
@@ -443,7 +443,7 @@ export function DescriptionsTable() {
 				type: 'error',
 				message:
 					err.message ||
-					__( 'Bulk regenerate failed.', 'agentready-ai-readiness-kit' ),
+					__( 'Bulk regenerate failed.', 'agentable' ),
 			} );
 		} finally {
 			setBulkBusy( false );
@@ -454,8 +454,8 @@ export function DescriptionsTable() {
 		return (
 			<Notice status="error" isDismissible={ false }>
 				{ __(
-					'AI Readiness Kit descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
-					'agentready-ai-readiness-kit'
+					'Agentable descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
+					'agentable'
 				) }
 			</Notice>
 		);
@@ -466,7 +466,7 @@ export function DescriptionsTable() {
 			<Notice status="warning" isDismissible={ false }>
 				{ __(
 					'LLM descriptions are disabled in the Context Profile above. Toggle "Auto-generate entry descriptions" on to surface this table.',
-					'agentready-ai-readiness-kit'
+					'agentable'
 				) }
 			</Notice>
 		);
@@ -477,7 +477,7 @@ export function DescriptionsTable() {
 			<Notice status="warning" isDismissible={ false }>
 				{ __(
 					'WP AI Client is not configured. Install/activate it and add API credentials before running description backfills.',
-					'agentready-ai-readiness-kit'
+					'agentable'
 				) }
 			</Notice>
 		);
@@ -487,7 +487,7 @@ export function DescriptionsTable() {
 		<Panel
 			header={ __(
 				'LLMs Index — auto-generated descriptions',
-				'agentready-ai-readiness-kit'
+				'agentable'
 			) }
 			className="agentready-admin-panel"
 		>
@@ -495,20 +495,20 @@ export function DescriptionsTable() {
 				<p className="description">
 					{ __(
 						'One-line descriptions for entries in your exposed post types, generated via the configured LLM and cached on post meta. Rows marked "excluded" (password-protected, noindex, or manually excluded) are listed for visibility but skipped — they never reach /llms.txt. Edit any description inline to set a sticky manual override that survives regeneration.',
-						'agentready-ai-readiness-kit'
+						'agentable'
 					) }
 				</p>
 
 				<div className="agentready-toolbar">
 					<SelectControl
-						label={ __( 'Post type', 'agentready-ai-readiness-kit' ) }
+						label={ __( 'Post type', 'agentable' ) }
 						value={ cpt }
 						options={ [
 							{
 								value: '',
 								label: __(
 									'All exposed types',
-									'agentready-ai-readiness-kit'
+									'agentable'
 								),
 							},
 							...( bootstrap.exposedCpts || [] ).map( ( c ) => ( {
@@ -523,7 +523,7 @@ export function DescriptionsTable() {
 						__nextHasNoMarginBottom
 					/>
 					<SelectControl
-						label={ __( 'Filter', 'agentready-ai-readiness-kit' ) }
+						label={ __( 'Filter', 'agentable' ) }
 						value={ status }
 						options={ STATUS_FILTERS }
 						onChange={ ( v ) => {
@@ -538,10 +538,10 @@ export function DescriptionsTable() {
 						disabled={ bulkBusy }
 					>
 						{ bulkBusy
-							? __( 'Scheduling…', 'agentready-ai-readiness-kit' )
+							? __( 'Scheduling…', 'agentable' )
 							: __(
 									'Regenerate stale descriptions',
-									'agentready-ai-readiness-kit'
+									'agentable'
 							  ) }
 					</Button>
 				</div>
@@ -559,7 +559,7 @@ export function DescriptionsTable() {
 					<Notice status="info" isDismissible={ false }>
 						{ __(
 							'Refreshing while cron processes the queued jobs…',
-							'agentready-ai-readiness-kit'
+							'agentable'
 						) }
 					</Notice>
 				) }
@@ -569,7 +569,7 @@ export function DescriptionsTable() {
 						<p className="agentready-md-label--first">
 							{ __(
 								'Description jobs have been pending for over 60 seconds. WP cron fires on every front-end page hit — load any post in another tab, or run "wp cron event run --due-now" from the command line to drain the queue. Auto-refresh has paused.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 						</p>
 						<p className="agentready-button-row">
@@ -580,7 +580,7 @@ export function DescriptionsTable() {
 									fetchPage();
 								} }
 							>
-								{ __( 'Check again now', 'agentready-ai-readiness-kit' ) }
+								{ __( 'Check again now', 'agentable' ) }
 							</Button>
 						</p>
 					</Notice>
@@ -592,7 +592,7 @@ export function DescriptionsTable() {
 					<p className="agentready-empty">
 						{ __(
 							'No entries match the current filter.',
-							'agentready-ai-readiness-kit'
+							'agentable'
 						) }
 					</p>
 				) }
@@ -601,13 +601,13 @@ export function DescriptionsTable() {
 					<table className="agentready-descriptions-table">
 						<thead>
 							<tr>
-								<th>{ __( 'Post', 'agentready-ai-readiness-kit' ) }</th>
-								<th>{ __( 'Status', 'agentready-ai-readiness-kit' ) }</th>
+								<th>{ __( 'Post', 'agentable' ) }</th>
+								<th>{ __( 'Status', 'agentable' ) }</th>
 								<th>
-									{ __( 'Description', 'agentready-ai-readiness-kit' ) }
+									{ __( 'Description', 'agentable' ) }
 								</th>
 								<th className="col-actions">
-									{ __( 'Actions', 'agentready-ai-readiness-kit' ) }
+									{ __( 'Actions', 'agentable' ) }
 								</th>
 							</tr>
 						</thead>
@@ -635,12 +635,12 @@ export function DescriptionsTable() {
 								setPage( ( p ) => Math.max( 1, p - 1 ) )
 							}
 						>
-							{ __( '← Previous', 'agentready-ai-readiness-kit' ) }
+							{ __( '← Previous', 'agentable' ) }
 						</Button>
 						<span>
 							{ sprintf(
 								/* translators: 1: current page, 2: total pages */
-								__( 'Page %1$d of %2$d', 'agentready-ai-readiness-kit' ),
+								__( 'Page %1$d of %2$d', 'agentable' ),
 								page,
 								data.pages
 							) }
@@ -654,12 +654,12 @@ export function DescriptionsTable() {
 								)
 							}
 						>
-							{ __( 'Next →', 'agentready-ai-readiness-kit' ) }
+							{ __( 'Next →', 'agentable' ) }
 						</Button>
 						<span className="agentready-muted">
 							{ sprintf(
 								/* translators: %d: total entries */
-								__( '%d total', 'agentready-ai-readiness-kit' ),
+								__( '%d total', 'agentable' ),
 								data.total
 							) }
 						</span>

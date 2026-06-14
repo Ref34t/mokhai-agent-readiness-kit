@@ -266,13 +266,19 @@ final class Conflict_Detector {
 	/**
 	 * Filesystem check — competing static-file writers (most notably the
 	 * "LLMs.txt and LLMs-Full.txt Generator" plugin) drop a literal
-	 * `llms.txt` at the WordPress root. The web server serves that file
+	 * `llms.txt` at the public site root. The web server serves that file
 	 * before WP boots, so our rewrite never fires.
+	 *
+	 * Uses `get_home_path()` (the public document root) rather than ABSPATH
+	 * so detection is correct on subdirectory installs where the two differ.
 	 *
 	 * @return array{kind: string, path: string}|null
 	 */
 	private static function filesystem_conflict(): ?array {
-		$path = \ABSPATH . 'llms.txt';
+		if ( ! \function_exists( 'get_home_path' ) ) {
+			require_once \ABSPATH . 'wp-admin/includes/file.php';
+		}
+		$path = \get_home_path() . 'llms.txt';
 		if ( ! \file_exists( $path ) ) {
 			return null;
 		}

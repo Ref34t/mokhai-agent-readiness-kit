@@ -80,7 +80,7 @@ final class Site_Health {
 		}
 
 		$tests['direct'][ self::TEST_ID ] = array(
-			'label' => \__( 'AI Readiness Kit Context Score', 'agentready-ai-readiness-kit' ),
+			'label' => \__( 'Agentable Context Score', 'agentable' ),
 			'test'  => array( self::class, 'run_test' ),
 		);
 
@@ -106,8 +106,8 @@ final class Site_Health {
 			return self::result_payload(
 				'recommended',
 				'gray',
-				\__( 'Context Score has not been computed yet.', 'agentready-ai-readiness-kit' ),
-				\__( 'Visit the AI Readiness Kit Context Score admin page or run <code>wp ai-readiness-kit context-score recompute</code> to generate the first audit.', 'agentready-ai-readiness-kit' ),
+				\__( 'Context Score has not been computed yet.', 'agentable' ),
+				\__( 'Visit the Agentable Context Score admin page or run <code>wp ai-readiness-kit context-score recompute</code> to generate the first audit.', 'agentable' ),
 				$panel_url
 			);
 		}
@@ -131,7 +131,7 @@ final class Site_Health {
 			$badge  = 'green';
 			$label  = \sprintf(
 				/* translators: %d: overall score 0-100. */
-				\__( 'AI Readiness Kit Context Score: %d/100 — site is well-prepared for AI agent traffic.', 'agentready-ai-readiness-kit' ),
+				\__( 'Agentable Context Score: %d/100 — site is well-prepared for AI agent traffic.', 'agentable' ),
 				$overall
 			);
 		} elseif ( $overall >= self::CRITICAL_THRESHOLD ) {
@@ -139,7 +139,7 @@ final class Site_Health {
 			$badge  = 'orange';
 			$label  = \sprintf(
 				/* translators: 1: overall score 0-100. 2: count of sub-scores below 100. */
-				\__( 'AI Readiness Kit Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentready-ai-readiness-kit' ),
+				\__( 'Agentable Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentable' ),
 				$overall,
 				$below_target_count
 			);
@@ -148,7 +148,7 @@ final class Site_Health {
 			$badge  = 'red';
 			$label  = \sprintf(
 				/* translators: 1: overall score 0-100. 2: count of sub-scores below 100. */
-				\__( 'AI Readiness Kit Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentready-ai-readiness-kit' ),
+				\__( 'Agentable Context Score: %1$d/100 — %2$d sub-score(s) below target.', 'agentable' ),
 				$overall,
 				$below_target_count
 			);
@@ -157,10 +157,10 @@ final class Site_Health {
 		$description = '' !== $worst_name
 			? \sprintf(
 				/* translators: %s: human-readable sub-score name (e.g. "discoverability"). */
-				\__( 'The highest-leverage area to improve is <strong>%s</strong>. Open the AI Readiness Kit Context Score admin page for the full breakdown and actionable suggestions.', 'agentready-ai-readiness-kit' ),
+				\__( 'The highest-leverage area to improve is <strong>%s</strong>. Open the Agentable Context Score admin page for the full breakdown and actionable suggestions.', 'agentable' ),
 				Sub_Score_Names::label( $worst_name )
 			)
-			: \__( 'Open the AI Readiness Kit Context Score admin page for the full breakdown.', 'agentready-ai-readiness-kit' );
+			: \__( 'Open the Agentable Context Score admin page for the full breakdown.', 'agentable' );
 
 		// When the worst sub-score has an LLM narrative attached (#11 /
 		// AgDR-0032), surface its one-line "why" so Site Health and the
@@ -206,16 +206,16 @@ final class Site_Health {
 			'label'       => $label,
 			'status'      => $status,
 			'badge'       => array(
-				'label' => \__( 'AI Readiness Kit', 'agentready-ai-readiness-kit' ),
+				'label' => \__( 'Agentable', 'agentable' ),
 				'color' => $badge_color,
 			),
 			'description' => '<p>' . $description . '</p>',
 			'actions'     => \sprintf(
 				'<p><a href="%1$s">%2$s</a></p><p><a href="%3$s">%4$s</a></p>',
 				\esc_url( $panel_url ),
-				\esc_html__( 'View full breakdown', 'agentready-ai-readiness-kit' ),
+				\esc_html__( 'View full breakdown', 'agentable' ),
 				\esc_url( $panel_url . '#agentready-ai-preview-root' ),
-				\esc_html__( 'See what AI assistants read on your site', 'agentready-ai-readiness-kit' )
+				\esc_html__( 'See what AI assistants read on your site', 'agentable' )
 			),
 			'test'        => self::TEST_ID,
 		);

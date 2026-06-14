@@ -1,5 +1,5 @@
 /**
- * AI Readiness Kit — shared status-pill primitive (#70).
+ * Agentable — shared status-pill primitive (#70).
  *
  * Extracted from the descriptions table so every admin surface renders status
  * indicators with one consistent shape + colour vocabulary. Colours live in

@@ -1,5 +1,5 @@
 /**
- * AI Readiness Kit — Context app shell (#142 / AgDR-0048).
+ * Agentable — Context app shell (#142 / AgDR-0048).
  *
  * Single React app for Tools → Context. Replaces the three independent mounts
  * (profile / editorial / descriptions) with one cohesive, card-framed surface
@@ -31,9 +31,9 @@ function readGlobal( key ) {
 }
 
 const TABS = [
-	{ name: 'profile', title: __( 'Profile', 'agentready-ai-readiness-kit' ) },
-	{ name: 'editorial', title: __( 'Editorial', 'agentready-ai-readiness-kit' ) },
-	{ name: 'descriptions', title: __( 'Descriptions', 'agentready-ai-readiness-kit' ) },
+	{ name: 'profile', title: __( 'Profile', 'agentable' ) },
+	{ name: 'editorial', title: __( 'Editorial', 'agentable' ) },
+	{ name: 'descriptions', title: __( 'Descriptions', 'agentable' ) },
 ];
 
 function ContextApp() {
@@ -58,7 +58,7 @@ function ContextApp() {
 								<Notice status="error" isDismissible={ false }>
 									{ __(
 										'Context Profile failed to load. Reload the page or contact support.',
-										'agentready-ai-readiness-kit'
+										'agentable'
 									) }
 								</Notice>
 							) ) }
@@ -72,7 +72,7 @@ function ContextApp() {
 								<Notice status="error" isDismissible={ false }>
 									{ __(
 										'Editorial entries failed to load. Reload the page or contact support.',
-										'agentready-ai-readiness-kit'
+										'agentable'
 									) }
 								</Notice>
 							) ) }

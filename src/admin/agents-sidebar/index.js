@@ -51,35 +51,35 @@ function reasonLabel( reason ) {
 		case 'cpt':
 			return __(
 				'Post type is not in the Context Profile’s exposed CPTs.',
-				'agentready-ai-readiness-kit'
+				'agentable'
 			);
 		case 'status':
 			return __(
 				'Post status is not in the Context Profile’s exposed statuses.',
-				'agentready-ai-readiness-kit'
+				'agentable'
 			);
 		case 'password':
 			return __(
 				'Post is password-protected. Markdown view never serves password-protected content.',
-				'agentready-ai-readiness-kit'
+				'agentable'
 			);
 		case 'noindex':
 			return __(
 				'Post is flagged noindex by an SEO plugin.',
-				'agentready-ai-readiness-kit'
+				'agentable'
 			);
 		case 'excluded':
 			return __(
 				'Post is on the agentready exclude list (per-post toggle or Context Profile exclude list).',
-				'agentready-ai-readiness-kit'
+				'agentable'
 			);
 		case 'sample':
 			return __(
 				'Post is WordPress sample content excluded by the Context Profile.',
-				'agentready-ai-readiness-kit'
+				'agentable'
 			);
 		default:
-			return __( 'Hidden from agents.', 'agentready-ai-readiness-kit' );
+			return __( 'Hidden from agents.', 'agentable' );
 	}
 }
 
@@ -102,7 +102,7 @@ function verdictLabel( excluded, visibility ) {
 	if ( visibility.reason === 'excluded' ) {
 		return __(
 			'Your last save excluded this post — it becomes visible to agents once you save again.',
-			'agentready-ai-readiness-kit'
+			'agentable'
 		);
 	}
 
@@ -145,7 +145,7 @@ function AgentsPanel() {
 			setError(
 				err && err.message
 					? err.message
-					: __( 'Failed to load preview.', 'agentready-ai-readiness-kit' )
+					: __( 'Failed to load preview.', 'agentable' )
 			);
 			setData( null );
 		} finally {
@@ -169,7 +169,7 @@ function AgentsPanel() {
 			setCopied( true );
 			setTimeout( () => setCopied( false ), 2000 );
 		} catch {
-			setError( __( 'Copy to clipboard failed.', 'agentready-ai-readiness-kit' ) );
+			setError( __( 'Copy to clipboard failed.', 'agentable' ) );
 		}
 	}, [ data ] );
 
@@ -192,21 +192,21 @@ function AgentsPanel() {
 	return (
 		<PluginDocumentSettingPanel
 			name="agentready-agents"
-			title={ __( 'AI Readiness', 'agentready-ai-readiness-kit' ) }
+			title={ __( 'AI Readiness', 'agentable' ) }
 			className="agentready-agents-panel"
 		>
 			<ToggleControl
 				__nextHasNoMarginBottom
-				label={ __( 'Exclude from agent output', 'agentready-ai-readiness-kit' ) }
+				label={ __( 'Exclude from agent output', 'agentable' ) }
 				help={
 					excluded
 						? __(
 								'Hidden from /llms.txt and .md views — agents will not ingest this content.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 						  )
 						: __(
 								'Available to AI agents via /llms.txt and .md views.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 						  )
 				}
 				checked={ excluded }
@@ -218,7 +218,7 @@ function AgentsPanel() {
 			{ verdict && (
 				<p className="agentready-verdict">
 					<Pill kind="stale">
-						{ __( 'Hidden', 'agentready-ai-readiness-kit' ) }
+						{ __( 'Hidden', 'agentable' ) }
 					</Pill>{ ' ' }
 					{ verdict }
 				</p>
@@ -226,7 +226,7 @@ function AgentsPanel() {
 
 			{ moduleEnabled && loading && (
 				<p>
-					<Spinner /> { __( 'Loading preview…', 'agentready-ai-readiness-kit' ) }
+					<Spinner /> { __( 'Loading preview…', 'agentable' ) }
 				</p>
 			) }
 
@@ -247,28 +247,28 @@ function AgentsPanel() {
 							disabled={ ! data.markdown }
 						>
 							{ copied
-								? __( 'Copied!', 'agentready-ai-readiness-kit' )
+								? __( 'Copied!', 'agentable' )
 								: __(
 										'Copy to clipboard',
-										'agentready-ai-readiness-kit'
+										'agentable'
 								  ) }
 						</Button>
 
 						<Button variant="tertiary" onClick={ loadPreview }>
-							{ __( 'Refresh', 'agentready-ai-readiness-kit' ) }
+							{ __( 'Refresh', 'agentable' ) }
 						</Button>
 					</div>
 
 					{ data.cache_state && (
 						<p className="agentready-md-meta">
 							<strong>
-								{ __( 'Cache:', 'agentready-ai-readiness-kit' ) }
+								{ __( 'Cache:', 'agentable' ) }
 							</strong>{ ' ' }
 							{ data.cache_state.cached
-								? __( 'hit', 'agentready-ai-readiness-kit' )
-								: __( 'miss', 'agentready-ai-readiness-kit' ) }
+								? __( 'hit', 'agentable' )
+								: __( 'miss', 'agentable' ) }
 							{ ' · ' }
-							{ __( 'walker v', 'agentready-ai-readiness-kit' ) }
+							{ __( 'walker v', 'agentable' ) }
 							{ data.cache_state.walker_version }
 							{ ' · ' }
 							{ humanTimeDiff( data.cache_state.generated_at ) }

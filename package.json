@@ -1,7 +1,7 @@
 {
 	"name": "ai-readiness-kit",
 	"private": true,
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"description": "AI Readiness for WordPress: context, policy, audit, analytics.",
 	"license": "GPL-2.0-or-later",
 	"repository": {
@@ -13,12 +13,12 @@
 		"start": "wp-scripts start",
 		"lint:js": "wp-scripts lint-js src",
 		"format": "wp-scripts format src",
-		"makepot": "wp i18n make-pot . languages/agentready-ai-readiness-kit.pot --domain=agentready-ai-readiness-kit --exclude=vendor,node_modules,build,tests",
+		"makepot": "wp i18n make-pot . languages/agentable.pot --domain=agentable --exclude=vendor,node_modules,build,tests",
 		"wp-env": "wp-env",
 		"env:start": "wp-env start",
 		"env:stop": "wp-env stop",
 		"env:clean": "wp-env clean all",
-		"test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/agentready-ai-readiness-kit vendor/bin/phpunit"
+		"test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/agentable vendor/bin/phpunit"
 	},
 	"devDependencies": {
 		"@wordpress/env": "^11.8.0",

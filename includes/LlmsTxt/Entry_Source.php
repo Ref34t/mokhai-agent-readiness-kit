@@ -188,7 +188,7 @@ final class Entry_Source {
 		$title = \get_the_title( $post );
 		if ( '' === trim( (string) $title ) ) {
 			/* translators: placeholder shown in /llms.txt for posts saved without a title. */
-			return \__( '(no title)', 'agentready-ai-readiness-kit' );
+			return \__( '(no title)', 'agentable' );
 		}
 		return (string) $title;
 	}

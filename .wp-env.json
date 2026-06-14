@@ -2,10 +2,10 @@
 	"core": "WordPress/WordPress#master",
 	"phpVersion": "7.4",
 	"mappings": {
-		"wp-content/plugins/agentready-ai-readiness-kit": "."
+		"wp-content/plugins/agentable": "."
 	},
 	"lifecycleScripts": {
-		"afterStart": "npx wp-env run cli wp plugin activate agentready-ai-readiness-kit && npx wp-env run tests-cli wp plugin activate agentready-ai-readiness-kit"
+		"afterStart": "npx wp-env run cli wp plugin activate agentable && npx wp-env run tests-cli wp plugin activate agentable"
 	},
 	"config": {
 		"WP_DEBUG": true,

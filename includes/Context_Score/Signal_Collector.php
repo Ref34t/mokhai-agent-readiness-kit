@@ -247,13 +247,12 @@ final class Signal_Collector {
 	 * Multi-channel discovery signals for #22 / AgDR-0043.
 	 *
 	 * Probes a small fixed set of well-known discovery surfaces from the
-	 * WordPress install root. Filesystem probes (not HTTP) — fast,
+	 * public web root (`get_home_path()`), not the WordPress install dir —
+	 * the two differ on subdirectory installs, and these files are served
+	 * from the public root. Filesystem probes (not HTTP) — fast,
 	 * deterministic, and zero round-trip cost even on cron-less wp-env.
 	 *
 	 * Limitations (documented in AgDR-0043):
-	 *   - Subdirectory-WordPress installs where the document root differs
-	 *     from `ABSPATH` will miss `ai.txt` and `/.well-known/*` files
-	 *     served from the public site root. v0.1.2 candidate.
 	 *   - The OpenAPI probe credits a static spec only; the always-present
 	 *     `/wp-json/` REST root is intentionally NOT credited because it
 	 *     would zero out the signal across every WP site.
@@ -265,7 +264,13 @@ final class Signal_Collector {
 	 * @return array<string, mixed>
 	 */
 	private static function multi_channel_signals( bool $llms_txt_cache_populated ): array {
-		$root = \ABSPATH;
+		// Resolve the public web root (where root-served agent files live).
+		// On a subdirectory install this differs from ABSPATH (the WP core
+		// dir); `get_home_path()` returns the document root for both layouts.
+		if ( ! \function_exists( 'get_home_path' ) ) {
+			require_once \ABSPATH . 'wp-admin/includes/file.php';
+		}
+		$root = \get_home_path();
 
 		$ai_txt          = \file_exists( $root . 'ai.txt' );
 		$wk_ai_layer     = \file_exists( $root . '.well-known/ai-layer' );
