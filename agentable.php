@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Agentable
  * Plugin URI:        https://github.com/Ref34t/agentready
- * Description:       Make your WordPress site readable — and soon actionable — by AI agents: context, policy, audit, and analytics signals that keep your site discoverable and governable.
+ * Description:       Help AI agents read your WordPress site correctly: llms.txt, clean Markdown views, structured data, and a readiness score — from one Context Profile.
  * Version:           0.3.1
  * Requires at least: 6.9
  * Requires PHP:      7.4
