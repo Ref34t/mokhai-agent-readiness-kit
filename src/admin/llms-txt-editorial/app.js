@@ -1,5 +1,5 @@
 /**
- * AI Readiness Kit — LLMs Index editorial entries view (#7 Phase C / #142).
+ * Agentable — LLMs Index editorial entries view (#7 Phase C / #142).
  *
  * Repeater editor for the `agentready_llms_txt_editorial` option. Rendered as
  * the "Editorial" tab of the Context app shell (#142 / AgDR-0048). Saves via
@@ -49,7 +49,7 @@ function EntryRow( {
 				<strong>
 					{ sprintf(
 						/* translators: %d: entry index */
-						__( 'Entry %d', 'agentready-ai-readiness-kit' ),
+						__( 'Entry %d', 'agentable' ),
 						index + 1
 					) }
 				</strong>
@@ -59,7 +59,7 @@ function EntryRow( {
 						variant="tertiary"
 						disabled={ index === 0 }
 						onClick={ () => onMove( index, -1 ) }
-						aria-label={ __( 'Move entry up', 'agentready-ai-readiness-kit' ) }
+						aria-label={ __( 'Move entry up', 'agentable' ) }
 					>
 						{ '↑' }
 					</Button>
@@ -70,7 +70,7 @@ function EntryRow( {
 						onClick={ () => onMove( index, 1 ) }
 						aria-label={ __(
 							'Move entry down',
-							'agentready-ai-readiness-kit'
+							'agentable'
 						) }
 					>
 						{ '↓' }
@@ -80,15 +80,15 @@ function EntryRow( {
 						isDestructive
 						variant="tertiary"
 						onClick={ () => onRemove( index ) }
-						aria-label={ __( 'Remove entry', 'agentready-ai-readiness-kit' ) }
+						aria-label={ __( 'Remove entry', 'agentable' ) }
 					>
-						{ __( 'Remove', 'agentready-ai-readiness-kit' ) }
+						{ __( 'Remove', 'agentable' ) }
 					</Button>
 				</div>
 			</div>
 
 			<TextControl
-				label={ __( 'Title', 'agentready-ai-readiness-kit' ) }
+				label={ __( 'Title', 'agentable' ) }
 				value={ entry.title }
 				onChange={ ( value ) => onChange( index, 'title', value ) }
 				required
@@ -97,7 +97,7 @@ function EntryRow( {
 			/>
 
 			<TextControl
-				label={ __( 'URL', 'agentready-ai-readiness-kit' ) }
+				label={ __( 'URL', 'agentable' ) }
 				value={ entry.url }
 				onChange={ ( value ) => onChange( index, 'url', value ) }
 				type="url"
@@ -107,12 +107,12 @@ function EntryRow( {
 				__next40pxDefaultSize
 				help={ __(
 					'External URLs allowed. Schemes: http, https, mailto.',
-					'agentready-ai-readiness-kit'
+					'agentable'
 				) }
 			/>
 
 			<TextControl
-				label={ __( 'Description (optional)', 'agentready-ai-readiness-kit' ) }
+				label={ __( 'Description (optional)', 'agentable' ) }
 				value={ entry.description }
 				onChange={ ( value ) =>
 					onChange( index, 'description', value )
@@ -122,7 +122,7 @@ function EntryRow( {
 			/>
 
 			<SelectControl
-				label={ __( 'Section', 'agentready-ai-readiness-kit' ) }
+				label={ __( 'Section', 'agentable' ) }
 				value={ entry.section }
 				options={ sections.map( ( s ) => ( { label: s, value: s } ) ) }
 				onChange={ ( value ) => onChange( index, 'section', value ) }
@@ -132,7 +132,7 @@ function EntryRow( {
 
 			{ isCustom && (
 				<TextControl
-					label={ __( 'Custom section heading', 'agentready-ai-readiness-kit' ) }
+					label={ __( 'Custom section heading', 'agentable' ) }
 					value={ entry.section_label }
 					onChange={ ( value ) =>
 						onChange( index, 'section_label', value )
@@ -142,7 +142,7 @@ function EntryRow( {
 					__next40pxDefaultSize
 					help={ __(
 						'Heading rendered in /llms.txt when section is Custom.',
-						'agentready-ai-readiness-kit'
+						'agentable'
 					) }
 				/>
 			) }
@@ -210,13 +210,13 @@ export function EditorialApp( { bootstrap } ) {
 			);
 			setFlash( {
 				type: 'success',
-				message: __( 'Editorial entries saved.', 'agentready-ai-readiness-kit' ),
+				message: __( 'Editorial entries saved.', 'agentable' ),
 			} );
 		} catch ( err ) {
 			setFlash( {
 				type: 'error',
 				message:
-					err.message || __( 'Save failed.', 'agentready-ai-readiness-kit' ),
+					err.message || __( 'Save failed.', 'agentable' ),
 			} );
 		} finally {
 			setSaving( false );
@@ -224,11 +224,11 @@ export function EditorialApp( { bootstrap } ) {
 	};
 
 	return (
-		<div aria-label={ __( 'Editorial entries', 'agentready-ai-readiness-kit' ) }>
+		<div aria-label={ __( 'Editorial entries', 'agentable' ) }>
 			<p className="description">
 				{ __(
 					'Hand-curated entries published in /llms.txt alongside the auto-listed posts. Each entry has a title, URL, optional description, and a section heading.',
-					'agentready-ai-readiness-kit'
+					'agentable'
 				) }
 			</p>
 
@@ -245,7 +245,7 @@ export function EditorialApp( { bootstrap } ) {
 				<Notice status="info" isDismissible={ false }>
 					{ __(
 						'No editorial entries yet. Add hand-picked URLs to surface them in /llms.txt alongside auto-listed posts.',
-						'agentready-ai-readiness-kit'
+						'agentable'
 					) }
 				</Notice>
 			) }
@@ -270,7 +270,7 @@ export function EditorialApp( { bootstrap } ) {
 					onClick={ onAdd }
 					disabled={ saving }
 				>
-					{ __( 'Add entry', 'agentready-ai-readiness-kit' ) }
+					{ __( 'Add entry', 'agentable' ) }
 				</Button>
 				<Button
 					type="button"
@@ -280,8 +280,8 @@ export function EditorialApp( { bootstrap } ) {
 					disabled={ saving }
 				>
 					{ saving
-						? __( 'Saving…', 'agentready-ai-readiness-kit' )
-						: __( 'Save editorial entries', 'agentready-ai-readiness-kit' ) }
+						? __( 'Saving…', 'agentable' )
+						: __( 'Save editorial entries', 'agentable' ) }
 				</Button>
 				{ saving && <Spinner /> }
 			</div>

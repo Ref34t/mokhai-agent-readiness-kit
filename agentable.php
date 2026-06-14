@@ -1,21 +1,22 @@
 <?php
 /**
- * Plugin Name:       AgentReady – AI Readiness Kit
+ * Plugin Name:       Agentable
  * Plugin URI:        https://github.com/Ref34t/agentready
- * Description:       AI Readiness for WordPress: context, policy, audit, analytics. Makes sites readable, discoverable, governable, and measurable for AI agents.
- * Version:           0.3.0
+ * Description:       Make your WordPress site readable — and soon actionable — by AI agents: context, policy, audit, and analytics signals that keep your site discoverable and governable.
+ * Version:           0.3.1
  * Requires at least: 6.9
  * Requires PHP:      7.4
  * Author:            Mohamed Khaled
  * Author URI:        https://profiles.wordpress.org/mokhaled
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       agentready-ai-readiness-kit
+ * Text Domain:       agentable
  *
- * Translations: managed by wp.org under plugin slug 'agentready-ai-readiness-kit' (no manual
+ * Translations: managed by wp.org under plugin slug 'agentable' (no manual
  * textdomain loading needed since WP 4.6). See AgDR-0009 (slug value updated
- * per AgDR-0036 and the AI Readiness Kit rebrand, #101; renamed again to
- * agentready-ai-readiness-kit per AgDR-0059, #224).
+ * per AgDR-0036 and the AI Readiness Kit rebrand, #101; renamed to 'AgentReady'
+ * per AgDR-0059, #224; renamed to 'Agentable' per AgDR-0060, #230 — the
+ * 'agentready' brand collided with the existing agentready.org).
  *
  * @package WPContext
  */

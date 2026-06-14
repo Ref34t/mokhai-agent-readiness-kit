@@ -55,7 +55,7 @@ final class Exclude_Meta {
 					'show_in_rest'      => true,
 					'auth_callback'     => array( self::class, 'can_edit' ),
 					'sanitize_callback' => array( self::class, 'sanitize' ),
-					'description'       => \__( 'Exclude this content from AI Readiness Kit agent output (/llms.txt, .md views).', 'agentready-ai-readiness-kit' ),
+					'description'       => \__( 'Exclude this content from Agentable agent output (/llms.txt, .md views).', 'agentable' ),
 				)
 			);
 		}

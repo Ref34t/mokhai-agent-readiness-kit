@@ -1,10 +1,10 @@
-=== AgentReady – AI Readiness Kit ===
+=== Agentable ===
 Contributors: mokhaled
 Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ AI Readiness for WordPress: one coherent layer that makes a site readable, disco
 
 == Description ==
 
-AI Readiness Kit is an open-source WordPress plugin that turns your site into a first-class citizen of the AI-agent web. A single **Context Profile** (configured once under Tools → Context) is the source of truth for every agent-facing surface — what's exposed, how it's served, and how it's scored.
+Agentable is an open-source WordPress plugin that turns your site into a first-class citizen of the AI-agent web — readable today, actionable next. A single **Context Profile** (configured once under Tools → Context) is the source of truth for every agent-facing surface — what's exposed, how it's served, and how it's scored.
 
 v0.1 ships four coherent modules driven by one profile:
 
@@ -115,7 +115,7 @@ AI Readiness Kit registers an `ai-readiness-kit` ability category and five core 
 
 == Privacy and Storage ==
 
-AI Readiness Kit stores rendered Markdown in a custom table named `{$wpdb->prefix}agentready_md_cache`, with one row per published post that has been requested at least once as Markdown — holding the Markdown body, an integrity hash of the source content, and the timestamp at which it was generated. The cache is invalidated automatically when a post is saved, trashed, or deleted.
+Agentable stores rendered Markdown in a custom table named `{$wpdb->prefix}agentready_md_cache`, with one row per published post that has been requested at least once as Markdown — holding the Markdown body, an integrity hash of the source content, and the timestamp at which it was generated. The cache is invalidated automatically when a post is saved, trashed, or deleted.
 
 Context Score audit results are cached in the `agentready_context_score_cache` `wp_options` entry (the most-recent breakdown only — overwritten on each recompute).
 
@@ -146,7 +146,7 @@ No. Every deterministic surface (Markdown Views, /llms.txt floor, rule-based Con
 
 = How does AI Readiness Kit interact with my SEO plugin? =
 
-For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is active, AI Readiness Kit emits nothing competing — schema is theirs. When no SEO plugin is emitting JSON-LD, you can optionally enable AI Readiness Kit's native gap-fill emission from the Context Profile. For noindex: AI Readiness Kit ships an `agentready_post_is_noindexed` filter the Markdown Views handler honours; v0.1 leaves the SEO-plugin subscriber unwired (a theme or companion plugin can subscribe it today; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release).
+For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is active, Agentable emits nothing competing — schema is theirs. When no SEO plugin is emitting JSON-LD, you can optionally enable Agentable's native gap-fill emission from the Context Profile. For noindex: Agentable ships an `agentready_post_is_noindexed` filter the Markdown Views handler honours; v0.1 leaves the SEO-plugin subscriber unwired (a theme or companion plugin can subscribe it today; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release).
 
 = How is this different from existing /llms.txt plugins? =
 
@@ -165,9 +165,13 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 
 == Changelog ==
 
+= 0.3.1 — 2026-06-14 =
+
+Rename to **Agentable** (text domain `agentable`). The previous "AgentReady" brand collided with an existing third party (agentready.org), so the plugin is renamed to a distinct, ownable name that also fits the roadmap — sites readable today, actionable next. REST, WP-CLI, abilities, and stored data keys are unchanged, so existing installs upgrade with no migration. Also makes root-served-file detection (`llms.txt`, `ai.txt`, `.well-known/*`) subdirectory-install aware via `get_home_path()` instead of assuming the install root is the web root. (#230, AgDR-0060)
+
 = 0.3.0 — 2026-06-12 =
 
-Polish release. Refinements surfaced through a full live UX walkthrough of the v0.2.0 admin surfaces — score-narrative correctness, clearer labels, and a more discoverable plugin. Also renamed to "AgentReady – AI Readiness Kit" (text domain `agentready-ai-readiness-kit`); REST, WP-CLI, and stored data keys are unchanged. (#224, AgDR-0059)
+Polish release. Refinements surfaced through a full live UX walkthrough of the v0.2.0 admin surfaces — score-narrative correctness, clearer labels, and a more discoverable plugin. Also renamed to "AgentReady – AI Readiness Kit"; REST, WP-CLI, and stored data keys are unchanged. (#224, AgDR-0059)
 
 **Improved**
 

@@ -236,7 +236,7 @@ final class Preview_Builder {
 		$title = \get_the_title( $post );
 		if ( '' === \trim( (string) $title ) ) {
 			/* translators: shown in the AI preview dropdown for posts saved without a title. */
-			return \__( '(no title)', 'agentready-ai-readiness-kit' );
+			return \__( '(no title)', 'agentable' );
 		}
 		return (string) $title;
 	}

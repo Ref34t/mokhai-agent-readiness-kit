@@ -255,7 +255,7 @@ final class Rest_Controller {
 		if ( ! $post instanceof \WP_Post ) {
 			return new \WP_Error(
 				'rest_post_not_found',
-				\__( 'Post not found.', 'agentready-ai-readiness-kit' ),
+				\__( 'Post not found.', 'agentable' ),
 				array( 'status' => 404 )
 			);
 		}

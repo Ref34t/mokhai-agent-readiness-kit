@@ -2,40 +2,42 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: AgentReady – AI Readiness Kit 0.3.0\n"
+"Project-Id-Version: Agentable 0.3.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/agentready\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-12T11:10:34+00:00\n"
+"POT-Creation-Date: 2026-06-14T12:27:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
-"X-Domain: agentready-ai-readiness-kit\n"
+"X-Domain: agentable\n"
 
 #. Plugin Name of the plugin
-#: agentready-ai-readiness-kit.php
-msgid "AgentReady – AI Readiness Kit"
+#: agentable.php
+#: includes/Abilities/Registrar.php:61
+#: includes/Context_Score/Site_Health.php:209
+msgid "Agentable"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: agentready-ai-readiness-kit.php
+#: agentable.php
 msgid "https://github.com/Ref34t/agentready"
 msgstr ""
 
 #. Description of the plugin
-#: agentready-ai-readiness-kit.php
-msgid "AI Readiness for WordPress: context, policy, audit, analytics. Makes sites readable, discoverable, governable, and measurable for AI agents."
+#: agentable.php
+msgid "Make your WordPress site readable — and soon actionable — by AI agents: context, policy, audit, and analytics signals that keep your site discoverable and governable."
 msgstr ""
 
 #. Author of the plugin
-#: agentready-ai-readiness-kit.php
+#: agentable.php
 msgid "Mohamed Khaled"
 msgstr ""
 
 #. Author URI of the plugin
-#: agentready-ai-readiness-kit.php
+#: agentable.php
 msgid "https://profiles.wordpress.org/mokhaled"
 msgstr ""
 
@@ -45,11 +47,6 @@ msgstr ""
 
 #: includes/Abilities/Md_View_Ability.php:58
 msgid "The Markdown Views module is disabled in the Context Profile."
-msgstr ""
-
-#: includes/Abilities/Registrar.php:61
-#: includes/Context_Score/Site_Health.php:209
-msgid "AI Readiness Kit"
 msgstr ""
 
 #: includes/Abilities/Registrar.php:62
@@ -98,7 +95,7 @@ msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:64
 #: src/admin/context-profile/app.js:188
-msgid "AI Readiness Kit Context Profile"
+msgid "Agentable Context Profile"
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:65
@@ -125,11 +122,11 @@ msgid "Context Profile"
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:114
-msgid "Configure how AI Readiness Kit exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below."
+msgid "Configure how Agentable exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below."
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:125
-msgid "AI Readiness Kit Context editor"
+msgid "Agentable Context editor"
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:132
@@ -137,7 +134,7 @@ msgid "The Context editor requires JavaScript. Enable JavaScript and reload this
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:296
-msgid "AI Readiness Kit Context Profile UI bundle not found. Run:"
+msgid "Agentable Context Profile UI bundle not found. Run:"
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:333
@@ -165,7 +162,7 @@ msgid "You are not allowed to manage the Context Profile."
 msgstr ""
 
 #: includes/Admin/Context_Profile_Settings.php:123
-msgid "AI Readiness Kit Context Profile (single source of truth for agent-facing surfaces)."
+msgid "Agentable Context Profile (single source of truth for agent-facing surfaces)."
 msgstr ""
 
 #: includes/Admin/Context_Profile_Settings.php:532
@@ -174,7 +171,7 @@ msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:69
 #: includes/Context_Score/Site_Health.php:83
-msgid "AI Readiness Kit Context Score"
+msgid "Agentable Context Score"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:70
@@ -191,7 +188,7 @@ msgid "Context Score"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:126
-msgid "AI Readiness Kit Context Score breakdown"
+msgid "Agentable Context Score breakdown"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:133
@@ -204,11 +201,11 @@ msgid "AI Assistant Preview"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:309
-msgid "AI Readiness Kit Context Score UI bundle not found. Run:"
+msgid "Agentable Context Score UI bundle not found. Run:"
 msgstr ""
 
 #: includes/Admin/Exclude_Meta.php:58
-msgid "Exclude this content from AI Readiness Kit agent output (/llms.txt, .md views)."
+msgid "Exclude this content from Agentable agent output (/llms.txt, .md views)."
 msgstr ""
 
 #. translators: shown in the AI preview dropdown for posts saved without a title.
@@ -296,7 +293,7 @@ msgid "Another plugin is overriding the /llms.txt rewrite rule, so agents may hi
 msgstr ""
 
 #: includes/Context_Score/Rule_Based_Narrative.php:136
-msgid "Deactivate the conflicting plugin or move it after AI Readiness Kit in load order, then re-test /llms.txt."
+msgid "Deactivate the conflicting plugin or move it after Agentable in load order, then re-test /llms.txt."
 msgstr ""
 
 #: includes/Context_Score/Rule_Based_Narrative.php:142
@@ -541,27 +538,27 @@ msgid "Context Score has not been computed yet."
 msgstr ""
 
 #: includes/Context_Score/Site_Health.php:110
-msgid "Visit the AI Readiness Kit Context Score admin page or run <code>wp ai-readiness-kit context-score recompute</code> to generate the first audit."
+msgid "Visit the Agentable Context Score admin page or run <code>wp ai-readiness-kit context-score recompute</code> to generate the first audit."
 msgstr ""
 
 #. translators: %d: overall score 0-100.
 #: includes/Context_Score/Site_Health.php:134
-msgid "AI Readiness Kit Context Score: %d/100 — site is well-prepared for AI agent traffic."
+msgid "Agentable Context Score: %d/100 — site is well-prepared for AI agent traffic."
 msgstr ""
 
 #. translators: 1: overall score 0-100. 2: count of sub-scores below 100.
 #: includes/Context_Score/Site_Health.php:142
 #: includes/Context_Score/Site_Health.php:151
-msgid "AI Readiness Kit Context Score: %1$d/100 — %2$d sub-score(s) below target."
+msgid "Agentable Context Score: %1$d/100 — %2$d sub-score(s) below target."
 msgstr ""
 
 #. translators: %s: human-readable sub-score name (e.g. "discoverability").
 #: includes/Context_Score/Site_Health.php:160
-msgid "The highest-leverage area to improve is <strong>%s</strong>. Open the AI Readiness Kit Context Score admin page for the full breakdown and actionable suggestions."
+msgid "The highest-leverage area to improve is <strong>%s</strong>. Open the Agentable Context Score admin page for the full breakdown and actionable suggestions."
 msgstr ""
 
 #: includes/Context_Score/Site_Health.php:163
-msgid "Open the AI Readiness Kit Context Score admin page for the full breakdown."
+msgid "Open the Agentable Context Score admin page for the full breakdown."
 msgstr ""
 
 #: includes/Context_Score/Site_Health.php:216
@@ -602,7 +599,7 @@ msgid "multi-channel discovery"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:279
-msgid "AI Readiness Kit — /llms.txt conflict detected"
+msgid "Agentable — /llms.txt conflict detected"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:295
@@ -614,11 +611,11 @@ msgid "Dismiss for this conflict"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:312
-msgid "The following plugins also publish /llms.txt and will compete with AI Readiness Kit's route:"
+msgid "The following plugins also publish /llms.txt and will compete with Agentable's route:"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:334
-msgid "To switch to AI Readiness Kit's /llms.txt, deactivate the competing plugin(s) above. If you intentionally run both — e.g. one for /llms.txt, another for something else — dismiss this notice."
+msgid "To switch to Agentable's /llms.txt, deactivate the competing plugin(s) above. If you intentionally run both — e.g. one for /llms.txt, another for something else — dismiss this notice."
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:340
@@ -626,7 +623,7 @@ msgid "Note: if you manually curated entries in another plugin, they will not tr
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:352
-msgid "A static /llms.txt file exists at the WordPress root. Web servers serve static files before WordPress loads, so AI Readiness Kit's /llms.txt route is being shadowed."
+msgid "A static /llms.txt file exists at the WordPress root. Web servers serve static files before WordPress loads, so Agentable's /llms.txt route is being shadowed."
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:363
@@ -634,7 +631,7 @@ msgid "To resolve: back up the existing file contents if you need any of them, t
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:375
-msgid "Another plugin registered a WordPress rewrite rule for /llms.txt that overrides AI Readiness Kit's route. The competing rule is:"
+msgid "Another plugin registered a WordPress rewrite rule for /llms.txt that overrides Agentable's route. The competing rule is:"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:386
@@ -665,7 +662,7 @@ msgid "You are not allowed to manage editorial entries."
 msgstr ""
 
 #: includes/LlmsTxt/Editorial_Settings.php:109
-msgid "AI Readiness Kit editorial entries for /llms.txt."
+msgid "Agentable editorial entries for /llms.txt."
 msgstr ""
 
 #: includes/Markdown_Views/Rest_Controller.php:122
@@ -678,7 +675,7 @@ msgstr ""
 
 #. translators: 1: required PHP version, 2: current PHP version
 #: includes/Requirements.php:76
-msgid "AI Readiness Kit requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated."
+msgid "Agentable requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated."
 msgstr ""
 
 #: includes/Requirements.php:80
@@ -688,7 +685,7 @@ msgstr ""
 
 #. translators: 1: required WordPress version, 2: current WordPress version
 #: includes/Requirements.php:90
-msgid "AI Readiness Kit requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated."
+msgid "Agentable requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated."
 msgstr ""
 
 #. translators: 1: required PHP version, 2: current PHP version
@@ -702,11 +699,11 @@ msgid "WordPress %1$s or higher is required. Current: %2$s."
 msgstr ""
 
 #: includes/Requirements.php:147
-msgid "AI Readiness Kit is inactive:"
+msgid "Agentable is inactive:"
 msgstr ""
 
 #: includes/Requirements.php:186
-msgid "AI Readiness Kit is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives."
+msgid "Agentable is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives."
 msgstr ""
 
 #: src/admin/agents-sidebar/index.js:52
@@ -951,12 +948,12 @@ msgid "WP AI Client is not configured. The LLM toggles below stay on but degrade
 msgstr ""
 
 #: src/admin/context-profile/app.js:80
-msgid "No SEO plugin detected — AI Readiness Kit will emit its own JSON-LD schema."
+msgid "No SEO plugin detected — Agentable will emit its own JSON-LD schema."
 msgstr ""
 
 #. translators: %s: SEO plugin label (e.g. "Yoast SEO")
 #: src/admin/context-profile/app.js:87
-msgid "Deferring JSON-LD to %s. AI Readiness Kit fills only the schema gaps that plugin does not provide."
+msgid "Deferring JSON-LD to %s. Agentable fills only the schema gaps that plugin does not provide."
 msgstr ""
 
 #: src/admin/context-profile/app.js:173
@@ -993,7 +990,7 @@ msgid "Locale:"
 msgstr ""
 
 #: src/admin/context-profile/app.js:234
-msgid "Site identity is read live from WordPress General Settings. Edit it there to change what AI Readiness Kit emits."
+msgid "Site identity is read live from WordPress General Settings. Edit it there to change what Agentable emits."
 msgstr ""
 
 #: src/admin/context-profile/app.js:244
@@ -1106,7 +1103,7 @@ msgid "Emit native JSON-LD on the front-end"
 msgstr ""
 
 #: src/admin/context-profile/app.js:504
-msgid "When on, AI Readiness Kit emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin."
+msgid "When on, Agentable emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin."
 msgstr ""
 
 #: src/admin/context-profile/app.js:518
@@ -1233,11 +1230,11 @@ msgid "Detected SEO plugin (%s) — structured data is likely being emitted."
 msgstr ""
 
 #: src/admin/context-score/index.js:176
-msgid "AI Readiness Kit is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin."
+msgid "Agentable is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin."
 msgstr ""
 
 #: src/admin/context-score/index.js:181
-msgid "No structured data detected on this site. Enable Schema emission in the Context Profile to have AI Readiness Kit emit native JSON-LD, or rely on a third-party SEO plugin."
+msgid "No structured data detected on this site. Enable Schema emission in the Context Profile to have Agentable emit native JSON-LD, or rely on a third-party SEO plugin."
 msgstr ""
 
 #: src/admin/context-score/index.js:187
@@ -1454,15 +1451,15 @@ msgstr ""
 
 #. translators: %s: SEO plugin name
 #: src/admin/context-score/index.js:1083
-msgid "%s is active. AI Readiness Kit defers JSON-LD coordination to it and only fills schema types it does not already provide."
+msgid "%s is active. Agentable defers JSON-LD coordination to it and only fills schema types it does not already provide."
 msgstr ""
 
 #: src/admin/context-score/index.js:1091
-msgid "No SEO plugin detected. AI Readiness Kit is emitting a minimal baseline schema set (site identity + content type) on the front-end."
+msgid "No SEO plugin detected. Agentable is emitting a minimal baseline schema set (site identity + content type) on the front-end."
 msgstr ""
 
 #: src/admin/context-score/index.js:1097
-msgid "No SEO plugin detected and Schema emission is off in Context Profile. AI Readiness Kit is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage."
+msgid "No SEO plugin detected and Schema emission is off in Context Profile. Agentable is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage."
 msgstr ""
 
 #: src/admin/context-score/index.js:1112
@@ -1474,7 +1471,7 @@ msgid "Deferred to plugin"
 msgstr ""
 
 #: src/admin/context-score/index.js:1137
-msgid "Filled by AI Readiness Kit"
+msgid "Filled by Agentable"
 msgstr ""
 
 #: src/admin/context-score/index.js:1146
@@ -1511,7 +1508,7 @@ msgid "Recompute failed."
 msgstr ""
 
 #: src/admin/context-score/index.js:1324
-msgid "AI Readiness Kit Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
+msgid "Agentable Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
 msgstr ""
 
 #: src/admin/llms-txt-descriptions/app.js:40
@@ -1609,7 +1606,7 @@ msgid "Bulk regenerate failed."
 msgstr ""
 
 #: src/admin/llms-txt-descriptions/app.js:456
-msgid "AI Readiness Kit descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
+msgid "Agentable descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
 msgstr ""
 
 #: src/admin/llms-txt-descriptions/app.js:467

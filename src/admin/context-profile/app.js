@@ -1,5 +1,5 @@
 /**
- * AI Readiness Kit — Context Profile view (FR-1 keystone / #142).
+ * Agentable — Context Profile view (FR-1 keystone / #142).
  *
  * Rendered as the "Profile" tab of the Context app shell (#142 / AgDR-0048).
  * Saves the whole profile via the `ai-readiness-kit/v1/context-profile` REST
@@ -69,7 +69,7 @@ export function ContextProfileApp( { bootstrap } ) {
 			<Notice status="info" isDismissible={ false }>
 				{ __(
 					'WP AI Client is not configured. The LLM toggles below stay on but degrade silently — outputs fall back to deterministic equivalents until a provider is configured.',
-					'agentready-ai-readiness-kit'
+					'agentable'
 				) }
 			</Notice>
 		);
@@ -78,15 +78,15 @@ export function ContextProfileApp( { bootstrap } ) {
 	const schemaPostureLabel = useMemo( () => {
 		if ( schemaCoordination.posture === 'none' ) {
 			return __(
-				'No SEO plugin detected — AI Readiness Kit will emit its own JSON-LD schema.',
-				'agentready-ai-readiness-kit'
+				'No SEO plugin detected — Agentable will emit its own JSON-LD schema.',
+				'agentable'
 			);
 		}
 		return sprintf(
 			/* translators: %s: SEO plugin label (e.g. "Yoast SEO") */
 			__(
-				'Deferring JSON-LD to %s. AI Readiness Kit fills only the schema gaps that plugin does not provide.',
-				'agentready-ai-readiness-kit'
+				'Deferring JSON-LD to %s. Agentable fills only the schema gaps that plugin does not provide.',
+				'agentable'
 			),
 			schemaCoordination.label
 		);
@@ -170,13 +170,13 @@ export function ContextProfileApp( { bootstrap } ) {
 			}
 			setFlash( {
 				type: 'success',
-				message: __( 'Context Profile saved.', 'agentready-ai-readiness-kit' ),
+				message: __( 'Context Profile saved.', 'agentable' ),
 			} );
 		} catch ( err ) {
 			setFlash( {
 				type: 'error',
 				message:
-					err.message || __( 'Save failed.', 'agentready-ai-readiness-kit' ),
+					err.message || __( 'Save failed.', 'agentable' ),
 			} );
 		} finally {
 			setSaving( false );
@@ -186,8 +186,8 @@ export function ContextProfileApp( { bootstrap } ) {
 	return (
 		<div
 			aria-label={ __(
-				'AI Readiness Kit Context Profile',
-				'agentready-ai-readiness-kit'
+				'Agentable Context Profile',
+				'agentable'
 			) }
 		>
 			{ flash && (
@@ -200,14 +200,14 @@ export function ContextProfileApp( { bootstrap } ) {
 			) }
 
 			<Panel
-				header={ __( 'Site identity', 'agentready-ai-readiness-kit' ) }
+				header={ __( 'Site identity', 'agentable' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
 					<PanelRow>
 						<p>
 							<strong>
-								{ __( 'Site name:', 'agentready-ai-readiness-kit' ) }
+								{ __( 'Site name:', 'agentable' ) }
 							</strong>{ ' ' }
 							{ siteIdentity.name }
 						</p>
@@ -215,16 +215,16 @@ export function ContextProfileApp( { bootstrap } ) {
 					<PanelRow>
 						<p>
 							<strong>
-								{ __( 'Tagline:', 'agentready-ai-readiness-kit' ) }
+								{ __( 'Tagline:', 'agentable' ) }
 							</strong>{ ' ' }
 							{ siteIdentity.tagline ||
-								__( '(none)', 'agentready-ai-readiness-kit' ) }
+								__( '(none)', 'agentable' ) }
 						</p>
 					</PanelRow>
 					<PanelRow>
 						<p>
 							<strong>
-								{ __( 'Locale:', 'agentready-ai-readiness-kit' ) }
+								{ __( 'Locale:', 'agentable' ) }
 							</strong>{ ' ' }
 							{ siteIdentity.locale }
 						</p>
@@ -232,8 +232,8 @@ export function ContextProfileApp( { bootstrap } ) {
 					<PanelRow>
 						<p className="description">
 							{ __(
-								'Site identity is read live from WordPress General Settings. Edit it there to change what AI Readiness Kit emits.',
-								'agentready-ai-readiness-kit'
+								'Site identity is read live from WordPress General Settings. Edit it there to change what Agentable emits.',
+								'agentable'
 							) }
 						</p>
 					</PanelRow>
@@ -241,18 +241,18 @@ export function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'Exposed content', 'agentready-ai-readiness-kit' ) }
+				header={ __( 'Exposed content', 'agentable' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody
-					title={ __( 'Custom post types', 'agentready-ai-readiness-kit' ) }
+					title={ __( 'Custom post types', 'agentable' ) }
 					initialOpen
 				>
 					<PanelRow>
 						<p className="description">
 							{ __(
 								'A fresh install exposes nothing. Tick every post type you want available to AI agents via /llms.txt and .md views.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 						</p>
 					</PanelRow>
@@ -266,14 +266,14 @@ export function ContextProfileApp( { bootstrap } ) {
 						>
 							{ __(
 								'Custom post types to expose',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 						</legend>
 						{ cptOptions.length === 0 && (
 							<Notice status="warning" isDismissible={ false }>
 								{ __(
 									'No public custom post types registered on this site.',
-									'agentready-ai-readiness-kit'
+									'agentable'
 								) }
 							</Notice>
 						) }
@@ -301,14 +301,14 @@ export function ContextProfileApp( { bootstrap } ) {
 				</PanelBody>
 
 				<PanelBody
-					title={ __( 'Post statuses', 'agentready-ai-readiness-kit' ) }
+					title={ __( 'Post statuses', 'agentable' ) }
 					initialOpen={ false }
 				>
 					<PanelRow>
 						<p className="description">
 							{ __(
 								'"Published" is the only status enabled by default. Exposing private / draft / pending content to agents requires deliberate opt-in.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 						</p>
 					</PanelRow>
@@ -322,7 +322,7 @@ export function ContextProfileApp( { bootstrap } ) {
 						>
 							{ __(
 								'Post statuses to expose',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 						</legend>
 						{ statusOptions.map( ( status ) => (
@@ -350,7 +350,7 @@ export function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'Content exclusions', 'agentready-ai-readiness-kit' ) }
+				header={ __( 'Content exclusions', 'agentable' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
@@ -359,11 +359,11 @@ export function ContextProfileApp( { bootstrap } ) {
 							__nextHasNoMarginBottom
 							label={ __(
 								'Exclude WordPress sample content',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							help={ __(
 								'Drops the default "Hello World" post and "Sample Page" from agent output so seeded placeholder content never reaches /llms.txt or .md views. On by default.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							checked={ !! profile.exclude_wp_samples }
 							onChange={ ( on ) =>
@@ -374,10 +374,10 @@ export function ContextProfileApp( { bootstrap } ) {
 					<PanelRow>
 						<TextareaControl
 							__nextHasNoMarginBottom
-							label={ __( 'Exclude list', 'agentready-ai-readiness-kit' ) }
+							label={ __( 'Exclude list', 'agentable' ) }
 							help={ __(
 								'One entry per line. A number is treated as a post ID; anything else as a slug (e.g. "sample-page"). Excluded content is removed from /llms.txt, .md views, and alternate-link advertising. You can also exclude a single post from its editor sidebar.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							value={ excludeText }
 							onChange={ onExcludeListChange }
@@ -389,11 +389,11 @@ export function ContextProfileApp( { bootstrap } ) {
 							__nextHasNoMarginBottom
 							label={ __(
 								'Exclude by category / tag',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							help={ __(
 								'One category or tag per line. A number is treated as a term ID; anything else as a term slug (e.g. "internal"). Posts carrying any listed term are excluded from /llms.txt, .md views, and alternate-link advertising. Custom taxonomy terms are not evaluated.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							value={ excludeTermsText }
 							onChange={ onExcludeTermsChange }
@@ -404,7 +404,7 @@ export function ContextProfileApp( { bootstrap } ) {
 						<p className="description">
 							{ __(
 								'Posts marked noindex by a supported SEO plugin (Yoast, Rank Math) are excluded automatically.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 						</p>
 					</PanelRow>
@@ -412,7 +412,7 @@ export function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'Discovery channels', 'agentready-ai-readiness-kit' ) }
+				header={ __( 'Discovery channels', 'agentable' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
@@ -421,11 +421,11 @@ export function ContextProfileApp( { bootstrap } ) {
 							__nextHasNoMarginBottom
 							label={ __(
 								'Serve AI discovery channels',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							help={ __(
 								'Serves ai.txt, /.well-known/llms-policy.json, and /.well-known/ai-layer dynamically — no files are written, and a file you place at any of these paths always wins. Turning this off removes the routes (404). On by default.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							checked={ !! profile.discovery_channels_enabled }
 							onChange={ ( on ) =>
@@ -438,11 +438,11 @@ export function ContextProfileApp( { bootstrap } ) {
 							__nextHasNoMarginBottom
 							label={ __(
 								'Declare inference allowed',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							help={ __(
 								'Published in llms-policy.json and echoed in ai.txt: AI systems may read your content to answer questions. Declarative only — nothing is enforced.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							checked={ !! profile.policy_allow_inference }
 							onChange={ ( on ) =>
@@ -455,11 +455,11 @@ export function ContextProfileApp( { bootstrap } ) {
 							__nextHasNoMarginBottom
 							label={ __(
 								'Declare training allowed',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							help={ __(
 								'Published in llms-policy.json and echoed in ai.txt: AI systems may use your content to train models. Off by default — opt in deliberately. Declarative only — nothing is enforced.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							checked={ !! profile.policy_allow_training }
 							onChange={ ( on ) =>
@@ -471,7 +471,7 @@ export function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'Schema coordination', 'agentready-ai-readiness-kit' ) }
+				header={ __( 'Schema coordination', 'agentable' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
@@ -482,7 +482,7 @@ export function ContextProfileApp( { bootstrap } ) {
 						<p className="description">
 							{ __(
 								'Auto-detected. Activate or deactivate your SEO plugin to change this.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 						</p>
 					</PanelRow>
@@ -490,7 +490,7 @@ export function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'Schema emission', 'agentready-ai-readiness-kit' ) }
+				header={ __( 'Schema emission', 'agentable' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
@@ -499,11 +499,11 @@ export function ContextProfileApp( { bootstrap } ) {
 							__nextHasNoMarginBottom
 							label={ __(
 								'Emit native JSON-LD on the front-end',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							help={ __(
-								'When on, AI Readiness Kit emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin.',
-								'agentready-ai-readiness-kit'
+								'When on, Agentable emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin.',
+								'agentable'
 							) }
 							checked={ profile.schema_emit_enabled }
 							onChange={ ( on ) =>
@@ -515,7 +515,7 @@ export function ContextProfileApp( { bootstrap } ) {
 			</Panel>
 
 			<Panel
-				header={ __( 'LLM features', 'agentready-ai-readiness-kit' ) }
+				header={ __( 'LLM features', 'agentable' ) }
 				className="agentready-context-profile-panel"
 			>
 				<PanelBody opened>
@@ -525,11 +525,11 @@ export function ContextProfileApp( { bootstrap } ) {
 							__nextHasNoMarginBottom
 							label={ __(
 								'Auto-generate /llms.txt entry descriptions',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							help={ __(
 								'Use WP AI Client to write one-line descriptions for auto-listed entries. Falls back to the post excerpt when the AI Client is unconfigured.',
-								'agentready-ai-readiness-kit'
+								'agentable'
 							) }
 							checked={ profile.llm_descriptions_enabled }
 							onChange={ ( on ) =>
@@ -548,8 +548,8 @@ export function ContextProfileApp( { bootstrap } ) {
 					disabled={ saving }
 				>
 					{ saving
-						? __( 'Saving…', 'agentready-ai-readiness-kit' )
-						: __( 'Save Context Profile', 'agentready-ai-readiness-kit' ) }
+						? __( 'Saving…', 'agentable' )
+						: __( 'Save Context Profile', 'agentable' ) }
 				</Button>
 				{ saving && <Spinner /> }
 			</div>

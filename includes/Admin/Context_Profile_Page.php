@@ -61,8 +61,8 @@ final class Context_Profile_Page {
 	 */
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
-			\__( 'AI Readiness Kit Context Profile', 'agentready-ai-readiness-kit' ),
-			\__( 'AI Readiness — Context', 'agentready-ai-readiness-kit' ),
+			\__( 'Agentable Context Profile', 'agentable' ),
+			\__( 'AI Readiness — Context', 'agentable' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( self::class, 'render' )
@@ -82,7 +82,7 @@ final class Context_Profile_Page {
 		$settings = \sprintf(
 			'<a href="%s">%s</a>',
 			\esc_url( \admin_url( 'tools.php?page=' . self::PAGE_SLUG ) ),
-			\esc_html__( 'Settings', 'agentready-ai-readiness-kit' )
+			\esc_html__( 'Settings', 'agentable' )
 		);
 		\array_unshift( $links, $settings );
 
@@ -100,20 +100,20 @@ final class Context_Profile_Page {
 	public static function render(): void {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die(
-				\esc_html__( 'You do not have permission to access this page.', 'agentready-ai-readiness-kit' ),
-				\esc_html__( 'Forbidden', 'agentready-ai-readiness-kit' ),
+				\esc_html__( 'You do not have permission to access this page.', 'agentable' ),
+				\esc_html__( 'Forbidden', 'agentable' ),
 				array( 'response' => 403 )
 			);
 		}
 
 		?>
 		<div class="wrap" id="agentready-context-profile-wrap">
-			<h1><?php \esc_html_e( 'Context Profile', 'agentready-ai-readiness-kit' ); ?></h1>
+			<h1><?php \esc_html_e( 'Context Profile', 'agentable' ); ?></h1>
 			<p class="description">
 				<?php
 				\esc_html_e(
-					'Configure how AI Readiness Kit exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below.',
-					'agentready-ai-readiness-kit'
+					'Configure how Agentable exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below.',
+					'agentable'
 				);
 				?>
 			</p>
@@ -122,7 +122,7 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-context-app"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'AI Readiness Kit Context editor', 'agentready-ai-readiness-kit' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Agentable Context editor', 'agentable' ); ?>"
 			></div>
 
 			<noscript>
@@ -131,7 +131,7 @@ final class Context_Profile_Page {
 						<?php
 						\esc_html_e(
 							'The Context editor requires JavaScript. Enable JavaScript and reload this page.',
-							'agentready-ai-readiness-kit'
+							'agentable'
 						);
 						?>
 					</p>
@@ -210,7 +210,7 @@ final class Context_Profile_Page {
 
 		\wp_set_script_translations(
 			'agentready-context-app',
-			'agentready-ai-readiness-kit',
+			'agentable',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -293,7 +293,7 @@ final class Context_Profile_Page {
 		}
 		\printf(
 			'<div class="notice notice-warning"><p>%1$s <code>%2$s</code></p></div>',
-			\esc_html__( 'AI Readiness Kit Context Profile UI bundle not found. Run:', 'agentready-ai-readiness-kit' ),
+			\esc_html__( 'Agentable Context Profile UI bundle not found. Run:', 'agentable' ),
 			\esc_html( 'npm install && npm run build' )
 		);
 	}
@@ -330,23 +330,23 @@ final class Context_Profile_Page {
 		$status_options = array(
 			array(
 				'slug'  => 'publish',
-				'label' => \__( 'Published', 'agentready-ai-readiness-kit' ),
+				'label' => \__( 'Published', 'agentable' ),
 			),
 			array(
 				'slug'  => 'private',
-				'label' => \__( 'Private', 'agentready-ai-readiness-kit' ),
+				'label' => \__( 'Private', 'agentable' ),
 			),
 			array(
 				'slug'  => 'password',
-				'label' => \__( 'Password-protected', 'agentready-ai-readiness-kit' ),
+				'label' => \__( 'Password-protected', 'agentable' ),
 			),
 			array(
 				'slug'  => 'draft',
-				'label' => \__( 'Draft', 'agentready-ai-readiness-kit' ),
+				'label' => \__( 'Draft', 'agentable' ),
 			),
 			array(
 				'slug'  => 'pending',
-				'label' => \__( 'Pending review', 'agentready-ai-readiness-kit' ),
+				'label' => \__( 'Pending review', 'agentable' ),
 			),
 		);
 

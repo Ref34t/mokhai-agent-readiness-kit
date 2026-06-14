@@ -35,7 +35,7 @@ if ( $tests_dir && file_exists( $tests_dir . '/includes/functions.php' ) ) {
 	tests_add_filter(
 		'muplugins_loaded',
 		static function (): void {
-			require __DIR__ . '/../agentready-ai-readiness-kit.php';
+			require __DIR__ . '/../agentable.php';
 		}
 	);
 

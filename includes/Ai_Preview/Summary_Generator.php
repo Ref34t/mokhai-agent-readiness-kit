@@ -119,7 +119,7 @@ PROMPT;
 		if ( '' === $markdown ) {
 			return self::degrade(
 				'empty_input',
-				\__( 'This page has no Markdown View to summarise yet.', 'agentready-ai-readiness-kit' )
+				\__( 'This page has no Markdown View to summarise yet.', 'agentable' )
 			);
 		}
 
@@ -131,7 +131,7 @@ PROMPT;
 		if ( null === $provider && ! Client_Wrapper::has_ai_client() ) {
 			return self::degrade(
 				'unconfigured',
-				\__( 'Connect an AI provider to preview a model summary of this page.', 'agentready-ai-readiness-kit' )
+				\__( 'Connect an AI provider to preview a model summary of this page.', 'agentable' )
 			);
 		}
 
@@ -159,7 +159,7 @@ PROMPT;
 		if ( $duration_ms > self::GENERATION_BUDGET_MS ) {
 			return self::degrade(
 				'budget_exceeded',
-				\__( 'The summary took too long to generate. Try again.', 'agentready-ai-readiness-kit' )
+				\__( 'The summary took too long to generate. Try again.', 'agentable' )
 			);
 		}
 
@@ -167,7 +167,7 @@ PROMPT;
 		if ( '' === $text ) {
 			return self::degrade(
 				'empty_output',
-				\__( 'The model returned an empty summary. Try again.', 'agentready-ai-readiness-kit' )
+				\__( 'The model returned an empty summary. Try again.', 'agentable' )
 			);
 		}
 
@@ -241,19 +241,19 @@ PROMPT;
 			case 'unconfigured':
 				return self::degrade(
 					'unconfigured',
-					\__( 'Connect an AI provider to preview a model summary of this page.', 'agentready-ai-readiness-kit' )
+					\__( 'Connect an AI provider to preview a model summary of this page.', 'agentable' )
 				);
 			case 'permanent':
 				return self::degrade(
 					'permanent',
-					\__( 'The AI provider rejected the request. Check the API key and model configuration.', 'agentready-ai-readiness-kit' )
+					\__( 'The AI provider rejected the request. Check the API key and model configuration.', 'agentable' )
 				);
 			case 'rate_limit':
 			case 'network':
 			default:
 				return self::degrade(
 					'needs_retry',
-					\__( 'The summary could not be generated right now. Try again in a moment.', 'agentready-ai-readiness-kit' )
+					\__( 'The summary could not be generated right now. Try again in a moment.', 'agentable' )
 				);
 		}
 	}

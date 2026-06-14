@@ -47,7 +47,7 @@ final class Md_View_Ability {
 		if ( ! $post instanceof \WP_Post ) {
 			return new \WP_Error(
 				'ai_readiness_kit_post_not_found',
-				\__( 'No post resolves from the supplied url / post_id.', 'agentready-ai-readiness-kit' ),
+				\__( 'No post resolves from the supplied url / post_id.', 'agentable' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -55,7 +55,7 @@ final class Md_View_Ability {
 		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
 			return new \WP_Error(
 				'ai_readiness_kit_module_disabled',
-				\__( 'The Markdown Views module is disabled in the Context Profile.', 'agentready-ai-readiness-kit' ),
+				\__( 'The Markdown Views module is disabled in the Context Profile.', 'agentable' ),
 				array( 'status' => 403 )
 			);
 		}

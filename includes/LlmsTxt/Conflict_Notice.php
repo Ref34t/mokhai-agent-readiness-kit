@@ -276,7 +276,7 @@ final class Conflict_Notice {
 		$rewrite_conflicts    = array_values( array_filter( $conflicts, static fn ( $c ) => 'rewrite' === ( $c['kind'] ?? '' ) ) );
 
 		echo '<div class="notice notice-warning is-dismissible agentready-llms-txt-conflict-notice">';
-		echo '<p><strong>' . \esc_html__( 'AI Readiness Kit — /llms.txt conflict detected', 'agentready-ai-readiness-kit' ) . '</strong></p>';
+		echo '<p><strong>' . \esc_html__( 'Agentable — /llms.txt conflict detected', 'agentable' ) . '</strong></p>';
 
 		if ( ! empty( $plugin_conflicts ) ) {
 			self::render_plugin_section( $plugin_conflicts );
@@ -292,12 +292,12 @@ final class Conflict_Notice {
 		\printf(
 			'<a href="%1$s" class="button button-primary">%2$s</a> ',
 			\esc_url( \admin_url( 'plugins.php' ) ),
-			\esc_html__( 'Open Plugins screen', 'agentready-ai-readiness-kit' )
+			\esc_html__( 'Open Plugins screen', 'agentable' )
 		);
 		\printf(
 			'<button type="button" class="button" data-agentready-dismiss-fingerprint="%1$s">%2$s</button>',
 			\esc_attr( $fingerprint ),
-			\esc_html__( 'Dismiss for this conflict', 'agentready-ai-readiness-kit' )
+			\esc_html__( 'Dismiss for this conflict', 'agentable' )
 		);
 		echo '</p>';
 
@@ -310,8 +310,8 @@ final class Conflict_Notice {
 	private static function render_plugin_section( array $plugins ): void {
 		echo '<p>';
 		\esc_html_e(
-			'The following plugins also publish /llms.txt and will compete with AI Readiness Kit\'s route:',
-			'agentready-ai-readiness-kit'
+			'The following plugins also publish /llms.txt and will compete with Agentable\'s route:',
+			'agentable'
 		);
 		echo '</p><ul style="list-style:disc;margin-left:1.5em;">';
 		foreach ( $plugins as $plugin ) {
@@ -332,14 +332,14 @@ final class Conflict_Notice {
 		echo '</ul>';
 		echo '<p>';
 		\esc_html_e(
-			'To switch to AI Readiness Kit\'s /llms.txt, deactivate the competing plugin(s) above. If you intentionally run both — e.g. one for /llms.txt, another for something else — dismiss this notice.',
-			'agentready-ai-readiness-kit'
+			'To switch to Agentable\'s /llms.txt, deactivate the competing plugin(s) above. If you intentionally run both — e.g. one for /llms.txt, another for something else — dismiss this notice.',
+			'agentable'
 		);
 		echo '</p>';
 		echo '<p><em>';
 		\esc_html_e(
 			'Note: if you manually curated entries in another plugin, they will not transfer automatically. Back them up before deactivating.',
-			'agentready-ai-readiness-kit'
+			'agentable'
 		);
 		echo '</em></p>';
 	}
@@ -350,8 +350,8 @@ final class Conflict_Notice {
 	private static function render_filesystem_section( array $files ): void {
 		echo '<p>';
 		\esc_html_e(
-			'A static /llms.txt file exists at the WordPress root. Web servers serve static files before WordPress loads, so AI Readiness Kit\'s /llms.txt route is being shadowed.',
-			'agentready-ai-readiness-kit'
+			'A static /llms.txt file exists at the WordPress root. Web servers serve static files before WordPress loads, so Agentable\'s /llms.txt route is being shadowed.',
+			'agentable'
 		);
 		echo '</p>';
 		echo '<ul style="list-style:disc;margin-left:1.5em;">';
@@ -362,7 +362,7 @@ final class Conflict_Notice {
 		echo '<p>';
 		\esc_html_e(
 			'To resolve: back up the existing file contents if you need any of them, then delete the file via FTP/SFTP or your hosting file manager.',
-			'agentready-ai-readiness-kit'
+			'agentable'
 		);
 		echo '</p>';
 	}
@@ -373,8 +373,8 @@ final class Conflict_Notice {
 	private static function render_rewrite_section( array $rules ): void {
 		echo '<p>';
 		\esc_html_e(
-			'Another plugin registered a WordPress rewrite rule for /llms.txt that overrides AI Readiness Kit\'s route. The competing rule is:',
-			'agentready-ai-readiness-kit'
+			'Another plugin registered a WordPress rewrite rule for /llms.txt that overrides Agentable\'s route. The competing rule is:',
+			'agentable'
 		);
 		echo '</p>';
 		echo '<ul style="list-style:disc;margin-left:1.5em;">';
@@ -385,7 +385,7 @@ final class Conflict_Notice {
 		echo '<p>';
 		\esc_html_e(
 			'Identify the responsible plugin from the rewrite target above and deactivate it from the Plugins screen.',
-			'agentready-ai-readiness-kit'
+			'agentable'
 		);
 		echo '</p>';
 	}
