@@ -56,6 +56,46 @@ final class Rule_Based_Narrative_Test extends TestCase {
 		self::assertStringContainsString( 'Working well', $pair['why'] );
 	}
 
+	public function test_discoverability_warns_on_static_robots_txt(): void {
+		// #245: populated + advertised index but a static robots.txt → advisory
+		// with the exact line to paste, even at a perfect score.
+		$pair = Rule_Based_Narrative::compose_one(
+			'discoverability',
+			array(
+				'value'   => 100,
+				'weight'  => 20,
+				'signals' => array(
+					'llms_txt_cache_populated'     => true,
+					'advertise_alternates_enabled' => true,
+					'static_robots_txt'            => true,
+					'llms_txt_url'                 => 'https://example.com/llms.txt',
+				),
+			)
+		);
+
+		self::assertStringContainsString( 'static robots.txt', $pair['why'] );
+		self::assertStringContainsString( 'https://example.com/llms.txt', $pair['fix'] );
+	}
+
+	public function test_discoverability_no_robots_warning_when_no_static_file(): void {
+		// Virtual robots.txt (no static file) → falls through to the normal
+		// "working well" narrative, no advisory.
+		$pair = Rule_Based_Narrative::compose_one(
+			'discoverability',
+			array(
+				'value'   => 100,
+				'weight'  => 20,
+				'signals' => array(
+					'llms_txt_cache_populated'     => true,
+					'advertise_alternates_enabled' => true,
+					'static_robots_txt'            => false,
+				),
+			)
+		);
+
+		self::assertStringContainsString( 'Working well', $pair['why'] );
+	}
+
 	public function test_discoverability_calls_out_empty_cache(): void {
 		$pair = Rule_Based_Narrative::compose_one(
 			'discoverability',
