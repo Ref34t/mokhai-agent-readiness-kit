@@ -37,10 +37,8 @@
  *     ### {next title}
  *     ...
  *
- * Empty state mirrors `Composer` (#244): when neither editorial nor documents
- * contain entries, `compose()` still emits the site identity header so the
- * route serves an identifiable — not blank — body. Only when there is also no
- * site name does it return the empty string.
+ * Empty state mirrors `Composer` (#244): when nothing is exposed, `compose()`
+ * emits the site identity header alone; only a nameless site returns ''.
  *
  * @package WPContext
  */
