@@ -183,10 +183,21 @@ final class Entry_Source {
 	 * Resolve the entry title. Falls back to `(no title)` so a saved-without-
 	 * title post still appears as an entry rather than being dropped silently.
 	 * Translation domain matches the plugin slug.
+	 *
+	 * `get_the_title()` runs the `the_title` filter, which multilingual plugins
+	 * (WPML / Polylang) can resolve to an empty string when `/llms.txt` is
+	 * composed in a no-language context (WP-CLI regen, cron) — yielding a wall
+	 * of `(no title)` entries even though the posts have real stored titles.
+	 * So when the filtered title is empty, fall back to the raw `post_title`
+	 * before declaring the post titleless. (#242)
 	 */
 	private static function resolve_title( \WP_Post $post ): string {
 		$title = \get_the_title( $post );
 		if ( '' === trim( (string) $title ) ) {
+			$raw = trim( (string) $post->post_title );
+			if ( '' !== $raw ) {
+				return $raw;
+			}
 			/* translators: placeholder shown in /llms.txt for posts saved without a title. */
 			return \__( '(no title)', 'agentable' );
 		}
