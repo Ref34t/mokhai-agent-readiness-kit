@@ -63,7 +63,7 @@ All denial paths produce the same 404 shape — admin debugging via the REST end
 
 == LLMs Index (/llms.txt) ==
 
-AI Readiness Kit publishes a `/llms.txt` discovery surface for AI agents — the de-facto convention for declaring which URLs on a site are worth fetching as agent context. The generator is driven by the Context Profile: only CPTs and statuses you've exposed appear in the index. Conflict detection surfaces when `robots.txt` already covers the same paths; an admin notice points to the conflict so coverage isn't silently inconsistent.
+Agentable publishes a `/llms.txt` discovery surface for AI agents — the de-facto convention for declaring which URLs on a site are worth fetching as agent context. The generator is driven by the Context Profile: only CPTs and statuses you've exposed appear in the index. Conflict detection surfaces when `robots.txt` already covers the same paths; an admin notice points to the conflict so coverage isn't silently inconsistent.
 
 = Editorial entries =
 
@@ -87,7 +87,7 @@ Context Score is the 0–100 readiness audit answering "how prepared is this sit
 
 1. **Discoverability (weight 10)** — `/llms.txt` cache populated, at least one CPT exposed, entries published, no rewrite conflicts overriding the route
 2. **Description coverage (weight 15)** — share of exposed entries that have a curated description (post excerpt or LLM-generated cache from the descriptions module)
-3. **Schema coverage (weight 10)** — JSON-LD is being emitted, either by a detected SEO plugin (Yoast / Rank Math / AIOSEO / The SEO Framework) or by AI Readiness Kit's native gap-fill emitter when the Context Profile toggle is on
+3. **Schema coverage (weight 10)** — JSON-LD is being emitted, either by a detected SEO plugin (Yoast / Rank Math / AIOSEO / The SEO Framework) or by Agentable's native gap-fill emitter when the Context Profile toggle is on
 4. **Exposure safety (weight 15)** — exposed statuses are limited to `publish` (no risky non-publish exposures) and at least one CPT is configured explicitly rather than implicitly
 5. **Integration health (weight 15)** — LLM features ↔ AI Client posture are consistent (no silent-degrade trap) and no `/llms.txt` conflicts are unresolved
 6. **Markdown conversion quality (weight 25)** — mean quality score across the Markdown Views cache and the percentage of cached posts above the cleanup threshold
@@ -103,7 +103,7 @@ An LLM-generated narrative (uses the WP AI Client provider) explains the score i
 
 == Schema Coordination ==
 
-When you have an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) active and emitting JSON-LD, AI Readiness Kit defers schema emission to them entirely — no competing markup, no duplicate type declarations. When no SEO plugin is emitting schema, AI Readiness Kit can optionally emit a native WebSite + Organization + per-content schema set so the schema sub-score in Context Score is achievable without a third-party SEO plugin. The toggle lives in the Context Profile; default is off (gap-fill behaviour kicks in only when explicitly enabled).
+When you have an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) active and emitting JSON-LD, Agentable defers schema emission to them entirely — no competing markup, no duplicate type declarations. When no SEO plugin is emitting schema, Agentable can optionally emit a native WebSite + Organization + per-content schema set so the schema sub-score in Context Score is achievable without a third-party SEO plugin. The toggle lives in the Context Profile; default is off (gap-fill behaviour kicks in only when explicitly enabled).
 
 == AI Assistant Preview ==
 
@@ -111,7 +111,7 @@ The AI Assistant Preview pane (Tools → Context) answers a question every site 
 
 == Agent Abilities (MCP) ==
 
-AI Readiness Kit registers an `ai-readiness-kit` ability category and five core WordPress Abilities (WP 6.9+): audit-run, profile-read, profile-set-exposure, llms-txt-regenerate, and md-view-preview. Each is a thin wrapper over an existing service, gated on `manage_options`, and exposed via the core `wp-abilities/v1` REST surface. When the WordPress MCP adapter is installed, these abilities are also reachable by MCP clients (the abilities are flagged `meta.mcp.public`), making the plugin's operations callable by agent runtimes — a step from agent-*readable* toward agent-*usable*. The MCP flag is inert when no adapter is present, so the abilities work standalone.
+Agentable registers an `ai-readiness-kit` ability category and five core WordPress Abilities (WP 6.9+): audit-run, profile-read, profile-set-exposure, llms-txt-regenerate, and md-view-preview. Each is a thin wrapper over an existing service, gated on `manage_options`, and exposed via the core `wp-abilities/v1` REST surface. When the WordPress MCP adapter is installed, these abilities are also reachable by MCP clients (the abilities are flagged `meta.mcp.public`), making the plugin's operations callable by agent runtimes — a step from agent-*readable* toward agent-*usable*. The MCP flag is inert when no adapter is present, so the abilities work standalone.
 
 == Privacy and Storage ==
 
@@ -140,17 +140,17 @@ The module respects the toggle without latency — flipping back to true is inst
 
 == Frequently Asked Questions ==
 
-= Does AI Readiness Kit require an AI API key? =
+= Does Agentable require an AI API key? =
 
 No. Every deterministic surface (Markdown Views, /llms.txt floor, rule-based Context Score narrative, gap-fill JSON-LD emission) runs fully locally with no external calls. Modules that benefit from an LLM (the Markdown cleanup pass, /llms.txt entry-description drafting, the LLM-narrated Context Score) require the optional WP AI Client to be configured, but each is independently toggleable and not load-bearing for the core agent-readiness contract.
 
-= How does AI Readiness Kit interact with my SEO plugin? =
+= How does Agentable interact with my SEO plugin? =
 
 For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is active, Agentable emits nothing competing — schema is theirs. When no SEO plugin is emitting JSON-LD, you can optionally enable Agentable's native gap-fill emission from the Context Profile. For noindex: Agentable ships an `agentready_post_is_noindexed` filter the Markdown Views handler honours; v0.1 leaves the SEO-plugin subscriber unwired (a theme or companion plugin can subscribe it today; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release).
 
 = How is this different from existing /llms.txt plugins? =
 
-`/llms.txt` is one surface among several. AI Readiness Kit ships the integrated reading layer (Markdown views), the discovery layer (/llms.txt with editorial entries and LLM-powered descriptions), the audit layer (Context Score across seven sub-scores), and the schema coordination layer as a single coherent unit driven by one Context Profile. Most existing plugins target one of these surfaces in isolation; AI Readiness Kit treats them as a coordinated stack.
+`/llms.txt` is one surface among several. Agentable ships the integrated reading layer (Markdown views), the discovery layer (/llms.txt with editorial entries and LLM-powered descriptions), the audit layer (Context Score across seven sub-scores), and the schema coordination layer as a single coherent unit driven by one Context Profile. Most existing plugins target one of these surfaces in isolation; Agentable treats them as a coordinated stack.
 
 = What's on the roadmap after v0.2? =
 
