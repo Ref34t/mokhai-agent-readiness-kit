@@ -296,6 +296,44 @@ final class Entry_Source_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Regression for Ref34t/agentready#242.
+	 *
+	 * Multilingual plugins (WPML / Polylang) hook `the_title` and can resolve
+	 * it to an empty string when `/llms.txt` is composed in a no-language
+	 * context (WP-CLI regen, cron). Simulating that filter, the entry must fall
+	 * back to the raw stored `post_title` instead of rendering `(no title)`.
+	 */
+	public function test_empty_filtered_title_falls_back_to_raw_post_title(): void {
+		self::factory()->post->create(
+			array(
+				'post_title'  => 'Privacy Policy',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		// Stand in for a multilingual plugin blanking the filtered title.
+		$blank_the_title = static function () {
+			return '';
+		};
+		add_filter( 'the_title', $blank_the_title, 10, 0 );
+
+		try {
+			$sections = Entry_Source::get_sections();
+		} finally {
+			remove_filter( 'the_title', $blank_the_title, 10 );
+		}
+
+		$this->assertCount( 1, $sections );
+		$this->assertCount( 1, $sections[0]['entries'] );
+		$this->assertSame(
+			'Privacy Policy',
+			$sections[0]['entries'][0]['title'],
+			'A filtered-empty title must fall back to the raw post_title, not (no title).'
+		);
+	}
+
+	/**
 	 * Regression for Ref34t/agentready#105.
 	 *
 	 * `/llms.txt` is an agent discovery surface — its links should point at
