@@ -77,6 +77,27 @@ final class Rule_Based_Narrative_Test extends TestCase {
 		self::assertStringContainsString( 'https://example.com/llms.txt', $pair['fix'] );
 	}
 
+	public function test_discoverability_rewrite_conflict_takes_precedence_over_robots_advisory(): void {
+		// When both a rewrite conflict and a static robots.txt are present, the
+		// more-severe conflict message wins.
+		$pair = Rule_Based_Narrative::compose_one(
+			'discoverability',
+			array(
+				'value'   => 90,
+				'weight'  => 20,
+				'signals' => array(
+					'llms_txt_cache_populated'     => true,
+					'advertise_alternates_enabled' => true,
+					'static_robots_txt'            => true,
+					'rewrite_conflicted'           => true,
+					'llms_txt_url'                 => 'https://example.com/llms.txt',
+				),
+			)
+		);
+
+		self::assertStringContainsString( 'overriding the /llms.txt rewrite rule', $pair['why'] );
+	}
+
 	public function test_discoverability_no_robots_warning_when_no_static_file(): void {
 		// Virtual robots.txt (no static file) → falls through to the normal
 		// "working well" narrative, no advisory.

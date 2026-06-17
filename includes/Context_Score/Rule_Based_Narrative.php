@@ -123,14 +123,24 @@ final class Rule_Based_Narrative {
 		$entry_count = (int) ( $signals['llms_txt_entry_count'] ?? 0 );
 		$conflicted  = (bool) ( $signals['rewrite_conflicted'] ?? false );
 
+		$static_robots = (bool) ( $signals['static_robots_txt'] ?? false );
+		$advertise     = (bool) ( $signals['advertise_alternates_enabled'] ?? false );
+
+		// A rewrite conflict is the most severe / actionable discovery problem,
+		// so it takes precedence over the static-robots advisory below.
+		if ( $conflicted ) {
+			return array(
+				'why' => \__( 'Another plugin is overriding the /llms.txt rewrite rule, so agents may hit a stale index.', 'agentable' ),
+				'fix' => \__( 'Deactivate the conflicting plugin or move it after Agentable in load order, then re-test /llms.txt.', 'agentable' ),
+			);
+		}
+
 		// Advisory (#245): a populated, advertised index but a static robots.txt
 		// is present — the /llms.txt reference can't be auto-added there, so the
 		// robots.txt discovery channel is silently broken. Surface this even at
-		// a perfect score.
-		$static_robots = (bool) ( $signals['static_robots_txt'] ?? false );
-		$advertise     = (bool) ( $signals['advertise_alternates_enabled'] ?? false );
+		// a perfect score (it sits above the value>=100 "working well" branch).
 		if ( $cache_pop && $advertise && $static_robots ) {
-			$llms_url = (string) ( $signals['llms_txt_url'] ?? '' );
+			$llms_url = \esc_url_raw( (string) ( $signals['llms_txt_url'] ?? '' ) );
 			return array(
 				'why' => \__( 'A static robots.txt file is present, so the /llms.txt reference is not added automatically — agents that read robots.txt are not pointed to your index.', 'agentable' ),
 				'fix' => \sprintf(
@@ -145,13 +155,6 @@ final class Rule_Based_Narrative {
 			return array(
 				'why' => \__( 'Working well — /llms.txt is populated and exposed CPTs are configured, so agents can find the content surface.', 'agentable' ),
 				'fix' => \__( 'Keep the Context Profile in sync as new CPTs are added.', 'agentable' ),
-			);
-		}
-
-		if ( $conflicted ) {
-			return array(
-				'why' => \__( 'Another plugin is overriding the /llms.txt rewrite rule, so agents may hit a stale index.', 'agentable' ),
-				'fix' => \__( 'Deactivate the conflicting plugin or move it after Agentable in load order, then re-test /llms.txt.', 'agentable' ),
 			);
 		}
 
