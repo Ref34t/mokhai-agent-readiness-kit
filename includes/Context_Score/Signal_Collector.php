@@ -90,7 +90,12 @@ final class Signal_Collector {
 		$cache = Llms_Txt_Service::get_cache_payload();
 
 		return array(
-			'cache_populated' => null !== $cache && isset( $cache['body'] ) && '' !== (string) $cache['body'],
+			// "Populated" means the index carries discoverable ENTRIES — keyed
+			// off entry_count, not body length. Since #244 an empty-content
+			// site still emits a non-blank identity-header body, so a body-
+			// length check would falsely read as populated and over-credit the
+			// discoverability sub-score.
+			'cache_populated' => null !== $cache && isset( $cache['entry_count'] ) && (int) $cache['entry_count'] > 0,
 			'entry_count'     => null !== $cache && isset( $cache['entry_count'] )
 				? (int) $cache['entry_count']
 				: 0,
