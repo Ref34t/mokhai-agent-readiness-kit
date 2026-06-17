@@ -272,7 +272,7 @@ final class Service_Test extends WP_UnitTestCase {
 		$this->assertNull( Service::get_cache_payload() );
 	}
 
-	public function test_empty_profile_yields_empty_body(): void {
+	public function test_empty_profile_yields_header_only_body(): void {
 		update_option(
 			Context_Profile_Settings::OPTION_KEY,
 			array_merge(
@@ -293,7 +293,12 @@ final class Service_Test extends WP_UnitTestCase {
 
 		$body = Service::regen_sync();
 
-		$this->assertSame( '', $body, 'Empty exposed_cpts must produce empty body (FR-9).' );
+		// #244: empty exposed_cpts → the site identity header alone, no
+		// entries — an identifiable file, not a blank body.
+		$this->assertNotSame( '', $body );
+		$this->assertStringStartsWith( '# ', $body );
+		$this->assertStringNotContainsString( 'Hidden', $body, 'Unexposed post must not appear.' );
+		$this->assertStringNotContainsString( "\n- [", $body, 'No content exposed → no entries.' );
 	}
 
 	public function test_editorial_entries_appear_in_body(): void {

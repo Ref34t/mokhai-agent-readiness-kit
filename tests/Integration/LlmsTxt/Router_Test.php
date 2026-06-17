@@ -104,7 +104,7 @@ final class Router_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Findable', $response['body'] );
 	}
 
-	public function test_build_response_returns_200_empty_when_nothing_exposed(): void {
+	public function test_build_response_returns_200_header_only_when_nothing_exposed(): void {
 		update_option(
 			Context_Profile_Settings::OPTION_KEY,
 			array_merge(
@@ -118,8 +118,12 @@ final class Router_Test extends WP_UnitTestCase {
 
 		$response = Router::build_response();
 
+		// #244: nothing exposed → 200 with the site identity header (not blank).
 		$this->assertSame( 200, $response['status'] );
-		$this->assertSame( '', $response['body'] );
+		$this->assertNotSame( '', $response['body'] );
+		$this->assertStringStartsWith( '# ', $response['body'] );
+		$this->assertStringNotContainsString( "\n## ", $response['body'], 'No content exposed → no sections.' );
+		$this->assertStringNotContainsString( "\n- [", $response['body'], 'No content exposed → no entries.' );
 	}
 
 	public function test_add_rewrite_rule_registers_in_top_extras(): void {

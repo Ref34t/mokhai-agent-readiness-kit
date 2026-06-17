@@ -50,10 +50,16 @@ final class Full_Composer_Test extends TestCase {
 		);
 	}
 
-	public function test_empty_inputs_compose_to_empty_string(): void {
+	public function test_no_identity_and_no_content_composes_to_empty_string(): void {
+		// Truly empty (no identity, no content) → empty body.
 		$this->assertSame( '', Full_Composer::compose( array() ) );
+	}
+
+	public function test_empty_content_with_identity_emits_header_only(): void {
+		// #244: a configured site with nothing exposed must still emit its
+		// identity header rather than a blank /llms-full.txt body.
 		$this->assertSame(
-			'',
+			"# Site\n",
 			Full_Composer::compose(
 				array(
 					'identity'  => array( 'site_name' => 'Site' ),

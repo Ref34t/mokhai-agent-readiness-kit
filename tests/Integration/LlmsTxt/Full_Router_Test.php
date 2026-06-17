@@ -138,13 +138,16 @@ final class Full_Router_Test extends WP_UnitTestCase {
 		$this->assertSame( '', $response['body'] );
 	}
 
-	public function test_empty_composition_returns_200_empty(): void {
+	public function test_empty_composition_returns_200_header_only(): void {
 		$this->set_profile( array( 'exposed_cpts' => array() ) );
 
 		$response = Router::build_full_response();
 
+		// #244: nothing exposed → 200 with the site identity header, not blank.
 		$this->assertSame( 200, $response['status'] );
-		$this->assertSame( '', $response['body'] );
+		$this->assertNotSame( '', $response['body'] );
+		$this->assertStringStartsWith( '# ', $response['body'] );
+		$this->assertStringNotContainsString( "\n- [", $response['body'], 'No content exposed → no entries.' );
 	}
 
 	public function test_every_llms_txt_url_appears_in_llms_full_txt(): void {

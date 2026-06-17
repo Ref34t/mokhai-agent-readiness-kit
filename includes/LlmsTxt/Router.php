@@ -188,10 +188,12 @@ final class Router {
 	 * Build the response shape — pure, no globals, no headers emitted. Tests
 	 * inspect the returned array directly.
 	 *
-	 * Empty body is a valid response: per AgDR-0021 § "Public route is
-	 * uniformly 200 or 404, never 500", an empty composition (fresh install
-	 * with no exposed CPTs) returns 200 + empty body. Agents that fetch
-	 * /llms.txt on a fresh install see an empty document and move on.
+	 * Per AgDR-0021 § "Public route is uniformly 200 or 404, never 500", the
+	 * route always returns 200 for an enabled module. Since #244 a fresh
+	 * install with no exposed CPTs composes to the site identity header alone
+	 * (not a blank body), so agents fetching /llms.txt see an identifiable
+	 * document. A genuinely empty body only occurs when the site has no name
+	 * at all — still a valid 200.
 	 *
 	 * @return array{status:int, headers:array<string,string>, body:string}
 	 */

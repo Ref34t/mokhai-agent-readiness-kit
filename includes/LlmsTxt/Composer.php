@@ -18,11 +18,11 @@
  *     - [{title}]({url}): {description}
  *     - [{title}]({url})
  *
- * Empty default (FR-9 / AC #5): when neither editorial nor auto-listed
- * sections contain entries, `compose()` returns the empty string — the
- * handler (AgDR-0021) serves that as `200 text/plain` with no body. A fresh
- * install with empty `exposed_cpts` thus exposes nothing, not even site
- * identity.
+ * Empty state (#244): when neither editorial nor auto-listed sections contain
+ * entries, `compose()` still emits the site identity header (`# {site name}`
+ * + optional `> {tagline}`) so a fresh install with empty `exposed_cpts`
+ * serves an identifiable — not blank — `/llms.txt`. Only when there is ALSO no
+ * site name (no identity at all) does `compose()` return the empty string.
  *
  * @package WPContext
  */
@@ -47,8 +47,9 @@ namespace WPContext\LlmsTxt;
  *       }>
  *     }
  *
- * Empty `editorial` AND empty `sections` (or sections all with empty entries)
- * → empty body. Otherwise the identity block precedes the section list.
+ * Empty `editorial` AND empty `sections` → the identity header alone (or the
+ * empty string when there is also no site name). Otherwise the identity block
+ * precedes the section list.
  */
 final class Composer {
 
@@ -72,12 +73,16 @@ final class Composer {
 		$auto_sections    = self::normalize_sections( $inputs['sections'] ?? array() );
 
 		$all_sections = self::merge_sections( $editorial_groups, $auto_sections );
+		$identity     = self::normalize_identity( $inputs['identity'] ?? array() );
 
-		if ( array() === $all_sections ) {
+		// When nothing is exposed, still emit the site identity header rather
+		// than a blank body — a bare `# Site Name` / `> tagline` identifies the
+		// site to an agent and reads as "configured but no content exposed yet"
+		// instead of a broken/empty file (#244). Only a site with no identity
+		// AND no sections yields a genuinely empty body.
+		if ( array() === $all_sections && '' === $identity['site_name'] ) {
 			return '';
 		}
-
-		$identity = self::normalize_identity( $inputs['identity'] ?? array() );
 
 		$out = '# ' . self::escape_inline( $identity['site_name'] ) . "\n";
 
