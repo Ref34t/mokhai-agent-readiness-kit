@@ -17,10 +17,25 @@ use WPContext\LlmsTxt\Composer;
 
 final class Composer_Test extends TestCase {
 
-	public function test_empty_inputs_return_empty_body(): void {
+	public function test_empty_sections_with_identity_emit_header_only(): void {
+		// #244: a configured site with nothing exposed must still emit its
+		// identity header, not a blank body.
 		$out = Composer::compose(
 			array(
 				'identity'  => array( 'site_name' => 'My Site', 'tagline' => 'A tagline' ),
+				'editorial' => array(),
+				'sections'  => array(),
+			)
+		);
+
+		$this->assertSame( "# My Site\n> A tagline\n", $out );
+	}
+
+	public function test_no_identity_and_no_sections_returns_empty_body(): void {
+		// Only a site with no identity AND no sections yields a truly empty body.
+		$out = Composer::compose(
+			array(
+				'identity'  => array( 'site_name' => '', 'tagline' => '' ),
 				'editorial' => array(),
 				'sections'  => array(),
 			)

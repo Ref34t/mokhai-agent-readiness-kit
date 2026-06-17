@@ -37,9 +37,10 @@
  *     ### {next title}
  *     ...
  *
- * Empty default mirrors `Composer` (FR-9): when neither editorial nor
- * documents contain entries, `compose()` returns the empty string and the
- * route serves `200 text/plain` with no body.
+ * Empty state mirrors `Composer` (#244): when neither editorial nor documents
+ * contain entries, `compose()` still emits the site identity header so the
+ * route serves an identifiable — not blank — body. Only when there is also no
+ * site name does it return the empty string.
  *
  * @package WPContext
  */
@@ -95,16 +96,19 @@ final class Full_Composer {
 				: array()
 		);
 
-		if ( array() === $editorial_groups && array() === $documents ) {
-			return '';
-		}
-
 		$identity = isset( $inputs['identity'] ) && \is_array( $inputs['identity'] )
 			? $inputs['identity']
 			: array();
 
 		$site_name = isset( $identity['site_name'] ) ? (string) $identity['site_name'] : '';
 		$tagline   = isset( $identity['tagline'] ) ? (string) $identity['tagline'] : '';
+
+		// Mirror Composer (#244): emit the identity header even when nothing is
+		// exposed, so `/llms-full.txt` identifies the site instead of serving a
+		// blank body. Only a site with no identity AND no content is truly empty.
+		if ( array() === $editorial_groups && array() === $documents && '' === $site_name ) {
+			return '';
+		}
 
 		$out = '# ' . Composer::escape_inline( $site_name ) . "\n";
 
