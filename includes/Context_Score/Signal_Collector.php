@@ -82,6 +82,18 @@ final class Signal_Collector {
 	}
 
 	/**
+	 * Resolve the public web root where root-served agent files live. On a
+	 * subdirectory install this differs from ABSPATH (the WP core dir);
+	 * `get_home_path()` returns the document root for both layouts.
+	 */
+	private static function web_root(): string {
+		if ( ! \function_exists( 'get_home_path' ) ) {
+			require_once \ABSPATH . 'wp-admin/includes/file.php';
+		}
+		return \get_home_path();
+	}
+
+	/**
 	 * Read the cached /llms.txt payload + conflict detection.
 	 *
 	 * @return array<string, mixed>
@@ -95,14 +107,20 @@ final class Signal_Collector {
 			// site still emits a non-blank identity-header body, so a body-
 			// length check would falsely read as populated and over-credit the
 			// discoverability sub-score.
-			'cache_populated' => null !== $cache && isset( $cache['entry_count'] ) && (int) $cache['entry_count'] > 0,
-			'entry_count'     => null !== $cache && isset( $cache['entry_count'] )
+			'cache_populated'   => null !== $cache && isset( $cache['entry_count'] ) && (int) $cache['entry_count'] > 0,
+			'entry_count'       => null !== $cache && isset( $cache['entry_count'] )
 				? (int) $cache['entry_count']
 				: 0,
-			'body_bytes'      => null !== $cache && isset( $cache['body'] )
+			'body_bytes'        => null !== $cache && isset( $cache['body'] )
 				? strlen( (string) $cache['body'] )
 				: 0,
-			'conflicts'       => Conflict_Detector::detect(),
+			'conflicts'         => Conflict_Detector::detect(),
+			// A static robots.txt at the web root bypasses WordPress's
+			// `robots_txt` filter, so Discovery\Alternate_Advertiser can't add
+			// the /llms.txt reference there (AgDR-0053 limitation, #245). Probed
+			// from get_home_path() — the public root, not ABSPATH.
+			'static_robots_txt' => \file_exists( self::web_root() . 'robots.txt' ),
+			'llms_txt_url'      => \home_url( '/llms.txt' ),
 		);
 	}
 
@@ -269,13 +287,7 @@ final class Signal_Collector {
 	 * @return array<string, mixed>
 	 */
 	private static function multi_channel_signals( bool $llms_txt_cache_populated ): array {
-		// Resolve the public web root (where root-served agent files live).
-		// On a subdirectory install this differs from ABSPATH (the WP core
-		// dir); `get_home_path()` returns the document root for both layouts.
-		if ( ! \function_exists( 'get_home_path' ) ) {
-			require_once \ABSPATH . 'wp-admin/includes/file.php';
-		}
-		$root = \get_home_path();
+		$root = self::web_root();
 
 		$ai_txt          = \file_exists( $root . 'ai.txt' );
 		$wk_ai_layer     = \file_exists( $root . '.well-known/ai-layer' );

@@ -182,14 +182,25 @@ final class Engine {
 			self::add_reason( $reasons, $reason_keys, 'disc_rewrite_conflict', 'Another plugin is overriding the /llms.txt rewrite rule.' );
 		}
 
+		// Advisory-only signals (#245): a static robots.txt blocks the
+		// /llms.txt auto-reference. Surfaced in the narrative; deliberately
+		// NOT scored — it doesn't change discoverability capability, only the
+		// robots.txt advertising channel.
+		$advertise_enabled = (bool) ( $profile['advertise_alternates_enabled'] ?? false );
+		$static_robots     = (bool) ( $llms_txt['static_robots_txt'] ?? false );
+		$llms_txt_url      = (string) ( $llms_txt['llms_txt_url'] ?? '' );
+
 		return array(
 			'value'       => self::clamp( $score ),
 			'weight'      => self::WEIGHTS['discoverability'],
 			'signals'     => array(
-				'llms_txt_cache_populated' => $cache_pop,
-				'exposed_cpts_count'       => count( $exposed_cpt ),
-				'llms_txt_entry_count'     => $entry_count,
-				'rewrite_conflicted'       => $rewrite_conflicted,
+				'llms_txt_cache_populated'     => $cache_pop,
+				'exposed_cpts_count'           => count( $exposed_cpt ),
+				'llms_txt_entry_count'         => $entry_count,
+				'rewrite_conflicted'           => $rewrite_conflicted,
+				'static_robots_txt'            => $static_robots,
+				'advertise_alternates_enabled' => $advertise_enabled,
+				'llms_txt_url'                 => $llms_txt_url,
 			),
 			'reasons'     => $reasons,
 			'reason_keys' => $reason_keys,
