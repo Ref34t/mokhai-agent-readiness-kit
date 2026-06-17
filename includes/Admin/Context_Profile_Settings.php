@@ -321,8 +321,10 @@ final class Context_Profile_Settings {
 	/**
 	 * Whether the post sits on an operator-curated exclude list — the per-post
 	 * `_agentready_excluded` meta toggle, the site-level `excluded_ids` /
-	 * `excluded_slugs` deny-lists (#180), or a category / tag on the
-	 * `excluded_term_ids` / `excluded_term_slugs` term deny-lists (#188).
+	 * `excluded_slugs` deny-lists (#180), a category / tag on the
+	 * `excluded_term_ids` / `excluded_term_slugs` term deny-lists (#188), or a
+	 * WooCommerce functional page (Cart / Checkout / My-account) detected via
+	 * WooCommerce's own page-ID options (#243).
 	 *
 	 * @param \WP_Post             $post    Post being evaluated.
 	 * @param array<string, mixed> $profile Already-resolved profile (passed in
@@ -343,7 +345,50 @@ final class Context_Profile_Settings {
 			return true;
 		}
 
+		if ( self::is_woocommerce_utility_page( $post ) ) {
+			return true;
+		}
+
 		return self::in_excluded_terms( $post, $profile );
+	}
+
+	/**
+	 * Whether the post is a WooCommerce functional / transactional page
+	 * (Cart, Checkout, My account) that carries no agent value and should
+	 * never be advertised in `/llms.txt` or as a `.md` view (#243).
+	 *
+	 * Detection reads WooCommerce's own page-ID options — never page titles.
+	 * Those options are absent on sites where WooCommerce was never active, so
+	 * this is a no-op (returns false) without an explicit dependency check.
+	 *
+	 * The Shop archive is intentionally NOT excluded: it is product-listing
+	 * content an agent may legitimately want, unlike the session/transactional
+	 * Cart / Checkout / My-account pages.
+	 *
+	 * Overridable via the `agentready_woocommerce_excluded_page_options` filter
+	 * — return an empty array to disable, or add option keys (e.g. the Shop
+	 * page) to extend.
+	 *
+	 * @param \WP_Post $post Post being evaluated.
+	 */
+	private static function is_woocommerce_utility_page( \WP_Post $post ): bool {
+		$option_keys = \apply_filters(
+			'agentready_woocommerce_excluded_page_options',
+			array(
+				'woocommerce_cart_page_id',
+				'woocommerce_checkout_page_id',
+				'woocommerce_myaccount_page_id',
+			)
+		);
+
+		foreach ( (array) $option_keys as $option_key ) {
+			$page_id = (int) \get_option( (string) $option_key, 0 );
+			if ( 0 !== $page_id && $page_id === (int) $post->ID ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
