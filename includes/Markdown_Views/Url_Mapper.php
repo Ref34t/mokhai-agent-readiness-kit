@@ -46,6 +46,11 @@ final class Url_Mapper {
 	 * response regardless of permalink mode, whereas appending `.md` to a path
 	 * that still has a query string would produce a malformed URL.
 	 *
+	 * **Edge case — the root / front-page URL** (`https://host/`, no path
+	 * segment). Appending `.md` would glue it onto the host (`https://host.md`),
+	 * an invalid URL. This case takes the query form (`https://host/?format=md`)
+	 * instead — the Router resolves it identically and the URL is always valid.
+	 *
 	 * Idempotent: a URL already in `.md` or `format=md` shape is returned
 	 * unchanged.
 	 *
@@ -70,6 +75,16 @@ final class Url_Mapper {
 		if ( '' !== $path && \substr( $path, -3 ) === '.md' ) {
 			return $url;
 		}
+
+		// Root / front-page URL (no path segment, e.g. `https://host/`). There
+		// is nothing to suffix `.md` onto — appending it would glue `.md` to the
+		// host (`https://host.md`, an invalid URL pointing at the `.md` TLD).
+		// Fall back to the query form, which `Markdown_Views\Router` resolves
+		// identically and is always a valid URL. (#241)
+		if ( '' === \rtrim( $path, '/' ) ) {
+			return \rtrim( $url, '/' ) . '/?format=md';
+		}
+
 		return \rtrim( $url, '/' ) . '.md';
 	}
 }

@@ -46,6 +46,22 @@ final class Url_Mapper_Test extends TestCase {
 		);
 	}
 
+	public function test_root_url_with_trailing_slash_uses_query_form(): void {
+		// Front page: `https://host/` must NOT become `https://host.md`. (#241)
+		self::assertSame(
+			'https://example.com/?format=md',
+			Url_Mapper::to_md_url( 'https://example.com/' )
+		);
+	}
+
+	public function test_root_url_without_trailing_slash_uses_query_form(): void {
+		// Same root case with no trailing slash. (#241)
+		self::assertSame(
+			'https://example.com/?format=md',
+			Url_Mapper::to_md_url( 'https://example.com' )
+		);
+	}
+
 	public function test_idempotent_on_md_suffix(): void {
 		self::assertSame(
 			'https://example.com/lessons/foo.md',
