@@ -263,7 +263,7 @@ First public release. Four coherent modules driven by one Context Profile.
 
 * Layered CI: PHPCS (WordPress + WordPressVIPMinimum) + Plugin Check + PHPUnit + PHPStan level 5
 * `requires_wp` / `requires_php` runtime gate with admin-notice degradation
-* Translation policy documented (AgDR-0009): managed via wp.org under slug `ai-readiness-kit`
+* Translation policy documented (AgDR-0009): managed via wp.org under slug `agentable`
 * Competitive landscape captured (AgDR-0006)
 
 == Upgrade Notice ==
