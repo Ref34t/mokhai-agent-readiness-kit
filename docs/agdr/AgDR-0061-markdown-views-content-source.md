@@ -1,6 +1,6 @@
 # AgDR-0061 — Markdown Views content source for non-`post_content` post types
 
-> In the context of **Markdown Views rendering empty `.md` bodies for WooCommerce products whose copy lives in the short description (#252)**, facing **a renderer hardwired to `apply_filters('the_content', $post->post_content)`**, we decided **to introduce a generic `agentable_markdown_source_html` filter (default = the current behaviour) plus a bundled WooCommerce adapter**, to achieve **non-empty Markdown for product-shaped content without coupling the core renderer to WooCommerce**, accepting **a small amount of added indirection (one filter + one adapter class).**
+> In the context of **Markdown Views rendering empty `.md` bodies for WooCommerce products whose copy lives in the short description (#252)**, facing **a renderer hardwired to `apply_filters('the_content', $post->post_content)`**, we decided **to introduce a generic `agentready_markdown_source_html` filter (default = the current behaviour) plus a bundled WooCommerce adapter**, to achieve **non-empty Markdown for product-shaped content without coupling the core renderer to WooCommerce**, accepting **a small amount of added indirection (one filter + one adapter class).**
 
 ## Context
 
@@ -20,7 +20,7 @@ Scope boundary: this decision addresses content that exists in `post_content` **
 | Option | Pros | Cons |
 |--------|------|------|
 | **A — Hardcode a WooCommerce branch in `Service.php`** (`if post_type === 'product'`, prepend `woocommerce_short_description` + long description) | Smallest diff; no new extension surface | Couples the core renderer to WooCommerce; doesn't generalise to other CPTs, ACF, or builder content; every future "this CPT stores copy elsewhere" case reopens core |
-| **B — Generic `agentable_markdown_source_html` filter (default = `the_content(post_content)`) + bundled WooCommerce adapter** that hooks it to prepend the short description | Core stays generic, deterministic, offline-by-default; matches the plugin's existing defer-to-integrations posture (SEO coordination, module toggles); ACF/builder/3rd-party authors can extend without patching core | More moving parts (one filter + one adapter class); contributors must know the source is filterable |
+| **B — Generic `agentready_markdown_source_html` filter (default = `the_content(post_content)`) + bundled WooCommerce adapter** that hooks it to prepend the short description | Core stays generic, deterministic, offline-by-default; matches the plugin's existing defer-to-integrations posture (SEO coordination, module toggles); ACF/builder/3rd-party authors can extend without patching core | More moving parts (one filter + one adapter class); contributors must know the source is filterable |
 | **C — Always append `post_excerpt` for every post type, no filter** | Trivial; fixes the common case with no new surface | Bleeds excerpts into non-product content where that may be unwanted; still doesn't reach builder/ACF content; no extension path for other CPTs |
 
 ## Decision
@@ -29,7 +29,7 @@ Chosen: **Option B**, because it fixes #252 for the common (short-description) c
 
 ### Cross-cutting requirements (apply regardless of option)
 
-- **Extract `render_source_html(\WP_Post $post): string`** as the single source-building helper; call it from both `convert_post()` and `regenerate_conversion_for()`. The `agentable_markdown_source_html` filter is applied inside this helper.
+- **Extract `render_source_html(\WP_Post $post): string`** as the single source-building helper; call it from both `convert_post()` and `regenerate_conversion_for()`. The `agentready_markdown_source_html` filter is applied inside this helper.
 - **Extend `content_hash()`** to incorporate every field the source can draw from (add `post_excerpt`; the WooCommerce adapter, if it reads product meta, must contribute to the cache key via a filter on the hash input so an excerpt-only or meta-only edit still invalidates).
 - **Bundled WooCommerce adapter** loads only when WooCommerce is active; it prepends the rendered short description (`apply_filters('woocommerce_short_description', $product->get_short_description())`) ahead of the long description.
 
@@ -39,7 +39,7 @@ Chosen: **Option B**, because it fixes #252 for the common (short-description) c
 
 ## Consequences
 
-- New public extension point `agentable_markdown_source_html` (post-aware) becomes part of the plugin's contract — documentable, and reusable for ACF/builder adapters later.
+- New public extension point `agentready_markdown_source_html` (post-aware) becomes part of the plugin's contract — documentable, and reusable for ACF/builder adapters later.
 - The cache key changes shape; a one-time cache invalidation on upgrade is expected (every `.md` re-renders once). Acceptable — the cache is regenerable.
 - The Markdown-conversion-quality sub-score (#255) should observe the improvement automatically once it samples rendered bodies, giving the two tickets a shared verification path.
 - Slight increase in surface area for contributors; mitigated by the helper + a short doc note.
