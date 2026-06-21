@@ -288,10 +288,12 @@ final class Signal_Collector {
 		}
 
 		// $sampled is guaranteed >= 1 here — the empty-sample case returned early.
+		// Cast to float: PHP's `/` yields an int when evenly divisible (0/2 → 0),
+		// and the ratio contract is a float in [0.0, 1.0].
 		return array(
 			'sampled'     => $sampled,
-			'empty_ratio' => $empty / $sampled,
-			'noisy_ratio' => $noisy / $sampled,
+			'empty_ratio' => (float) ( $empty / $sampled ),
+			'noisy_ratio' => (float) ( $noisy / $sampled ),
 			'worst_urls'  => self::worst_failing_urls( $table ),
 		);
 	}
