@@ -23,6 +23,7 @@ use WPContext\LlmsTxt\Conflict_Detector;
 use WPContext\LlmsTxt\Entry_Source;
 use WPContext\LlmsTxt\Service as Llms_Txt_Service;
 use WPContext\Markdown_Views\Schema as Md_Schema;
+use WPContext\Markdown_Views\Walker;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -33,6 +34,41 @@ use WPContext\Markdown_Views\Schema as Md_Schema;
  * shape documented in AgDR-0030 § "Pure engine pattern".
  */
 final class Signal_Collector {
+
+	/**
+	 * Trimmed-body length (chars) below which a cached `.md` body is treated
+	 * as empty/near-empty for the Context Score body-quality sampling (#255,
+	 * AgDR-0064). Sized to catch 0-byte and header-only bodies while letting
+	 * a genuine one-line answer through.
+	 *
+	 * @var int
+	 */
+	public const MIN_BODY_CHARS = 48;
+
+	/**
+	 * Non-prose char fraction above which a sampled body is "noise-dominated"
+	 * (encoded builder blobs / leaked script). See AgDR-0064.
+	 *
+	 * @var float
+	 */
+	public const MAX_NOISE_RATIO = 0.30;
+
+	/**
+	 * Upper bound on cached bodies read per audit for the empty/noise rate
+	 * estimate. Bounds the LONGTEXT reads regardless of cache size (no
+	 * all-rows scan). See AgDR-0064.
+	 *
+	 * @var int
+	 */
+	public const SAMPLE_LIMIT = 50;
+
+	/**
+	 * Number of worst-quality failing URLs named in the score narrative (AC4
+	 * of #255). Resolved in one batched `get_posts( post__in )` lookup.
+	 *
+	 * @var int
+	 */
+	public const WORST_URL_LIMIT = 5;
 
 	/**
 	 * Build the signals array from current WP state.
@@ -186,13 +222,185 @@ final class Signal_Collector {
 			);
 		}
 
-		return array(
+		$aggregate = array(
 			'rows_total'           => (int) ( $row['rows_total'] ?? 0 ),
 			'rows_with_score'      => (int) ( $row['rows_with_score'] ?? 0 ),
 			'mean_quality'         => (float) ( $row['mean_quality'] ?? 0.0 ),
 			'rows_above_threshold' => (int) ( $row['rows_above_threshold'] ?? 0 ),
 			'md_quality_threshold' => $threshold,
 		);
+
+		// #255: sample the rendered bodies (not just the aggregate scores) so
+		// empty/noise output is detected. Bounded read — never an all-rows scan.
+		return array_merge( $aggregate, self::md_body_quality_signals( $table ) );
+	}
+
+	/**
+	 * Sample cached Markdown bodies to estimate the empty/noise rate and name
+	 * the worst-quality failing URLs (#255, AgDR-0064).
+	 *
+	 * Two bounded queries — no all-rows LONGTEXT scan:
+	 *   1. Rate sample — up to SAMPLE_LIMIT rows ordered by `post_id` (a
+	 *      representative, deterministic, *unbiased* slice). Each body is
+	 *      classified empty / noisy in PHP; the ratios are sample-wide.
+	 *   2. Worst-URL list — the WORST_URL_LIMIT lowest-quality rows' post_ids,
+	 *      with titles/permalinks resolved in ONE batched `get_posts()`.
+	 *
+	 * @param string $table Fully-qualified cache table name (trusted source).
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function md_body_quality_signals( string $table ): array {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$sample = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT post_id, markdown FROM {$table} ORDER BY post_id ASC LIMIT %d",
+				self::SAMPLE_LIMIT
+			),
+			\ARRAY_A
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		if ( ! is_array( $sample ) || array() === $sample ) {
+			return array(
+				'sampled'     => 0,
+				'empty_ratio' => 0.0,
+				'noisy_ratio' => 0.0,
+				'worst_urls'  => array(),
+			);
+		}
+
+		$sampled = 0;
+		$empty   = 0;
+		$noisy   = 0;
+
+		foreach ( $sample as $r ) {
+			$body = (string) ( $r['markdown'] ?? '' );
+			++$sampled;
+			if ( self::body_is_empty( $body ) ) {
+				++$empty;
+			} elseif ( self::body_is_noisy( $body ) ) {
+				// Empty takes precedence — an empty body isn't "noisy".
+				++$noisy;
+			}
+		}
+
+		// $sampled is guaranteed >= 1 here — the empty-sample case returned early.
+		// Cast to float: PHP's `/` yields an int when evenly divisible (0/2 → 0),
+		// and the ratio contract is a float in [0.0, 1.0].
+		return array(
+			'sampled'     => $sampled,
+			'empty_ratio' => (float) ( $empty / $sampled ),
+			'noisy_ratio' => (float) ( $noisy / $sampled ),
+			'worst_urls'  => self::worst_failing_urls( $table ),
+		);
+	}
+
+	/**
+	 * A body is empty/near-empty when its trimmed length is below
+	 * MIN_BODY_CHARS — the #252 symptom (0-byte / header-only output).
+	 */
+	private static function body_is_empty( string $body ): bool {
+		return self::mb_len( trim( $body ) ) < self::MIN_BODY_CHARS;
+	}
+
+	/**
+	 * A body is noise-dominated when the fraction of its characters belonging
+	 * to non-prose runs exceeds MAX_NOISE_RATIO — the #253 symptom. The
+	 * non-prose patterns reuse `Walker::BUILDER_BLOB_MIN_LEN` (the same
+	 * constant the #253 stripper uses) so the score and the renderer cannot
+	 * drift.
+	 */
+	private static function body_is_noisy( string $body ): bool {
+		$total = self::mb_len( $body );
+		if ( $total <= 0 ) {
+			return false;
+		}
+
+		$min_blob = (int) Walker::BUILDER_BLOB_MIN_LEN;
+		$noise    = 0;
+
+		// Long base64 builder-blob runs.
+		if ( preg_match_all( '/[A-Za-z0-9+\/]{' . $min_blob . ',}={0,2}/', $body, $m ) ) {
+			foreach ( $m[0] as $hit ) {
+				$noise += self::mb_len( $hit );
+			}
+		}
+		// Leaked script/style residue + slider init tokens.
+		if ( preg_match_all( '/<\/?(?:script|style)\b[^>]*>|setREVStartSize\s*\([^)]*\)/i', $body, $m ) ) {
+			foreach ( $m[0] as $hit ) {
+				$noise += self::mb_len( $hit );
+			}
+		}
+		// Surviving shortcode-residue tokens.
+		if ( preg_match_all( '/\[[a-z][a-z0-9_-]*(?:\s[^\]]*)?\]/i', $body, $m ) ) {
+			foreach ( $m[0] as $hit ) {
+				$noise += self::mb_len( $hit );
+			}
+		}
+
+		return ( $noise / $total ) > self::MAX_NOISE_RATIO;
+	}
+
+	/**
+	 * Resolve the WORST_URL_LIMIT lowest-quality cached posts to a display
+	 * list. One indexed query for the ids, one batched `get_posts()` for the
+	 * titles/permalinks — no per-URL N+1.
+	 *
+	 * @param string $table Fully-qualified cache table name (trusted source).
+	 *
+	 * @return array<int, array{post_id:int, title:string, url:string}>
+	 */
+	private static function worst_failing_urls( string $table ): array {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT post_id FROM {$table} WHERE quality_score IS NOT NULL ORDER BY quality_score ASC, post_id ASC LIMIT %d",
+				self::WORST_URL_LIMIT
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		$ids = array_values( array_filter( array_map( 'intval', (array) $ids ) ) );
+		if ( array() === $ids ) {
+			return array();
+		}
+
+		$posts = \get_posts(
+			array(
+				'post__in'               => $ids,
+				'orderby'                => 'post__in',
+				'posts_per_page'         => self::WORST_URL_LIMIT,
+				'post_type'              => 'any',
+				'post_status'            => 'any',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		$out = array();
+		foreach ( $posts as $post ) {
+			$out[] = array(
+				'post_id' => (int) $post->ID,
+				'title'   => (string) \get_the_title( $post ),
+				'url'     => (string) \get_permalink( $post ),
+			);
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Multibyte-safe string length with a single-byte fallback when the
+	 * mbstring extension isn't loaded.
+	 */
+	private static function mb_len( string $s ): int {
+		return \function_exists( 'mb_strlen' ) ? (int) mb_strlen( $s ) : strlen( $s );
 	}
 
 	/**

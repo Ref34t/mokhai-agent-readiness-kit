@@ -47,9 +47,13 @@ final class Engine {
 	 * strings. The English `reasons` array is unchanged; this is purely
 	 * additive, so no /migration ticket is required.
 	 *
+	 * v4 (#255 / AgDR-0064) adds `sampled`, `empty_pct`, `noisy_pct`, and the
+	 * `worst_urls` list to the `md_conversion_quality` sub-score's signals.
+	 * Additive with safe defaults (absent → 0 / empty), so no /migration ticket.
+	 *
 	 * @var int
 	 */
-	public const BREAKDOWN_SCHEMA_VERSION = 3;
+	public const BREAKDOWN_SCHEMA_VERSION = 4;
 
 	/**
 	 * Per-sub-score weights. Sum MUST equal 100 — asserted in self-tests so a
@@ -86,6 +90,28 @@ final class Engine {
 	 * @var int
 	 */
 	public const MD_QUALITY_THRESHOLD = 70;
+
+	/**
+	 * Maximum points deducted from the `md_conversion_quality` sub-score when
+	 * every sampled body is empty/near-empty (#255). Applied proportionally:
+	 * `round( EMPTY_DEDUCTION_MAX * empty_ratio )`. A 0-byte-body site (the
+	 * #252 symptom) loses the full 40; a handful of empties on a healthy site
+	 * dents the dimension proportionally. See AgDR-0064.
+	 *
+	 * @var int
+	 */
+	public const EMPTY_DEDUCTION_MAX = 40;
+
+	/**
+	 * Maximum points deducted when every sampled body is noise-dominated
+	 * (base64 builder blobs / leaked script — the #253 symptom). Applied
+	 * proportionally: `round( NOISE_DEDUCTION_MAX * noisy_ratio )`. Combined
+	 * with EMPTY_DEDUCTION_MAX the worst case is a 70-point deduction off an
+	 * already-clamped 0–100 base, re-clamped — cannot underflow. See AgDR-0064.
+	 *
+	 * @var int
+	 */
+	public const NOISE_DEDUCTION_MAX = 30;
 
 	/**
 	 * Compute the full breakdown from a signals array.
@@ -512,6 +538,29 @@ final class Engine {
 		self::add_reason( $reasons, $reason_keys, 'mcq_mean_quality', sprintf( 'Mean Markdown quality across %d cached posts: %d/100.', $scored, $mean_int ), array( $scored, $mean_int ) );
 		self::add_reason( $reasons, $reason_keys, 'mcq_above_threshold', sprintf( '%d%% of cached posts are above the MD-quality threshold (%d).', $above_pct, $thresh ), array( $above_pct, $thresh ) );
 
+		// Body-quality deductions (#255). The Signal_Collector samples the
+		// rendered bodies already in the cache and reports the fraction that
+		// are empty/near-empty or noise-dominated — the failure class the
+		// mean-based base above is blind to (an empty conversion scores 100).
+		// Deductions are proportional and clamped, so they dent a partly-bad
+		// site and fail a mostly-bad one without ever underflowing past 0.
+		$empty_ratio = self::ratio( $md['empty_ratio'] ?? 0.0 );
+		$noisy_ratio = self::ratio( $md['noisy_ratio'] ?? 0.0 );
+		$sampled     = (int) ( $md['sampled'] ?? 0 );
+		$worst_urls  = isset( $md['worst_urls'] ) && is_array( $md['worst_urls'] ) ? $md['worst_urls'] : array();
+
+		$empty_pct = (int) round( $empty_ratio * 100 );
+		$noisy_pct = (int) round( $noisy_ratio * 100 );
+		$score    -= (int) round( self::EMPTY_DEDUCTION_MAX * $empty_ratio );
+		$score    -= (int) round( self::NOISE_DEDUCTION_MAX * $noisy_ratio );
+
+		if ( $empty_pct > 0 ) {
+			self::add_reason( $reasons, $reason_keys, 'mcq_empty_bodies', sprintf( '%1$d%% of %2$d sampled .md bodies are empty or near-empty — agents get no usable content there.', $empty_pct, $sampled ), array( $empty_pct, $sampled ) );
+		}
+		if ( $noisy_pct > 0 ) {
+			self::add_reason( $reasons, $reason_keys, 'mcq_noisy_bodies', sprintf( '%1$d%% of %2$d sampled .md bodies are dominated by non-prose noise (encoded builder blobs / leaked script).', $noisy_pct, $sampled ), array( $noisy_pct, $sampled ) );
+		}
+
 		return array(
 			'value'       => self::clamp( $score ),
 			'weight'      => self::WEIGHTS['md_conversion_quality'],
@@ -522,10 +571,32 @@ final class Engine {
 				'rows_above_threshold' => $above,
 				'above_threshold_pct'  => $above_pct,
 				'md_quality_threshold' => $thresh,
+				'sampled'              => $sampled,
+				'empty_pct'            => $empty_pct,
+				'noisy_pct'            => $noisy_pct,
+				'worst_urls'           => $worst_urls,
 			),
 			'reasons'     => $reasons,
 			'reason_keys' => $reason_keys,
 		);
+	}
+
+	/**
+	 * Coerce a signal value to a ratio in the closed range [0.0, 1.0].
+	 * Defensive against a collector returning a percentage or a stray > 1
+	 * value — the deduction math assumes a fraction.
+	 *
+	 * @param int|float|string|null $value Raw signal value.
+	 */
+	private static function ratio( $value ): float {
+		$f = (float) $value;
+		if ( $f < 0.0 ) {
+			return 0.0;
+		}
+		if ( $f > 1.0 ) {
+			return 1.0;
+		}
+		return $f;
 	}
 
 	/**

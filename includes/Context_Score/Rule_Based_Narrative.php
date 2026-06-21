@@ -355,6 +355,37 @@ final class Rule_Based_Narrative {
 	 * @param array<string, mixed> $signals
 	 * @return array{why: string, fix: string}
 	 */
+	/**
+	 * Build a short comma-separated list of the worst-scoring page titles from
+	 * the `worst_urls` signal (#255). Caps at two titles so the composed line
+	 * stays within the 140-char narrative limit; the admin UI can render the
+	 * full linked list from the raw `worst_urls` signal.
+	 *
+	 * @param array<string, mixed> $signals The md_conversion_quality signals.
+	 */
+	private static function worst_url_titles( array $signals ): string {
+		$worst = isset( $signals['worst_urls'] ) && \is_array( $signals['worst_urls'] )
+			? $signals['worst_urls']
+			: array();
+
+		$titles = array();
+		foreach ( $worst as $entry ) {
+			if ( ! \is_array( $entry ) ) {
+				continue;
+			}
+			$title = \trim( (string) ( $entry['title'] ?? '' ) );
+			if ( '' === $title ) {
+				continue;
+			}
+			$titles[] = $title;
+			if ( \count( $titles ) >= 2 ) {
+				break;
+			}
+		}
+
+		return \implode( ', ', $titles );
+	}
+
 	private static function for_md_conversion_quality( int $value, array $signals ): array {
 		$rows      = (int) ( $signals['rows_total'] ?? 0 );
 		$mean      = (int) ( $signals['mean_quality'] ?? 0 );
@@ -371,6 +402,45 @@ final class Rule_Based_Narrative {
 			return array(
 				'why' => \__( 'No Markdown Views cache rows yet, so there is nothing to evaluate.', 'mokhai-agent-readiness-kit' ),
 				'fix' => \__( 'Visit a few .md URLs on the site to populate the cache, then recompute.', 'mokhai-agent-readiness-kit' ),
+			);
+		}
+
+		// #255: body-quality findings take precedence — an empty or
+		// noise-dominated body means an agent gets garbage regardless of how
+		// the mean conversion score reads. Name the worst URLs and scope the
+		// finding to what was sampled.
+		$empty_pct = (int) ( $signals['empty_pct'] ?? 0 );
+		$noisy_pct = (int) ( $signals['noisy_pct'] ?? 0 );
+		$sampled   = (int) ( $signals['sampled'] ?? 0 );
+		if ( $empty_pct > 0 || $noisy_pct > 0 ) {
+			$worst = self::worst_url_titles( $signals );
+			$why   = $empty_pct >= $noisy_pct
+				? \sprintf(
+					/* translators: 1: percentage of sampled bodies that are empty. 2: number of bodies sampled. 3: total cached rows. */
+					\__( '%1$d%% of %2$d sampled .md bodies (of %3$d cached) are empty or near-empty — agents get no usable content there.', 'mokhai-agent-readiness-kit' ),
+					$empty_pct,
+					$sampled,
+					$rows
+				)
+				: \sprintf(
+					/* translators: 1: percentage of sampled bodies dominated by noise. 2: number of bodies sampled. 3: total cached rows. */
+					\__( '%1$d%% of %2$d sampled .md bodies (of %3$d cached) are dominated by non-prose noise — agents ingest junk there.', 'mokhai-agent-readiness-kit' ),
+					$noisy_pct,
+					$sampled,
+					$rows
+				);
+
+			$fix = '' !== $worst
+				? \sprintf(
+					/* translators: %s: comma-separated list of the worst-scoring page titles. */
+					\__( 'Fix the source content of the worst pages first (%s) so each .md serves real text, then recompute.', 'mokhai-agent-readiness-kit' ),
+					$worst
+				)
+				: \__( 'Fix the source content of the empty/noisy pages so each .md serves real text, then recompute.', 'mokhai-agent-readiness-kit' );
+
+			return array(
+				'why' => $why,
+				'fix' => $fix,
 			);
 		}
 

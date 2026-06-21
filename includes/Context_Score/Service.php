@@ -95,10 +95,16 @@ final class Service {
 	 *       asynchronously (#167 / AgDR-0051). Old payloads (v5, synchronous
 	 *       narrative, no `llm_pending`) read as null and recompute on first
 	 *       access, scheduling the background narrative job.
+	 *   7 — the `md_conversion_quality` sub-score now samples rendered bodies
+	 *       and folds empty/noise deductions into its value, gaining
+	 *       `empty_pct`/`noisy_pct`/`sampled`/`worst_urls` signals (#255 /
+	 *       AgDR-0064). The bump is load-bearing: without it every existing
+	 *       install keeps serving its stale pre-#255 breakdown (and the new
+	 *       deductions never reach users) until the cron interval elapses.
 	 *
 	 * @var int
 	 */
-	public const CACHE_SCHEMA_VERSION = 6;
+	public const CACHE_SCHEMA_VERSION = 7;
 
 	/**
 	 * Wire the WordPress hooks owned by this service.
