@@ -56,9 +56,14 @@ final class Walker {
 	 * cleaned conversion (otherwise existing posts keep serving the stale,
 	 * residue-bearing MD until their content next changes).
 	 *
+	 * Bumped to '5' for #253: `<script>`/`<style>` subtrees are now dropped and
+	 * long base64-encoded page-builder blobs are stripped from text nodes. The
+	 * MD changes for any post carrying slider init JS or Uncode/WPBakery
+	 * encoded residue, so cached rows must be invalidated.
+	 *
 	 * @var string
 	 */
-	public const WALKER_VERSION = '4';
+	public const WALKER_VERSION = '5';
 
 	/**
 	 * Hard upper bound on input size in bytes. Defends against pathological
@@ -68,6 +73,17 @@ final class Walker {
 	 * @var int
 	 */
 	public const MAX_INPUT_BYTES = 5_242_880;
+
+	/**
+	 * Minimum length of a contiguous base64-charset run for it to be treated
+	 * as encoded page-builder residue and stripped from text nodes (#253).
+	 * Set well above any natural-language word or realistic unbroken
+	 * slug/ID; observed Uncode/WPBakery payloads run to hundreds of chars.
+	 * See AgDR-0063 for the over-strip trade-off.
+	 *
+	 * @var int
+	 */
+	public const BUILDER_BLOB_MIN_LEN = 60;
 
 	/**
 	 * Hard upper bound on recursion depth during the walk. Defends against
@@ -408,6 +424,18 @@ final class Walker {
 			case 'table':
 				return self::render_table( $node );
 
+			// Non-content subtrees — drop entirely, including their text
+			// children. Without this, a `<script>` (e.g. Revolution Slider's
+			// `setREVStartSize({…})` init) or `<style>` block falls through to
+			// the default branch and its text content leaks into the MD as
+			// body text (#253). `<noscript>`/`<template>` are dropped for the
+			// same reason — their contents are not page prose.
+			case 'script':
+			case 'style':
+			case 'noscript':
+			case 'template':
+				return '';
+
 			// Structural wrappers — descend without emitting markup.
 			case 'div':
 			case 'section':
@@ -427,7 +455,7 @@ final class Walker {
 	}
 
 	private static function render_text( \DOMText $node ): string {
-		$text = $node->nodeValue ?? '';
+		$text = self::strip_encoded_builder_blobs( $node->nodeValue ?? '' );
 
 		if ( '' === \trim( $text ) ) {
 			// Whitespace-only text node between two block elements is layout
@@ -437,6 +465,29 @@ final class Walker {
 		}
 
 		return (string) \preg_replace( '/\s+/u', ' ', $text );
+	}
+
+	/**
+	 * Remove long base64-charset runs from a text-node value (#253).
+	 *
+	 * Page builders in the Uncode/WPBakery family store layout as
+	 * URL-encoded-then-base64 shortcode payloads. When the owning shortcode
+	 * isn't expanded, the encoded payload (e.g. `JTNDZGl2JTIw…`, base64 of
+	 * `%3Cdiv%20`) survives as a literal text token and lands verbatim in the
+	 * Markdown. Any run of `BUILDER_BLOB_MIN_LEN`+ contiguous base64 characters
+	 * is treated as such residue and dropped; surrounding prose in the same
+	 * text node is preserved.
+	 *
+	 * Runs at the TEXT-NODE level by design: `data:` URI image sources live in
+	 * `src` attributes (consumed by `render_image()`), never reach this method,
+	 * and so are never corrupted. See AgDR-0063 for the over-strip trade-off.
+	 */
+	private static function strip_encoded_builder_blobs( string $text ): string {
+		return (string) \preg_replace(
+			'/[A-Za-z0-9+\/]{' . self::BUILDER_BLOB_MIN_LEN . ',}={0,2}/',
+			'',
+			$text
+		);
 	}
 
 	private static function is_between_block_siblings( \DOMText $node ): bool {

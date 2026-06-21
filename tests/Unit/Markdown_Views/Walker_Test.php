@@ -172,6 +172,74 @@ final class Walker_Test extends TestCase {
 		self::assertStringContainsString( '[citation needed]', $md );
 	}
 
+	public function test_walker_drops_script_subtree_including_slider_init(): void {
+		// #253: Revolution Slider's inline init script must not leak as body
+		// text. Without a `script` dispatch case the JS falls through to the
+		// default handler and renders.
+		$html = '<p>Real copy.</p><script>setREVStartSize({c:\'rev_slider_1\',rl:[1240,1024,778,480]});</script>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Real copy.', $md );
+		self::assertStringNotContainsString( 'setREVStartSize', $md );
+		self::assertStringNotContainsString( 'rev_slider', $md );
+	}
+
+	public function test_walker_drops_style_subtree(): void {
+		// #253: inline <style> CSS is not page prose and must not render.
+		$html = '<style>.rev_slider{display:block}</style><p>Body text.</p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Body text.', $md );
+		self::assertStringNotContainsString( 'display:block', $md );
+		self::assertStringNotContainsString( '.rev_slider', $md );
+	}
+
+	public function test_walker_drops_noscript_subtree(): void {
+		$html = '<noscript>Enable JavaScript to view this slider.</noscript><p>Visible prose.</p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Visible prose.', $md );
+		self::assertStringNotContainsString( 'Enable JavaScript', $md );
+	}
+
+	public function test_walker_strips_encoded_builder_blob_keeping_prose(): void {
+		// #253: Uncode/WPBakery store layout as URL-encoded-then-base64
+		// payloads. `JTNDZGl2…` is base64 of `%3Cdiv…`. A 60+ char base64 run
+		// must be stripped; the surrounding prose in the same node survives.
+		$blob = 'JTNDZGl2JTIwY2xhc3MlM0QlMjJ1bmNvZGUtc2luZ2xlLW1lZGlhLXdyYXBwZXIlMjIlM0U';
+		$html = '<p>Intro sentence. ' . $blob . ' Closing sentence.</p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Intro sentence.', $md );
+		self::assertStringContainsString( 'Closing sentence.', $md );
+		self::assertStringNotContainsString( $blob, $md );
+	}
+
+	public function test_walker_strips_standalone_encoded_blob_paragraph(): void {
+		// A paragraph that is ONLY an encoded blob collapses to nothing.
+		$blob = \str_repeat( 'QWxhZGRpbg', 12 ); // 120 chars, pure base64 charset.
+		$html = '<p>' . $blob . '</p><p>Kept paragraph.</p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'Kept paragraph.', $md );
+		self::assertStringNotContainsString( $blob, $md );
+	}
+
+	public function test_walker_preserves_short_alphanumeric_tokens(): void {
+		// #253 over-strip guard: ordinary words, slugs, and short IDs are
+		// below the 60-char floor and must survive untouched.
+		$html = '<p>Order ABC123XYZ shipped via tracking 1Z999AA10123456784 today.</p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'ABC123XYZ', $md );
+		self::assertStringContainsString( '1Z999AA10123456784', $md );
+	}
+
+	public function test_walker_preserves_data_uri_image_source(): void {
+		// #253 over-strip guard: a base64 data-URI lives in the `src`
+		// ATTRIBUTE, consumed by render_image — the text-node strip must not
+		// touch it, so the image link survives intact.
+		$b64  = \str_repeat( 'iVBORw0KGgoAAAANSUhEUg', 5 ); // long base64 in src.
+		$html = '<p><img src="data:image/png;base64,' . $b64 . '" alt="logo"></p>';
+		$md   = Walker::convert( $html )->get_markdown();
+		self::assertStringContainsString( 'data:image/png;base64,' . $b64, $md );
+		self::assertStringContainsString( 'logo', $md );
+	}
+
 	public function test_score_is_high_on_clean_classic_post(): void {
 		$html = '<h1>A clean post</h1><p>One paragraph.</p><p>Another paragraph.</p>';
 		$result = Walker::convert( $html );
