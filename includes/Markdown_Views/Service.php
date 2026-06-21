@@ -94,18 +94,55 @@ final class Service {
 			return $cached;
 		}
 
-		// `the_content` is a WordPress core filter — this is the canonical way
-		// to render post content through all registered formatters before
-		// converting to MD. The PrefixAllGlobals sniff only applies to hooks
-		// our plugin DEFINES, not core hooks we CONSUME.
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$html       = (string) \apply_filters( 'the_content', $post->post_content );
-		$conversion = Walker::convert( $html );
+		$conversion = Walker::convert( self::render_source_html( $post ) );
 		$md         = $conversion->get_markdown();
 
 		self::write_cache( $post_id, $hash, $conversion );
 
 		return $md;
+	}
+
+	/**
+	 * Build the HTML that the Walker converts to Markdown for a post.
+	 *
+	 * The single source-building helper, shared by `get_markdown_for_post()`
+	 * (live `.md` / REST / CLI) and `regenerate_conversion_for()` (the
+	 * preview ability) so the two paths can never drift (#252).
+	 *
+	 * The base is `the_content` over `post_content` — the canonical render
+	 * path through every registered formatter. The result then passes through
+	 * the `agentready_markdown_source_html` filter, which is the extension
+	 * point post types whose canonical copy lives elsewhere hook into. The
+	 * bundled WooCommerce adapter ({@see Woocommerce_Source}) uses it to
+	 * prepend a product's short description, which is otherwise absent from
+	 * `the_content` and left products rendering an empty body.
+	 *
+	 * @param \WP_Post $post Post to source HTML for.
+	 *
+	 * @return string Rendered HTML, pre-conversion.
+	 */
+	private static function render_source_html( \WP_Post $post ): string {
+		// `the_content` is a WordPress core filter — this is the canonical way
+		// to render post content through all registered formatters before
+		// converting to MD. The PrefixAllGlobals sniff only applies to hooks
+		// our plugin DEFINES, not core hooks we CONSUME.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$html = (string) \apply_filters( 'the_content', $post->post_content );
+
+		/**
+		 * Filter the HTML sourced for a post's Markdown View before conversion.
+		 *
+		 * Lets integrations augment the body for post types whose canonical
+		 * copy is not in `post_content` (e.g. WooCommerce products, whose
+		 * description is the short description / `post_excerpt`). Anything a
+		 * callback reads to build the body MUST also be reflected in the cache
+		 * key — see the `agentready_markdown_content_hash` filter on
+		 * {@see self::content_hash()}.
+		 *
+		 * @param string   $html The `the_content`-rendered HTML.
+		 * @param \WP_Post $post The post being rendered.
+		 */
+		return (string) \apply_filters( 'agentready_markdown_source_html', $html, $post );
 	}
 
 	/**
@@ -123,9 +160,7 @@ final class Service {
 			return null;
 		}
 
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$html = (string) \apply_filters( 'the_content', $post->post_content );
-		return Walker::convert( $html );
+		return Walker::convert( self::render_source_html( $post ) );
 	}
 
 	/**
@@ -153,14 +188,36 @@ final class Service {
 	/**
 	 * Compute the content hash used for cache validation.
 	 *
-	 * sha1 over the raw post_content + post_modified_gmt + post_title. Cheap
-	 * to compute (no `the_content` filter run required), and reliably bumps
-	 * on every edit because WP updates `post_modified_gmt` on each save.
-	 * Pathological case (a shortcode rendering different output without the
-	 * post itself being saved) is covered by the walker-version bump path.
+	 * sha1 over the raw post_content + post_excerpt + post_modified_gmt +
+	 * post_title. Cheap to compute (no `the_content` filter run required), and
+	 * reliably bumps on every edit because WP updates `post_modified_gmt` on
+	 * each save. `post_excerpt` is included because the source builder
+	 * ({@see self::render_source_html()}) can draw from it — for WooCommerce
+	 * products the short description IS `post_excerpt`, so an excerpt-only edit
+	 * must invalidate the cached render (#252). Pathological case (a shortcode
+	 * rendering different output without the post itself being saved) is
+	 * covered by the walker-version bump path.
+	 *
+	 * Integrations that source the body from fields beyond post_content /
+	 * post_excerpt extend the key via the `agentready_markdown_content_hash`
+	 * filter so their edits invalidate too.
 	 */
 	private static function content_hash( \WP_Post $post ): string {
-		return \sha1( $post->post_content . $post->post_modified_gmt . $post->post_title );
+		$base = $post->post_content . $post->post_excerpt . $post->post_modified_gmt . $post->post_title;
+
+		/**
+		 * Filter the string hashed into the Markdown View cache key.
+		 *
+		 * Lets adapters that source body content from extra fields (product
+		 * meta, ACF, etc.) append those values so an edit to them invalidates
+		 * the cached `.md` render.
+		 *
+		 * @param string   $base The default hash input.
+		 * @param \WP_Post $post The post being rendered.
+		 */
+		$base = (string) \apply_filters( 'agentready_markdown_content_hash', $base, $post );
+
+		return \sha1( $base );
 	}
 
 	/**

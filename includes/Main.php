@@ -122,6 +122,11 @@ final class Main {
 		// `wp_after_insert_post` all funnel into Service::invalidate().
 		Markdown_Views\Service::register_hooks();
 
+		// Bundled WooCommerce source adapter (#252 / AgDR-0061): prepends a
+		// product's short description to the Markdown source. No-ops when
+		// WooCommerce is inactive or the post is not a product.
+		Markdown_Views\Woocommerce_Source::register();
+
 		// Wire the public route (#5 / AgDR-0013): registers the rewrite rule
 		// + query var + template_redirect handler. Flush happens in
 		// on_activate() so the rule persists into the rewrite_rules option.
