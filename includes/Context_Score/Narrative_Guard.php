@@ -39,7 +39,7 @@ final class Narrative_Guard {
 	 * narrative. Mirrors the surface area the rule-based templates
 	 * reference (Context Profile, Site Health, WP-CLI commands, etc.) so
 	 * the guard doesn't reject perfectly accurate LLM output that names
-	 * an Mokhai-internal concept missing from a given sub-score's
+	 * a Mokhai-internal concept missing from a given sub-score's
 	 * `signals`/`reasons` list.
 	 *
 	 * Lowercased on lookup, so the source casing is purely documentary.

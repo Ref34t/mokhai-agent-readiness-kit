@@ -37,7 +37,7 @@ namespace WPContext;
  * WPContext\ namespace can reference them without imports.
  */
 function constants(): void {
-	\define( 'WPCTX_VERSION', '0.3.1' );
+	\define( 'WPCTX_VERSION', '0.3.2' );
 	\define( 'WPCTX_FILE', __FILE__ );
 	\define( 'WPCTX_DIR', \plugin_dir_path( __FILE__ ) );
 	\define( 'WPCTX_URL', \plugin_dir_url( __FILE__ ) );
