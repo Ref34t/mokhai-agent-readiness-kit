@@ -428,4 +428,57 @@ final class Rule_Based_Narrative_Test extends TestCase {
 			),
 		);
 	}
+
+	public function test_md_conversion_quality_names_worst_urls_and_coverage(): void {
+		// #255 AC4: when sampled bodies are empty/noisy, the narrative names
+		// the specific failing pages and scopes the finding to what was sampled.
+		$pair = Rule_Based_Narrative::compose_one(
+			'md_conversion_quality',
+			array(
+				'value'   => 70,
+				'weight'  => 25,
+				'signals' => array(
+					'rows_total' => 40,
+					'mean_quality' => 90,
+					'above_threshold_pct' => 100,
+					'sampled'    => 40,
+					'empty_pct'  => 30,
+					'noisy_pct'  => 0,
+					'worst_urls' => array(
+						array( 'post_id' => 1, 'title' => 'Empty Product A', 'url' => 'https://example.com/a' ),
+						array( 'post_id' => 2, 'title' => 'Empty Product B', 'url' => 'https://example.com/b' ),
+					),
+				),
+			)
+		);
+
+		self::assertStringContainsString( '30%', $pair['why'] );
+		self::assertStringContainsString( 'of 40 cached', $pair['why'] );
+		self::assertStringContainsString( 'Empty Product A', $pair['fix'] );
+		self::assertLessThanOrEqual( Rule_Based_Narrative::MAX_OUTPUT_CHARS, \strlen( $pair['why'] ) );
+		self::assertLessThanOrEqual( Rule_Based_Narrative::MAX_OUTPUT_CHARS, \strlen( $pair['fix'] ) );
+	}
+
+	public function test_md_conversion_quality_clean_when_no_empty_or_noise(): void {
+		// No body-quality findings → falls through to the existing mean-based
+		// narrative, no URL naming.
+		$pair = Rule_Based_Narrative::compose_one(
+			'md_conversion_quality',
+			array(
+				'value'   => 90,
+				'weight'  => 25,
+				'signals' => array(
+					'rows_total' => 10,
+					'mean_quality' => 92,
+					'above_threshold_pct' => 90,
+					'sampled'    => 10,
+					'empty_pct'  => 0,
+					'noisy_pct'  => 0,
+					'worst_urls' => array(),
+				),
+			)
+		);
+
+		self::assertStringNotContainsString( 'empty or near-empty', $pair['why'] );
+	}
 }

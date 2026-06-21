@@ -390,6 +390,100 @@ final class Engine_Test extends TestCase {
 		$this->assertSame( 100, $sub['value'] );
 	}
 
+	public function test_md_conversion_quality_empty_bodies_deduct_proportionally(): void {
+		// #255: a perfect mean/above-threshold base (100) must still be pulled
+		// down when sampled bodies are empty — the gap that let #252 read 86.
+		$signals = array(
+			'md_cache' => array(
+				'rows_total'           => 10,
+				'rows_with_score'      => 10,
+				'mean_quality'         => 100.0,
+				'rows_above_threshold' => 10,
+				'md_quality_threshold' => 70,
+				'sampled'              => 10,
+				'empty_ratio'          => 0.5, // half the sampled bodies are empty.
+				'noisy_ratio'          => 0.0,
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['md_conversion_quality'];
+
+		// base 100 - round(40 * 0.5) = 100 - 20 = 80.
+		$this->assertSame( 80, $sub['value'] );
+		$this->assertSame( 50, $sub['signals']['empty_pct'] );
+		$this->assertContains( 'mcq_empty_bodies', array_column( $sub['reason_keys'], 'code' ) );
+	}
+
+	public function test_md_conversion_quality_noise_bodies_deduct_proportionally(): void {
+		$signals = array(
+			'md_cache' => array(
+				'rows_total'           => 4,
+				'rows_with_score'      => 4,
+				'mean_quality'         => 100.0,
+				'rows_above_threshold' => 4,
+				'md_quality_threshold' => 70,
+				'sampled'              => 4,
+				'empty_ratio'          => 0.0,
+				'noisy_ratio'          => 1.0, // every sampled body is noise-dominated.
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['md_conversion_quality'];
+
+		// base 100 - round(30 * 1.0) = 70.
+		$this->assertSame( 70, $sub['value'] );
+		$this->assertSame( 100, $sub['signals']['noisy_pct'] );
+		$this->assertContains( 'mcq_noisy_bodies', array_column( $sub['reason_keys'], 'code' ) );
+	}
+
+	public function test_md_conversion_quality_deductions_cannot_underflow(): void {
+		// Worst case: a weak base plus the full 70-point empty+noise deduction
+		// must clamp at 0, never negative.
+		$signals = array(
+			'md_cache' => array(
+				'rows_total'           => 10,
+				'rows_with_score'      => 10,
+				'mean_quality'         => 10.0,
+				'rows_above_threshold' => 0,
+				'md_quality_threshold' => 70,
+				'sampled'              => 10,
+				'empty_ratio'          => 1.0,
+				'noisy_ratio'          => 1.0,
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['md_conversion_quality'];
+
+		$this->assertSame( 0, $sub['value'] );
+	}
+
+	public function test_md_conversion_quality_carries_worst_urls_through_to_signals(): void {
+		$worst   = array(
+			array(
+				'post_id' => 12,
+				'title'   => 'Empty product',
+				'url'     => 'https://example.com/product/empty',
+			),
+		);
+		$signals = array(
+			'md_cache' => array(
+				'rows_total'           => 5,
+				'rows_with_score'      => 5,
+				'mean_quality'         => 90.0,
+				'rows_above_threshold' => 5,
+				'md_quality_threshold' => 70,
+				'sampled'              => 5,
+				'empty_ratio'          => 0.2,
+				'noisy_ratio'          => 0.0,
+				'worst_urls'           => $worst,
+			),
+		);
+
+		$sub = Engine::compute( $signals )['sub_scores']['md_conversion_quality'];
+
+		$this->assertSame( $worst, $sub['signals']['worst_urls'] );
+	}
+
 	public function test_multi_channel_discovery_yields_100_when_all_surfaces_present(): void {
 		$signals = array(
 			'multi_channel_discovery' => array(
