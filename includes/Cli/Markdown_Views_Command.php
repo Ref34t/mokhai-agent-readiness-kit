@@ -97,7 +97,7 @@ final class Markdown_Views_Command {
 		$post   = self::resolve_post( $target );
 
 		if ( null === $post ) {
-			\WP_CLI::error( \sprintf( /* translators: %s is the user-supplied target. */ \__( 'No post matches "%s".', 'agentable' ), $target ) );
+			\WP_CLI::error( \sprintf( /* translators: %s is the user-supplied target. */ \__( 'No post matches "%s".', 'mokhai-agent-readiness-kit' ), $target ) );
 		}
 
 		$bypass = isset( $assoc_args['bypass-exposure'] ) && (bool) $assoc_args['bypass-exposure'];
@@ -106,7 +106,7 @@ final class Markdown_Views_Command {
 			\WP_CLI::error(
 				\__(
 					'--bypass-exposure requires the manage_options capability. Run with `--user=<id-or-login>` to authenticate as an administrator (e.g. `wp --user=admin agentready md preview <id> --bypass-exposure`).',
-					'agentable'
+					'mokhai-agent-readiness-kit'
 				)
 			);
 		}
@@ -115,7 +115,7 @@ final class Markdown_Views_Command {
 		// toggle is an explicit admin choice and CLI output for a disabled
 		// module would be confusing.
 		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
-			\WP_CLI::error( \__( 'Markdown Views is disabled in the Context Profile.', 'agentable' ) );
+			\WP_CLI::error( \__( 'Markdown Views is disabled in the Context Profile.', 'mokhai-agent-readiness-kit' ) );
 		}
 
 		if ( ! $bypass ) {
@@ -124,7 +124,7 @@ final class Markdown_Views_Command {
 				\WP_CLI::error(
 					\sprintf(
 						/* translators: 1: post ID, 2: reason code (cpt|status|password|noindex). */
-						\__( 'Post #%1$d is not exposable (reason: %2$s). Use --bypass-exposure to preview anyway (requires manage_options).', 'agentable' ),
+						\__( 'Post #%1$d is not exposable (reason: %2$s). Use --bypass-exposure to preview anyway (requires manage_options).', 'mokhai-agent-readiness-kit' ),
 						(int) $post->ID,
 						$reason
 					)
@@ -262,14 +262,14 @@ final class Markdown_Views_Command {
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		if ( ! \is_array( $row ) ) {
-			\WP_CLI::warning( \__( 'cache: miss (no row)', 'agentable' ) );
+			\WP_CLI::warning( \__( 'cache: miss (no row)', 'mokhai-agent-readiness-kit' ) );
 			return;
 		}
 
 		\WP_CLI::warning(
 			\sprintf(
 				/* translators: 1: content hash, 2: walker version, 3: generated_at timestamp. */
-				\__( 'cache: hit | hash=%1$s | walker_version=%2$s | generated_at=%3$s', 'agentable' ),
+				\__( 'cache: hit | hash=%1$s | walker_version=%2$s | generated_at=%3$s', 'mokhai-agent-readiness-kit' ),
 				(string) $row['content_hash'],
 				(string) $row['walker_version'],
 				(string) $row['generated_at']

@@ -199,7 +199,7 @@ final class Entry_Source {
 				return $raw;
 			}
 			/* translators: placeholder shown in /llms.txt for posts saved without a title. */
-			return \__( '(no title)', 'agentable' );
+			return \__( '(no title)', 'mokhai-agent-readiness-kit' );
 		}
 		return (string) $title;
 	}

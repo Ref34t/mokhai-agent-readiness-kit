@@ -1,10 +1,10 @@
-=== Agentable ===
+=== Mokhai - Agent Readiness Kit ===
 Contributors: mokhaled
 Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.1
+Stable tag: 0.3.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Help AI agents read your WordPress site correctly: llms.txt, clean Markdown view
 
 == Description ==
 
-Agentable is an open-source WordPress plugin that turns your site into a first-class citizen of the AI-agent web — readable today, actionable next. A single **Context Profile** (configured once under Tools → Context) is the source of truth for every agent-facing surface — what's exposed, how it's served, and how it's scored.
+Mokhai is an open-source WordPress plugin that turns your site into a first-class citizen of the AI-agent web — readable today, actionable next. A single **Context Profile** (configured once under Tools → Context) is the source of truth for every agent-facing surface — what's exposed, how it's served, and how it's scored.
 
 v0.1 ships four coherent modules driven by one profile:
 
@@ -63,7 +63,7 @@ All denial paths produce the same 404 shape — admin debugging via the REST end
 
 == LLMs Index (/llms.txt) ==
 
-Agentable publishes a `/llms.txt` discovery surface for AI agents — the de-facto convention for declaring which URLs on a site are worth fetching as agent context. The generator is driven by the Context Profile: only CPTs and statuses you've exposed appear in the index. Conflict detection surfaces when `robots.txt` already covers the same paths; an admin notice points to the conflict so coverage isn't silently inconsistent.
+Mokhai publishes a `/llms.txt` discovery surface for AI agents — the de-facto convention for declaring which URLs on a site are worth fetching as agent context. The generator is driven by the Context Profile: only CPTs and statuses you've exposed appear in the index. Conflict detection surfaces when `robots.txt` already covers the same paths; an admin notice points to the conflict so coverage isn't silently inconsistent.
 
 = Editorial entries =
 
@@ -87,7 +87,7 @@ Context Score is the 0–100 readiness audit answering "how prepared is this sit
 
 1. **Discoverability (weight 10)** — `/llms.txt` cache populated, at least one CPT exposed, entries published, no rewrite conflicts overriding the route
 2. **Description coverage (weight 15)** — share of exposed entries that have a curated description (post excerpt or LLM-generated cache from the descriptions module)
-3. **Schema coverage (weight 10)** — JSON-LD is being emitted, either by a detected SEO plugin (Yoast / Rank Math / AIOSEO / The SEO Framework) or by Agentable's native gap-fill emitter when the Context Profile toggle is on
+3. **Schema coverage (weight 10)** — JSON-LD is being emitted, either by a detected SEO plugin (Yoast / Rank Math / AIOSEO / The SEO Framework) or by Mokhai's native gap-fill emitter when the Context Profile toggle is on
 4. **Exposure safety (weight 15)** — exposed statuses are limited to `publish` (no risky non-publish exposures) and at least one CPT is configured explicitly rather than implicitly
 5. **Integration health (weight 15)** — LLM features ↔ AI Client posture are consistent (no silent-degrade trap) and no `/llms.txt` conflicts are unresolved
 6. **Markdown conversion quality (weight 25)** — mean quality score across the Markdown Views cache and the percentage of cached posts above the cleanup threshold
@@ -103,7 +103,7 @@ An LLM-generated narrative (uses the WP AI Client provider) explains the score i
 
 == Schema Coordination ==
 
-When you have an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) active and emitting JSON-LD, Agentable defers schema emission to them entirely — no competing markup, no duplicate type declarations. When no SEO plugin is emitting schema, Agentable can optionally emit a native WebSite + Organization + per-content schema set so the schema sub-score in Context Score is achievable without a third-party SEO plugin. The toggle lives in the Context Profile; default is off (gap-fill behaviour kicks in only when explicitly enabled).
+When you have an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) active and emitting JSON-LD, Mokhai defers schema emission to them entirely — no competing markup, no duplicate type declarations. When no SEO plugin is emitting schema, Mokhai can optionally emit a native WebSite + Organization + per-content schema set so the schema sub-score in Context Score is achievable without a third-party SEO plugin. The toggle lives in the Context Profile; default is off (gap-fill behaviour kicks in only when explicitly enabled).
 
 == AI Assistant Preview ==
 
@@ -111,11 +111,11 @@ The AI Assistant Preview pane (Tools → Context) answers a question every site 
 
 == Agent Abilities (MCP) ==
 
-Agentable registers an `ai-readiness-kit` ability category and five core WordPress Abilities (WP 6.9+): audit-run, profile-read, profile-set-exposure, llms-txt-regenerate, and md-view-preview. Each is a thin wrapper over an existing service, gated on `manage_options`, and exposed via the core `wp-abilities/v1` REST surface. When the WordPress MCP adapter is installed, these abilities are also reachable by MCP clients (the abilities are flagged `meta.mcp.public`), making the plugin's operations callable by agent runtimes — a step from agent-*readable* toward agent-*usable*. The MCP flag is inert when no adapter is present, so the abilities work standalone.
+Mokhai registers an `ai-readiness-kit` ability category and five core WordPress Abilities (WP 6.9+): audit-run, profile-read, profile-set-exposure, llms-txt-regenerate, and md-view-preview. Each is a thin wrapper over an existing service, gated on `manage_options`, and exposed via the core `wp-abilities/v1` REST surface. When the WordPress MCP adapter is installed, these abilities are also reachable by MCP clients (the abilities are flagged `meta.mcp.public`), making the plugin's operations callable by agent runtimes — a step from agent-*readable* toward agent-*usable*. The MCP flag is inert when no adapter is present, so the abilities work standalone.
 
 == Privacy and Storage ==
 
-Agentable stores rendered Markdown in a custom table named `{$wpdb->prefix}agentready_md_cache`, with one row per published post that has been requested at least once as Markdown — holding the Markdown body, an integrity hash of the source content, and the timestamp at which it was generated. The cache is invalidated automatically when a post is saved, trashed, or deleted.
+Mokhai stores rendered Markdown in a custom table named `{$wpdb->prefix}agentready_md_cache`, with one row per published post that has been requested at least once as Markdown — holding the Markdown body, an integrity hash of the source content, and the timestamp at which it was generated. The cache is invalidated automatically when a post is saved, trashed, or deleted.
 
 Context Score audit results are cached in the `agentready_context_score_cache` `wp_options` entry (the most-recent breakdown only — overwritten on each recompute).
 
@@ -140,17 +140,17 @@ The module respects the toggle without latency — flipping back to true is inst
 
 == Frequently Asked Questions ==
 
-= Does Agentable require an AI API key? =
+= Does Mokhai require an AI API key? =
 
 No. Every deterministic surface (Markdown Views, /llms.txt floor, rule-based Context Score narrative, gap-fill JSON-LD emission) runs fully locally with no external calls. Modules that benefit from an LLM (the Markdown cleanup pass, /llms.txt entry-description drafting, the LLM-narrated Context Score) require the optional WP AI Client to be configured, but each is independently toggleable and not load-bearing for the core agent-readiness contract.
 
-= How does Agentable interact with my SEO plugin? =
+= How does Mokhai interact with my SEO plugin? =
 
-For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is active, Agentable emits nothing competing — schema is theirs. When no SEO plugin is emitting JSON-LD, you can optionally enable Agentable's native gap-fill emission from the Context Profile. For noindex: Agentable ships an `agentready_post_is_noindexed` filter the Markdown Views handler honours; v0.1 leaves the SEO-plugin subscriber unwired (a theme or companion plugin can subscribe it today; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release).
+For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is active, Mokhai emits nothing competing — schema is theirs. When no SEO plugin is emitting JSON-LD, you can optionally enable Mokhai's native gap-fill emission from the Context Profile. For noindex: Mokhai ships an `agentready_post_is_noindexed` filter the Markdown Views handler honours; v0.1 leaves the SEO-plugin subscriber unwired (a theme or companion plugin can subscribe it today; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release).
 
 = How is this different from existing /llms.txt plugins? =
 
-`/llms.txt` is one surface among several. Agentable ships the integrated reading layer (Markdown views), the discovery layer (/llms.txt with editorial entries and LLM-powered descriptions), the audit layer (Context Score across seven sub-scores), and the schema coordination layer as a single coherent unit driven by one Context Profile. Most existing plugins target one of these surfaces in isolation; Agentable treats them as a coordinated stack.
+`/llms.txt` is one surface among several. Mokhai ships the integrated reading layer (Markdown views), the discovery layer (/llms.txt with editorial entries and LLM-powered descriptions), the audit layer (Context Score across seven sub-scores), and the schema coordination layer as a single coherent unit driven by one Context Profile. Most existing plugins target one of these surfaces in isolation; Mokhai treats them as a coordinated stack.
 
 = What's on the roadmap after v0.2? =
 
@@ -164,6 +164,18 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 4. Context Score — 0–100 readiness audit with seven sub-scores and actionable fixes
 
 == Changelog ==
+
+= 0.3.2 — 2026-06-21 =
+
+**Rename to "Mokhai - Agent Readiness Kit"** (text domain `mokhai-agent-readiness-kit`). wp.org plugin review rejected "Agentable" as colliding with existing third-party projects and required a name and slug that are clearly ours, with a distinctive leading term. "Mokhai" satisfies that. REST, WP-CLI, abilities, option keys, and all stored data are unchanged — existing installs upgrade with no migration. (#259, AgDR-0062)
+
+Also ships the following changes that landed on `main` since 0.3.1:
+
+* `/llms.txt` now warns in the admin when a static `robots.txt` blocks the `/llms.txt` reference, so the conflict isn't silent. (#245, #250)
+* `/llms.txt` emits the site header on an otherwise-empty index instead of returning a blank body. (#244, #249)
+* WooCommerce transactional pages (cart, checkout, account) are now excluded from the `/llms.txt` index. (#243, #248)
+* Markdown Views falls back to the raw `post_title` when a filtered title comes back empty, so titled posts no longer render untitled. (#242, #247)
+* Markdown URL mapper now guards the root / front-page URL, fixing mapping on the home route. (#241, #246)
 
 = 0.3.1 — 2026-06-14 =
 

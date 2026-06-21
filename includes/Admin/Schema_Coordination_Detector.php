@@ -3,10 +3,10 @@
  * Schema-coordination detector — detects active SEO plugins.
  *
  * Read-only helper: never persists state. Per PRD FR-8 ("Deferral to existing
- * SEO plugins"), Agentable defers JSON-LD coordination to whichever SEO
+ * SEO plugins"), Mokhai defers JSON-LD coordination to whichever SEO
  * plugin owns it — Yoast / Rank Math / AIOSEO. The Context Profile screen
  * surfaces the detected state read-only so the agency lead sees which plugin
- * Agentable is deferring to.
+ * Mokhai is deferring to.
  *
  * @package WPContext
  */

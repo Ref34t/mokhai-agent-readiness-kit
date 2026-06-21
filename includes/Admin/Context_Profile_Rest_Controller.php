@@ -117,7 +117,7 @@ final class Context_Profile_Rest_Controller {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				\__( 'You are not allowed to manage the Context Profile.', 'agentable' ),
+				\__( 'You are not allowed to manage the Context Profile.', 'mokhai-agent-readiness-kit' ),
 				array( 'status' => \rest_authorization_required_code() )
 			);
 		}

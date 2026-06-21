@@ -66,8 +66,8 @@ final class Context_Score_Page {
 	 */
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
-			\__( 'Agentable Context Score', 'agentable' ),
-			\__( 'AI Readiness — Score', 'agentable' ),
+			\__( 'Mokhai Context Score', 'mokhai-agent-readiness-kit' ),
+			\__( 'AI Readiness — Score', 'mokhai-agent-readiness-kit' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( self::class, 'render' )
@@ -97,7 +97,7 @@ final class Context_Score_Page {
 			/* translators: 1: number of sub-scores. 2: comma-and-joined list of sub-score names. */
 			\__(
 				'A site-level audit of how prepared this WordPress install is for AI agent traffic. The overall score is a weighted sum of %1$d sub-scores covering %2$s.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			\count( Engine::WEIGHTS ),
 			Sub_Score_Names::joined_labels()
@@ -107,15 +107,15 @@ final class Context_Score_Page {
 	public static function render(): void {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die(
-				\esc_html__( 'You do not have permission to access this page.', 'agentable' ),
-				\esc_html__( 'Forbidden', 'agentable' ),
+				\esc_html__( 'You do not have permission to access this page.', 'mokhai-agent-readiness-kit' ),
+				\esc_html__( 'Forbidden', 'mokhai-agent-readiness-kit' ),
 				array( 'response' => 403 )
 			);
 		}
 
 		?>
 		<div class="wrap" id="agentready-context-score-wrap">
-			<h1><?php \esc_html_e( 'Context Score', 'agentable' ); ?></h1>
+			<h1><?php \esc_html_e( 'Context Score', 'mokhai-agent-readiness-kit' ); ?></h1>
 			<p class="description">
 				<?php echo \esc_html( self::subtitle() ); ?>
 			</p>
@@ -123,7 +123,7 @@ final class Context_Score_Page {
 			<div
 				id="agentready-context-score-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'Agentable Context Score breakdown', 'agentable' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Mokhai Context Score breakdown', 'mokhai-agent-readiness-kit' ); ?>"
 			></div>
 
 			<noscript>
@@ -132,7 +132,7 @@ final class Context_Score_Page {
 						<?php
 						\esc_html_e(
 							'The Context Score panel requires JavaScript. Enable JavaScript and reload this page, or run "wp ai-readiness-kit context-score audit" from the command line for an equivalent JSON breakdown.',
-							'agentable'
+							'mokhai-agent-readiness-kit'
 						);
 						?>
 					</p>
@@ -143,7 +143,7 @@ final class Context_Score_Page {
 			<div
 				id="agentready-ai-preview-root"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'AI Assistant Preview', 'agentable' ); ?>"
+				aria-label="<?php \esc_attr_e( 'AI Assistant Preview', 'mokhai-agent-readiness-kit' ); ?>"
 			></div>
 		</div>
 		<?php
@@ -204,7 +204,7 @@ final class Context_Score_Page {
 
 		\wp_set_script_translations(
 			'agentready-context-score',
-			'agentable',
+			'mokhai-agent-readiness-kit',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -258,7 +258,7 @@ final class Context_Score_Page {
 
 		\wp_set_script_translations(
 			'agentready-ai-preview',
-			'agentable',
+			'mokhai-agent-readiness-kit',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -306,7 +306,7 @@ final class Context_Score_Page {
 		}
 		\printf(
 			'<div class="notice notice-warning"><p>%1$s <code>%2$s</code></p></div>',
-			\esc_html__( 'Agentable Context Score UI bundle not found. Run:', 'agentable' ),
+			\esc_html__( 'Mokhai Context Score UI bundle not found. Run:', 'mokhai-agent-readiness-kit' ),
 			\esc_html( 'npm install && npm run build' )
 		);
 	}
@@ -340,7 +340,7 @@ final class Context_Score_Page {
 	 * Surfaces the detected SEO plugin posture and the per-type
 	 * deference matrix so the agency lead can see at a glance:
 	 *   - Which schema types are deferred to the active SEO plugin
-	 *   - Which schema types Agentable fills (gap-fill, empty by default)
+	 *   - Which schema types Mokhai fills (gap-fill, empty by default)
 	 *   - Whether emission is suppressed by the `agentready_schema_emit` filter
 	 *
 	 * The values are computed at render time — same approach as the live

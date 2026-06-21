@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration smoke test — verifies Agentable loads correctly inside the
+ * Integration smoke test — verifies Mokhai loads correctly inside the
  * WP test instance booted by wp-phpunit / wp-env.
  *
  * @package WPContext\Tests

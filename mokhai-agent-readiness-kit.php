@@ -1,22 +1,25 @@
 <?php
 /**
- * Plugin Name:       Agentable
+ * Plugin Name:       Mokhai - Agent Readiness Kit
  * Plugin URI:        https://github.com/Ref34t/agentready
  * Description:       Help AI agents read your WordPress site correctly: llms.txt, clean Markdown views, structured data, and a readiness score — from one Context Profile.
- * Version:           0.3.1
+ * Version:           0.3.2
  * Requires at least: 6.9
  * Requires PHP:      7.4
  * Author:            Mohamed Khaled
  * Author URI:        https://profiles.wordpress.org/mokhaled
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       agentable
+ * Text Domain:       mokhai-agent-readiness-kit
  *
- * Translations: managed by wp.org under plugin slug 'agentable' (no manual
- * textdomain loading needed since WP 4.6). See AgDR-0009 (slug value updated
- * per AgDR-0036 and the AI Readiness Kit rebrand, #101; renamed to 'AgentReady'
- * per AgDR-0059, #224; renamed to 'Agentable' per AgDR-0060, #230 — the
- * 'agentready' brand collided with the existing agentready.org).
+ * Translations: managed by wp.org under plugin slug 'mokhai-agent-readiness-kit'
+ * (no manual textdomain loading needed since WP 4.6). See AgDR-0009 (slug value
+ * updated per AgDR-0036 and the AI Readiness Kit rebrand, #101; renamed to
+ * 'AgentReady' per AgDR-0059, #224; renamed to 'Agentable' per AgDR-0060, #230 —
+ * the 'agentready' brand collided with the existing agentready.org; renamed to
+ * 'Mokhai - Agent Readiness Kit' per AgDR-0062, #259 — wp.org review rejected
+ * 'Agentable' as a third-party brand collision and required a distinctive
+ * leading term that is clearly ours).
  *
  * @package WPContext
  */
@@ -34,7 +37,7 @@ namespace WPContext;
  * WPContext\ namespace can reference them without imports.
  */
 function constants(): void {
-	\define( 'WPCTX_VERSION', '0.3.1' );
+	\define( 'WPCTX_VERSION', '0.3.2' );
 	\define( 'WPCTX_FILE', __FILE__ );
 	\define( 'WPCTX_DIR', \plugin_dir_path( __FILE__ ) );
 	\define( 'WPCTX_URL', \plugin_dir_url( __FILE__ ) );

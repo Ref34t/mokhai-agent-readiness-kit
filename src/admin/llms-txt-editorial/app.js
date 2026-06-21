@@ -1,5 +1,5 @@
 /**
- * Agentable — LLMs Index editorial entries view (#7 Phase C / #142).
+ * Mokhai — LLMs Index editorial entries view (#7 Phase C / #142).
  *
  * Repeater editor for the `agentready_llms_txt_editorial` option. Rendered as
  * the "Editorial" tab of the Context app shell (#142 / AgDR-0048). Saves via
@@ -49,7 +49,7 @@ function EntryRow( {
 				<strong>
 					{ sprintf(
 						/* translators: %d: entry index */
-						__( 'Entry %d', 'agentable' ),
+						__( 'Entry %d', 'mokhai-agent-readiness-kit' ),
 						index + 1
 					) }
 				</strong>
@@ -59,7 +59,7 @@ function EntryRow( {
 						variant="tertiary"
 						disabled={ index === 0 }
 						onClick={ () => onMove( index, -1 ) }
-						aria-label={ __( 'Move entry up', 'agentable' ) }
+						aria-label={ __( 'Move entry up', 'mokhai-agent-readiness-kit' ) }
 					>
 						{ '↑' }
 					</Button>
@@ -70,7 +70,7 @@ function EntryRow( {
 						onClick={ () => onMove( index, 1 ) }
 						aria-label={ __(
 							'Move entry down',
-							'agentable'
+							'mokhai-agent-readiness-kit'
 						) }
 					>
 						{ '↓' }
@@ -80,15 +80,15 @@ function EntryRow( {
 						isDestructive
 						variant="tertiary"
 						onClick={ () => onRemove( index ) }
-						aria-label={ __( 'Remove entry', 'agentable' ) }
+						aria-label={ __( 'Remove entry', 'mokhai-agent-readiness-kit' ) }
 					>
-						{ __( 'Remove', 'agentable' ) }
+						{ __( 'Remove', 'mokhai-agent-readiness-kit' ) }
 					</Button>
 				</div>
 			</div>
 
 			<TextControl
-				label={ __( 'Title', 'agentable' ) }
+				label={ __( 'Title', 'mokhai-agent-readiness-kit' ) }
 				value={ entry.title }
 				onChange={ ( value ) => onChange( index, 'title', value ) }
 				required
@@ -97,7 +97,7 @@ function EntryRow( {
 			/>
 
 			<TextControl
-				label={ __( 'URL', 'agentable' ) }
+				label={ __( 'URL', 'mokhai-agent-readiness-kit' ) }
 				value={ entry.url }
 				onChange={ ( value ) => onChange( index, 'url', value ) }
 				type="url"
@@ -107,12 +107,12 @@ function EntryRow( {
 				__next40pxDefaultSize
 				help={ __(
 					'External URLs allowed. Schemes: http, https, mailto.',
-					'agentable'
+					'mokhai-agent-readiness-kit'
 				) }
 			/>
 
 			<TextControl
-				label={ __( 'Description (optional)', 'agentable' ) }
+				label={ __( 'Description (optional)', 'mokhai-agent-readiness-kit' ) }
 				value={ entry.description }
 				onChange={ ( value ) =>
 					onChange( index, 'description', value )
@@ -122,7 +122,7 @@ function EntryRow( {
 			/>
 
 			<SelectControl
-				label={ __( 'Section', 'agentable' ) }
+				label={ __( 'Section', 'mokhai-agent-readiness-kit' ) }
 				value={ entry.section }
 				options={ sections.map( ( s ) => ( { label: s, value: s } ) ) }
 				onChange={ ( value ) => onChange( index, 'section', value ) }
@@ -132,7 +132,7 @@ function EntryRow( {
 
 			{ isCustom && (
 				<TextControl
-					label={ __( 'Custom section heading', 'agentable' ) }
+					label={ __( 'Custom section heading', 'mokhai-agent-readiness-kit' ) }
 					value={ entry.section_label }
 					onChange={ ( value ) =>
 						onChange( index, 'section_label', value )
@@ -142,7 +142,7 @@ function EntryRow( {
 					__next40pxDefaultSize
 					help={ __(
 						'Heading rendered in /llms.txt when section is Custom.',
-						'agentable'
+						'mokhai-agent-readiness-kit'
 					) }
 				/>
 			) }
@@ -210,13 +210,13 @@ export function EditorialApp( { bootstrap } ) {
 			);
 			setFlash( {
 				type: 'success',
-				message: __( 'Editorial entries saved.', 'agentable' ),
+				message: __( 'Editorial entries saved.', 'mokhai-agent-readiness-kit' ),
 			} );
 		} catch ( err ) {
 			setFlash( {
 				type: 'error',
 				message:
-					err.message || __( 'Save failed.', 'agentable' ),
+					err.message || __( 'Save failed.', 'mokhai-agent-readiness-kit' ),
 			} );
 		} finally {
 			setSaving( false );
@@ -224,11 +224,11 @@ export function EditorialApp( { bootstrap } ) {
 	};
 
 	return (
-		<div aria-label={ __( 'Editorial entries', 'agentable' ) }>
+		<div aria-label={ __( 'Editorial entries', 'mokhai-agent-readiness-kit' ) }>
 			<p className="description">
 				{ __(
 					'Hand-curated entries published in /llms.txt alongside the auto-listed posts. Each entry has a title, URL, optional description, and a section heading.',
-					'agentable'
+					'mokhai-agent-readiness-kit'
 				) }
 			</p>
 
@@ -245,7 +245,7 @@ export function EditorialApp( { bootstrap } ) {
 				<Notice status="info" isDismissible={ false }>
 					{ __(
 						'No editorial entries yet. Add hand-picked URLs to surface them in /llms.txt alongside auto-listed posts.',
-						'agentable'
+						'mokhai-agent-readiness-kit'
 					) }
 				</Notice>
 			) }
@@ -270,7 +270,7 @@ export function EditorialApp( { bootstrap } ) {
 					onClick={ onAdd }
 					disabled={ saving }
 				>
-					{ __( 'Add entry', 'agentable' ) }
+					{ __( 'Add entry', 'mokhai-agent-readiness-kit' ) }
 				</Button>
 				<Button
 					type="button"
@@ -280,8 +280,8 @@ export function EditorialApp( { bootstrap } ) {
 					disabled={ saving }
 				>
 					{ saving
-						? __( 'Saving…', 'agentable' )
-						: __( 'Save editorial entries', 'agentable' ) }
+						? __( 'Saving…', 'mokhai-agent-readiness-kit' )
+						: __( 'Save editorial entries', 'mokhai-agent-readiness-kit' ) }
 				</Button>
 				{ saving && <Spinner /> }
 			</div>

@@ -2,42 +2,40 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Agentable 0.3.1\n"
+"Project-Id-Version: Mokhai - Agent Readiness Kit 0.3.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/agentready\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-14T12:27:19+00:00\n"
+"POT-Creation-Date: 2026-06-21T08:17:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
-"X-Domain: agentable\n"
+"X-Domain: mokhai-agent-readiness-kit\n"
 
 #. Plugin Name of the plugin
-#: agentable.php
-#: includes/Abilities/Registrar.php:61
-#: includes/Context_Score/Site_Health.php:209
-msgid "Agentable"
+#: mokhai-agent-readiness-kit.php
+msgid "Mokhai - Agent Readiness Kit"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: agentable.php
+#: mokhai-agent-readiness-kit.php
 msgid "https://github.com/Ref34t/agentready"
 msgstr ""
 
 #. Description of the plugin
-#: agentable.php
-msgid "Make your WordPress site readable — and soon actionable — by AI agents: context, policy, audit, and analytics signals that keep your site discoverable and governable."
+#: mokhai-agent-readiness-kit.php
+msgid "Help AI agents read your WordPress site correctly: llms.txt, clean Markdown views, structured data, and a readiness score — from one Context Profile."
 msgstr ""
 
 #. Author of the plugin
-#: agentable.php
+#: mokhai-agent-readiness-kit.php
 msgid "Mohamed Khaled"
 msgstr ""
 
 #. Author URI of the plugin
-#: agentable.php
+#: mokhai-agent-readiness-kit.php
 msgid "https://profiles.wordpress.org/mokhaled"
 msgstr ""
 
@@ -47,6 +45,11 @@ msgstr ""
 
 #: includes/Abilities/Md_View_Ability.php:58
 msgid "The Markdown Views module is disabled in the Context Profile."
+msgstr ""
+
+#: includes/Abilities/Registrar.php:61
+#: includes/Context_Score/Site_Health.php:209
+msgid "Mokhai"
 msgstr ""
 
 #: includes/Abilities/Registrar.php:62
@@ -95,7 +98,7 @@ msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:64
 #: src/admin/context-profile/app.js:188
-msgid "Agentable Context Profile"
+msgid "Mokhai Context Profile"
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:65
@@ -112,7 +115,7 @@ msgid "You do not have permission to access this page."
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:104
-#: includes/Admin/Context_Profile_Settings.php:533
+#: includes/Admin/Context_Profile_Settings.php:578
 #: includes/Admin/Context_Score_Page.php:111
 msgid "Forbidden"
 msgstr ""
@@ -122,11 +125,11 @@ msgid "Context Profile"
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:114
-msgid "Configure how Agentable exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below."
+msgid "Configure how Mokhai exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below."
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:125
-msgid "Agentable Context editor"
+msgid "Mokhai Context editor"
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:132
@@ -134,7 +137,7 @@ msgid "The Context editor requires JavaScript. Enable JavaScript and reload this
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:296
-msgid "Agentable Context Profile UI bundle not found. Run:"
+msgid "Mokhai Context Profile UI bundle not found. Run:"
 msgstr ""
 
 #: includes/Admin/Context_Profile_Page.php:333
@@ -162,16 +165,16 @@ msgid "You are not allowed to manage the Context Profile."
 msgstr ""
 
 #: includes/Admin/Context_Profile_Settings.php:123
-msgid "Agentable Context Profile (single source of truth for agent-facing surfaces)."
+msgid "Mokhai Context Profile (single source of truth for agent-facing surfaces)."
 msgstr ""
 
-#: includes/Admin/Context_Profile_Settings.php:532
+#: includes/Admin/Context_Profile_Settings.php:577
 msgid "You do not have permission to save the Context Profile."
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:69
 #: includes/Context_Score/Site_Health.php:83
-msgid "Agentable Context Score"
+msgid "Mokhai Context Score"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:70
@@ -188,7 +191,7 @@ msgid "Context Score"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:126
-msgid "Agentable Context Score breakdown"
+msgid "Mokhai Context Score breakdown"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:133
@@ -201,17 +204,17 @@ msgid "AI Assistant Preview"
 msgstr ""
 
 #: includes/Admin/Context_Score_Page.php:309
-msgid "Agentable Context Score UI bundle not found. Run:"
+msgid "Mokhai Context Score UI bundle not found. Run:"
 msgstr ""
 
 #: includes/Admin/Exclude_Meta.php:58
-msgid "Exclude this content from Agentable agent output (/llms.txt, .md views)."
+msgid "Exclude this content from Mokhai agent output (/llms.txt, .md views)."
 msgstr ""
 
 #. translators: shown in the AI preview dropdown for posts saved without a title.
 #. translators: placeholder shown in /llms.txt for posts saved without a title.
 #: includes/Ai_Preview/Preview_Builder.php:239
-#: includes/LlmsTxt/Entry_Source.php:191
+#: includes/LlmsTxt/Entry_Source.php:202
 #: src/admin/llms-txt-descriptions/app.js:198
 msgid "(no title)"
 msgstr ""
@@ -280,256 +283,265 @@ msgstr ""
 msgid "You do not have permission to view the Context Score."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:128
-msgid "Working well — /llms.txt is populated and exposed CPTs are configured, so agents can find the content surface."
-msgstr ""
-
-#: includes/Context_Score/Rule_Based_Narrative.php:129
-msgid "Keep the Context Profile in sync as new CPTs are added."
-msgstr ""
-
-#: includes/Context_Score/Rule_Based_Narrative.php:135
+#: includes/Context_Score/Rule_Based_Narrative.php:133
 msgid "Another plugin is overriding the /llms.txt rewrite rule, so agents may hit a stale index."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:136
-msgid "Deactivate the conflicting plugin or move it after Agentable in load order, then re-test /llms.txt."
+#: includes/Context_Score/Rule_Based_Narrative.php:134
+msgid "Deactivate the conflicting plugin or move it after Mokhai in load order, then re-test /llms.txt."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:142
-msgid "The /llms.txt cache is empty, so agents have nothing to discover at the site root."
+#: includes/Context_Score/Rule_Based_Narrative.php:145
+msgid "A static robots.txt file is present, so the /llms.txt reference is not added automatically — agents that read robots.txt are not pointed to your index."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:143
-msgid "Open the Context Profile and save it to seed /llms.txt, or run wp ai-readiness-kit llms-txt regen."
-msgstr ""
-
-#: includes/Context_Score/Rule_Based_Narrative.php:149
-msgid "No post types are exposed to agents, so /llms.txt has no surface to advertise."
-msgstr ""
-
-#: includes/Context_Score/Rule_Based_Narrative.php:150
-#: includes/Context_Score/Rule_Based_Narrative.php:280
-msgid "Open the Context Profile and add at least one post type to Exposed CPTs."
+#. translators: %s: the comment line to paste into robots.txt, including the site /llms.txt URL.
+#: includes/Context_Score/Rule_Based_Narrative.php:148
+msgid "Add this line to your static robots.txt manually: %s"
 msgstr ""
 
 #: includes/Context_Score/Rule_Based_Narrative.php:156
-msgid "Exposed CPTs are configured but no published entries are reaching /llms.txt yet."
+msgid "Working well — /llms.txt is populated and exposed CPTs are configured, so agents can find the content surface."
 msgstr ""
 
 #: includes/Context_Score/Rule_Based_Narrative.php:157
-msgid "Publish at least one entry in an exposed CPT and run wp ai-readiness-kit llms-txt regen."
-msgstr ""
-
-#: includes/Context_Score/Rule_Based_Narrative.php:162
-msgid "Partial — the index is populated but at least one discoverability signal is below target."
+msgid "Keep the Context Profile in sync as new CPTs are added."
 msgstr ""
 
 #: includes/Context_Score/Rule_Based_Narrative.php:163
-msgid "Open the Context Profile and review Exposed CPTs and /llms.txt entry coverage."
+msgid "The /llms.txt cache is empty, so agents have nothing to discover at the site root."
+msgstr ""
+
+#: includes/Context_Score/Rule_Based_Narrative.php:164
+msgid "Open the Context Profile and save it to seed /llms.txt, or run wp ai-readiness-kit llms-txt regen."
+msgstr ""
+
+#: includes/Context_Score/Rule_Based_Narrative.php:170
+msgid "No post types are exposed to agents, so /llms.txt has no surface to advertise."
+msgstr ""
+
+#: includes/Context_Score/Rule_Based_Narrative.php:171
+#: includes/Context_Score/Rule_Based_Narrative.php:301
+msgid "Open the Context Profile and add at least one post type to Exposed CPTs."
+msgstr ""
+
+#: includes/Context_Score/Rule_Based_Narrative.php:177
+msgid "Exposed CPTs are configured but no published entries are reaching /llms.txt yet."
 msgstr ""
 
 #: includes/Context_Score/Rule_Based_Narrative.php:178
+msgid "Publish at least one entry in an exposed CPT and run wp ai-readiness-kit llms-txt regen."
+msgstr ""
+
+#: includes/Context_Score/Rule_Based_Narrative.php:183
+msgid "Partial — the index is populated but at least one discoverability signal is below target."
+msgstr ""
+
+#: includes/Context_Score/Rule_Based_Narrative.php:184
+msgid "Open the Context Profile and review Exposed CPTs and /llms.txt entry coverage."
+msgstr ""
+
+#: includes/Context_Score/Rule_Based_Narrative.php:199
 msgid "Working well — every exposed entry has a curated description for agents to read."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:179
+#: includes/Context_Score/Rule_Based_Narrative.php:200
 msgid "Review descriptions on newly published entries during regular editorial passes."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:185
+#: includes/Context_Score/Rule_Based_Narrative.php:206
 msgid "No exposed entries — there is nothing for agents to read yet."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:186
+#: includes/Context_Score/Rule_Based_Narrative.php:207
 msgid "Add at least one post type to Exposed CPTs in the Context Profile and publish a post."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:195
+#: includes/Context_Score/Rule_Based_Narrative.php:216
 msgid "Open Context Profile → Descriptions and run \"Regenerate stale descriptions\" (or wp ai-readiness-kit llms-txt descriptions backfill)."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:196
+#: includes/Context_Score/Rule_Based_Narrative.php:217
 msgid "Enable auto-descriptions in Context Profile → Descriptions, then run \"Regenerate stale descriptions\"."
 msgstr ""
 
 #. translators: %d: description-coverage percentage.
-#: includes/Context_Score/Rule_Based_Narrative.php:202
+#: includes/Context_Score/Rule_Based_Narrative.php:223
 msgid "Critical — only %d%% of exposed entries have a curated description."
 msgstr ""
 
 #. translators: %d: description-coverage percentage.
-#: includes/Context_Score/Rule_Based_Narrative.php:212
+#: includes/Context_Score/Rule_Based_Narrative.php:233
 msgid "Partial — %d%% of exposed entries have a curated description; the rest fall back to the excerpt."
 msgstr ""
 
 #. translators: %s: detected SEO plugin name.
-#: includes/Context_Score/Rule_Based_Narrative.php:231
+#: includes/Context_Score/Rule_Based_Narrative.php:252
 msgid "Working well — an SEO plugin (%s) is emitting structured data alongside published content."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:234
+#: includes/Context_Score/Rule_Based_Narrative.php:255
 msgid "Audit JSON-LD output on key landing pages once per release."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:240
+#: includes/Context_Score/Rule_Based_Narrative.php:261
 msgid "Working well — the plugin emits native JSON-LD (WebSite, Organization, per-content), so agents get structured data without an SEO plugin."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:241
+#: includes/Context_Score/Rule_Based_Narrative.php:262
 msgid "Audit the native JSON-LD output on key landing pages once per release."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:246
+#: includes/Context_Score/Rule_Based_Narrative.php:267
 msgid "No structured data was detected. Exposed content reaches agents without schema metadata for now."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:247
+#: includes/Context_Score/Rule_Based_Narrative.php:268
 msgid "Enable Schema emission in the Context Profile to emit native JSON-LD, or rely on an SEO plugin to fill the gap."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:261
+#: includes/Context_Score/Rule_Based_Narrative.php:282
 msgid "Working well — only published content is exposed and Exposed CPTs are configured explicitly."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:262
+#: includes/Context_Score/Rule_Based_Narrative.php:283
 msgid "Re-audit Exposed Statuses when new post statuses are introduced by other plugins."
 msgstr ""
 
 #. translators: %d: count of non-publish statuses currently exposed.
-#: includes/Context_Score/Rule_Based_Narrative.php:270
+#: includes/Context_Score/Rule_Based_Narrative.php:291
 msgid "%d non-publish status is exposed to agents, which can leak unpublished content."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:273
+#: includes/Context_Score/Rule_Based_Narrative.php:294
 msgid "Open the Context Profile and reduce Exposed Statuses to publish only."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:279
+#: includes/Context_Score/Rule_Based_Narrative.php:300
 msgid "No CPTs are exposed, which is safe by default but means agents will find nothing."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:285
+#: includes/Context_Score/Rule_Based_Narrative.php:306
 msgid "Partial — at least one exposure signal is below target."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:286
+#: includes/Context_Score/Rule_Based_Narrative.php:307
 msgid "Open the Context Profile and review Exposed CPTs and Exposed Statuses."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:303
+#: includes/Context_Score/Rule_Based_Narrative.php:324
 msgid "Working well — the AI Client is configured and the enabled LLM features have a backend to call."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:304
+#: includes/Context_Score/Rule_Based_Narrative.php:325
 msgid "Working well — LLM features are off, so no AI Client is required."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:305
+#: includes/Context_Score/Rule_Based_Narrative.php:326
 msgid "Re-run this check after toggling any LLM feature in the Context Profile."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:311
+#: includes/Context_Score/Rule_Based_Narrative.php:332
 msgid "LLM features are enabled but the AI Client is unconfigured, so those features silently degrade."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:312
+#: includes/Context_Score/Rule_Based_Narrative.php:333
 msgid "Configure the AI Client in WordPress Settings, or disable the LLM toggles in the Context Profile."
 msgstr ""
 
 #. translators: %d: number of detected /llms.txt conflicts.
-#: includes/Context_Score/Rule_Based_Narrative.php:320
+#: includes/Context_Score/Rule_Based_Narrative.php:341
 msgid "%d /llms.txt conflict was detected with another plugin."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:323
+#: includes/Context_Score/Rule_Based_Narrative.php:344
 msgid "Open Tools → Context and follow the conflict notice to resolve the override."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:328
+#: includes/Context_Score/Rule_Based_Narrative.php:349
 msgid "Partial — at least one integration signal is below target."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:329
+#: includes/Context_Score/Rule_Based_Narrative.php:350
 msgid "Open the Context Profile and verify the AI Client status and /llms.txt conflicts."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:344
+#: includes/Context_Score/Rule_Based_Narrative.php:365
 msgid "Working well — Markdown conversion quality is at the ceiling across the cached posts."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:345
+#: includes/Context_Score/Rule_Based_Narrative.php:366
 msgid "Re-run the audit after large editorial passes to catch drift."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:351
+#: includes/Context_Score/Rule_Based_Narrative.php:372
 msgid "No Markdown Views cache rows yet, so there is nothing to evaluate."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:352
+#: includes/Context_Score/Rule_Based_Narrative.php:373
 msgid "Visit a few .md URLs on the site to populate the cache, then recompute."
 msgstr ""
 
 #. translators: 1: mean MD quality 0-100. 2: percentage of rows above the MD-quality threshold.
-#: includes/Context_Score/Rule_Based_Narrative.php:360
+#: includes/Context_Score/Rule_Based_Narrative.php:381
 msgid "Critical — mean Markdown quality is %1$d/100 and only %2$d%% of cached posts are above the MD-quality threshold."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:364
+#: includes/Context_Score/Rule_Based_Narrative.php:385
 msgid "Improve the source HTML of the lowest-quality posts — cleaner heading structure, fewer nested wrappers and shortcodes — so the deterministic Markdown conversion scores higher, then recompute."
 msgstr ""
 
 #. translators: 1: mean MD quality 0-100. 2: percentage of rows above the MD-quality threshold.
-#: includes/Context_Score/Rule_Based_Narrative.php:371
+#: includes/Context_Score/Rule_Based_Narrative.php:392
 msgid "Partial — mean Markdown quality is %1$d/100; %2$d%% of cached posts are above the MD-quality threshold."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:375
+#: includes/Context_Score/Rule_Based_Narrative.php:396
 msgid "Tidy the source HTML of the posts scoring below the threshold — simpler markup converts to cleaner Markdown — then recompute."
 msgstr ""
 
 #. translators: %s: detected sibling provider name (e.g. "AI Layer").
-#: includes/Context_Score/Rule_Based_Narrative.php:397
+#: includes/Context_Score/Rule_Based_Narrative.php:418
 msgid "Working well — every plugin-served discovery channel is published and %s is coordinating multi-channel coverage."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:400
+#: includes/Context_Score/Rule_Based_Narrative.php:421
 msgid "Working well — every plugin-served discovery channel is published."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:401
+#: includes/Context_Score/Rule_Based_Narrative.php:422
 msgid "Re-audit after adding or removing sibling AI-readiness plugins to keep coverage consistent."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:407
+#: includes/Context_Score/Rule_Based_Narrative.php:428
 msgid "No agent-discovery channels detected — agents that scan ai.txt or /.well-known/ declarations will miss this site."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:408
+#: includes/Context_Score/Rule_Based_Narrative.php:429
 msgid "Open the Context Profile and save it to seed /llms.txt as a first discovery channel."
 msgstr ""
 
 #. translators: 1: count of plugin-served channels detected (0-4). 2: sibling provider name.
-#: includes/Context_Score/Rule_Based_Narrative.php:416
+#: includes/Context_Score/Rule_Based_Narrative.php:437
 msgid "Partial — %1$d of 4 plugin-served discovery channels detected; %2$s is contributing to coverage."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:420
-#: includes/Context_Score/Rule_Based_Narrative.php:430
+#: includes/Context_Score/Rule_Based_Narrative.php:441
+#: includes/Context_Score/Rule_Based_Narrative.php:451
 msgid "Enable the missing channels (ai.txt, ai-layer, llms-policy.json) in the Context Profile. OpenAPI is an optional bonus for API sites."
 msgstr ""
 
 #. translators: %d: count of plugin-served channels detected (0-4).
-#: includes/Context_Score/Rule_Based_Narrative.php:427
+#: includes/Context_Score/Rule_Based_Narrative.php:448
 msgid "Partial — %d of 4 plugin-served discovery channels detected."
 msgstr ""
 
 #. translators: 1: sub-score machine name. 2: value 0-100.
-#: includes/Context_Score/Rule_Based_Narrative.php:445
+#: includes/Context_Score/Rule_Based_Narrative.php:466
 msgid "Sub-score \"%1$s\" scored %2$d/100; no template is configured for this sub-score yet."
 msgstr ""
 
-#: includes/Context_Score/Rule_Based_Narrative.php:449
+#: includes/Context_Score/Rule_Based_Narrative.php:470
 msgid "Review the raw signals in the Full breakdown panel."
 msgstr ""
 
@@ -538,27 +550,27 @@ msgid "Context Score has not been computed yet."
 msgstr ""
 
 #: includes/Context_Score/Site_Health.php:110
-msgid "Visit the Agentable Context Score admin page or run <code>wp ai-readiness-kit context-score recompute</code> to generate the first audit."
+msgid "Visit the Mokhai Context Score admin page or run <code>wp ai-readiness-kit context-score recompute</code> to generate the first audit."
 msgstr ""
 
 #. translators: %d: overall score 0-100.
 #: includes/Context_Score/Site_Health.php:134
-msgid "Agentable Context Score: %d/100 — site is well-prepared for AI agent traffic."
+msgid "Mokhai Context Score: %d/100 — site is well-prepared for AI agent traffic."
 msgstr ""
 
 #. translators: 1: overall score 0-100. 2: count of sub-scores below 100.
 #: includes/Context_Score/Site_Health.php:142
 #: includes/Context_Score/Site_Health.php:151
-msgid "Agentable Context Score: %1$d/100 — %2$d sub-score(s) below target."
+msgid "Mokhai Context Score: %1$d/100 — %2$d sub-score(s) below target."
 msgstr ""
 
 #. translators: %s: human-readable sub-score name (e.g. "discoverability").
 #: includes/Context_Score/Site_Health.php:160
-msgid "The highest-leverage area to improve is <strong>%s</strong>. Open the Agentable Context Score admin page for the full breakdown and actionable suggestions."
+msgid "The highest-leverage area to improve is <strong>%s</strong>. Open the Mokhai Context Score admin page for the full breakdown and actionable suggestions."
 msgstr ""
 
 #: includes/Context_Score/Site_Health.php:163
-msgid "Open the Agentable Context Score admin page for the full breakdown."
+msgid "Open the Mokhai Context Score admin page for the full breakdown."
 msgstr ""
 
 #: includes/Context_Score/Site_Health.php:216
@@ -599,7 +611,7 @@ msgid "multi-channel discovery"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:279
-msgid "Agentable — /llms.txt conflict detected"
+msgid "Mokhai — /llms.txt conflict detected"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:295
@@ -611,11 +623,11 @@ msgid "Dismiss for this conflict"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:312
-msgid "The following plugins also publish /llms.txt and will compete with Agentable's route:"
+msgid "The following plugins also publish /llms.txt and will compete with Mokhai's route:"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:334
-msgid "To switch to Agentable's /llms.txt, deactivate the competing plugin(s) above. If you intentionally run both — e.g. one for /llms.txt, another for something else — dismiss this notice."
+msgid "To switch to Mokhai's /llms.txt, deactivate the competing plugin(s) above. If you intentionally run both — e.g. one for /llms.txt, another for something else — dismiss this notice."
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:340
@@ -623,7 +635,7 @@ msgid "Note: if you manually curated entries in another plugin, they will not tr
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:352
-msgid "A static /llms.txt file exists at the WordPress root. Web servers serve static files before WordPress loads, so Agentable's /llms.txt route is being shadowed."
+msgid "A static /llms.txt file exists at the WordPress root. Web servers serve static files before WordPress loads, so Mokhai's /llms.txt route is being shadowed."
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:363
@@ -631,7 +643,7 @@ msgid "To resolve: back up the existing file contents if you need any of them, t
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:375
-msgid "Another plugin registered a WordPress rewrite rule for /llms.txt that overrides Agentable's route. The competing rule is:"
+msgid "Another plugin registered a WordPress rewrite rule for /llms.txt that overrides Mokhai's route. The competing rule is:"
 msgstr ""
 
 #: includes/LlmsTxt/Conflict_Notice.php:386
@@ -662,7 +674,7 @@ msgid "You are not allowed to manage editorial entries."
 msgstr ""
 
 #: includes/LlmsTxt/Editorial_Settings.php:109
-msgid "Agentable editorial entries for /llms.txt."
+msgid "Mokhai editorial entries for /llms.txt."
 msgstr ""
 
 #: includes/Markdown_Views/Rest_Controller.php:122
@@ -675,7 +687,7 @@ msgstr ""
 
 #. translators: 1: required PHP version, 2: current PHP version
 #: includes/Requirements.php:76
-msgid "Agentable requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated."
+msgid "Mokhai requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated."
 msgstr ""
 
 #: includes/Requirements.php:80
@@ -685,7 +697,7 @@ msgstr ""
 
 #. translators: 1: required WordPress version, 2: current WordPress version
 #: includes/Requirements.php:90
-msgid "Agentable requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated."
+msgid "Mokhai requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated."
 msgstr ""
 
 #. translators: 1: required PHP version, 2: current PHP version
@@ -699,11 +711,11 @@ msgid "WordPress %1$s or higher is required. Current: %2$s."
 msgstr ""
 
 #: includes/Requirements.php:147
-msgid "Agentable is inactive:"
+msgid "Mokhai is inactive:"
 msgstr ""
 
 #: includes/Requirements.php:186
-msgid "Agentable is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives."
+msgid "Mokhai is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives."
 msgstr ""
 
 #: src/admin/agents-sidebar/index.js:52
@@ -948,12 +960,12 @@ msgid "WP AI Client is not configured. The LLM toggles below stay on but degrade
 msgstr ""
 
 #: src/admin/context-profile/app.js:80
-msgid "No SEO plugin detected — Agentable will emit its own JSON-LD schema."
+msgid "No SEO plugin detected — Mokhai will emit its own JSON-LD schema."
 msgstr ""
 
 #. translators: %s: SEO plugin label (e.g. "Yoast SEO")
 #: src/admin/context-profile/app.js:87
-msgid "Deferring JSON-LD to %s. Agentable fills only the schema gaps that plugin does not provide."
+msgid "Deferring JSON-LD to %s. Mokhai fills only the schema gaps that plugin does not provide."
 msgstr ""
 
 #: src/admin/context-profile/app.js:173
@@ -990,7 +1002,7 @@ msgid "Locale:"
 msgstr ""
 
 #: src/admin/context-profile/app.js:234
-msgid "Site identity is read live from WordPress General Settings. Edit it there to change what Agentable emits."
+msgid "Site identity is read live from WordPress General Settings. Edit it there to change what Mokhai emits."
 msgstr ""
 
 #: src/admin/context-profile/app.js:244
@@ -1103,7 +1115,7 @@ msgid "Emit native JSON-LD on the front-end"
 msgstr ""
 
 #: src/admin/context-profile/app.js:504
-msgid "When on, Agentable emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin."
+msgid "When on, Mokhai emits WebSite + Organization site-identity JSON-LD on every page, plus an Article node for exposed posts and a WebPage node for exposed pages. Stays silent when a supported SEO plugin is detected (Yoast, Rank Math, AIOSEO). Default off — opt in to satisfy Context Score schema coverage without a third-party plugin."
 msgstr ""
 
 #: src/admin/context-profile/app.js:518
@@ -1230,11 +1242,11 @@ msgid "Detected SEO plugin (%s) — structured data is likely being emitted."
 msgstr ""
 
 #: src/admin/context-score/index.js:176
-msgid "Agentable is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin."
+msgid "Mokhai is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin."
 msgstr ""
 
 #: src/admin/context-score/index.js:181
-msgid "No structured data detected on this site. Enable Schema emission in the Context Profile to have Agentable emit native JSON-LD, or rely on a third-party SEO plugin."
+msgid "No structured data detected on this site. Enable Schema emission in the Context Profile to have Mokhai emit native JSON-LD, or rely on a third-party SEO plugin."
 msgstr ""
 
 #: src/admin/context-score/index.js:187
@@ -1451,15 +1463,15 @@ msgstr ""
 
 #. translators: %s: SEO plugin name
 #: src/admin/context-score/index.js:1083
-msgid "%s is active. Agentable defers JSON-LD coordination to it and only fills schema types it does not already provide."
+msgid "%s is active. Mokhai defers JSON-LD coordination to it and only fills schema types it does not already provide."
 msgstr ""
 
 #: src/admin/context-score/index.js:1091
-msgid "No SEO plugin detected. Agentable is emitting a minimal baseline schema set (site identity + content type) on the front-end."
+msgid "No SEO plugin detected. Mokhai is emitting a minimal baseline schema set (site identity + content type) on the front-end."
 msgstr ""
 
 #: src/admin/context-score/index.js:1097
-msgid "No SEO plugin detected and Schema emission is off in Context Profile. Agentable is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage."
+msgid "No SEO plugin detected and Schema emission is off in Context Profile. Mokhai is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage."
 msgstr ""
 
 #: src/admin/context-score/index.js:1112
@@ -1471,7 +1483,7 @@ msgid "Deferred to plugin"
 msgstr ""
 
 #: src/admin/context-score/index.js:1137
-msgid "Filled by Agentable"
+msgid "Filled by Mokhai"
 msgstr ""
 
 #: src/admin/context-score/index.js:1146
@@ -1508,7 +1520,7 @@ msgid "Recompute failed."
 msgstr ""
 
 #: src/admin/context-score/index.js:1324
-msgid "Agentable Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
+msgid "Mokhai Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
 msgstr ""
 
 #: src/admin/llms-txt-descriptions/app.js:40
@@ -1606,7 +1618,7 @@ msgid "Bulk regenerate failed."
 msgstr ""
 
 #: src/admin/llms-txt-descriptions/app.js:456
-msgid "Agentable descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
+msgid "Mokhai descriptions UI failed to bootstrap. Reload the page; if the issue persists, check the browser console."
 msgstr ""
 
 #: src/admin/llms-txt-descriptions/app.js:467
