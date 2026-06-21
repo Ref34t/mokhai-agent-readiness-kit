@@ -47,9 +47,13 @@ final class Engine {
 	 * strings. The English `reasons` array is unchanged; this is purely
 	 * additive, so no /migration ticket is required.
 	 *
+	 * v4 (#255 / AgDR-0064) adds `sampled`, `empty_pct`, `noisy_pct`, and the
+	 * `worst_urls` list to the `md_conversion_quality` sub-score's signals.
+	 * Additive with safe defaults (absent → 0 / empty), so no /migration ticket.
+	 *
 	 * @var int
 	 */
-	public const BREAKDOWN_SCHEMA_VERSION = 3;
+	public const BREAKDOWN_SCHEMA_VERSION = 4;
 
 	/**
 	 * Per-sub-score weights. Sum MUST equal 100 — asserted in self-tests so a
