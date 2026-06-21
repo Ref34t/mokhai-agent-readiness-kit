@@ -73,11 +73,11 @@ final class Requirements {
 			\wp_die(
 				\sprintf(
 					/* translators: 1: required PHP version, 2: current PHP version */
-					\esc_html__( 'Agentable requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated.', 'agentable' ),
+					\esc_html__( 'Mokhai requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated.', 'mokhai-agent-readiness-kit' ),
 					\esc_html( \WPCTX_REQUIRES_PHP ),
 					\esc_html( \PHP_VERSION )
 				),
-				\esc_html__( 'Plugin activation error', 'agentable' ),
+				\esc_html__( 'Plugin activation error', 'mokhai-agent-readiness-kit' ),
 				array( 'back_link' => true )
 			);
 		}
@@ -87,11 +87,11 @@ final class Requirements {
 			\wp_die(
 				\sprintf(
 					/* translators: 1: required WordPress version, 2: current WordPress version */
-					\esc_html__( 'Agentable requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated.', 'agentable' ),
+					\esc_html__( 'Mokhai requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated.', 'mokhai-agent-readiness-kit' ),
 					\esc_html( \WPCTX_REQUIRES_WP ),
 					\esc_html( \get_bloginfo( 'version' ) )
 				),
-				\esc_html__( 'Plugin activation error', 'agentable' ),
+				\esc_html__( 'Plugin activation error', 'mokhai-agent-readiness-kit' ),
 				array( 'back_link' => true )
 			);
 		}
@@ -102,7 +102,7 @@ final class Requirements {
 	 *
 	 * Registers an admin notice if WP / PHP slid below the floor after the
 	 * plugin was activated (the user downgraded core, switched servers, etc.).
-	 * Bootstrapping code in ai-readiness-kit.php returns early when this fires so
+	 * Bootstrapping code in mokhai-agent-readiness-kit.php returns early when this fires so
 	 * no subsystem boots against an unsupported host.
 	 */
 	public static function register_runtime_notice(): void {
@@ -128,7 +128,7 @@ final class Requirements {
 		if ( ! $php_ok ) {
 			$messages[] = \sprintf(
 				/* translators: 1: required PHP version, 2: current PHP version */
-				\esc_html__( 'PHP %1$s or higher is required. Current: %2$s.', 'agentable' ),
+				\esc_html__( 'PHP %1$s or higher is required. Current: %2$s.', 'mokhai-agent-readiness-kit' ),
 				\esc_html( \WPCTX_REQUIRES_PHP ),
 				\esc_html( \PHP_VERSION )
 			);
@@ -136,7 +136,7 @@ final class Requirements {
 		if ( ! $wp_ok ) {
 			$messages[] = \sprintf(
 				/* translators: 1: required WordPress version, 2: current WordPress version */
-				\esc_html__( 'WordPress %1$s or higher is required. Current: %2$s.', 'agentable' ),
+				\esc_html__( 'WordPress %1$s or higher is required. Current: %2$s.', 'mokhai-agent-readiness-kit' ),
 				\esc_html( \WPCTX_REQUIRES_WP ),
 				\esc_html( \get_bloginfo( 'version' ) )
 			);
@@ -144,7 +144,7 @@ final class Requirements {
 
 		\printf(
 			'<div class="notice notice-error"><p><strong>%1$s</strong> %2$s</p></div>',
-			\esc_html__( 'Agentable is inactive:', 'agentable' ),
+			\esc_html__( 'Mokhai is inactive:', 'mokhai-agent-readiness-kit' ),
 			\esc_html( \implode( ' ', $messages ) )
 		);
 	}
@@ -172,7 +172,7 @@ final class Requirements {
 			return;
 		}
 
-		// Only show on Agentable admin screens. Screen IDs are added by
+		// Only show on Mokhai admin screens. Screen IDs are added by
 		// #4 (Profile screen) and #10 (Context Score Tools page); until they
 		// land, this notice stays off-screen, which is the correct degrade
 		// for the scaffold-only state.
@@ -183,7 +183,7 @@ final class Requirements {
 
 		\printf(
 			'<div class="notice notice-info"><p>%1$s</p></div>',
-			\esc_html__( 'Agentable is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives.', 'agentable' )
+			\esc_html__( 'Mokhai is running in deterministic-only mode. Configure WP AI Client to enable LLM-powered cleanup, descriptions, and score narratives.', 'mokhai-agent-readiness-kit' )
 		);
 	}
 }

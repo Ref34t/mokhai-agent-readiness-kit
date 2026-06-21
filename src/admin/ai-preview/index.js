@@ -1,5 +1,5 @@
 /**
- * Agentable — AI Assistant Preview pane (#45 / AgDR-0046).
+ * Mokhai — AI Assistant Preview pane (#45 / AgDR-0046).
  *
  * A buyer-facing panel mounted below the Context Score breakdown. Pick any
  * URL on the site and see it three ways, side by side:
@@ -42,27 +42,27 @@ const BOOTSTRAP_KEY = 'agentreadyAiPreview';
 const NOT_EXPOSABLE_REASONS = {
 	cpt: __(
 		'This post type is not exposed in the Context Profile.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 	status: __(
 		'This post status is not exposed in the Context Profile.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 	password: __(
 		'This page is password-protected, so it is hidden from AI agents.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 	noindex: __(
 		'This page is marked noindex, so it is hidden from AI agents.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 };
 
 // Source of the /llms.txt entry description, for the badge.
 const DESCRIPTION_SOURCE_LABELS = {
-	llm: __( 'AI-generated description', 'agentable' ),
-	excerpt: __( 'From the post excerpt', 'agentable' ),
-	none: __( 'No description', 'agentable' ),
+	llm: __( 'AI-generated description', 'mokhai-agent-readiness-kit' ),
+	excerpt: __( 'From the post excerpt', 'mokhai-agent-readiness-kit' ),
+	none: __( 'No description', 'mokhai-agent-readiness-kit' ),
 };
 
 function readBootstrap() {
@@ -106,7 +106,7 @@ function EmptyContentNotice() {
 		<Notice status="info" isDismissible={ false }>
 			{ __(
 				'This post has no content — nothing for agents to read.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			) }
 		</Notice>
 	);
@@ -134,15 +134,15 @@ function RawHtmlPane( { rawHtml } ) {
 				/* translators: %s: full content length in characters. */
 				__(
 					'What bots parse without the plugin — showing the first %s characters.',
-					'agentable'
+					'mokhai-agent-readiness-kit'
 				),
 				Number( rawHtml.full_length ).toLocaleString()
 		  )
-		: __( 'What bots parse without the plugin.', 'agentable' );
+		: __( 'What bots parse without the plugin.', 'mokhai-agent-readiness-kit' );
 
 	return (
 		<Pane
-			title={ __( 'Raw HTML', 'agentable' ) }
+			title={ __( 'Raw HTML', 'mokhai-agent-readiness-kit' ) }
 			caption={ caption }
 		>
 			{ Number( rawHtml.full_length ) === 0 ? (
@@ -161,12 +161,12 @@ function MarkdownPane( { markdown, profilePageUrl } ) {
 	if ( 'module_disabled' === verdict ) {
 		body = (
 			<Notice status="warning" isDismissible={ false }>
-				{ __( 'Markdown Views is disabled.', 'agentable' ) }{ ' ' }
+				{ __( 'Markdown Views is disabled.', 'mokhai-agent-readiness-kit' ) }{ ' ' }
 				{ profilePageUrl && (
 					<a href={ profilePageUrl }>
 						{ __(
 							'Enable it in the Context Profile.',
-							'agentable'
+							'mokhai-agent-readiness-kit'
 						) }
 					</a>
 				) }
@@ -178,7 +178,7 @@ function MarkdownPane( { markdown, profilePageUrl } ) {
 				{ NOT_EXPOSABLE_REASONS[ reason ] ||
 					__(
 						'This URL is not exposed to AI agents.',
-						'agentable'
+						'mokhai-agent-readiness-kit'
 					) }
 			</Notice>
 		);
@@ -187,7 +187,7 @@ function MarkdownPane( { markdown, profilePageUrl } ) {
 			<Notice status="error" isDismissible={ false }>
 				{ __(
 					'Could not render the Markdown View for this URL.',
-					'agentable'
+					'mokhai-agent-readiness-kit'
 				) }
 			</Notice>
 		);
@@ -200,10 +200,10 @@ function MarkdownPane( { markdown, profilePageUrl } ) {
 
 	return (
 		<Pane
-			title={ __( 'Markdown View', 'agentable' ) }
+			title={ __( 'Markdown View', 'mokhai-agent-readiness-kit' ) }
 			caption={ __(
 				'What bots get with the plugin.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			) }
 		>
 			{ body }
@@ -224,17 +224,17 @@ function LlmsEntryPane( { llmsEntry } ) {
 		<Notice status="info" isDismissible={ false }>
 			{ __(
 				'This URL has no line in /llms.txt because it is not exposed.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			) }
 		</Notice>
 	);
 
 	return (
 		<Pane
-			title={ __( 'llms.txt entry', 'agentable' ) }
+			title={ __( 'llms.txt entry', 'mokhai-agent-readiness-kit' ) }
 			caption={ __(
 				'The line describing this URL in /llms.txt.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			) }
 		>
 			{ body }
@@ -251,13 +251,13 @@ function SummaryBox( { summary, pending, onGenerate } ) {
 	return (
 		<Panel>
 			<PanelBody
-				title={ __( 'Sample AI Summary', 'agentable' ) }
+				title={ __( 'Sample AI Summary', 'mokhai-agent-readiness-kit' ) }
 				initialOpen={ true }
 			>
 				<p className="description">
 					{ __(
 						'A preview of what an AI assistant would say about this page, generated from its Markdown View.',
-						'agentable'
+						'mokhai-agent-readiness-kit'
 					) }
 				</p>
 
@@ -280,8 +280,8 @@ function SummaryBox( { summary, pending, onGenerate } ) {
 				>
 					{ pending && <Spinner /> }
 					{ hasText
-						? __( 'Regenerate summary', 'agentable' )
-						: __( 'Generate sample summary', 'agentable' ) }
+						? __( 'Regenerate summary', 'mokhai-agent-readiness-kit' )
+						: __( 'Generate sample summary', 'mokhai-agent-readiness-kit' ) }
 				</Button>
 			</PanelBody>
 		</Panel>
@@ -323,7 +323,7 @@ function AiPreviewPanel() {
 						err.message ||
 						__(
 							'Failed to load the URL list.',
-							'agentable'
+							'mokhai-agent-readiness-kit'
 						),
 				} );
 			} finally {
@@ -354,7 +354,7 @@ function AiPreviewPanel() {
 					type: 'error',
 					message:
 						err.message ||
-						__( 'Failed to load the preview.', 'agentable' ),
+						__( 'Failed to load the preview.', 'mokhai-agent-readiness-kit' ),
 				} );
 			} finally {
 				setLoadingPreview( false );
@@ -392,7 +392,7 @@ function AiPreviewPanel() {
 				type: 'error',
 				message:
 					err.message ||
-					__( 'Failed to generate the summary.', 'agentable' ),
+					__( 'Failed to generate the summary.', 'mokhai-agent-readiness-kit' ),
 			} );
 		} finally {
 			setSummaryPending( false );
@@ -404,14 +404,14 @@ function AiPreviewPanel() {
 			<Notice status="error" isDismissible={ false }>
 				{ __(
 					'AI Assistant Preview failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
-					'agentable'
+					'mokhai-agent-readiness-kit'
 				) }
 			</Notice>
 		);
 	}
 
 	const options = [
-		{ label: __( '— Select a URL —', 'agentable' ), value: '' },
+		{ label: __( '— Select a URL —', 'mokhai-agent-readiness-kit' ), value: '' },
 		...posts.map( ( post ) => ( {
 			label: `${ post.title } (${ post.type })`,
 			value: String( post.id ),
@@ -420,11 +420,11 @@ function AiPreviewPanel() {
 
 	return (
 		<div style={ { marginTop: '24px' } }>
-			<h2>{ __( 'AI Assistant Preview', 'agentable' ) }</h2>
+			<h2>{ __( 'AI Assistant Preview', 'mokhai-agent-readiness-kit' ) }</h2>
 			<p className="description">
 				{ __(
 					'See exactly what an AI assistant reads when it visits a page on your site.',
-					'agentable'
+					'mokhai-agent-readiness-kit'
 				) }
 			</p>
 
@@ -438,7 +438,7 @@ function AiPreviewPanel() {
 			) }
 
 			<SelectControl
-				label={ __( 'URL to preview', 'agentable' ) }
+				label={ __( 'URL to preview', 'mokhai-agent-readiness-kit' ) }
 				value={ selectedId }
 				options={ options }
 				onChange={ onSelect }

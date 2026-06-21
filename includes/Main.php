@@ -217,7 +217,7 @@ final class Main {
 		// `wp_head` priority 10. When any of Yoast / Rank Math / AIOSEO is
 		// detected the gap is empty and the emitter is a no-op — wp.org
 		// Plugin Check stays free of duplicate-schema warnings. When no
-		// SEO plugin is active, Agentable emits a minimal baseline
+		// SEO plugin is active, Mokhai emits a minimal baseline
 		// (WebSite + Organization + WebPage/Article).
 		Seo\Schema_Emitter::register_hooks();
 

@@ -2,11 +2,11 @@
 /**
  * Gap-fill JSON-LD emitter.
  *
- * Renders the minimal set of schema.org JSON-LD nodes Agentable knows how to
+ * Renders the minimal set of schema.org JSON-LD nodes Mokhai knows how to
  * emit (`WebSite`, `Organization`, `WebPage`, `Article`) on `wp_head`, scoped
  * by the gap returned from `Plugin_Coverage::compute_gap()`. When any of the
  * supported SEO plugins is active (Yoast / Rank Math / AIOSEO) the gap is
- * empty by default — Agentable emits nothing and the SEO plugin's schema
+ * empty by default — Mokhai emits nothing and the SEO plugin's schema
  * stays the single source of truth.
  *
  * Full design rationale: docs/agdr/AgDR-0033-seo-defer-gap-fill-emitter.md.

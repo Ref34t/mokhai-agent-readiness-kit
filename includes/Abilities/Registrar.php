@@ -58,8 +58,8 @@ final class Registrar {
 		\wp_register_ability_category(
 			self::CATEGORY,
 			array(
-				'label'       => \__( 'Agentable', 'agentable' ),
-				'description' => \__( 'Audit, profile, exposure, /llms.txt, and Markdown-view operations exposed to AI agents.', 'agentable' ),
+				'label'       => \__( 'Mokhai', 'mokhai-agent-readiness-kit' ),
+				'description' => \__( 'Audit, profile, exposure, /llms.txt, and Markdown-view operations exposed to AI agents.', 'mokhai-agent-readiness-kit' ),
 			)
 		);
 	}
@@ -87,8 +87,8 @@ final class Registrar {
 		\wp_register_ability(
 			Audit_Ability::ID,
 			array(
-				'label'               => \__( 'Run Context Score audit', 'agentable' ),
-				'description'         => \__( 'Recompute the Context Score synchronously and return the full breakdown.', 'agentable' ),
+				'label'               => \__( 'Run Context Score audit', 'mokhai-agent-readiness-kit' ),
+				'description'         => \__( 'Recompute the Context Score synchronously and return the full breakdown.', 'mokhai-agent-readiness-kit' ),
 				'category'            => self::CATEGORY,
 				'input_schema'        => $empty_input,
 				'output_schema'       => array(
@@ -117,8 +117,8 @@ final class Registrar {
 		\wp_register_ability(
 			Profile_Ability::READ_ID,
 			array(
-				'label'               => \__( 'Read Context Profile', 'agentable' ),
-				'description'         => \__( 'Return the current Context Profile (exposure config + module flags).', 'agentable' ),
+				'label'               => \__( 'Read Context Profile', 'mokhai-agent-readiness-kit' ),
+				'description'         => \__( 'Return the current Context Profile (exposure config + module flags).', 'mokhai-agent-readiness-kit' ),
 				'category'            => self::CATEGORY,
 				'input_schema'        => $empty_input,
 				'output_schema'       => array( 'type' => 'object' ),
@@ -135,8 +135,8 @@ final class Registrar {
 		\wp_register_ability(
 			Profile_Ability::SET_EXPOSURE_ID,
 			array(
-				'label'               => \__( 'Set Context Profile exposure', 'agentable' ),
-				'description'         => \__( 'Update which custom post types and post statuses are exposed to agents. Invalid values are dropped by the whitelist.', 'agentable' ),
+				'label'               => \__( 'Set Context Profile exposure', 'mokhai-agent-readiness-kit' ),
+				'description'         => \__( 'Update which custom post types and post statuses are exposed to agents. Invalid values are dropped by the whitelist.', 'mokhai-agent-readiness-kit' ),
 				'category'            => self::CATEGORY,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -172,8 +172,8 @@ final class Registrar {
 		\wp_register_ability(
 			Llms_Txt_Ability::ID,
 			array(
-				'label'               => \__( 'Regenerate /llms.txt', 'agentable' ),
-				'description'         => \__( 'Recompose and cache the /llms.txt document, returning the new body.', 'agentable' ),
+				'label'               => \__( 'Regenerate /llms.txt', 'mokhai-agent-readiness-kit' ),
+				'description'         => \__( 'Recompose and cache the /llms.txt document, returning the new body.', 'mokhai-agent-readiness-kit' ),
 				'category'            => self::CATEGORY,
 				'input_schema'        => $empty_input,
 				'output_schema'       => array(
@@ -198,8 +198,8 @@ final class Registrar {
 		\wp_register_ability(
 			Md_View_Ability::ID,
 			array(
-				'label'               => \__( 'Preview Markdown view', 'agentable' ),
-				'description'         => \__( 'Return the deterministic Markdown view of a post (by url or post_id), plus any cached LLM-cleaned output. Never blocks on the LLM.', 'agentable' ),
+				'label'               => \__( 'Preview Markdown view', 'mokhai-agent-readiness-kit' ),
+				'description'         => \__( 'Return the deterministic Markdown view of a post (by url or post_id), plus any cached LLM-cleaned output. Never blocks on the LLM.', 'mokhai-agent-readiness-kit' ),
 				'category'            => self::CATEGORY,
 				'input_schema'        => array(
 					'type'                 => 'object',

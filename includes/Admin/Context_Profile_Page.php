@@ -61,8 +61,8 @@ final class Context_Profile_Page {
 	 */
 	public static function register_menu(): void {
 		self::$hook_suffix = \add_management_page(
-			\__( 'Agentable Context Profile', 'agentable' ),
-			\__( 'AI Readiness — Context', 'agentable' ),
+			\__( 'Mokhai Context Profile', 'mokhai-agent-readiness-kit' ),
+			\__( 'AI Readiness — Context', 'mokhai-agent-readiness-kit' ),
 			'manage_options',
 			self::PAGE_SLUG,
 			array( self::class, 'render' )
@@ -82,7 +82,7 @@ final class Context_Profile_Page {
 		$settings = \sprintf(
 			'<a href="%s">%s</a>',
 			\esc_url( \admin_url( 'tools.php?page=' . self::PAGE_SLUG ) ),
-			\esc_html__( 'Settings', 'agentable' )
+			\esc_html__( 'Settings', 'mokhai-agent-readiness-kit' )
 		);
 		\array_unshift( $links, $settings );
 
@@ -100,20 +100,20 @@ final class Context_Profile_Page {
 	public static function render(): void {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			\wp_die(
-				\esc_html__( 'You do not have permission to access this page.', 'agentable' ),
-				\esc_html__( 'Forbidden', 'agentable' ),
+				\esc_html__( 'You do not have permission to access this page.', 'mokhai-agent-readiness-kit' ),
+				\esc_html__( 'Forbidden', 'mokhai-agent-readiness-kit' ),
 				array( 'response' => 403 )
 			);
 		}
 
 		?>
 		<div class="wrap" id="agentready-context-profile-wrap">
-			<h1><?php \esc_html_e( 'Context Profile', 'agentable' ); ?></h1>
+			<h1><?php \esc_html_e( 'Context Profile', 'mokhai-agent-readiness-kit' ); ?></h1>
 			<p class="description">
 				<?php
 				\esc_html_e(
-					'Configure how Agentable exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below.',
-					'agentable'
+					'Configure how Mokhai exposes this site to AI agents. A fresh install exposes nothing — explicitly opt in CPTs and statuses below.',
+					'mokhai-agent-readiness-kit'
 				);
 				?>
 			</p>
@@ -122,7 +122,7 @@ final class Context_Profile_Page {
 			<div
 				id="agentready-context-app"
 				role="region"
-				aria-label="<?php \esc_attr_e( 'Agentable Context editor', 'agentable' ); ?>"
+				aria-label="<?php \esc_attr_e( 'Mokhai Context editor', 'mokhai-agent-readiness-kit' ); ?>"
 			></div>
 
 			<noscript>
@@ -131,7 +131,7 @@ final class Context_Profile_Page {
 						<?php
 						\esc_html_e(
 							'The Context editor requires JavaScript. Enable JavaScript and reload this page.',
-							'agentable'
+							'mokhai-agent-readiness-kit'
 						);
 						?>
 					</p>
@@ -210,7 +210,7 @@ final class Context_Profile_Page {
 
 		\wp_set_script_translations(
 			'agentready-context-app',
-			'agentable',
+			'mokhai-agent-readiness-kit',
 			\WPCTX_DIR . 'languages'
 		);
 
@@ -293,7 +293,7 @@ final class Context_Profile_Page {
 		}
 		\printf(
 			'<div class="notice notice-warning"><p>%1$s <code>%2$s</code></p></div>',
-			\esc_html__( 'Agentable Context Profile UI bundle not found. Run:', 'agentable' ),
+			\esc_html__( 'Mokhai Context Profile UI bundle not found. Run:', 'mokhai-agent-readiness-kit' ),
 			\esc_html( 'npm install && npm run build' )
 		);
 	}
@@ -330,23 +330,23 @@ final class Context_Profile_Page {
 		$status_options = array(
 			array(
 				'slug'  => 'publish',
-				'label' => \__( 'Published', 'agentable' ),
+				'label' => \__( 'Published', 'mokhai-agent-readiness-kit' ),
 			),
 			array(
 				'slug'  => 'private',
-				'label' => \__( 'Private', 'agentable' ),
+				'label' => \__( 'Private', 'mokhai-agent-readiness-kit' ),
 			),
 			array(
 				'slug'  => 'password',
-				'label' => \__( 'Password-protected', 'agentable' ),
+				'label' => \__( 'Password-protected', 'mokhai-agent-readiness-kit' ),
 			),
 			array(
 				'slug'  => 'draft',
-				'label' => \__( 'Draft', 'agentable' ),
+				'label' => \__( 'Draft', 'mokhai-agent-readiness-kit' ),
 			),
 			array(
 				'slug'  => 'pending',
-				'label' => \__( 'Pending review', 'agentable' ),
+				'label' => \__( 'Pending review', 'mokhai-agent-readiness-kit' ),
 			),
 		);
 

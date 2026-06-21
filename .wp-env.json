@@ -2,10 +2,10 @@
 	"core": "WordPress/WordPress#master",
 	"phpVersion": "7.4",
 	"mappings": {
-		"wp-content/plugins/agentable": "."
+		"wp-content/plugins/mokhai-agent-readiness-kit": "."
 	},
 	"lifecycleScripts": {
-		"afterStart": "npx wp-env run cli wp plugin activate agentable && npx wp-env run tests-cli wp plugin activate agentable"
+		"afterStart": "npx wp-env run cli wp plugin activate mokhai-agent-readiness-kit && npx wp-env run tests-cli wp plugin activate mokhai-agent-readiness-kit"
 	},
 	"config": {
 		"WP_DEBUG": true,

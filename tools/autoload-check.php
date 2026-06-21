@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require __DIR__ . '/../vendor/autoload.php';
 
-// helpers.php is loaded by ai-readiness-kit.php (post-version-gate) at runtime, not
+// helpers.php is loaded by mokhai-agent-readiness-kit.php (post-version-gate) at runtime, not
 // via Composer autoload — load it manually here for the dev-tool check.
 require_once __DIR__ . '/../includes/Ai/helpers.php';
 

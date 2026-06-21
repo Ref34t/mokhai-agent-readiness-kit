@@ -155,7 +155,7 @@ final class Uninstaller_Test extends WP_UnitTestCase {
 
 	public function test_uninstall_entrypoint_delegates_to_the_uninstaller(): void {
 		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-			define( 'WP_UNINSTALL_PLUGIN', 'agentable/agentable.php' );
+			define( 'WP_UNINSTALL_PLUGIN', 'mokhai-agent-readiness-kit/mokhai-agent-readiness-kit.php' );
 		}
 
 		update_option( Context_Profile_Settings::OPTION_KEY, Context_Profile_Settings::get_defaults() );

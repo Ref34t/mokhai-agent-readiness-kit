@@ -1,5 +1,5 @@
 /**
- * Agentable — Context Score admin UI (#10 / AgDR-0031).
+ * Mokhai — Context Score admin UI (#10 / AgDR-0031).
  *
  * Renders the cached breakdown shipped in AgDR-0030 (#9) as three
  * vertical regions:
@@ -44,18 +44,18 @@ const BOOTSTRAP_KEY = 'agentreadyContextScore';
 const SUCCESS_NOTICE_TIMEOUT_MS = 4000;
 
 const SUB_SCORE_LABELS = {
-	discoverability: __( 'Discoverability', 'agentable' ),
-	content_readability: __( 'Description coverage', 'agentable' ),
-	schema_coverage: __( 'Schema coverage', 'agentable' ),
-	exposure_safety: __( 'Exposure safety', 'agentable' ),
-	integration_health: __( 'Integration health', 'agentable' ),
+	discoverability: __( 'Discoverability', 'mokhai-agent-readiness-kit' ),
+	content_readability: __( 'Description coverage', 'mokhai-agent-readiness-kit' ),
+	schema_coverage: __( 'Schema coverage', 'mokhai-agent-readiness-kit' ),
+	exposure_safety: __( 'Exposure safety', 'mokhai-agent-readiness-kit' ),
+	integration_health: __( 'Integration health', 'mokhai-agent-readiness-kit' ),
 	md_conversion_quality: __(
 		'Markdown conversion quality',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 	multi_channel_discovery: __(
 		'Multi-channel discovery',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 };
 
@@ -66,27 +66,27 @@ const SUB_SCORE_LABELS = {
 const DEGRADED_REASON_LABELS = {
 	unconfigured: __(
 		'AI Client is not configured. Narrative is using deterministic templates.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 	rate_limit: __(
 		'AI provider rate-limited the request. Narrative is using deterministic templates; the next recompute will retry.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 	network_error: __(
 		'AI provider was unreachable. Narrative is using deterministic templates; the next recompute will retry.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 	permanent_error: __(
 		'AI provider rejected the request (configuration issue). Narrative is using deterministic templates.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 	parse_error: __(
 		'AI response could not be parsed. Narrative is using deterministic templates.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 	budget_exceeded: __(
 		'AI generation exceeded the time budget. Narrative is using deterministic templates; it will retry on the next recompute.',
-		'agentable'
+		'mokhai-agent-readiness-kit'
 	),
 };
 
@@ -99,48 +99,48 @@ const DEGRADED_REASON_LABELS = {
 const REASON_TEMPLATES = {
 	// discoverability
 	disc_llms_txt_populated: () =>
-		__( '/llms.txt cache is populated.', 'agentable' ),
+		__( '/llms.txt cache is populated.', 'mokhai-agent-readiness-kit' ),
 	disc_llms_txt_empty: () =>
 		__(
 			'/llms.txt cache is empty — agents cannot discover the site index.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	disc_cpt_exposed: ( a ) =>
 		sprintf(
 			// translators: %d: number of post types exposed to agents.
-			__( 'Site exposes %d post type(s) to agents.', 'agentable' ),
+			__( 'Site exposes %d post type(s) to agents.', 'mokhai-agent-readiness-kit' ),
 			a[ 0 ]
 		),
 	disc_no_cpt_exposed: () =>
 		__(
 			'No post types are exposed to agents (Context Profile → Exposed CPTs is empty).',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	disc_entries_listed: ( a ) =>
 		sprintf(
 			// translators: %d: number of entries listed in /llms.txt.
-			__( '/llms.txt lists %d entries.', 'agentable' ),
+			__( '/llms.txt lists %d entries.', 'mokhai-agent-readiness-kit' ),
 			a[ 0 ]
 		),
 	disc_zero_entries: () =>
-		__( '/llms.txt has zero entries.', 'agentable' ),
+		__( '/llms.txt has zero entries.', 'mokhai-agent-readiness-kit' ),
 	disc_rewrite_conflict: () =>
 		__(
 			'Another plugin is overriding the /llms.txt rewrite rule.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	// content_readability
 	cr_no_exposed_entries: () =>
 		__(
 			'No exposed entries — nothing for agents to read.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	cr_coverage_good: ( a ) =>
 		sprintf(
 			// translators: %d: percentage of entries with a curated description.
 			__(
 				'%d%% of exposed entries have a curated description.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ]
 		),
@@ -149,7 +149,7 @@ const REASON_TEMPLATES = {
 			// translators: %d: percentage of entries with a curated description.
 			__(
 				'%d%% of exposed entries have a curated description — room to improve.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ]
 		),
@@ -158,7 +158,7 @@ const REASON_TEMPLATES = {
 			// translators: %d: percentage of entries with a curated description.
 			__(
 				'Only %d%% of exposed entries have a curated description.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ]
 		),
@@ -168,79 +168,79 @@ const REASON_TEMPLATES = {
 			// translators: %s: detected SEO plugin name.
 			__(
 				'Detected SEO plugin (%s) — structured data is likely being emitted.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ]
 		),
 	sc_native_jsonld: () =>
 		__(
-			'Agentable is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin.',
-			'agentable'
+			'Mokhai is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin.',
+			'mokhai-agent-readiness-kit'
 		),
 	sc_no_structured_data: () =>
 		__(
-			'No structured data detected on this site. Enable Schema emission in the Context Profile to have Agentable emit native JSON-LD, or rely on a third-party SEO plugin.',
-			'agentable'
+			'No structured data detected on this site. Enable Schema emission in the Context Profile to have Mokhai emit native JSON-LD, or rely on a third-party SEO plugin.',
+			'mokhai-agent-readiness-kit'
 		),
 	// exposure_safety
 	es_only_published: () =>
 		__(
 			'Only published content is exposed to agents.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	es_risky_statuses: ( a ) =>
 		sprintf(
 			// translators: %s: comma-separated list of non-publish post statuses.
 			__(
 				'Exposed statuses include %s — these can leak unpublished content to agents.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ]
 		),
 	es_cpt_explicit: () =>
 		__(
 			'Exposed CPTs are configured explicitly (no implicit defaults).',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	es_no_cpt: () =>
 		__(
 			'No CPTs exposed — safe-by-default, but agents will find nothing.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	// integration_health
 	ih_llm_configured: () =>
 		__(
 			'AI client configured and LLM features enabled.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	ih_llm_disabled: () =>
 		__(
 			'LLM features disabled — no AI client required.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	ih_llm_unconfigured: () =>
 		__(
 			'LLM features enabled but AI client is unconfigured — those features are silently degraded.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	ih_llms_txt_conflict: ( a ) =>
 		sprintf(
 			// translators: %s: comma-separated list of /llms.txt conflict kinds.
-			__( '/llms.txt conflict detected (%s).', 'agentable' ),
+			__( '/llms.txt conflict detected (%s).', 'mokhai-agent-readiness-kit' ),
 			a[ 0 ]
 		),
 	// md_conversion_quality
 	mcq_no_cache: () =>
 		__(
 			'No Markdown Views cache rows yet — visit a few `.md` URLs to populate the cache.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	mcq_mean_quality: ( a ) =>
 		sprintf(
 			// translators: 1: number of cached posts. 2: mean quality score 0-100.
 			__(
 				'Mean Markdown quality across %1$d cached posts: %2$d/100.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ],
 			a[ 1 ]
@@ -250,7 +250,7 @@ const REASON_TEMPLATES = {
 			// translators: 1: percentage above threshold. 2: MD-quality threshold value.
 			__(
 				'%1$d%% of cached posts are above the MD-quality threshold (%2$d).',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ],
 			a[ 1 ]
@@ -259,28 +259,28 @@ const REASON_TEMPLATES = {
 	mcd_no_channels: () =>
 		__(
 			'No agent-discovery channels detected — site is invisible to agents that scan for ai.txt or /.well-known/ declarations.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	mcd_channels_detected: ( a ) =>
 		sprintf(
 			// translators: %d: number of plugin-served agent-discovery channels detected (of 4).
 			__(
 				'%d of 4 plugin-served agent-discovery channel(s) detected.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ]
 		),
 	mcd_openapi_bonus: () =>
 		__(
 			'OpenAPI spec detected — bonus discovery channel for sites exposing an API.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		),
 	mcd_provider_configurable: ( a ) =>
 		sprintf(
 			// translators: 1: sibling provider name. 2: provider admin config URL.
 			__(
 				'%1$s detected — coordinating multi-channel discovery. Configure at %2$s',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ],
 			a[ 1 ]
@@ -290,7 +290,7 @@ const REASON_TEMPLATES = {
 			// translators: %s: sibling provider name.
 			__(
 				'%s detected — coordinating multi-channel discovery.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			a[ 0 ]
 		),
@@ -354,8 +354,8 @@ function narrativeFor( breakdown, name ) {
 function SourceBadge( { source } ) {
 	const isLlm = source === 'llm';
 	const label = isLlm
-		? __( 'AI-generated', 'agentable' )
-		: __( 'Rule-based', 'agentable' );
+		? __( 'AI-generated', 'mokhai-agent-readiness-kit' )
+		: __( 'Rule-based', 'mokhai-agent-readiness-kit' );
 	return (
 		<span
 			style={ {
@@ -387,15 +387,15 @@ function statusBucket( overall ) {
 
 function relativeTime( iso ) {
 	if ( ! iso ) {
-		return __( 'unknown', 'agentable' );
+		return __( 'unknown', 'mokhai-agent-readiness-kit' );
 	}
 	const then = Date.parse( iso );
 	if ( Number.isNaN( then ) ) {
-		return __( 'unknown', 'agentable' );
+		return __( 'unknown', 'mokhai-agent-readiness-kit' );
 	}
 	const diffSec = Math.max( 0, Math.round( ( Date.now() - then ) / 1000 ) );
 	if ( diffSec < 60 ) {
-		return __( 'just now', 'agentable' );
+		return __( 'just now', 'mokhai-agent-readiness-kit' );
 	}
 	const diffMin = Math.round( diffSec / 60 );
 	if ( diffMin < 60 ) {
@@ -405,7 +405,7 @@ function relativeTime( iso ) {
 				'%d minute ago',
 				'%d minutes ago',
 				diffMin,
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			),
 			diffMin
 		);
@@ -414,14 +414,14 @@ function relativeTime( iso ) {
 	if ( diffHr < 24 ) {
 		return sprintf(
 			/* translators: %d: number of hours ago */
-			_n( '%d hour ago', '%d hours ago', diffHr, 'agentable' ),
+			_n( '%d hour ago', '%d hours ago', diffHr, 'mokhai-agent-readiness-kit' ),
 			diffHr
 		);
 	}
 	const diffDay = Math.round( diffHr / 24 );
 	return sprintf(
 		/* translators: %d: number of days ago */
-		_n( '%d day ago', '%d days ago', diffDay, 'agentable' ),
+		_n( '%d day ago', '%d days ago', diffDay, 'mokhai-agent-readiness-kit' ),
 		diffDay
 	);
 }
@@ -478,11 +478,11 @@ function OverallCard( {
 			<Panel>
 				<PanelBody
 					initialOpen
-					title={ __( 'Overall score', 'agentable' ) }
+					title={ __( 'Overall score', 'mokhai-agent-readiness-kit' ) }
 				>
 					<Spinner />
 					<p>
-						{ __( 'Computing Context Score…', 'agentable' ) }
+						{ __( 'Computing Context Score…', 'mokhai-agent-readiness-kit' ) }
 					</p>
 				</PanelBody>
 			</Panel>
@@ -494,12 +494,12 @@ function OverallCard( {
 			<Panel>
 				<PanelBody
 					initialOpen
-					title={ __( 'Overall score', 'agentable' ) }
+					title={ __( 'Overall score', 'mokhai-agent-readiness-kit' ) }
 				>
 					<Notice status="warning" isDismissible={ false }>
 						{ __(
 							'No Context Score breakdown is available yet. Click "Recompute now" to generate the first audit.',
-							'agentable'
+							'mokhai-agent-readiness-kit'
 						) }
 					</Notice>
 					<Button
@@ -508,8 +508,8 @@ function OverallCard( {
 						disabled={ pending }
 					>
 						{ pending
-							? __( 'Recomputing…', 'agentable' )
-							: __( 'Recompute now', 'agentable' ) }
+							? __( 'Recomputing…', 'mokhai-agent-readiness-kit' )
+							: __( 'Recompute now', 'mokhai-agent-readiness-kit' ) }
 					</Button>
 				</PanelBody>
 			</Panel>
@@ -533,14 +533,14 @@ function OverallCard( {
 			? DEGRADED_REASON_LABELS[ degradedReason ]
 			: __(
 					'Narrative is using deterministic templates.',
-					'agentable'
+					'mokhai-agent-readiness-kit'
 			  );
 
 	return (
 		<Panel>
 			<PanelBody
 				initialOpen
-				title={ __( 'Overall score', 'agentable' ) }
+				title={ __( 'Overall score', 'mokhai-agent-readiness-kit' ) }
 			>
 				{ flash && (
 					<Notice status={ flash.type } onRemove={ onDismissFlash }>
@@ -551,7 +551,7 @@ function OverallCard( {
 					<Notice status="info" isDismissible={ false }>
 						{ __(
 							'AI narrative is generating in the background — it will appear here shortly.',
-							'agentable'
+							'mokhai-agent-readiness-kit'
 						) }
 					</Notice>
 				) }
@@ -599,11 +599,11 @@ function OverallCard( {
 							} }
 						>
 							{ bucket.tone === 'good' &&
-								__( 'Good', 'agentable' ) }
+								__( 'Good', 'mokhai-agent-readiness-kit' ) }
 							{ bucket.tone === 'recommended' &&
-								__( 'Needs attention', 'agentable' ) }
+								__( 'Needs attention', 'mokhai-agent-readiness-kit' ) }
 							{ bucket.tone === 'critical' &&
-								__( 'Critical', 'agentable' ) }
+								__( 'Critical', 'mokhai-agent-readiness-kit' ) }
 						</div>
 					</div>
 					<div style={ { flex: 1, minWidth: '200px' } }>
@@ -611,7 +611,7 @@ function OverallCard( {
 							value={ overall }
 							label={ __(
 								'Overall Context Score (0 to 100)',
-								'agentable'
+								'mokhai-agent-readiness-kit'
 							) }
 						/>
 						<div
@@ -623,7 +623,7 @@ function OverallCard( {
 						>
 							{ sprintf(
 								/* translators: %s: relative time, e.g. "5 minutes ago" */
-								__( 'Last computed %s.', 'agentable' ),
+								__( 'Last computed %s.', 'mokhai-agent-readiness-kit' ),
 								relativeTime( breakdown.computed_at )
 							) }
 						</div>
@@ -635,8 +635,8 @@ function OverallCard( {
 							disabled={ pending }
 						>
 							{ pending
-								? __( 'Recomputing…', 'agentable' )
-								: __( 'Recompute now', 'agentable' ) }
+								? __( 'Recomputing…', 'mokhai-agent-readiness-kit' )
+								: __( 'Recompute now', 'mokhai-agent-readiness-kit' ) }
 						</Button>
 					</div>
 				</div>
@@ -668,7 +668,7 @@ function fixActionFor( name, urls ) {
 		case 'integration_health':
 			return {
 				href: urls.profilePageUrl,
-				label: __( 'Configure in Context Profile', 'agentable' ),
+				label: __( 'Configure in Context Profile', 'mokhai-agent-readiness-kit' ),
 			};
 		case 'schema_coverage':
 		case 'md_conversion_quality':
@@ -703,13 +703,13 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 		<Panel>
 			<PanelBody
 				initialOpen
-				title={ __( 'What is missing', 'agentable' ) }
+				title={ __( 'What is missing', 'mokhai-agent-readiness-kit' ) }
 			>
 				{ rows.length === 0 && (
 					<p>
 						{ __(
 							'Every sub-score is at 100. Nothing actionable to surface.',
-							'agentable'
+							'mokhai-agent-readiness-kit'
 						) }
 					</p>
 				) }
@@ -763,7 +763,7 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 													/* translators: 1: sub-score value 0-100. 2: weight contribution. */
 													__(
 														'%1$d/100 · weight %2$d',
-														'agentable'
+														'mokhai-agent-readiness-kit'
 													),
 													row.value,
 													row.weight
@@ -797,7 +797,7 @@ function WhatsMissing( { breakdown, profilePageUrl } ) {
 														/* translators: %s: one-line fix suggestion. */
 														__(
 															'Fix: %s',
-															'agentable'
+															'mokhai-agent-readiness-kit'
 														),
 														row.narrative.fix
 													) }
@@ -843,7 +843,7 @@ function SubScoreBreakdown( { breakdown } ) {
 		<Panel>
 			<PanelBody
 				initialOpen={ false }
-				title={ __( 'Full breakdown', 'agentable' ) }
+				title={ __( 'Full breakdown', 'mokhai-agent-readiness-kit' ) }
 			>
 				{ subs.map( ( [ name, sub ] ) => {
 					const value = Number( sub.value || 0 );
@@ -885,7 +885,7 @@ function SubScoreBreakdown( { breakdown } ) {
 										/* translators: 1: sub-score value. 2: weight. */
 										__(
 											'%1$d/100 · weight %2$d',
-											'agentable'
+											'mokhai-agent-readiness-kit'
 										),
 										value,
 										weight
@@ -898,7 +898,7 @@ function SubScoreBreakdown( { breakdown } ) {
 									/* translators: %s: sub-score label */
 									__(
 										'%s score (0 to 100)',
-										'agentable'
+										'mokhai-agent-readiness-kit'
 									),
 									SUB_SCORE_LABELS[ name ] || name
 								) }
@@ -932,7 +932,7 @@ function SubScoreBreakdown( { breakdown } ) {
 									>
 										{ sprintf(
 											/* translators: %s: one-line fix suggestion. */
-											__( 'Fix: %s', 'agentable' ),
+											__( 'Fix: %s', 'mokhai-agent-readiness-kit' ),
 											narrative.fix
 										) }
 									</div>
@@ -961,7 +961,7 @@ function SubScoreBreakdown( { breakdown } ) {
 									>
 										{ __(
 											'Raw signals',
-											'agentable'
+											'mokhai-agent-readiness-kit'
 										) }
 									</summary>
 									<dl
@@ -1016,9 +1016,9 @@ function SubScoreBreakdown( { breakdown } ) {
 // Posture slug → human-readable label. Mirrors Schema_Coordination_Detector
 // signatures so a posture coming back from the server always resolves.
 const POSTURE_LABELS = {
-	yoast: __( 'Yoast SEO', 'agentable' ),
-	rank_math: __( 'Rank Math', 'agentable' ),
-	aioseo: __( 'All in One SEO', 'agentable' ),
+	yoast: __( 'Yoast SEO', 'mokhai-agent-readiness-kit' ),
+	rank_math: __( 'Rank Math', 'mokhai-agent-readiness-kit' ),
+	aioseo: __( 'All in One SEO', 'mokhai-agent-readiness-kit' ),
 };
 
 function TypeChip( { children, tone } ) {
@@ -1047,7 +1047,7 @@ function TypeChip( { children, tone } ) {
 
 // Schema Coordination panel (#12 / AgDR-0033). Documents which JSON-LD
 // types are deferred to the active SEO plugin and which (if any)
-// Agentable fills via gap-fill. Static info — no mutations from this
+// Mokhai fills via gap-fill. Static info — no mutations from this
 // surface; the matrix is read-only state.
 function SchemaCoordinationPanel( { coordination } ) {
 	if ( ! coordination || typeof coordination !== 'object' ) {
@@ -1074,29 +1074,29 @@ function SchemaCoordinationPanel( { coordination } ) {
 		<Panel>
 			<PanelBody
 				initialOpen={ false }
-				title={ __( 'Schema coordination', 'agentable' ) }
+				title={ __( 'Schema coordination', 'mokhai-agent-readiness-kit' ) }
 			>
 				<p style={ { marginTop: 0 } }>
 					{ hasPlugin &&
 						sprintf(
 							/* translators: %s: SEO plugin name */
 							__(
-								'%s is active. Agentable defers JSON-LD coordination to it and only fills schema types it does not already provide.',
-								'agentable'
+								'%s is active. Mokhai defers JSON-LD coordination to it and only fills schema types it does not already provide.',
+								'mokhai-agent-readiness-kit'
 							),
 							label
 						) }
 					{ ! hasPlugin &&
 						profileOptIn &&
 						__(
-							'No SEO plugin detected. Agentable is emitting a minimal baseline schema set (site identity + content type) on the front-end.',
-							'agentable'
+							'No SEO plugin detected. Mokhai is emitting a minimal baseline schema set (site identity + content type) on the front-end.',
+							'mokhai-agent-readiness-kit'
 						) }
 					{ ! hasPlugin &&
 						! profileOptIn &&
 						__(
-							'No SEO plugin detected and Schema emission is off in Context Profile. Agentable is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage.',
-							'agentable'
+							'No SEO plugin detected and Schema emission is off in Context Profile. Mokhai is emitting nothing — enable Schema emission in the Profile to satisfy schema coverage.',
+							'mokhai-agent-readiness-kit'
 						) }
 				</p>
 				<div
@@ -1109,21 +1109,21 @@ function SchemaCoordinationPanel( { coordination } ) {
 					} }
 				>
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Baseline types', 'agentable' ) }
+						{ __( 'Baseline types', 'mokhai-agent-readiness-kit' ) }
 					</div>
 					<div>
 						{ baseline.length > 0
 							? baseline.join( ', ' )
-							: __( '(none)', 'agentable' ) }
+							: __( '(none)', 'mokhai-agent-readiness-kit' ) }
 					</div>
 
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Deferred to plugin', 'agentable' ) }
+						{ __( 'Deferred to plugin', 'mokhai-agent-readiness-kit' ) }
 					</div>
 					<div>
 						{ deferred.length === 0 && (
 							<span style={ { color: '#777' } }>
-								{ __( '(none)', 'agentable' ) }
+								{ __( '(none)', 'mokhai-agent-readiness-kit' ) }
 							</span>
 						) }
 						{ deferred.map( ( type ) => (
@@ -1135,8 +1135,8 @@ function SchemaCoordinationPanel( { coordination } ) {
 
 					<div style={ { color: '#555', fontWeight: 600 } }>
 						{ __(
-							'Filled by Agentable',
-							'agentable'
+							'Filled by Mokhai',
+							'mokhai-agent-readiness-kit'
 						) }
 					</div>
 					<div>
@@ -1145,9 +1145,9 @@ function SchemaCoordinationPanel( { coordination } ) {
 								{ hasPlugin
 									? __(
 											'(none — every baseline type is covered by the active SEO plugin)',
-											'agentable'
+											'mokhai-agent-readiness-kit'
 									  )
-									: __( '(none)', 'agentable' ) }
+									: __( '(none)', 'mokhai-agent-readiness-kit' ) }
 							</span>
 						) }
 						{ filled.map( ( type ) => (
@@ -1158,21 +1158,21 @@ function SchemaCoordinationPanel( { coordination } ) {
 					</div>
 
 					<div style={ { color: '#555', fontWeight: 600 } }>
-						{ __( 'Emission on wp_head', 'agentable' ) }
+						{ __( 'Emission on wp_head', 'mokhai-agent-readiness-kit' ) }
 					</div>
 					<div>
-						{ emitting && __( 'Enabled', 'agentable' ) }
+						{ emitting && __( 'Enabled', 'mokhai-agent-readiness-kit' ) }
 						{ ! emitting &&
 							! profileOptIn &&
 							__(
 								'Off — toggle in Context Profile → Schema emission',
-								'agentable'
+								'mokhai-agent-readiness-kit'
 							) }
 						{ ! emitting &&
 							profileOptIn &&
 							__(
 								'Suppressed by agentready_schema_emit filter',
-								'agentable'
+								'mokhai-agent-readiness-kit'
 							) }
 					</div>
 				</div>
@@ -1215,7 +1215,7 @@ function ContextScorePanel() {
 					err.message ||
 					__(
 						'Failed to load the Context Score.',
-						'agentable'
+						'mokhai-agent-readiness-kit'
 					),
 			} );
 		} finally {
@@ -1256,7 +1256,7 @@ function ContextScorePanel() {
 					/* translators: 1: overall score. 2: duration in ms. */
 					__(
 						'Context Score recomputed: %1$d/100 (%2$d ms).',
-						'agentable'
+						'mokhai-agent-readiness-kit'
 					),
 					Number( response.overall || 0 ),
 					Number( response.recompute_duration_ms || 0 )
@@ -1267,7 +1267,7 @@ function ContextScorePanel() {
 				type: 'error',
 				message:
 					err.message ||
-					__( 'Recompute failed.', 'agentable' ),
+					__( 'Recompute failed.', 'mokhai-agent-readiness-kit' ),
 			} );
 		} finally {
 			setPending( false );
@@ -1322,8 +1322,8 @@ function ContextScorePanel() {
 		return (
 			<Notice status="error" isDismissible={ false }>
 				{ __(
-					'Agentable Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
-					'agentable'
+					'Mokhai Context Score UI failed to bootstrap. Reload the page; if the issue persists, check the browser console.',
+					'mokhai-agent-readiness-kit'
 				) }
 			</Notice>
 		);

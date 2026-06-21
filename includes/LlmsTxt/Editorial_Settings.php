@@ -106,7 +106,7 @@ final class Editorial_Settings {
 			self::OPTION_KEY,
 			array(
 				'type'              => 'array',
-				'description'       => \__( 'Agentable editorial entries for /llms.txt.', 'agentable' ),
+				'description'       => \__( 'Mokhai editorial entries for /llms.txt.', 'mokhai-agent-readiness-kit' ),
 				'sanitize_callback' => array( self::class, 'sanitize' ),
 				'show_in_rest'      => false,
 				'default'           => self::get_defaults(),

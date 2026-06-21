@@ -6,7 +6,7 @@
  *
  * 1. **Integration** — WP_TESTS_DIR is set (inside wp-env's tests-cli).
  *    wp-phpunit owns ABSPATH + the WP test bootstrap; we just hook
- *    `muplugins_loaded` to require ai-readiness-kit.php so the plugin runs inside
+ *    `muplugins_loaded` to require mokhai-agent-readiness-kit.php so the plugin runs inside
  *    the WP test instance.
  *
  * 2. **Unit** — WP_TESTS_DIR is unset (running outside wp-env). Define a
@@ -35,7 +35,7 @@ if ( $tests_dir && file_exists( $tests_dir . '/includes/functions.php' ) ) {
 	tests_add_filter(
 		'muplugins_loaded',
 		static function (): void {
-			require __DIR__ . '/../agentable.php';
+			require __DIR__ . '/../mokhai-agent-readiness-kit.php';
 		}
 	);
 

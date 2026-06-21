@@ -290,11 +290,11 @@ final class Engine {
 			$value = 100;
 		} elseif ( $native ) {
 			// Native gap-fill emitter is on via Context Profile (#73 /
-			// AgDR-0034). Agentable is emitting WebSite + Organization
+			// AgDR-0034). Mokhai is emitting WebSite + Organization
 			// + per-content JSON-LD on wp_head — same schema_coverage
 			// outcome as a third-party SEO plugin, without the
 			// disclaimer that drove ticket #73.
-			self::add_reason( $reasons, $reason_keys, 'sc_native_jsonld', 'Agentable is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin.' );
+			self::add_reason( $reasons, $reason_keys, 'sc_native_jsonld', 'Mokhai is emitting native JSON-LD (WebSite + Organization + per-content). Schema coverage satisfied without a third-party SEO plugin.' );
 			$value = 100;
 		} else {
 			// Neither path active. Reason text points operators at the
@@ -302,7 +302,7 @@ final class Engine {
 			// Context Profile") rather than the v0.1 disclaimer that
 			// PR #72 shipped — now that #73 has landed, native emission
 			// is real and reachable, not a future-tense promise.
-			self::add_reason( $reasons, $reason_keys, 'sc_no_structured_data', 'No structured data detected on this site. Enable Schema emission in the Context Profile to have Agentable emit native JSON-LD, or rely on a third-party SEO plugin.' );
+			self::add_reason( $reasons, $reason_keys, 'sc_no_structured_data', 'No structured data detected on this site. Enable Schema emission in the Context Profile to have Mokhai emit native JSON-LD, or rely on a third-party SEO plugin.' );
 			$value = 60;
 		}
 
@@ -530,7 +530,7 @@ final class Engine {
 
 	/**
 	 * Multi-channel discovery — how many agent-discovery surfaces does the
-	 * site publish, across Agentable's own channels and complementary
+	 * site publish, across Mokhai's own channels and complementary
 	 * sibling plugins (#22 / AgDR-0043)?
 	 *
 	 * Five surfaces, each worth 20 points (sum 100):

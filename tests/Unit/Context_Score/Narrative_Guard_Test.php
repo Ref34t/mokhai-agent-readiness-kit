@@ -107,7 +107,7 @@ final class Narrative_Guard_Test extends TestCase {
 			)
 		);
 
-		self::assertContains( 'agentable', $allowlist['entities'] );
+		self::assertContains( 'mokhai', $allowlist['entities'] );
 		self::assertContains( 'context profile', $allowlist['entities'] );
 		self::assertContains( 'ai client', $allowlist['entities'] );
 		self::assertContains( 'site health', $allowlist['entities'] );

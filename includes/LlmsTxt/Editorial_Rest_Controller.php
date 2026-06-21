@@ -126,7 +126,7 @@ final class Editorial_Rest_Controller {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'rest_forbidden',
-				\__( 'You are not allowed to manage editorial entries.', 'agentable' ),
+				\__( 'You are not allowed to manage editorial entries.', 'mokhai-agent-readiness-kit' ),
 				array( 'status' => \rest_authorization_required_code() )
 			);
 		}

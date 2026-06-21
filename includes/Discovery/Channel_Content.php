@@ -40,7 +40,7 @@ final class Channel_Content {
 
 		$lines   = array();
 		$lines[] = '# ai.txt for ' . self::site_name();
-		$lines[] = '# AI-agent guidance. Served dynamically by the Agentable plugin.';
+		$lines[] = '# AI-agent guidance. Served dynamically by the Mokhai plugin.';
 		$lines[] = '';
 		$lines[] = 'User-agent: *';
 		$lines[] = 'Allow: /';

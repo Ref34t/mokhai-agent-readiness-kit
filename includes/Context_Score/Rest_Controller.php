@@ -95,7 +95,7 @@ final class Rest_Controller {
 
 		return new \WP_Error(
 			'agentready_context_score_forbidden',
-			\__( 'You do not have permission to view the Context Score.', 'agentable' ),
+			\__( 'You do not have permission to view the Context Score.', 'mokhai-agent-readiness-kit' ),
 			array( 'status' => 403 )
 		);
 	}

@@ -51,35 +51,35 @@ function reasonLabel( reason ) {
 		case 'cpt':
 			return __(
 				'Post type is not in the Context Profile’s exposed CPTs.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			);
 		case 'status':
 			return __(
 				'Post status is not in the Context Profile’s exposed statuses.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			);
 		case 'password':
 			return __(
 				'Post is password-protected. Markdown view never serves password-protected content.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			);
 		case 'noindex':
 			return __(
 				'Post is flagged noindex by an SEO plugin.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			);
 		case 'excluded':
 			return __(
 				'Post is on the agentready exclude list (per-post toggle or Context Profile exclude list).',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			);
 		case 'sample':
 			return __(
 				'Post is WordPress sample content excluded by the Context Profile.',
-				'agentable'
+				'mokhai-agent-readiness-kit'
 			);
 		default:
-			return __( 'Hidden from agents.', 'agentable' );
+			return __( 'Hidden from agents.', 'mokhai-agent-readiness-kit' );
 	}
 }
 
@@ -102,7 +102,7 @@ function verdictLabel( excluded, visibility ) {
 	if ( visibility.reason === 'excluded' ) {
 		return __(
 			'Your last save excluded this post — it becomes visible to agents once you save again.',
-			'agentable'
+			'mokhai-agent-readiness-kit'
 		);
 	}
 
@@ -145,7 +145,7 @@ function AgentsPanel() {
 			setError(
 				err && err.message
 					? err.message
-					: __( 'Failed to load preview.', 'agentable' )
+					: __( 'Failed to load preview.', 'mokhai-agent-readiness-kit' )
 			);
 			setData( null );
 		} finally {
@@ -169,7 +169,7 @@ function AgentsPanel() {
 			setCopied( true );
 			setTimeout( () => setCopied( false ), 2000 );
 		} catch {
-			setError( __( 'Copy to clipboard failed.', 'agentable' ) );
+			setError( __( 'Copy to clipboard failed.', 'mokhai-agent-readiness-kit' ) );
 		}
 	}, [ data ] );
 
@@ -192,21 +192,21 @@ function AgentsPanel() {
 	return (
 		<PluginDocumentSettingPanel
 			name="agentready-agents"
-			title={ __( 'AI Readiness', 'agentable' ) }
+			title={ __( 'AI Readiness', 'mokhai-agent-readiness-kit' ) }
 			className="agentready-agents-panel"
 		>
 			<ToggleControl
 				__nextHasNoMarginBottom
-				label={ __( 'Exclude from agent output', 'agentable' ) }
+				label={ __( 'Exclude from agent output', 'mokhai-agent-readiness-kit' ) }
 				help={
 					excluded
 						? __(
 								'Hidden from /llms.txt and .md views — agents will not ingest this content.',
-								'agentable'
+								'mokhai-agent-readiness-kit'
 						  )
 						: __(
 								'Available to AI agents via /llms.txt and .md views.',
-								'agentable'
+								'mokhai-agent-readiness-kit'
 						  )
 				}
 				checked={ excluded }
@@ -218,7 +218,7 @@ function AgentsPanel() {
 			{ verdict && (
 				<p className="agentready-verdict">
 					<Pill kind="stale">
-						{ __( 'Hidden', 'agentable' ) }
+						{ __( 'Hidden', 'mokhai-agent-readiness-kit' ) }
 					</Pill>{ ' ' }
 					{ verdict }
 				</p>
@@ -226,7 +226,7 @@ function AgentsPanel() {
 
 			{ moduleEnabled && loading && (
 				<p>
-					<Spinner /> { __( 'Loading preview…', 'agentable' ) }
+					<Spinner /> { __( 'Loading preview…', 'mokhai-agent-readiness-kit' ) }
 				</p>
 			) }
 
@@ -247,28 +247,28 @@ function AgentsPanel() {
 							disabled={ ! data.markdown }
 						>
 							{ copied
-								? __( 'Copied!', 'agentable' )
+								? __( 'Copied!', 'mokhai-agent-readiness-kit' )
 								: __(
 										'Copy to clipboard',
-										'agentable'
+										'mokhai-agent-readiness-kit'
 								  ) }
 						</Button>
 
 						<Button variant="tertiary" onClick={ loadPreview }>
-							{ __( 'Refresh', 'agentable' ) }
+							{ __( 'Refresh', 'mokhai-agent-readiness-kit' ) }
 						</Button>
 					</div>
 
 					{ data.cache_state && (
 						<p className="agentready-md-meta">
 							<strong>
-								{ __( 'Cache:', 'agentable' ) }
+								{ __( 'Cache:', 'mokhai-agent-readiness-kit' ) }
 							</strong>{ ' ' }
 							{ data.cache_state.cached
-								? __( 'hit', 'agentable' )
-								: __( 'miss', 'agentable' ) }
+								? __( 'hit', 'mokhai-agent-readiness-kit' )
+								: __( 'miss', 'mokhai-agent-readiness-kit' ) }
 							{ ' · ' }
-							{ __( 'walker v', 'agentable' ) }
+							{ __( 'walker v', 'mokhai-agent-readiness-kit' ) }
 							{ data.cache_state.walker_version }
 							{ ' · ' }
 							{ humanTimeDiff( data.cache_state.generated_at ) }

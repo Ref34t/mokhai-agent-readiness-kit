@@ -119,7 +119,7 @@ PROMPT;
 		if ( '' === $markdown ) {
 			return self::degrade(
 				'empty_input',
-				\__( 'This page has no Markdown View to summarise yet.', 'agentable' )
+				\__( 'This page has no Markdown View to summarise yet.', 'mokhai-agent-readiness-kit' )
 			);
 		}
 
@@ -131,7 +131,7 @@ PROMPT;
 		if ( null === $provider && ! Client_Wrapper::has_ai_client() ) {
 			return self::degrade(
 				'unconfigured',
-				\__( 'Connect an AI provider to preview a model summary of this page.', 'agentable' )
+				\__( 'Connect an AI provider to preview a model summary of this page.', 'mokhai-agent-readiness-kit' )
 			);
 		}
 
@@ -159,7 +159,7 @@ PROMPT;
 		if ( $duration_ms > self::GENERATION_BUDGET_MS ) {
 			return self::degrade(
 				'budget_exceeded',
-				\__( 'The summary took too long to generate. Try again.', 'agentable' )
+				\__( 'The summary took too long to generate. Try again.', 'mokhai-agent-readiness-kit' )
 			);
 		}
 
@@ -167,7 +167,7 @@ PROMPT;
 		if ( '' === $text ) {
 			return self::degrade(
 				'empty_output',
-				\__( 'The model returned an empty summary. Try again.', 'agentable' )
+				\__( 'The model returned an empty summary. Try again.', 'mokhai-agent-readiness-kit' )
 			);
 		}
 
@@ -241,19 +241,19 @@ PROMPT;
 			case 'unconfigured':
 				return self::degrade(
 					'unconfigured',
-					\__( 'Connect an AI provider to preview a model summary of this page.', 'agentable' )
+					\__( 'Connect an AI provider to preview a model summary of this page.', 'mokhai-agent-readiness-kit' )
 				);
 			case 'permanent':
 				return self::degrade(
 					'permanent',
-					\__( 'The AI provider rejected the request. Check the API key and model configuration.', 'agentable' )
+					\__( 'The AI provider rejected the request. Check the API key and model configuration.', 'mokhai-agent-readiness-kit' )
 				);
 			case 'rate_limit':
 			case 'network':
 			default:
 				return self::degrade(
 					'needs_retry',
-					\__( 'The summary could not be generated right now. Try again in a moment.', 'agentable' )
+					\__( 'The summary could not be generated right now. Try again in a moment.', 'mokhai-agent-readiness-kit' )
 				);
 		}
 	}
