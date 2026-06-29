@@ -172,7 +172,7 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 
 = 0.3.2 — 2026-06-21 =
 
-**Rename to "Mokhai - Agent Readiness Kit"** (text domain `mokhai-agent-readiness-kit`). wp.org plugin review rejected "Agentable" as colliding with existing third-party projects and required a name and slug that are clearly ours, with a distinctive leading term. "Mokhai" satisfies that. REST, WP-CLI, abilities, option keys, and all stored data are unchanged — existing installs upgrade with no migration. (#259, AgDR-0062)
+**Rename to "Mokhai - Agent Readiness Kit"** (text domain `mokhai-agent-readiness-kit`). wp.org plugin review rejected "Agentable" as colliding with existing third-party projects and required a name and slug that are clearly ours, with a distinctive leading term. "Mokhai" satisfies that. REST, WP-CLI, abilities, option keys, and all stored data are unchanged — existing installs upgrade with no migration. (#259)
 
 Also ships the following changes that landed on `main` since 0.3.1:
 
@@ -184,15 +184,15 @@ Also ships the following changes that landed on `main` since 0.3.1:
 
 = 0.3.1 — 2026-06-14 =
 
-Rename to **Agentable** (text domain `agentable`). The previous "AgentReady" brand collided with an existing third party (agentready.org), so the plugin is renamed to a distinct, ownable name that also fits the roadmap — sites readable today, actionable next. REST, WP-CLI, abilities, and stored data keys are unchanged, so existing installs upgrade with no migration. Also makes root-served-file detection (`llms.txt`, `ai.txt`, `.well-known/*`) subdirectory-install aware via `get_home_path()` instead of assuming the install root is the web root. (#230, AgDR-0060)
+Rename to **Agentable** (text domain `agentable`). The previous "AgentReady" brand collided with an existing third party (agentready.org), so the plugin is renamed to a distinct, ownable name that also fits the roadmap — sites readable today, actionable next. REST, WP-CLI, abilities, and stored data keys are unchanged, so existing installs upgrade with no migration. Also makes root-served-file detection (`llms.txt`, `ai.txt`, `.well-known/*`) subdirectory-install aware via `get_home_path()` instead of assuming the install root is the web root. (#230)
 
 = 0.3.0 — 2026-06-12 =
 
-Polish release. Refinements surfaced through a full live UX walkthrough of the v0.2.0 admin surfaces — score-narrative correctness, clearer labels, and a more discoverable plugin. Also renamed to "AgentReady – AI Readiness Kit"; REST, WP-CLI, and stored data keys are unchanged. (#224, AgDR-0059)
+Polish release. Refinements surfaced through a full live UX walkthrough of the v0.2.0 admin surfaces — score-narrative correctness, clearer labels, and a more discoverable plugin. Also renamed to "AgentReady – AI Readiness Kit"; REST, WP-CLI, and stored data keys are unchanged. (#224)
 
 **Improved**
 
-* **Multi-channel discovery is reachable at 100 for plugin-only sites** — the four plugin-served discovery channels (`/llms.txt`, `ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`) now score 100 on their own; OpenAPI is credited as a bonus channel for API-exposing sites rather than capping the score at 80. (#212, AgDR-0058)
+* **Multi-channel discovery is reachable at 100 for plugin-only sites** — the four plugin-served discovery channels (`/llms.txt`, `ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`) now score 100 on their own; OpenAPI is credited as a bonus channel for API-exposing sites rather than capping the score at 80. (#212)
 * **"Content readability" renamed to "Description coverage"** across the Context Score page, Site Health, and readme, to match what the sub-score actually measures (curated `/llms.txt` description coverage). Internal key unchanged. (#211)
 * **Plugin is now findable in wp-admin** — the Tools entries read "AI Readiness — Context" / "AI Readiness — Score", and the Plugins list carries a "Settings" link to the Context Profile. (#207)
 * **Quality floor for auto-descriptions** — near-empty posts are skipped (distinct "skipped" status) instead of padded with filler like "Title is available at URL."; threshold filterable via `agentready_description_min_content_chars`. (#214)
@@ -236,7 +236,7 @@ Bug-fix release. Four issues surfaced during post-merge smoke testing of v0.1.0 
 **Fixes**
 
 * `/llms.txt` regen now fires reliably after Context Profile saves on sites where wp-cron sits stale (e.g. wp-env without traffic, any site where cron failed for a window). `Service::schedule_regen()` now clears stale past-timestamp events before scheduling a fresh one. (#103)
-* `Schema_Emitter` now emits per-content JSON-LD for custom CPTs. Built-in `post` maps to `Article`; `page` and every other CPT (including custom ones like `lesson`, `product`, `recipe`) map to `WebPage` by default. Adds an `agentready_schema_type_for_cpt` filter for plugin/theme authors to specialize. Honors `'Article'` / `'WebPage'` / `null` (suppress) in v0.1.1; full custom-`@type` support lands in v0.1.2. AgDR-0040 captures the rationale. (#104)
+* `Schema_Emitter` now emits per-content JSON-LD for custom CPTs. Built-in `post` maps to `Article`; `page` and every other CPT (including custom ones like `lesson`, `product`, `recipe`) map to `WebPage` by default. Adds an `agentready_schema_type_for_cpt` filter for plugin/theme authors to specialize. Honors `'Article'` / `'WebPage'` / `null` (suppress) in v0.1.1; full custom-`@type` support lands in v0.1.2. (#104)
 * `/llms.txt` entry links now point at the `.md` form when Markdown Views is enabled — AI agents fetch a 4–8 KB Markdown body instead of the 50–100 KB HTML page. Pretty permalinks use the `<slug>.md` shape; plain permalinks fall through to `?format=md`. Idempotent: URLs already in either form are returned unchanged. When `markdown_views_enabled` is false, the canonical permalink is preserved. (#105)
 * HTML entities (`&#8217;`, `&amp;`, `&quot;`, `&mdash;`, etc.) no longer leak into the plain-text `/llms.txt` body. WordPress's `wptexturize` filter HTML-encodes typographic characters; the composer now decodes them at the bottom of the escape pipeline so every text surface (site name, tagline, section label, entry title, description) is clean. (#106)
 
@@ -280,8 +280,7 @@ First public release. Four coherent modules driven by one Context Profile.
 
 * Layered CI: PHPCS (WordPress + WordPressVIPMinimum) + Plugin Check + PHPUnit + PHPStan level 5
 * `requires_wp` / `requires_php` runtime gate with admin-notice degradation
-* Translation policy documented (AgDR-0009): managed via wp.org under slug `agentable`
-* Competitive landscape captured (AgDR-0006)
+* Translation policy documented: managed via wp.org under slug `agentable`
 
 == Upgrade Notice ==
 
