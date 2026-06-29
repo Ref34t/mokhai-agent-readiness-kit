@@ -1,12 +1,12 @@
 {
 	"name": "mokhai-agent-readiness-kit",
 	"private": true,
-	"version": "0.3.2",
+	"version": "0.4.0",
 	"description": "AI Readiness for WordPress: context, policy, audit, analytics.",
 	"license": "GPL-2.0-or-later",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Ref34t/agentready.git"
+		"url": "https://github.com/Ref34t/mokhai-agent-readiness-kit.git"
 	},
 	"scripts": {
 		"build": "wp-scripts build",

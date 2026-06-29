@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name:       Mokhai - Agent Readiness Kit
- * Plugin URI:        https://github.com/Ref34t/agentready
+ * Plugin URI:        https://github.com/Ref34t/mokhai-agent-readiness-kit
  * Description:       Help AI agents read your WordPress site correctly: llms.txt, clean Markdown views, structured data, and a readiness score — from one Context Profile.
- * Version:           0.3.2
+ * Version:           0.4.0
  * Requires at least: 6.9
  * Requires PHP:      7.4
  * Author:            Mohamed Khaled
@@ -37,7 +37,7 @@ namespace WPContext;
  * WPContext\ namespace can reference them without imports.
  */
 function constants(): void {
-	\define( 'WPCTX_VERSION', '0.3.2' );
+	\define( 'WPCTX_VERSION', '0.4.0' );
 	\define( 'WPCTX_FILE', __FILE__ );
 	\define( 'WPCTX_DIR', \plugin_dir_path( __FILE__ ) );
 	\define( 'WPCTX_URL', \plugin_dir_url( __FILE__ ) );

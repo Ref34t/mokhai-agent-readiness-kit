@@ -1,10 +1,10 @@
-# AI Readiness Kit
+# Mokhai - Agent Readiness Kit
 
-> AI Readiness for WordPress: one coherent layer that makes a site readable, discoverable, governable, and measurable for AI agents.
+> Agent Readiness for WordPress: one coherent layer that makes a site readable, discoverable, governable, and measurable for AI agents.
 
 An open-source WordPress plugin that turns your site into a first-class citizen of the AI-agent web. A single **Context Profile** (configured once under **Tools → Context**) is the source of truth for every agent-facing surface — what's exposed, how it's served, and how it's scored. Every module is independently toggleable, and no content leaves your server.
 
-**Status:** v0.2.0 — submitted to the WordPress.org plugin directory.
+**Status:** v0.4.0 — live on the [WordPress.org plugin directory](https://wordpress.org/plugins/mokhai-agent-readiness-kit).
 
 ## Getting started
 
@@ -37,4 +37,4 @@ GPL-2.0-or-later. Free, open-source.
 
 ## Contributing
 
-Issues and PRs welcome — see the [open issues](https://github.com/Ref34t/agentready/issues) for where help is wanted.
+Issues and PRs welcome — see the [open issues](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues) for where help is wanted.

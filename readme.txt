@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.2
+Stable tag: 0.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -165,6 +165,14 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 
 == Changelog ==
 
+= 0.4.0 — 2026-06-29 =
+
+**Public-launch release.** The plugin is now live on the WordPress.org Plugin Directory as "Mokhai - Agent Readiness Kit" (slug `mokhai-agent-readiness-kit`). This release is launch housekeeping — no functional change, no migration:
+
+* Refreshed Plugin Directory assets — new banner, icon, and screenshots.
+* Polished readme copy for the public listing.
+* Repository links consolidated under the `mokhai-agent-readiness-kit` name (Plugin URI, package metadata). REST routes, WP-CLI commands, abilities, option keys, and all stored data are unchanged — existing installs upgrade in place with no action required.
+
 = 0.3.2 — 2026-06-21 =
 
 **Rename to "Mokhai - Agent Readiness Kit"** (text domain `mokhai-agent-readiness-kit`). wp.org plugin review rejected "Agentable" as colliding with existing third-party projects and required a name and slug that are clearly ours, with a distinctive leading term. "Mokhai" satisfies that. REST, WP-CLI, abilities, option keys, and all stored data are unchanged — existing installs upgrade with no migration. (#259, AgDR-0062)
@@ -279,6 +287,10 @@ First public release. Four coherent modules driven by one Context Profile.
 * Competitive landscape captured (AgDR-0006)
 
 == Upgrade Notice ==
+
+= 0.4.0 =
+
+Public launch on WordPress.org. Refreshed listing assets and readme; no functional change and no migration — safe in-place upgrade.
 
 = 0.2.0 =
 
