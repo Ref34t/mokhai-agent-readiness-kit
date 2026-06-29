@@ -159,7 +159,7 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 == Screenshots ==
 
 1. Context Profile — the single source of truth for which CPTs and statuses are exposed to agents
-2. Markdown Views — any post rendered as clean Markdown for AI consumption
+2. AI Assistant Preview — see exactly what an agent reads: raw HTML, the clean Markdown View, and the `/llms.txt` line, side by side
 3. LLMs Index — `/llms.txt` admin UI with editorial entries and LLM-powered descriptions
 4. Context Score — 0–100 readiness audit with seven sub-scores and actionable fixes
 
