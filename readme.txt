@@ -14,15 +14,12 @@ Help AI agents read your WordPress site correctly: llms.txt, clean Markdown view
 
 Mokhai is an open-source WordPress plugin that turns your site into a first-class citizen of the AI-agent web — readable today, actionable next. A single **Context Profile** (configured once under Tools → Context) is the source of truth for every agent-facing surface — what's exposed, how it's served, and how it's scored.
 
-v0.1 ships four coherent modules driven by one profile:
+Mokhai ships seven coherent modules, all driven by one Context Profile:
 
 * **Markdown Views** — deterministic HTML → Markdown rendering for any public URL, with three URL forms (`.md` path, `?format=md` query, `Accept: text/markdown` content negotiation) and uniform 404 on denial. Per-post cache with content-hash invalidation, Gutenberg sidebar preview, WP-CLI command, REST endpoint for admin tooling.
 * **LLMs Index** — `/llms.txt` generator that publishes a discovery surface for AI agents, with conflict detection against `robots.txt`, an editorial entries admin UI for site owners to add curated entries, and an optional LLM-powered pass that drafts entry descriptions from post content.
 * **Context Score** — 0–100 readiness audit across seven weighted sub-scores (discoverability, description coverage, schema coverage, exposure safety, integration health, Markdown conversion quality, multi-channel discovery), surfaced in an admin page, Site Health, and `wp ai-readiness-kit context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
 * **Schema Coordination** — detects whether your SEO plugin already emits JSON-LD; if not, optionally emits a native WebSite + Organization + per-content schema set so the schema sub-score is achievable without a third-party SEO plugin. Defers gracefully when an SEO plugin is already covering the surface.
-
-v0.2 extends the stack with three agent-facing additions:
-
 * **AI Assistant Preview** — an admin pane that shows any post exactly as an AI assistant consumes it: raw HTML, the Markdown View, and the live `/llms.txt` line side by side, plus an on-demand "sample AI summary" so you can sanity-check what an agent would say about the page.
 * **Agent Abilities + MCP** — exposes core plugin operations (audit run, profile read, exposure toggle, `/llms.txt` regenerate, Markdown preview) through the WordPress Abilities API, and surfaces them to MCP clients via the WordPress MCP adapter. Every ability is `manage_options`-gated.
 * **Multi-channel discovery** — a seventh Context Score sub-score crediting additional agent-discovery surfaces (`ai.txt`, `/.well-known/` declarations, OpenAPI) beyond `/llms.txt`, so a site running several discovery channels scores higher than one running only one.
