@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.2
+Stable tag: 0.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -159,11 +159,19 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 == Screenshots ==
 
 1. Context Profile — the single source of truth for which CPTs and statuses are exposed to agents
-2. Markdown Views — any post rendered as clean Markdown for AI consumption
+2. AI Assistant Preview — see exactly what an agent reads: raw HTML, the clean Markdown View, and the `/llms.txt` line, side by side
 3. LLMs Index — `/llms.txt` admin UI with editorial entries and LLM-powered descriptions
 4. Context Score — 0–100 readiness audit with seven sub-scores and actionable fixes
 
 == Changelog ==
+
+= 0.4.0 — 2026-06-29 =
+
+**Public-launch release.** The plugin is now live on the WordPress.org Plugin Directory as "Mokhai - Agent Readiness Kit" (slug `mokhai-agent-readiness-kit`). This release is launch housekeeping — no functional change, no migration:
+
+* Refreshed Plugin Directory assets — new banner, icon, and screenshots.
+* Polished readme copy for the public listing.
+* Repository links consolidated under the `mokhai-agent-readiness-kit` name (Plugin URI, package metadata). REST routes, WP-CLI commands, abilities, option keys, and all stored data are unchanged — existing installs upgrade in place with no action required.
 
 = 0.3.2 — 2026-06-21 =
 
@@ -279,6 +287,10 @@ First public release. Four coherent modules driven by one Context Profile.
 * Competitive landscape captured (AgDR-0006)
 
 == Upgrade Notice ==
+
+= 0.4.0 =
+
+Public launch on WordPress.org. Refreshed listing assets and readme; no functional change and no migration — safe in-place upgrade.
 
 = 0.2.0 =
 
