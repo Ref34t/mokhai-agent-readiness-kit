@@ -10,7 +10,7 @@ status: executed
 
 # AgDR-0006 — Competitive landscape: AI Layer
 
-> In the context of building AgentReady on a 2026-07-08 launch target, facing a parallel-shipping competitor in the same "WP plugin for AI agents" niche, I decided to keep our PRD's positioning intact ("agent readiness for WordPress" — audit-driven, content-as-is, safe-by-default) AND promote three v0.1.1 follow-up moves (MCP/Abilities API, multi-channel discovery detection, co-existence-not-competition framing in the launch post) to close visible gaps without restructuring the v0.1 plan, accepting that AI Layer's beta will likely accumulate some mindshare before our wp.org launch.
+> In the context of building Mokhai on a 2026-07-08 launch target, facing a parallel-shipping competitor in the same "WP plugin for AI agents" niche, I decided to keep our PRD's positioning intact ("agent readiness for WordPress" — audit-driven, content-as-is, safe-by-default) AND promote three v0.1.1 follow-up moves (MCP/Abilities API, multi-channel discovery detection, co-existence-not-competition framing in the launch post) to close visible gaps without restructuring the v0.1 plan, accepting that AI Layer's beta will likely accumulate some mindshare before our wp.org launch.
 
 ## Context
 
@@ -25,7 +25,7 @@ The answer matters because:
 
 ## Side-by-side feature snapshot (2026-05-13)
 
-| Capability | AgentReady (v0.1 plan) | AI Layer (beta) |
+| Capability | Mokhai (v0.1 plan) | AI Layer (beta) |
 |------------|:----------------------:|:---------------:|
 | `/llms.txt` generator | ✓ (FR-4) | ✓ (one of 10 channels) |
 | Per-URL Markdown view (`?format=md`) with content-negotiation | ✓ (FR-2) | ⚠ "Markdown" channel listed but entity-output, not full-page HTML→MD |
@@ -68,19 +68,19 @@ The answer matters because:
 |--------|------|------|
 | **A — Keep v0.1 plan, add 3 v0.1.1 moves** (chosen) | v0.1 launch target preserved; closes visible gaps in the fast-follow; doesn't reactively rewrite the PRD | Accepts ~6 weeks of "we look behind on MCP" between launch and v0.1.1 |
 | B — Pull MCP/Abilities into v0.1, delay launch | Match AI Layer's MCP table-stakes at launch | Launch slips beyond 2026-07-08; PRD timeline trades a hard deadline for parity; medium-effort ticket added mid-build |
-| C — Reposition AgentReady as "audit + Markdown only", deferring all discovery to AI Layer | Sharpest narrowing; tight differentiation | Cedes the `/llms.txt` + analytics ground; weakens the agency-deck demo; not what the PRD said |
+| C — Reposition Mokhai as "audit + Markdown only", deferring all discovery to AI Layer | Sharpest narrowing; tight differentiation | Cedes the `/llms.txt` + analytics ground; weakens the agency-deck demo; not what the PRD said |
 | D — Kill / pause, validate harder | Avoids running into a competitor | We have a PRD-approved plan, capital allocated, and 3 build tickets shipped; killing now is costlier than continuing |
-| E — Add a typed-entity layer to compete with their core thesis | Direct feature parity | Massive scope addition; not the AgentReady thesis; deeply changes the PRD |
+| E — Add a typed-entity layer to compete with their core thesis | Direct feature parity | Massive scope addition; not the Mokhai thesis; deeply changes the PRD |
 
 ## Decision
 
 Chosen: **Option A.** Keep the v0.1 plan as-is. File three v0.1.1 follow-up tickets that close the most visible gaps:
 
-1. **`Ref34t/agentready#21`** — Promote MCP / WordPress Abilities API integration (FR-15) from v0.2+ to v0.1.1. 33-abilities-ish surface covering `audit.run`, `profile.read`, `profile.set_exposure`, `llms_txt.regenerate`, `md_view.preview`. Capability checks mirror the admin UI.
+1. **`Ref34t/mokhai-agent-readiness-kit#21`** — Promote MCP / WordPress Abilities API integration (FR-15) from v0.2+ to v0.1.1. 33-abilities-ish surface covering `audit.run`, `profile.read`, `profile.set_exposure`, `llms_txt.regenerate`, `md_view.preview`. Capability checks mirror the admin UI.
 
-2. **`Ref34t/agentready#22`** — Context Score sub-score: "Multi-channel discovery". Audit detects presence of `ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`, OpenAPI specs in standard paths. If AI Layer is detected, the audit panel surfaces a "coordinating with AI Layer" note rather than penalising. Mirrors the FR-8 defer-to-Yoast playbook.
+2. **`Ref34t/mokhai-agent-readiness-kit#22`** — Context Score sub-score: "Multi-channel discovery". Audit detects presence of `ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`, OpenAPI specs in standard paths. If AI Layer is detected, the audit panel surfaces a "coordinating with AI Layer" note rather than penalising. Mirrors the FR-8 defer-to-Yoast playbook.
 
-3. **Launch-post framing** (no code ticket — marketing prep) — reframe the "WordPress for Machines" analysis post + the v0.1 launch announcement to position AgentReady as **complementary** to AI Layer: *"AI Layer answers questions about your business. AgentReady audits and shapes your existing content for agents. They co-exist on the same site."* Avoids head-to-head framing in coverage, leverages their mindshare as a halo effect for the category.
+3. **Launch-post framing** (no code ticket — marketing prep) — reframe the "WordPress for Machines" analysis post + the v0.1 launch announcement to position Mokhai as **complementary** to AI Layer: *"AI Layer answers questions about your business. Mokhai audits and shapes your existing content for agents. They co-exist on the same site."* Avoids head-to-head framing in coverage, leverages their mindshare as a halo effect for the category.
 
 ### What this AgDR explicitly does NOT change
 
@@ -101,8 +101,8 @@ Chosen: **Option A.** Keep the v0.1 plan as-is. File three v0.1.1 follow-up tick
 
 - Source profile fetched 2026-05-13: https://ai-layer.org/plugin/index.html
 - Their GitHub: https://github.com/james-s-k/ai-layer
-- Ticket: https://github.com/Ref34t/agentready/issues/20
-- v0.1.1 follow-up #21 (MCP): https://github.com/Ref34t/agentready/issues/21
-- v0.1.1 follow-up #22 (multi-channel discovery): https://github.com/Ref34t/agentready/issues/22
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/20
+- v0.1.1 follow-up #21 (MCP): https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/21
+- v0.1.1 follow-up #22 (multi-channel discovery): https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/22
 - PRD: `projects/agentready/PRD.md` in the portfolio repo (will be updated to reference this AgDR)
 - PR: (linked here on creation)

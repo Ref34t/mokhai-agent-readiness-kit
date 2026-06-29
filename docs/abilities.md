@@ -1,6 +1,6 @@
-# AI Readiness Kit — WordPress Abilities
+# Mokhai — WordPress Abilities
 
-AI Readiness Kit registers five [WordPress Abilities](https://developer.wordpress.org/apis/abilities-api/) (core Abilities API, WordPress 6.9+) so AI agent stacks can call into the plugin's audit, profile, exposure, `/llms.txt`, and Markdown-view surfaces directly instead of scraping admin screens.
+Mokhai registers five [WordPress Abilities](https://developer.wordpress.org/apis/abilities-api/) (core Abilities API, WordPress 6.9+) so AI agent stacks can call into the plugin's audit, profile, exposure, `/llms.txt`, and Markdown-view surfaces directly instead of scraping admin screens.
 
 All abilities live under the `ai-readiness-kit` category and are exposed via core's REST surface at `GET /wp-json/wp-abilities/v1/abilities` (each with `meta.show_in_rest = true`). See AgDR-0044 for the design rationale.
 

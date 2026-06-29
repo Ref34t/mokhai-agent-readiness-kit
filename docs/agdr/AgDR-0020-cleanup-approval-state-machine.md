@@ -1,6 +1,6 @@
 # AgDR-0020 — Cleanup approval state machine + REST surface (Phase B)
 
-> In the context of `Ref34t/agentready#6` Phase B — ACs 3 + 4 (side-by-side preview, admin approve / reject / regenerate) — facing the choice of how to encode the post-LLM-cleanup-but-pre-public-serve gate, where the swap from deterministic to cleaned output happens, and which REST surface drives the sidebar UI, I decided to extend the Phase-A state machine with two terminal admin-action states (`approved` / `rejected`) gated by content-hash freshness, swap the served route output only when status is `approved`, expose four namespaced REST routes under `agentready/v1/markdown-views/cleanup/*`, and treat regenerate as a hard reset (invalidate + reschedule), to achieve a small auditable state machine that mirrors editorial workflows admins already understand, accepting that "approved" is currently sticky for the current content hash only — a future "always-approve-this-post" preference is a v0.1.x scope.
+> In the context of `Ref34t/mokhai-agent-readiness-kit#6` Phase B — ACs 3 + 4 (side-by-side preview, admin approve / reject / regenerate) — facing the choice of how to encode the post-LLM-cleanup-but-pre-public-serve gate, where the swap from deterministic to cleaned output happens, and which REST surface drives the sidebar UI, I decided to extend the Phase-A state machine with two terminal admin-action states (`approved` / `rejected`) gated by content-hash freshness, swap the served route output only when status is `approved`, expose four namespaced REST routes under `agentready/v1/markdown-views/cleanup/*`, and treat regenerate as a hard reset (invalidate + reschedule), to achieve a small auditable state machine that mirrors editorial workflows admins already understand, accepting that "approved" is currently sticky for the current content hash only — a future "always-approve-this-post" preference is a v0.1.x scope.
 
 ## Context
 
@@ -147,6 +147,6 @@ POST responses (approve / reject / regenerate) return the same shape as GET — 
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#6`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#6`
 - Related AgDRs: AgDR-0017 (quality score), AgDR-0018 (no-hallucination guard), AgDR-0014 (sidebar surface convention)
 - Files (planned): `includes/Markdown_Views/Cleanup_Orchestrator.php` (extend), `includes/Markdown_Views/Cleanup_Rest_Controller.php` (new), `includes/Markdown_Views/Service.php` (extend), `includes/Main.php` (one line), `src/admin/markdown-views-sidebar/index.js` (extend), tests/Integration/Markdown_Views/Cleanup_Rest_Controller_Test.php (new), tests/Unit/Markdown_Views/Cleanup_Orchestrator_State_Test.php (new)

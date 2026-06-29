@@ -1,6 +1,6 @@
 # Generate the Context Score LLM narrative asynchronously
 
-> In the context of the Context Score recompute (Ref34t/agentready#167), facing an LLM narrative that consistently takes ~11–17s to generate — exceeding the 10s budget and degrading to deterministic templates on every run, while also blocking the synchronous "Recompute now" request — I decided to decouple narrative generation from the score recompute and run it as a background cron job that merges into the cache when ready, to achieve a narrative that actually renders without blocking the user or risking request timeouts, accepting that the narrative now appears a moment after the score (eventual, not immediate) and requires a cache-merge guard + a small UI upgrade-on-ready step.
+> In the context of the Context Score recompute (Ref34t/mokhai-agent-readiness-kit#167), facing an LLM narrative that consistently takes ~11–17s to generate — exceeding the 10s budget and degrading to deterministic templates on every run, while also blocking the synchronous "Recompute now" request — I decided to decouple narrative generation from the score recompute and run it as a background cron job that merges into the cache when ready, to achieve a narrative that actually renders without blocking the user or risking request timeouts, accepting that the narrative now appears a moment after the score (eventual, not immediate) and requires a cache-merge guard + a small UI upgrade-on-ready step.
 
 ## Context
 
@@ -35,5 +35,5 @@ Chosen: **Async narrative.** `recompute_now()` writes the score with the **rule-
 
 ## Artifacts
 
-- Issue: Ref34t/agentready#167
+- Issue: Ref34t/mokhai-agent-readiness-kit#167
 - Files: `includes/Context_Score/Service.php`, `includes/Context_Score/Narrative_Generator.php`, `src/admin/context-score/index.js`

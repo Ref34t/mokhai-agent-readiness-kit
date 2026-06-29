@@ -1,6 +1,6 @@
 # AgDR-0040 — Per-content schema emission for custom CPTs
 
-> In the context of `Ref34t/agentready#104` — *"the native gap-fill JSON-LD emitter produces only `WebSite` + `Organization` on singular requests for any CPT other than the built-in `post` (gets Article) and `page` (gets WebPage), so custom CPTs like `lesson` lose per-content schema entirely"* — surfaced during PR #102 post-merge smoke testing where a `/lessons/<slug>/` URL showed 2 JSON-LD blocks while `/hello-world/` (post) and `/about/` (page) showed 3, facing the choice between (a) defaulting every non-page singular to `Article` (broader Article coverage), (b) defaulting `post` to `Article` and everything else to `WebPage` (safer generic), (c) adding per-CPT `@type` mapping UI in the Context Profile (most flexible but biggest scope), or (d) leaving custom CPTs un-emitted by design and updating Context Score's `schemaCoordination.filled` reporting to be honest about the gap, I decided to **ship option (b) — smart defaults (`post` → `Article`, everything else → `WebPage`) — paired with an `agentready_schema_type_for_cpt` filter for plugin/theme authors to specialize** — to achieve honest per-content schema on every exposed singular without inventing a new admin surface, while leaving full custom-`@type` support (filter returning `Recipe`, `Course`, `Product`, etc., with dedicated node builders) as a v0.1.2 enhancement, accepting that v0.1.1's filter-honored return values are limited to `Article` and `WebPage` until those builders land.
+> In the context of `Ref34t/mokhai-agent-readiness-kit#104` — *"the native gap-fill JSON-LD emitter produces only `WebSite` + `Organization` on singular requests for any CPT other than the built-in `post` (gets Article) and `page` (gets WebPage), so custom CPTs like `lesson` lose per-content schema entirely"* — surfaced during PR #102 post-merge smoke testing where a `/lessons/<slug>/` URL showed 2 JSON-LD blocks while `/hello-world/` (post) and `/about/` (page) showed 3, facing the choice between (a) defaulting every non-page singular to `Article` (broader Article coverage), (b) defaulting `post` to `Article` and everything else to `WebPage` (safer generic), (c) adding per-CPT `@type` mapping UI in the Context Profile (most flexible but biggest scope), or (d) leaving custom CPTs un-emitted by design and updating Context Score's `schemaCoordination.filled` reporting to be honest about the gap, I decided to **ship option (b) — smart defaults (`post` → `Article`, everything else → `WebPage`) — paired with an `agentready_schema_type_for_cpt` filter for plugin/theme authors to specialize** — to achieve honest per-content schema on every exposed singular without inventing a new admin surface, while leaving full custom-`@type` support (filter returning `Recipe`, `Course`, `Product`, etc., with dedicated node builders) as a v0.1.2 enhancement, accepting that v0.1.1's filter-honored return values are limited to `Article` and `WebPage` until those builders land.
 
 ## Context
 
@@ -36,7 +36,7 @@ Both builders silently returned `null` on any custom CPT. Net effect on `/lesson
 
 The `schemaCoordination.filled` field that drives Context Score's `schema_coverage` sub-score (computed by `Plugin_Coverage::compute_gap()`) reports `["WebSite", "Organization", "WebPage", "Article"]` regardless of request type — overstating coverage for any site whose primary content lives in custom CPTs.
 
-The bug was filed as Ref34t/agentready#104 (P1, bug) during PR #102's post-merge smoke test on `localhost:8890`, with the user's `lesson` CPT as the concrete repro. Filing surfaced the design question this AgDR captures.
+The bug was filed as Ref34t/mokhai-agent-readiness-kit#104 (P1, bug) during PR #102's post-merge smoke test on `localhost:8890`, with the user's `lesson` CPT as the concrete repro. Filing surfaced the design question this AgDR captures.
 
 ## Options Considered
 
@@ -114,7 +114,7 @@ Anti-scope (explicitly NOT in v0.1.1):
 
 ## Artifacts
 
-- Ticket: [`Ref34t/agentready#104`](https://github.com/Ref34t/agentready/issues/104)
+- Ticket: [`Ref34t/mokhai-agent-readiness-kit#104`](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/104)
 - Fix PR: (this AgDR is part of fix PR for #104)
 - Builds on: [AgDR-0033](AgDR-0033-seo-defer-gap-fill-emitter.md) (gap-fill emitter rationale + SEO plugin deference), [AgDR-0034](AgDR-0034-native-schema-emit-toggle-and-engine-credit.md) (emit toggle + engine credit)
-- Related (surfaced during the same smoke test): [#103](https://github.com/Ref34t/agentready/issues/103) (profile-save → llms.txt regen), [#105](https://github.com/Ref34t/agentready/issues/105) (llms.txt → .md links), [#106](https://github.com/Ref34t/agentready/issues/106) (llms.txt entity decoding) — all bundled in v0.1.1.
+- Related (surfaced during the same smoke test): [#103](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/103) (profile-save → llms.txt regen), [#105](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/105) (llms.txt → .md links), [#106](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/106) (llms.txt entity decoding) — all bundled in v0.1.1.

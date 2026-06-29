@@ -1,6 +1,6 @@
 # AgDR-0016 — Page-builder detection via per-post meta-key signature (with content-fingerprint fallback)
 
-> In the context of needing to decide *per post* whether the Markdown Views LLM cleanup pass should auto-trigger (`Ref34t/agentready#6` AC 1: *"LLM cleanup auto-triggers when a page-builder is detected (Elementor, Divi, WPBakery, Avada, Beaver Builder)"*), facing the choice between an active-plugin probe, a per-post `post_meta` signature, a content fingerprint, or some combination, I decided to ship a per-post `post_meta`-signature detector backed by a content-fingerprint fallback, to achieve accurate per-post classification regardless of plugin-activation state, accepting that an unrecognised page-builder ships through the deterministic floor and only triggers cleanup via the quality-score gate (AgDR-0017).
+> In the context of needing to decide *per post* whether the Markdown Views LLM cleanup pass should auto-trigger (`Ref34t/mokhai-agent-readiness-kit#6` AC 1: *"LLM cleanup auto-triggers when a page-builder is detected (Elementor, Divi, WPBakery, Avada, Beaver Builder)"*), facing the choice between an active-plugin probe, a per-post `post_meta` signature, a content fingerprint, or some combination, I decided to ship a per-post `post_meta`-signature detector backed by a content-fingerprint fallback, to achieve accurate per-post classification regardless of plugin-activation state, accepting that an unrecognised page-builder ships through the deterministic floor and only triggers cleanup via the quality-score gate (AgDR-0017).
 
 ## Context
 
@@ -85,6 +85,6 @@ final class Page_Builder_Detector {
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#6`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#6`
 - Related AgDRs: AgDR-0017 (quality-score threshold), AgDR-0018 (no-hallucination guard), AgDR-0010 (deterministic walker)
 - Files (planned): `includes/Markdown_Views/Page_Builder_Detector.php`, tests under `tests/unit/Markdown_Views/`

@@ -40,7 +40,7 @@ Concretely:
 
 ## Artifacts
 
-- Ticket: Ref34t/agentready#153 (retirement)
+- Ticket: Ref34t/mokhai-agent-readiness-kit#153 (retirement)
 - Validation: `9h-portfolio/projects/_inbox/validation/markdown-views-llm-cleanup-pass-keep-or-retire.md` (verdict RETIRE) + IDEA-005 marginal-value test
 - Engine touchpoints: `includes/Context_Score/Engine.php` (`score_integration_health` ~373, `score_md_conversion_quality` ~445); `includes/Context_Score/Signal_Collector.php` (`collect`/`profile_signals` ~50-85)
 - Related: AgDR-0003 (silent-degrade trap the integration_health check guards), AgDR-0030 (Context Score engine), AgDR-0017 (walker quality score the MD-quality bar reads)

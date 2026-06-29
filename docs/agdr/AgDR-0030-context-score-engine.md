@@ -189,6 +189,6 @@ $signals = [
 
 ## Artifacts
 
-- Ticket: https://github.com/Ref34t/agentready/issues/9
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/9
 - AgDR: this file
 - PR: (linked here on creation)

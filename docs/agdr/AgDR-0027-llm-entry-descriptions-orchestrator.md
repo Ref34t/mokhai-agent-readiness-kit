@@ -108,7 +108,7 @@ Mirroring `Cleanup_Orchestrator::pending_count()`: refuse to schedule a new job 
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#8`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#8`
 - Mirrors design: AgDR-0017 / AgDR-0020 (Cleanup_Orchestrator + state machine — slimmed for #8)
 - Composes with: AgDR-0019 (error classification), AgDR-0026 (Permanent_Error — terminal failure path), AgDR-0023 (regen debounce — unrelated, just sharing the cron register)
 - Files: `includes/LlmsTxt/Description_Orchestrator.php`, `includes/LlmsTxt/Description_Filter.php`, `includes/Cli/Llms_Txt_Descriptions_Command.php`, `includes/Main.php`, plus unit tests under `tests/Unit/LlmsTxt/`

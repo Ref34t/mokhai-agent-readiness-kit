@@ -64,7 +64,7 @@ from the hook callbacks, mirroring `LlmsTxt\Router` / `Markdown_Views\Handler`.
 
 ## Artifacts
 
-- Issue: Ref34t/agentready#178
+- Issue: Ref34t/mokhai-agent-readiness-kit#178
 - `includes/Discovery/Alternate_Advertiser.php`, `includes/Markdown_Views/Url_Mapper.php`
 - `includes/LlmsTxt/Entry_Source.php` (delegates `to_md_url`),
   `includes/Admin/Context_Profile_Settings.php` (toggle), `includes/Main.php` (wiring)

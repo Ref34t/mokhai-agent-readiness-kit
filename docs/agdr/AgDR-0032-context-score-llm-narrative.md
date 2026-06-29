@@ -1,6 +1,6 @@
 # AgDR-0032 — Context Score LLM narrative + rule-based fallback (single-call prompt, per-line guard)
 
-> In the context of `Ref34t/agentready#11` — *"LLM-powered Context Score narrative with rule-based fallback"* — facing the choice between (a) one LLM call per sub-score (6 round-trips) vs. a single structured-JSON call covering all six, (b) a deterministic guard reused from #6 (AgDR-0018) vs. a sub-score-scoped guard tailored to numeric + entity facts, and (c) caching the narrative inside the score-record vs. a sibling option, I decided to ship a **single structured-JSON call** producing all six pairs in one round-trip, gated by a **per-sub-score guard that whitelists numeric + entity tokens drawn from that sub-score's `signals` and `reasons`** plus a small **cross-cutting AgentReady allowlist**, with the narrative **persisted inside the score-record** so the read path is free, to achieve a sub-10s recompute that degrades gracefully line-by-line (LLM line fails the guard → rule-based line for that sub-score; whole call fails → full rule-based with a degraded notice) — accepting that the single-call prompt is brittle to parser failures (no JSON → whole call falls back) and that the guard's false-positive bias will strip some legitimate LLM phrasings whose synonyms happen to not appear in the breakdown.
+> In the context of `Ref34t/mokhai-agent-readiness-kit#11` — *"LLM-powered Context Score narrative with rule-based fallback"* — facing the choice between (a) one LLM call per sub-score (6 round-trips) vs. a single structured-JSON call covering all six, (b) a deterministic guard reused from #6 (AgDR-0018) vs. a sub-score-scoped guard tailored to numeric + entity facts, and (c) caching the narrative inside the score-record vs. a sibling option, I decided to ship a **single structured-JSON call** producing all six pairs in one round-trip, gated by a **per-sub-score guard that whitelists numeric + entity tokens drawn from that sub-score's `signals` and `reasons`** plus a small **cross-cutting Mokhai allowlist**, with the narrative **persisted inside the score-record** so the read path is free, to achieve a sub-10s recompute that degrades gracefully line-by-line (LLM line fails the guard → rule-based line for that sub-score; whole call fails → full rule-based with a degraded notice) — accepting that the single-call prompt is brittle to parser failures (no JSON → whole call falls back) and that the guard's false-positive bias will strip some legitimate LLM phrasings whose synonyms happen to not appear in the breakdown.
 
 ## Context
 
@@ -25,7 +25,7 @@
 | Option | Pros | Cons |
 |--------|------|------|
 | B1 — Reuse AgDR-0018's content-word allowlist (#6 cleanup guard) | One guard implementation across modules. Already battle-tested on adversarial fixtures. | Built for a 10kB-HTML source. The Context Score breakdown is a tiny structured dict — stopword stemming over 60 words of "reasons" strips signal. Wrong fit. |
-| **B2 — Per-sub-score numeric + entity guard, scoped to that sub-score's `signals` + `reasons`, with a small cross-cutting AgentReady allowlist (chosen)** | Tight match for the narrative's risk surface: bogus numbers + bogus product names. Failure is per-line, fallback is per-line. Easy to test with a small adversarial fixture set per sub-score. | False positives when the LLM uses a numeric value derived (e.g. "80%" when only "80/100" appears) — mitigated by tokenising "80" and "80%" both, and accepting either. Doesn't catch hallucinated *claims* phrased without numbers/entities (e.g. "this site is GDPR-compliant"). Accepted: that class is rare in this prompt because the prompt asks for facts about the breakdown and the breakdown has no GDPR signal — but a future regression could ship it. We rely on the model + prompt for that class, not the guard. |
+| **B2 — Per-sub-score numeric + entity guard, scoped to that sub-score's `signals` + `reasons`, with a small cross-cutting Mokhai allowlist (chosen)** | Tight match for the narrative's risk surface: bogus numbers + bogus product names. Failure is per-line, fallback is per-line. Easy to test with a small adversarial fixture set per sub-score. | False positives when the LLM uses a numeric value derived (e.g. "80%" when only "80/100" appears) — mitigated by tokenising "80" and "80%" both, and accepting either. Doesn't catch hallucinated *claims* phrased without numbers/entities (e.g. "this site is GDPR-compliant"). Accepted: that class is rare in this prompt because the prompt asks for facts about the breakdown and the breakdown has no GDPR signal — but a future regression could ship it. We rely on the model + prompt for that class, not the guard. |
 | B3 — LLM-as-judge ("did your narrative hallucinate?") | Catches paraphrase-level hallucinations. | Recursive cost + recursive failure. Rejected (same reasoning as AgDR-0018). |
 
 ### C. Caching shape
@@ -82,7 +82,7 @@ includes/Context_Score/
 System prompt (committed in `Narrative_Generator::SYSTEM_PROMPT`):
 
 ```
-You are a senior WordPress consultant. Explain an AgentReady Context Score
+You are a senior WordPress consultant. Explain an Mokhai Context Score
 audit to an agency owner.
 
 Output ONE pair per sub-score: a "why" explaining what the score reflects,
@@ -124,8 +124,8 @@ Per-sub-score `$allowlist` is built by `Narrative_Guard::build_allowlist( array 
 
 1. **Numeric tokens** — every distinct integer in (`value`, `weight`, every numeric in `signals` stringified, every `\d+` extracted from each `reasons` string). Stored as bare integers AND as "N%" forms so the LLM can phrase "60%" when "60" appears.
 2. **Entity tokens** — every multi-word capitalised sequence (regex `\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)+\b`) in `reasons`. Lowercased into a set so the comparison is case-insensitive on lookup but the source casing is preserved in the cross-cutting list.
-3. **Cross-cutting AgentReady allowlist** (shared across sub-scores):
-   - "AgentReady", "Context Profile", "Context Score", "Site Health"
+3. **Cross-cutting Mokhai allowlist** (shared across sub-scores):
+   - "Mokhai", "Context Profile", "Context Score", "Site Health"
    - "AI Client", "WP AI Client", "Markdown Views", "LLMs Index"
    - "/llms.txt", "JSON-LD"
 
@@ -183,5 +183,5 @@ Templates are committed alongside the engine — they're not user-editable v0.1.
 
 ## Artifacts
 
-- Ticket: [`Ref34t/agentready#11`](https://github.com/Ref34t/agentready/issues/11)
+- Ticket: [`Ref34t/mokhai-agent-readiness-kit#11`](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/11)
 - Related AgDRs: AgDR-0003 (AI Client wrapper), AgDR-0018 (sibling guard for #6), AgDR-0022 (cache schema-version defensiveness), AgDR-0026 (`permanent` error class — the narrative respects it), AgDR-0028 (LLM prompt design — single-call JSON shape borrowed), AgDR-0030 (breakdown shape this narrative is built against), AgDR-0031 (admin UI this narrative is rendered into).

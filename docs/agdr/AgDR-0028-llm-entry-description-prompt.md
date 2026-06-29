@@ -128,6 +128,6 @@ Step 6's `EMPTY` sentinel is the explicit "the model couldn't write a descriptio
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#8`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#8`
 - Pairs with: [AgDR-0027](./AgDR-0027-llm-entry-descriptions-orchestrator.md) (architecture); references AgDR-0019 (error classification) + AgDR-0026 (Permanent_Error) for the failure pipeline.
 - Files: `includes/LlmsTxt/Description_Orchestrator.php`, `tests/Unit/LlmsTxt/Description_Orchestrator_Test.php`

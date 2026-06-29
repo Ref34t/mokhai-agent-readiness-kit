@@ -14,7 +14,7 @@ status: executed
 
 ## Context
 
-Ticket #4 introduces the first React UI in AgentReady — the Context Profile editor under WP admin → Tools → Context. AC says "built with `@wordpress/components`," which means we ship a JS bundle that depends on the React + WP-components packages WP exposes at runtime via the dependency-extraction plugin.
+Ticket #4 introduces the first React UI in Mokhai — the Context Profile editor under WP admin → Tools → Context. AC says "built with `@wordpress/components`," which means we ship a JS bundle that depends on the React + WP-components packages WP exposes at runtime via the dependency-extraction plugin.
 
 Three downstream tickets need the same build pipeline:
 
@@ -74,7 +74,7 @@ Chosen: **Option A — `@wordpress/scripts@^30.27.0` as the sole JS-pipeline dev
 
 ## Artifacts
 
-- Ticket: https://github.com/Ref34t/agentready/issues/4
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/4
 - AgDR: this file
 - PR: (linked here on creation)
 - Build artefact path: `build/admin/context-profile.{js,asset.php}` (gitignored, built locally / in CI / before release packaging)

@@ -1,6 +1,6 @@
 # AgDR-0015 — Markdown Views module disable: 404, preserve cache, keep rewrite
 
-> In the context of the Markdown Views module being toggleable on/off via the Context Profile admin (`Ref34t/agentready#5`, part of the broader Context Profile single-source-of-truth architecture from AgDR-0002), facing the choice between hard-tearing-down (purge cache, unregister rewrite), soft-disabling (404 with cache preserved), or making the toggle admin-UI-only, I decided to soft-disable — `.md` URLs 404, cache rows stay, rewrite rule remains registered — to achieve zero-latency re-enable and zero cost-to-toggle, accepting that disabled-but-installed sites carry residual cache rows in the `wp_agentready_md_cache` table indefinitely until uninstall.
+> In the context of the Markdown Views module being toggleable on/off via the Context Profile admin (`Ref34t/mokhai-agent-readiness-kit#5`, part of the broader Context Profile single-source-of-truth architecture from AgDR-0002), facing the choice between hard-tearing-down (purge cache, unregister rewrite), soft-disabling (404 with cache preserved), or making the toggle admin-UI-only, I decided to soft-disable — `.md` URLs 404, cache rows stay, rewrite rule remains registered — to achieve zero-latency re-enable and zero cost-to-toggle, accepting that disabled-but-installed sites carry residual cache rows in the `wp_agentready_md_cache` table indefinitely until uninstall.
 
 ## Context
 
@@ -74,6 +74,6 @@ If the walker logic changes (e.g. a bug fix in AgDR-0010's converter) while the 
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#5`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#5`
 - Related AgDRs: AgDR-0002 (Context Profile storage — owns the `is_module_enabled` flag), AgDR-0011 (cache table — `walker_version` column supports lazy re-validation on re-enable), AgDR-0012 (exposure — same single-point-of-check pattern), AgDR-0013 (rewrite rule lifecycle — disable doesn't unregister), AgDR-0014 (admin surfaces — all three respect the flag)
 - Files (planned): module-flag check added to `MarkdownViewsHandler`, `RestController`, `MarkdownViewsCommand`, and the React sidebar component's mount guard.

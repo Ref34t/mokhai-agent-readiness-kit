@@ -1,6 +1,6 @@
 # AgDR-0014 — Admin preview via Gutenberg sidebar plugin + WP-CLI command
 
-> In the context of letting site admins see the deterministic MD output of any post without opening the public URL (`Ref34t/agentready#5` AC: *"Admin can preview the `.md` of any post from the post-editor sidebar"*), facing the choice between Gutenberg-only, Gutenberg+CLI, or Gutenberg+CLI+Tools-page surfaces, I decided to ship a Gutenberg `PluginDocumentSettingPanel` plus a `wp agentready md preview <post-id>` WP-CLI command, to achieve in-context preview for the dominant editor surface plus headless/Classic/scripting coverage, accepting that Classic-Editor-only sites get no in-admin React panel for this in v0.1 (they fall back to the CLI or to hitting `?format=md` directly).
+> In the context of letting site admins see the deterministic MD output of any post without opening the public URL (`Ref34t/mokhai-agent-readiness-kit#5` AC: *"Admin can preview the `.md` of any post from the post-editor sidebar"*), facing the choice between Gutenberg-only, Gutenberg+CLI, or Gutenberg+CLI+Tools-page surfaces, I decided to ship a Gutenberg `PluginDocumentSettingPanel` plus a `wp agentready md preview <post-id>` WP-CLI command, to achieve in-context preview for the dominant editor surface plus headless/Classic/scripting coverage, accepting that Classic-Editor-only sites get no in-admin React panel for this in v0.1 (they fall back to the CLI or to hitting `?format=md` directly).
 
 ## Context
 
@@ -63,6 +63,6 @@ Chosen: **Gutenberg sidebar + WP-CLI command**, because:
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#5`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#5`
 - Related AgDRs: AgDR-0008 (wp-scripts toolchain), AgDR-0010 (walker), AgDR-0011 (cache), AgDR-0012 (exposure)
 - Files (planned): `assets/admin/markdown-views-sidebar/`, `includes/markdown-views/RestController.php`, `includes/cli/MarkdownViewsCommand.php`, `includes/markdown-views/Service.php`

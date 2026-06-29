@@ -5,7 +5,7 @@
 > the `/llms.txt` line — with an optional sample model summary, so a
 > non-technical buyer can see the uplift instead of taking it on faith.
 >
-> Feature: [#45](https://github.com/Ref34t/agentready/issues/45) · Design: [AgDR-0046](agdr/AgDR-0046-ai-assistant-preview-pane.md)
+> Feature: [#45](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/45) · Design: [AgDR-0046](agdr/AgDR-0046-ai-assistant-preview-pane.md)
 
 ## Where it lives
 

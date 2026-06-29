@@ -39,5 +39,5 @@ Chosen: **Option A, without the Service/cache layer**, because the defer-to-stat
 
 ## Artifacts
 
-- Ticket: Ref34t/agentready#172 · Implementation PR: (this PR)
+- Ticket: Ref34t/mokhai-agent-readiness-kit#172 · Implementation PR: (this PR)
 - Prior art: AgDR-0021 (llms.txt route), AgDR-0043 (multi-channel sub-score), AgDR-0015 (soft-disable 404), AgDR-0052 (output-buffer hygiene), AgDR-0053 (alternate advertising)

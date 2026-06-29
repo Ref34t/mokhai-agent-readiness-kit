@@ -104,7 +104,7 @@ Rate-limit must come first because `429` is a 4xx status code; if the order flip
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#66`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#66`
 - Amends: `AgDR-0019` (classification heuristic) — does not deprecate, extends. Both AgDRs remain current.
 - Related: `AgDR-0003` (wrapper contract), `AgDR-0018` (no-hallucination guard — consumes provider output, unchanged here)
 - Files: `includes/Ai/Permanent_Error.php`, `includes/Ai/Wp_Ai_Client_Provider.php`, `includes/Ai/Client_Wrapper.php`, `includes/Ai/Provider.php`, `tests/Unit/Ai/Wp_Ai_Client_Provider_Test.php`, `tests/Unit/Ai/Client_Wrapper_Test.php`

@@ -80,7 +80,7 @@ controller edits would be perpetually one-new-controller behind.
 
 ## Artifacts
 
-- Issue: Ref34t/agentready#175
+- Issue: Ref34t/mokhai-agent-readiness-kit#175
 - `includes/Support/Output_Buffer.php`
 - `includes/LlmsTxt/Router.php`, `includes/Markdown_Views/Handler.php`,
   `includes/Main.php`

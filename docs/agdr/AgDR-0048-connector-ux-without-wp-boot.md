@@ -47,7 +47,7 @@ Scope guardrails for #142:
 
 ## Artifacts
 
-- Ticket: Ref34t/agentready#142
+- Ticket: Ref34t/mokhai-agent-readiness-kit#142
 - Supersedes the architecture left after #70 (PR #141)
 - Reference: `WordPress/ai` v1.0.1 — `build/pages/ai/page.php`, `build/modules/boot/index.min.asset.php`
 - Related: [[AgDR-0002-context-profile-storage-shape]], [[AgDR-0008-wp-scripts-for-react-build]], [[AgDR-0025-llms-txt-editorial-admin-ui]], [[AgDR-0029-llm-entry-descriptions-admin-ui]], [[AgDR-0031-context-score-admin-ui]]

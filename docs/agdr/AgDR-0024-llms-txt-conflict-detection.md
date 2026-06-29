@@ -1,6 +1,6 @@
 # AgDR-0024 — LLMs Index conflict detection: 3-surface scan + dismissible admin notice (no auto-resolution)
 
-> In the context of `Ref34t/agentready#7` Phase B — AC #4: detect any already-installed `/llms.txt`-serving plugin on activation and at runtime, surface an admin notice with a resolution path, and never silently overwrite the existing file, facing the choice between (a) scanning a hand-maintained registry of plugin slugs + filesystem + rewrite rules and surfacing a notice, (b) silently deactivating any competing plugin we detect, (c) trying to read the other plugin's stored entries and auto-migrate them into our editorial option, or (d) only detecting the rare runtime collision (our rewrite is shadowed) and ignoring storage / filesystem signals, I decided to ship a three-surface detector (plugin-slug registry + filesystem at `ABSPATH . 'llms.txt'` + rewrite-rule scan in `$wp_rewrite->extra_rules_top`), pre-loaded with five known wp.org plugins, surfaced as a dismissible admin notice on the Plugins screen and the Tools → Context page, with a **read-only resolution path** (the notice tells admins what to do; we do NOT auto-deactivate competitors, NOT auto-delete static files, NOT auto-import entries), to achieve a transparent and conservative conflict story that matches WordPress conventions for cohabiting plugins, accepting that the slug registry needs maintenance as the ecosystem grows and that the "one-click migration" framing in AC #4 is deferred to a follow-up ticket per-plugin (each competing plugin stores entries differently — five different importers is real work and is not load-bearing for v0.1 launch).
+> In the context of `Ref34t/mokhai-agent-readiness-kit#7` Phase B — AC #4: detect any already-installed `/llms.txt`-serving plugin on activation and at runtime, surface an admin notice with a resolution path, and never silently overwrite the existing file, facing the choice between (a) scanning a hand-maintained registry of plugin slugs + filesystem + rewrite rules and surfacing a notice, (b) silently deactivating any competing plugin we detect, (c) trying to read the other plugin's stored entries and auto-migrate them into our editorial option, or (d) only detecting the rare runtime collision (our rewrite is shadowed) and ignoring storage / filesystem signals, I decided to ship a three-surface detector (plugin-slug registry + filesystem at `ABSPATH . 'llms.txt'` + rewrite-rule scan in `$wp_rewrite->extra_rules_top`), pre-loaded with five known wp.org plugins, surfaced as a dismissible admin notice on the Plugins screen and the Tools → Context page, with a **read-only resolution path** (the notice tells admins what to do; we do NOT auto-deactivate competitors, NOT auto-delete static files, NOT auto-import entries), to achieve a transparent and conservative conflict story that matches WordPress conventions for cohabiting plugins, accepting that the slug registry needs maintenance as the ecosystem grows and that the "one-click migration" framing in AC #4 is deferred to a follow-up ticket per-plugin (each competing plugin stores entries differently — five different importers is real work and is not load-bearing for v0.1 launch).
 
 ## Context
 
@@ -121,14 +121,14 @@ Detection is cheap: three calls (`is_plugin_active`, `file_exists`, one array ac
 ### Notice shape
 
 ```
-⚠️  AgentReady — /llms.txt conflict detected
+⚠️  Mokhai — /llms.txt conflict detected
 
 The "Website LLMs.txt" plugin (by Ryan Howard) is also active and serves
-its own /llms.txt. AgentReady's /llms.txt will not be visible to agents
+its own /llms.txt. Mokhai's /llms.txt will not be visible to agents
 until you deactivate the other plugin OR explicitly switch one of them off.
 
-To switch to AgentReady's /llms.txt:
-  1. Confirm you want to use AgentReady's index.
+To switch to Mokhai's /llms.txt:
+  1. Confirm you want to use Mokhai's index.
   2. Deactivate "Website LLMs.txt" from Plugins → Installed Plugins.
   3. Reload this page to verify the conflict is resolved.
 
@@ -142,11 +142,11 @@ this combination of detected conflicts.
 When the conflict is the filesystem variant (`ABSPATH/llms.txt` exists but no plugin is recognised — possibly hand-rolled or left by a removed plugin), the body changes to:
 
 ```
-A static /llms.txt file exists at the WordPress root. AgentReady's
+A static /llms.txt file exists at the WordPress root. Mokhai's
 /llms.txt route is being shadowed because web servers serve static
 files before WordPress loads.
 
-To switch to AgentReady's /llms.txt:
+To switch to Mokhai's /llms.txt:
   1. Back up the existing /llms.txt content if you want to keep any of it.
   2. Delete /llms.txt from your WordPress root via FTP/SFTP/file manager.
   3. Reload this page to verify the conflict is resolved.
@@ -236,7 +236,7 @@ All notice strings via `__()` / `_e()` with the `'agentready'` text domain. Five
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#7` (Phase B sub-scope)
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#7` (Phase B sub-scope)
 - Related AgDRs: AgDR-0021 (serving mechanism — the route we're protecting), AgDR-0022 (cache strategy — orthogonal), AgDR-0023 (regen debounce — orthogonal), AgDR-0002 (Context Profile — not touched by Phase B)
 - Implementation files (planned): `includes/LlmsTxt/Conflict_Detector.php`, `includes/LlmsTxt/Conflict_Notice.php` (admin notice), `includes/Cli/Llms_Txt_Command.php` (status output gains conflicts field)
 - Follow-up tickets (Phase D — deferred): one importer per known plugin slug, only filed when production traffic shows a real migration demand from that specific plugin

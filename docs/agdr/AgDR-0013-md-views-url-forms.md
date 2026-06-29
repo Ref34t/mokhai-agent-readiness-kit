@@ -1,6 +1,6 @@
 # AgDR-0013 — Markdown Views URL forms: query + Accept header + `/path.md` rewrite
 
-> In the context of serving the Markdown view of a public URL (`Ref34t/agentready#5`), facing the choice between query-string-only, query+Accept+dotted-suffix path, or query+Accept+virtual-segment path, I decided to support all three forms — `?format=md`, `Accept: text/markdown`, and `/path.md` via a `WP_Rewrite` rule — to achieve alignment with the llms.txt ecosystem convention (where agents expect `/path.md` after discovering URLs in `/llms.txt`), accepting that we ship one rewrite rule with the operational caveats that WP rewrites carry (permalink-flush on activation, hosting-environment variance, edge cases under non-pretty permalinks).
+> In the context of serving the Markdown view of a public URL (`Ref34t/mokhai-agent-readiness-kit#5`), facing the choice between query-string-only, query+Accept+dotted-suffix path, or query+Accept+virtual-segment path, I decided to support all three forms — `?format=md`, `Accept: text/markdown`, and `/path.md` via a `WP_Rewrite` rule — to achieve alignment with the llms.txt ecosystem convention (where agents expect `/path.md` after discovering URLs in `/llms.txt`), accepting that we ship one rewrite rule with the operational caveats that WP rewrites carry (permalink-flush on activation, hosting-environment variance, edge cases under non-pretty permalinks).
 
 ## Context
 
@@ -96,6 +96,6 @@ When pretty permalinks are off entirely, the third row degrades to:
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#5`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#5`
 - Related AgDRs: AgDR-0010 (walker), AgDR-0011 (cache table — same key regardless of URL form), AgDR-0012 (exposure — same verdict regardless of URL form)
 - Implementation files (planned): `includes/markdown-views/Router.php`, `includes/markdown-views/Handler.php`, activation hook in `agentready.php`

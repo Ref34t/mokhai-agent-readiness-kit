@@ -39,5 +39,5 @@ Supporting decisions:
 
 ## Artifacts
 
-- Ref34t/agentready#179 (ticket)
+- Ref34t/mokhai-agent-readiness-kit#179 (ticket)
 - `includes/LlmsTxt/Full_Composer.php`, `includes/LlmsTxt/Service.php`, `includes/LlmsTxt/Router.php`, `includes/LlmsTxt/Entry_Source.php`, `includes/Admin/Context_Profile_Settings.php`, `includes/Support/Uninstaller.php`

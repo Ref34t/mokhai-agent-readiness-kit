@@ -1,6 +1,6 @@
 # AgDR-0017 — Markdown quality score computed by walker, default LLM-cleanup threshold 70/100
 
-> In the context of needing the second trigger for the Markdown Views LLM cleanup pass (`Ref34t/agentready#6` AC 1: *"… OR when deterministic conversion quality score < 70/100 (threshold admin-tunable from the Context Profile)"*), facing the choice of where the score is computed, what signals it weighs, and where the threshold is stored, I decided to compute the score inside the deterministic walker (extending its return shape from `string` to `{ markdown, quality_score, signals }`), default the threshold to **70** stored in the Context Profile, and persist the score alongside the cached row in a new `quality_score` column, to achieve a single source of truth tied to walker output, accepting one schema migration (additive column) on the cache table.
+> In the context of needing the second trigger for the Markdown Views LLM cleanup pass (`Ref34t/mokhai-agent-readiness-kit#6` AC 1: *"… OR when deterministic conversion quality score < 70/100 (threshold admin-tunable from the Context Profile)"*), facing the choice of where the score is computed, what signals it weighs, and where the threshold is stored, I decided to compute the score inside the deterministic walker (extending its return shape from `string` to `{ markdown, quality_score, signals }`), default the threshold to **70** stored in the Context Profile, and persist the score alongside the cached row in a new `quality_score` column, to achieve a single source of truth tied to walker output, accepting one schema migration (additive column) on the cache table.
 
 ## Context
 
@@ -114,6 +114,6 @@ Per AgDR-0011, this additive `dbDelta()` change is folded into the v0.1.x featur
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#6`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#6`
 - Related AgDRs: AgDR-0010 (walker — being extended), AgDR-0011 (cache table — additive migration), AgDR-0002 (Context Profile storage), AgDR-0016 (detection), AgDR-0018 (cleanup guard)
 - Files (planned): `includes/Markdown_Views/Walker.php` (modify), `includes/Markdown_Views/Conversion_Result.php` (new), `includes/Markdown_Views/Schema.php` (modify), `includes/Admin/Context_Profile_Settings.php` (modify), tests under `tests/unit/Markdown_Views/`

@@ -67,6 +67,6 @@ Namespace `ai-readiness-kit/v1` (public agent-facing surface, per the slug-inter
 
 ## Artifacts
 
-- Ticket: https://github.com/Ref34t/agentready/issues/45
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/45
 - Builds on: #6 (MV preview), #7 (llms.txt), #9/#10 (Context Score), #11 (`Narrative_Generator` LLM pattern), AgDR-0028 (LLM budget discipline)
 - PRs: _(PR A / PR B links added on creation)_

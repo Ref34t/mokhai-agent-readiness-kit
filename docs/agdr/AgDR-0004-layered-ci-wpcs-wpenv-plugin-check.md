@@ -46,7 +46,7 @@ Chosen: **Option A — Mirror WordPress/ai's CI shape wholesale.** The credibili
 | Element | Choice | Why |
 |---------|--------|-----|
 | **PHPCS ruleset order** | `WordPress-VIP-Go` → `WordPress-Core` → `WordPress-Extra` → `PHPCompatibilityWP` → `slevomat/coding-standard` | Strictest first; later layers add ON TOP. Excluding individual sniffs from a strict-first layout produces a smaller, more readable phpcs.xml.dist than the alternative ("add strict sniffs to a permissive base"). Same pattern as [WordPress/ai/phpcs.xml.dist](https://github.com/WordPress/ai/blob/trunk/phpcs.xml.dist). |
-| **Prefix lock** | `WPCTX` (constants/classes), `wpctx` (functions/hooks), `WPContext` (namespace), `wp-context` (text domain) | Already established in #1 + #2; PHPCS locks it via `WordPress.NamingConventions.PrefixAllGlobals`. |
+| **Prefix lock** | `WPCTX` (constants/classes), `wpctx` (functions/hooks), `WPContext` (namespace), `mokhai-agent-readiness-kit` (text domain) | Already established in #1 + #2; PHPCS locks it via `WordPress.NamingConventions.PrefixAllGlobals`. |
 | **PHPUnit harness** | `@wordpress/env` v0.10+ (Docker-based) + `wp-phpunit/wp-phpunit:^6.9` + `phpunit/phpunit:^8.5\|^9.6` | Canonical WP test harness; matches WordPress/ai; avoids hand-rolled WP install fragility. |
 | **CI matrix shape** | PHP `[7.4, 8.1]` × WP `[7.0, trunk]` = **4 cells** | Smaller than the syntax-check matrix (PHP 7.4-8.3) on purpose — PHPUnit is the slow leg; running 4 cells (PHP floor + a modern PHP × WP floor + WP trunk) catches the realistic regression surface without burning 10 cells of CI minutes. Mirrors WordPress/ai. |
 | **Plugin Check action** | `wordpress/plugin-check-action@v1.1.5` with `wp-version: 'trunk'` | Pinned SHA / tag for supply-chain safety; trunk to catch wp.org-review regressions early. Mirrors WordPress/ai. |
@@ -73,7 +73,7 @@ Chosen: **Option A — Mirror WordPress/ai's CI shape wholesale.** The credibili
 
 ## Artifacts
 
-- Ticket: https://github.com/Ref34t/wp-context/issues/3
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/3
 - AgDR: this file
 - PR: (linked here on creation)
 - Reference implementation we adopted: https://github.com/WordPress/ai/tree/trunk/.github/workflows + https://github.com/WordPress/ai/blob/trunk/phpcs.xml.dist

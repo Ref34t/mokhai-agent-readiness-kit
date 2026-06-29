@@ -1,10 +1,10 @@
 # AgDR-0021 — `/llms.txt` serving via rewrite rule + `template_redirect` (vs filesystem write)
 
-> In the context of `Ref34t/agentready#7` Phase A — serving a single canonical `/llms.txt` document composed at request time from the Context Profile, editorial entries, and auto-listed content, facing the choice between (a) a WordPress rewrite rule + `template_redirect` handler that streams the composed body, (b) writing the composed file to the webroot on every regen so the web server serves it as a static file, and (c) a query-var endpoint only, I decided to ship a rewrite rule (`^llms\.txt/?$`) + `template_redirect` handler — the same shape AgDR-0013 chose for `/path.md` — and serve the body from the transient cache decided in AgDR-0022, to achieve a single resolution path that survives multisite, subdir installs, hosting variance, and the WP capability/filter model with zero filesystem-permission surface, accepting that we depend on pretty permalinks being enabled (which we already require for `/path.md`) and that every request pays one transient read (negligible — autoloaded path).
+> In the context of `Ref34t/mokhai-agent-readiness-kit#7` Phase A — serving a single canonical `/llms.txt` document composed at request time from the Context Profile, editorial entries, and auto-listed content, facing the choice between (a) a WordPress rewrite rule + `template_redirect` handler that streams the composed body, (b) writing the composed file to the webroot on every regen so the web server serves it as a static file, and (c) a query-var endpoint only, I decided to ship a rewrite rule (`^llms\.txt/?$`) + `template_redirect` handler — the same shape AgDR-0013 chose for `/path.md` — and serve the body from the transient cache decided in AgDR-0022, to achieve a single resolution path that survives multisite, subdir installs, hosting variance, and the WP capability/filter model with zero filesystem-permission surface, accepting that we depend on pretty permalinks being enabled (which we already require for `/path.md`) and that every request pays one transient read (negligible — autoloaded path).
 
 ## Context
 
-Per `Ref34t/agentready#7`'s AC #1, the document must be reachable at `https://site.com/llms.txt` and return a valid llms.txt v1 document. The spec ([llmstxt.org](https://llmstxt.org)) pins this path — no version segment, no query string is acceptable to the agent fetchers we're targeting (GPTBot, ClaudeBot, PerplexityBot, the Anthropic docs spec fetcher).
+Per `Ref34t/mokhai-agent-readiness-kit#7`'s AC #1, the document must be reachable at `https://site.com/llms.txt` and return a valid llms.txt v1 document. The spec ([llmstxt.org](https://llmstxt.org)) pins this path — no version segment, no query string is acceptable to the agent fetchers we're targeting (GPTBot, ClaudeBot, PerplexityBot, the Anthropic docs spec fetcher).
 
 We have prior art in the codebase: Markdown Views (`#5` / AgDR-0013) already ships a rewrite rule (`^(.+)\.md/?$`) handled in `template_redirect`. The same machinery — `Router::register_hooks()` adds the rule on `init`, `flush_on_activation()` persists it into `wp_options`, `template_redirect` intercepts and exits before WP loads the theme. The trade-offs are the same ones AgDR-0013 walked through, plus one new dimension specific to llms.txt: the document is **site-level**, not post-level. There is no slug to extract, no per-URL routing decision — just one URL with one response.
 
@@ -100,6 +100,6 @@ If a competing plugin writes a static `/llms.txt` to the webroot, the web server
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#7`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#7`
 - Related AgDRs: AgDR-0013 (`.md` URL forms — same machinery), AgDR-0014 (admin preview shares source with public route), AgDR-0022 (cache storage — pending), AgDR-0023 (regen debounce — pending), AgDR-0002 (Context Profile reads)
 - Implementation files (planned): `includes/LlmsTxt/Router.php`, `includes/LlmsTxt/Service.php`, activation wiring in `includes/Main.php`

@@ -1,6 +1,6 @@
 # AgDR-0023 — LLMs Index regen debounce via `wp_schedule_single_event` + daily cron backstop
 
-> In the context of `Ref34t/agentready#7` Phase A — keeping the `/llms.txt` cache (AgDR-0022) coherent with the underlying content without regenerating on every individual post save, facing the choice between (a) WP's native `wp_schedule_single_event` with a short delay and `wp_next_scheduled` idempotency check (the same idiom `Markdown_Views\Cleanup_Orchestrator` uses), (b) Action Scheduler as an external dependency, (c) a transient-lock debounce with no scheduled fallback, or (d) synchronous regen on every trigger, I decided to schedule a single async regen event 5 seconds out via `wp_schedule_single_event` — coalescing bursts of `save_post` / `wp_trash_post` / profile-update events through the `wp_next_scheduled` idempotency check, plus a daily cron backstop on `agentready_llms_txt_daily_regen` for hook misses and long-idle sites — to achieve burst coalescing on bulk-edit, predictable freshness on single edits, zero external dependencies, and a guaranteed daily floor on cache age, accepting that we depend on WP cron firing within roughly the normal ~5s margin (which can stretch on low-traffic sites) and that we own one async action and one cron schedule.
+> In the context of `Ref34t/mokhai-agent-readiness-kit#7` Phase A — keeping the `/llms.txt` cache (AgDR-0022) coherent with the underlying content without regenerating on every individual post save, facing the choice between (a) WP's native `wp_schedule_single_event` with a short delay and `wp_next_scheduled` idempotency check (the same idiom `Markdown_Views\Cleanup_Orchestrator` uses), (b) Action Scheduler as an external dependency, (c) a transient-lock debounce with no scheduled fallback, or (d) synchronous regen on every trigger, I decided to schedule a single async regen event 5 seconds out via `wp_schedule_single_event` — coalescing bursts of `save_post` / `wp_trash_post` / profile-update events through the `wp_next_scheduled` idempotency check, plus a daily cron backstop on `agentready_llms_txt_daily_regen` for hook misses and long-idle sites — to achieve burst coalescing on bulk-edit, predictable freshness on single edits, zero external dependencies, and a guaranteed daily floor on cache age, accepting that we depend on WP cron firing within roughly the normal ~5s margin (which can stretch on low-traffic sites) and that we own one async action and one cron schedule.
 
 ## Context
 
@@ -171,6 +171,6 @@ Plus a manual trigger: `wp agentready llms-txt regen` — calls `do_regen()` syn
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#7`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#7`
 - Related AgDRs: AgDR-0021 (serving mechanism — regen-driven cache feeds this), AgDR-0022 (cache shape — where regen writes), AgDR-0002 (Context Profile fields read by `on_post_change` filter), AgDR-0016 / 0017 / 0018 / 0020 (Markdown Views cleanup orchestrator — same debounce idiom)
 - Implementation files (planned): `includes/LlmsTxt/Service.php` (hooks + scheduling), `includes/LlmsTxt/Composer.php` (regen body), activation/deactivation wiring in `includes/Main.php`
