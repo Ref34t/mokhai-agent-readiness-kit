@@ -62,7 +62,7 @@ Deploy-order constraint:
 
 ## Artifacts
 
-- Ticket: Ref34t/agentready#159 (migration) · umbrella Ref34t/agentready#153
+- Ticket: Ref34t/mokhai-agent-readiness-kit#159 (migration) · umbrella Ref34t/mokhai-agent-readiness-kit#153
 - Decision lineage: AgDR-0049 (sequenced this as step 5) · AgDR-0018 (the cleanup guard, removed in #158)
 - Commits / PRs: filled in as PR 3 ships
 - Run log: wp-env sweep output (before/after counts)

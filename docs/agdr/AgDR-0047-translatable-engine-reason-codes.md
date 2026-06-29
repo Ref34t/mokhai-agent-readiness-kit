@@ -54,6 +54,6 @@ Chosen: **additive parallel `reason_keys`**, because it localises the one surfac
 
 ## Artifacts
 
-- Ticket: Ref34t/agentready#139
+- Ticket: Ref34t/mokhai-agent-readiness-kit#139
 - PR: (this change)
 - Related: AgDR-0030 (breakdown shape), AgDR-0043 (multi_channel_discovery), #128 (POT generation that surfaced the gap)

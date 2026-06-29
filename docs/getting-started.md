@@ -1,6 +1,6 @@
 # Getting Started
 
-AI Readiness Kit turns your WordPress site into a first-class citizen of the
+Mokhai turns your WordPress site into a first-class citizen of the
 AI-agent web — readable, discoverable, governable, and measurable for the AI
 assistants and crawlers that increasingly read sites on a user's behalf. This
 guide takes you from a fresh install to a verified, agent-ready site in about
@@ -24,7 +24,7 @@ optional AI-powered niceties only run if you explicitly wire up an AI provider
 Install like any other plugin:
 
 - **From the WordPress.org directory** — *Plugins → Add New*, search for
-  "AI Readiness Kit", **Install**, then **Activate**.
+  "Mokhai", **Install**, then **Activate**.
 - **From a ZIP** — *Plugins → Add New → Upload Plugin*, choose the ZIP,
   **Install**, then **Activate**.
 
@@ -89,7 +89,7 @@ knows what's worth reading and where.
 
 **Structured data** — view a page's source and look for a
 `<script type="application/ld+json">` block. If you already run Yoast / Rank Math /
-AIOSEO, AI Readiness Kit detects their JSON-LD and steps aside; if nothing covers
+AIOSEO, Mokhai detects their JSON-LD and steps aside; if nothing covers
 it, the plugin emits a native WebSite + Organization + per-content set.
 
 **See a page as an agent sees it** — while editing any post, open the
@@ -178,5 +178,5 @@ panel in that post's editor sidebar — both surface the precise denial cause.
 
 ---
 
-*AI Readiness Kit is free and open source (GPL-2.0-or-later), with no paid tier
+*Mokhai is free and open source (GPL-2.0-or-later), with no paid tier
 and no hosted backend.*

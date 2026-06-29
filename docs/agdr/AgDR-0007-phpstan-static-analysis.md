@@ -10,7 +10,7 @@ status: executed
 
 # AgDR-0007 — PHPStan static analysis at level 5 with szepeviktor/phpstan-wordpress
 
-> In the context of hardening the type floor on the AgentReady scaffold (#1) and the AI Client Wrapper (#2/#6) before product tickets (#4–#11) pile on top, facing the choice of either staying with PHPCS alone or layering PHPStan on top to catch the class of bugs that coding-standard linters cannot see, I decided to add PHPStan at level 5 with `szepeviktor/phpstan-wordpress` as a dedicated CI job — mirroring the WordPress/ai plugin's shape but starting at level 5 (instead of WordPress/ai's level 8) — to achieve a credible static-analysis floor that catches null derefs / wrong-arg-types / unreachable code without drowning a small-team plugin in WP-core-typing churn, accepting that we will iterate the level upward in follow-up tickets as the codebase grows.
+> In the context of hardening the type floor on the Mokhai scaffold (#1) and the AI Client Wrapper (#2/#6) before product tickets (#4–#11) pile on top, facing the choice of either staying with PHPCS alone or layering PHPStan on top to catch the class of bugs that coding-standard linters cannot see, I decided to add PHPStan at level 5 with `szepeviktor/phpstan-wordpress` as a dedicated CI job — mirroring the WordPress/ai plugin's shape but starting at level 5 (instead of WordPress/ai's level 8) — to achieve a credible static-analysis floor that catches null derefs / wrong-arg-types / unreachable code without drowning a small-team plugin in WP-core-typing churn, accepting that we will iterate the level upward in follow-up tickets as the codebase grows.
 
 ## Context
 
@@ -72,7 +72,7 @@ Chosen: **Option A — PHPStan level 5 + szepeviktor/phpstan-wordpress as a dedi
 
 ## Artifacts
 
-- Ticket: https://github.com/Ref34t/agentready/issues/13
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/13
 - AgDR: this file
 - PR: (linked here on creation)
 - Reference implementation we adapted (different level + scope): https://github.com/WordPress/ai/blob/trunk/phpstan.neon.dist

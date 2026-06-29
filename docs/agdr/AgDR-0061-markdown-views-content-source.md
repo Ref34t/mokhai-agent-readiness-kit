@@ -46,6 +46,6 @@ Chosen: **Option B**, because it fixes #252 for the common (short-description) c
 
 ## Artifacts
 
-- Bug: Ref34t/agentready#252 (empty product Markdown)
+- Bug: Ref34t/mokhai-agent-readiness-kit#252 (empty product Markdown)
 - Related: #253 (builder/slider noise — the builder/ACF-only case this AgDR scopes out), #255 (score should detect empty output), #256 (messy-site CI fixture that will guard this)
 - Source under change: `includes/Markdown_Views/Service.php` (`convert_post`, `regenerate_conversion_for`, `content_hash`)

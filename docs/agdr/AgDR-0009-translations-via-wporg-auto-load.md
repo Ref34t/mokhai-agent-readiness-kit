@@ -19,7 +19,7 @@ WP Plugin Check emits two warnings on every PR (and on `main`) since the scaffol
 1. `plugin_header_nonexistent_domain_path` — `agentready.php` declares `Domain Path: /languages` but no `languages/` directory exists at the plugin root.
 2. `PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound` at `includes/Main.php:109` — manual `load_plugin_textdomain()` calls are discouraged for wp.org-hosted plugins because WordPress 4.6+ auto-loads translations from `wp-content/languages/plugins/{slug}-{locale}.mo` under the plugin slug declared in the `Text Domain` header.
 
-AgentReady's `Requires at least` is `7.0` (well above the 4.6 floor where auto-load shipped) and the plugin's distribution channel for v0.1 is wp.org. Per the wp.org plugin reviewer guidelines and the [WP 4.6 i18n improvements post](https://make.wordpress.org/core/2016/07/06/i18n-improvements-in-4-6/), the manual loader is now redundant for the wp.org channel and is flagged precisely so submissions don't ship it.
+Mokhai's `Requires at least` is `7.0` (well above the 4.6 floor where auto-load shipped) and the plugin's distribution channel for v0.1 is wp.org. Per the wp.org plugin reviewer guidelines and the [WP 4.6 i18n improvements post](https://make.wordpress.org/core/2016/07/06/i18n-improvements-in-4-6/), the manual loader is now redundant for the wp.org channel and is flagged precisely so submissions don't ship it.
 
 wp.org auto-translates hosted plugins under the slug `agentready` (matches the `Text Domain:` header in `agentready.php`). Translations contributed via translate.wordpress.org are delivered to user sites by the language packs mechanism, no plugin-side code required.
 
@@ -36,7 +36,7 @@ This AgDR was promised in passing by AgDR-0001 ("each addition will get its own 
 
 ## Decision
 
-Chosen: **Option A — remove the manual loader and the `Domain Path` header.** Same posture as the WordPress core team's [WordPress/ai](https://github.com/WordPress/ai) reference plugin. AgentReady is wp.org-first for v0.1; the auto-load mechanism is sufficient and is the wp.org reviewer's expectation.
+Chosen: **Option A — remove the manual loader and the `Domain Path` header.** Same posture as the WordPress core team's [WordPress/ai](https://github.com/WordPress/ai) reference plugin. Mokhai is wp.org-first for v0.1; the auto-load mechanism is sufficient and is the wp.org reviewer's expectation.
 
 Concrete changes encoded in this PR:
 
@@ -54,7 +54,7 @@ Concrete changes encoded in this PR:
 
 ## Artifacts
 
-- Ticket: https://github.com/Ref34t/agentready/issues/29
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/29
 - PR: (linked here on creation)
 - AgDR: this file
 - Reference: https://make.wordpress.org/core/2016/07/06/i18n-improvements-in-4-6/

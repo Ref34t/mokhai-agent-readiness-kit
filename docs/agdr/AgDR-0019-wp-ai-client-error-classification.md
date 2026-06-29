@@ -85,6 +85,6 @@ This is the side that previously made the whole cleanup feature non-functional i
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#6`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#6`
 - Related AgDRs: AgDR-0003 (wrapper design), AgDR-0018 (no-hallucination guard — consumes provider output)
 - Files: `includes/Ai/Wp_Ai_Client_Provider.php`, `includes/Ai/Client_Wrapper.php`, `tests/Unit/Ai/Wp_Ai_Client_Provider_Test.php`, `tests/Unit/wp-stubs.php`

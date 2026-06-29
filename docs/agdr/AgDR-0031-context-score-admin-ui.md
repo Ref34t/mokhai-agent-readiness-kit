@@ -32,7 +32,7 @@ referenced_in:
 |--------|------|------|
 | **A — Standalone Tools → Context Score page; two REST routes; one direct Site Health test; link-shaped fixes** | Stable URL for Site Health deep-link. Page fits a single screenshot. Sub-page-level cap of `manage_options` matches the engine cache's intended audience. Link-shaped fixes avoid the "I clicked Fix and now my Profile is wrong" failure mode. | One more menu entry under Tools (third agentready entry — Profile, Context Score, plus any future). |
 | B — Add as a fourth panel on Tools → Context | One menu entry, one screen, fewer files. Mirrors the Profile-screen extension pattern already used by the editorial + descriptions panels. | Site Health needs an anchor — `tools.php?page=agentready-context#context-score` works but breaks if anchor IDs drift. Screenshot exceeds one screen. Recompute timestamp lives next to settings the user can't modify from inside the score panel — confusing affordance. |
-| C — Top-level menu entry (AgentReady → Context Score) | Maximum discoverability. Future-proof slot for the rest of the agentready surface. | Premature — Tools → is the WordPress convention for admin tooling that isn't user-content. Adopting a top-level entry on v0.1 commits us to maintaining the surface before we have evidence anyone needs it. Defer to v0.2 if the panel proves popular. |
+| C — Top-level menu entry (Mokhai → Context Score) | Maximum discoverability. Future-proof slot for the rest of the agentready surface. | Premature — Tools → is the WordPress convention for admin tooling that isn't user-content. Adopting a top-level entry on v0.1 commits us to maintaining the surface before we have evidence anyone needs it. Defer to v0.2 if the panel proves popular. |
 | D — Block-editor sidebar (Gutenberg post-edit screen) | Embeds the score next to the content the score reflects. | Score is site-level (AgDR-0030), not per-post. Surfacing a site-level metric inside the post-edit context is misleading. Per-page MD quality already lives in the cleanup admin UI from #6 Phase B. |
 | E — Direct mutation "Fix it" buttons that rewrite Context Profile state | One-click feels great in a demo. | The Profile is a multi-field option; mutating one field on a button-click without surfacing the full diff is a footgun. Operator can't undo cleanly. Also conflicts with the Settings API options.php nonce flow that the Profile screen actually saves through — we'd be writing the option through a parallel path. |
 
@@ -104,7 +104,7 @@ Bootstrap payload (window.agentreadyContextScore):
 
 ```php
 'context-score' => [
-    'label' => __( 'AgentReady Context Score', 'agentready' ),
+    'label' => __( 'Mokhai Context Score', 'agentready' ),
     'test'  => [ self::class, 'run_test' ],
 ]
 ```
@@ -165,6 +165,6 @@ WCAG AA touch-points:
 
 ## Artifacts
 
-- Ticket: https://github.com/Ref34t/agentready/issues/10
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/10
 - Engine AgDR: docs/agdr/AgDR-0030-context-score-engine.md
 - PR: (linked here on creation)

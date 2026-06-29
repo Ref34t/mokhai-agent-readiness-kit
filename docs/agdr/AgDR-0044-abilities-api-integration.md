@@ -26,7 +26,7 @@ Five operations map onto existing service entrypoints:
 
 ### Namespace: `ai-readiness-kit/*` vs `agentready/*`
 
-The ticket said `agentready/*`, but that predates the AI Readiness Kit rebrand (AgDR-0039). Ability IDs are an agent-facing, REST-exposed, **stable** contract (renaming = breaking), directly analogous to the REST namespace (`ai-readiness-kit/v1`) and the WP-CLI base (`wp ai-readiness-kit`) — both of which use the wp.org slug per the slug-internal split (AgDR-0036/0039). Chose `ai-readiness-kit/*` for consistency with every other agent-facing surface. Internal identifiers (option keys, hooks) stay `agentready_*` as before.
+The ticket said `agentready/*`, but that predates the Mokhai rebrand (AgDR-0039). Ability IDs are an agent-facing, REST-exposed, **stable** contract (renaming = breaking), directly analogous to the REST namespace (`ai-readiness-kit/v1`) and the WP-CLI base (`wp ai-readiness-kit`) — both of which use the wp.org slug per the slug-internal split (AgDR-0036/0039). Chose `ai-readiness-kit/*` for consistency with every other agent-facing surface. Internal identifiers (option keys, hooks) stay `agentready_*` as before.
 
 **Action-name separator forced to hyphens.** Core validates ability IDs against `/^[a-z0-9-]+\/[a-z0-9-]+$/` (`WP_Abilities_Registry::register`) — exactly one slash, lowercase alphanumeric + hyphens only. Dots and underscores are rejected (the registry silently returns null). So the ticket's dotted action names (`audit.run`, `profile.set_exposure`) became `audit-run`, `profile-set-exposure`, `llms-txt-regenerate`, `md-view-preview`. This is a core constraint, not a style choice. Grouping is preserved visually via hyphen prefixes (`profile-read` / `profile-set-exposure`).
 
@@ -56,6 +56,6 @@ Output schemas are deliberately permissive (loose types, `additionalProperties` 
 
 ## Artifacts
 
-- Ticket: Ref34t/agentready#21
+- Ticket: Ref34t/mokhai-agent-readiness-kit#21
 - Branch: `feature/GH-21-mcp-abilities-api`
 - Supersedes the `agentready/*` namespace wording in #21 (predates AgDR-0039).

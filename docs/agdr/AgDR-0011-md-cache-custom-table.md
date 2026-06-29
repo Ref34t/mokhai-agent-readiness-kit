@@ -1,6 +1,6 @@
 # AgDR-0011 — Markdown cache in a dedicated `wp_agentready_md_cache` table
 
-> In the context of caching the deterministic HTML→MD output for the Markdown Views feature (`Ref34t/agentready#5`), facing the choice between post-meta, transients, and a dedicated schema, I decided to introduce a custom table `{$wpdb->prefix}agentready_md_cache` created via `dbDelta()` on plugin activation, to achieve a clean separation between agentready cache state and core WordPress tables, indexed lookup tuned for our exact access pattern, and a hash-keyed invalidation path that doesn't depend on `_meta` semantics — accepting that we own a schema, an activation-time migration, and a wp.org-review surface for the table.
+> In the context of caching the deterministic HTML→MD output for the Markdown Views feature (`Ref34t/mokhai-agent-readiness-kit#5`), facing the choice between post-meta, transients, and a dedicated schema, I decided to introduce a custom table `{$wpdb->prefix}agentready_md_cache` created via `dbDelta()` on plugin activation, to achieve a clean separation between agentready cache state and core WordPress tables, indexed lookup tuned for our exact access pattern, and a hash-keyed invalidation path that doesn't depend on `_meta` semantics — accepting that we own a schema, an activation-time migration, and a wp.org-review surface for the table.
 
 ## Context
 
@@ -78,7 +78,7 @@ CREATE TABLE {$wpdb->prefix}agentready_md_cache (
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#5`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#5`
 - Related AgDRs: AgDR-0010 (walker — produces what we cache)
 - SDLC-migration-workflow status: **inlined** into `#5` for v0.1 greenfield. Future column changes will follow the full `/migration` flow per `.claude/rules/workflow-gates.md` Gate 3a.
 - Files touched (planned): `includes/markdown-views/Schema.php`, activation/uninstall registration in `agentready.php`, WP-CLI command at `includes/cli/CacheCommand.php`.

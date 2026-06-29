@@ -171,6 +171,6 @@ return array(
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#8` Phase B
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#8` Phase B
 - Pairs with: [AgDR-0027](./AgDR-0027-llm-entry-descriptions-orchestrator.md) (Phase A architecture), [AgDR-0028](./AgDR-0028-llm-entry-description-prompt.md) (prompt + budget)
 - Files: `includes/LlmsTxt/Descriptions_Rest_Controller.php`, `includes/LlmsTxt/Description_Orchestrator.php` (extensions), `includes/Admin/Context_Profile_Page.php`, `includes/Main.php`, `src/admin/llms-txt-descriptions/index.js`, plus integration tests under `tests/Integration/LlmsTxt/Descriptions_Rest_Controller_Test.php`

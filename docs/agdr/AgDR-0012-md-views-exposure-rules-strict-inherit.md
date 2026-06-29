@@ -1,6 +1,6 @@
 # AgDR-0012 — Markdown Views exposure rules strictly inherit from Context Profile
 
-> In the context of resolving which URLs are served vs 404'd for the Markdown Views feature (`Ref34t/agentready#5`), facing the choice between strict inheritance from the Context Profile module, an MD-specific override meta layer, or a developer-only filter hook, I decided that Markdown Views will call the Context Profile's exposure verdict 1:1 with no MD-specific overrides, to achieve the PRD's "single source of truth" architectural invariant and a single audit surface for exposure decisions, accepting that we lose the ability to hide-only-from-MD-but-not-elsewhere as a per-post toggle (and that any future need for that becomes a Context Profile feature, not an MD-views feature).
+> In the context of resolving which URLs are served vs 404'd for the Markdown Views feature (`Ref34t/mokhai-agent-readiness-kit#5`), facing the choice between strict inheritance from the Context Profile module, an MD-specific override meta layer, or a developer-only filter hook, I decided that Markdown Views will call the Context Profile's exposure verdict 1:1 with no MD-specific overrides, to achieve the PRD's "single source of truth" architectural invariant and a single audit surface for exposure decisions, accepting that we lose the ability to hide-only-from-MD-but-not-elsewhere as a per-post toggle (and that any future need for that becomes a Context Profile feature, not an MD-views feature).
 
 ## Context
 
@@ -45,6 +45,6 @@ The developer-filter-hook option remains available as a v0.1.1+ addition if a sp
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#5`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#5`
 - Related AgDRs: AgDR-0002 (Context Profile storage), AgDR-0011 (cache table — only fills for exposable posts)
-- Related tickets: `Ref34t/agentready#4` (Context Profile admin screen, ships the `is_url_exposable` API)
+- Related tickets: `Ref34t/mokhai-agent-readiness-kit#4` (Context Profile admin screen, ships the `is_url_exposable` API)

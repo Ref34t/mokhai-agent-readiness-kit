@@ -95,6 +95,6 @@ Note: `readonly` is PHP 8.1+; v0.1 floor is 7.4 (see ticket #1). The `Result` cl
 
 ## Artifacts
 
-- Ticket: https://github.com/Ref34t/wp-context/issues/2
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/2
 - AgDR: this file
 - PR: (linked here on creation)

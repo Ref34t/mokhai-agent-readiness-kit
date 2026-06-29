@@ -2,7 +2,7 @@
 
 > **Disposition: DISCARD** — hypothesis rejected; not pursuing further. Deterministic-only Markdown conversion stands for page-builder content too.
 
-- **Spike ticket**: Ref34t/agentready#174
+- **Spike ticket**: Ref34t/mokhai-agent-readiness-kit#174
 - **Author**: Mohamed Khaled
 - **Closed**: 2026-06-10
 
@@ -31,6 +31,6 @@ Nothing about LLM cleanup — the right lever for page-builder terseness is **co
 
 ## Artefacts
 
-- Original spike ticket: Ref34t/agentready#174 (full numbers table in the results comment)
+- Original spike ticket: Ref34t/mokhai-agent-readiness-kit#174 (full numbers table in the results comment)
 - Spike branch: `spike/GH-174-revalidate-llm-cleanup-page-builders` — harness at `tools/spike-174/harness.php` + resurrected guard/orchestrator classes (delete the branch after this memo merges; page captures and LLM outputs were local-only, never committed)
 - Related decisions: AgDR-0049 (cleanup retirement — stands), AgDR-0017 (walker quality score), AgDR-0018 (guard design — the false-positive bias documented there is what amputates page-builder content)

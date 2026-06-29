@@ -1,6 +1,6 @@
 # AgDR-0022 — LLMs Index cache: single non-autoloaded option, hook-driven invalidation
 
-> In the context of `Ref34t/agentready#7` Phase A — caching the composed `/llms.txt` body so the public route (AgDR-0021) serves agents from a hot read instead of recomposing on every fetch, facing the choice between a transient, a non-autoloaded `wp_options` entry, a custom table, or a filesystem write, I decided to store one composed body per site in a single non-autoloaded option (`agentready_llms_txt_cache`) holding `{ body, generated_at, schema_version }`, invalidated by the same hook surface that triggers regen (decided in AgDR-0023) rather than by TTL or hash-validation-on-read, and re-populated synchronously on cache miss under a transient lock to prevent thundering-herd regens, to achieve a single canonical cached body with deterministic invalidation semantics and zero filesystem-permission surface, accepting that the cache lives in `wp_options` (one extra non-autoloaded row, ~5–200 KB depending on site size) and that uninstall must delete the option explicitly.
+> In the context of `Ref34t/mokhai-agent-readiness-kit#7` Phase A — caching the composed `/llms.txt` body so the public route (AgDR-0021) serves agents from a hot read instead of recomposing on every fetch, facing the choice between a transient, a non-autoloaded `wp_options` entry, a custom table, or a filesystem write, I decided to store one composed body per site in a single non-autoloaded option (`agentready_llms_txt_cache`) holding `{ body, generated_at, schema_version }`, invalidated by the same hook surface that triggers regen (decided in AgDR-0023) rather than by TTL or hash-validation-on-read, and re-populated synchronously on cache miss under a transient lock to prevent thundering-herd regens, to achieve a single canonical cached body with deterministic invalidation semantics and zero filesystem-permission surface, accepting that the cache lives in `wp_options` (one extra non-autoloaded row, ~5–200 KB depending on site size) and that uninstall must delete the option explicitly.
 
 ## Context
 
@@ -171,6 +171,6 @@ The reader calls `get_option()`, which uses the standard WP options object cache
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#7`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#7`
 - Related AgDRs: AgDR-0021 (serving mechanism reads from this cache), AgDR-0023 (regen debounce — invalidation triggers), AgDR-0011 (Markdown Views cache — different shape because per-post, not site-level), AgDR-0002 (Context Profile read in `Composer::compose()`)
 - Implementation files (planned): `includes/LlmsTxt/Service.php` (cache I/O), `includes/LlmsTxt/Composer.php` (regen logic), `uninstall.php` (cleanup)

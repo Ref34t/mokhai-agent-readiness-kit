@@ -151,6 +151,6 @@ The post-save action `do_action( 'agentready_context_profile_saved', $new_profil
 
 ## Artifacts
 
-- Ticket: https://github.com/Ref34t/agentready/issues/4
+- Ticket: https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/4
 - AgDR: this file
 - PR: (linked here on creation)

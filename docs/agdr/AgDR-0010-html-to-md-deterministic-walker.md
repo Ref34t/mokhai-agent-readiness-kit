@@ -1,6 +1,6 @@
 # AgDR-0010 — HTML→Markdown deterministic walker (in-house DOMDocument)
 
-> In the context of building the deterministic Markdown Views pass for v0.1 (`Ref34t/agentready#5`), facing the choice between an in-house DOMDocument walker, a Composer-distributed library (league/html-to-markdown), or a hybrid lean on commonmark types, I decided to build the converter in-house on top of PHP's DOMDocument with a custom node mapper, to achieve zero-Composer-dependency v0.1 plus full control over WP-specific edge cases (Gutenberg block residue, shortcode artefacts, gallery markup, oembed wrappers), accepting that we own ~1.5–2k LOC of conversion code and the bugs that come with it instead of inheriting a mature upstream.
+> In the context of building the deterministic Markdown Views pass for v0.1 (`Ref34t/mokhai-agent-readiness-kit#5`), facing the choice between an in-house DOMDocument walker, a Composer-distributed library (league/html-to-markdown), or a hybrid lean on commonmark types, I decided to build the converter in-house on top of PHP's DOMDocument with a custom node mapper, to achieve zero-Composer-dependency v0.1 plus full control over WP-specific edge cases (Gutenberg block residue, shortcode artefacts, gallery markup, oembed wrappers), accepting that we own ~1.5–2k LOC of conversion code and the bugs that come with it instead of inheriting a mature upstream.
 
 ## Context
 
@@ -46,6 +46,6 @@ The LLM-first option was raised mid-discussion and explicitly rejected for the d
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#5`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#5`
 - Related AgDRs: AgDR-0002 (Context Profile storage), AgDR-0003 (AI Client wrapper — kept for `#6`)
-- Related ticket: `Ref34t/agentready#6` (LLM cleanup pass — depends on `#5`'s output)
+- Related ticket: `Ref34t/mokhai-agent-readiness-kit#6` (LLM cleanup pass — depends on `#5`'s output)

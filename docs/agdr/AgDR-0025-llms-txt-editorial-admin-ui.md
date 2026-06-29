@@ -1,6 +1,6 @@
 # AgDR-0025 — LLMs Index editorial admin UI: React panel + Settings API storage + Section pick-list
 
-> In the context of `Ref34t/agentready#7` Phase C — AC #2 (composition includes admin-curated editorial entries), facing the choice of UI tech (Settings API form vs React panel), location (own submenu vs section of existing Tools → Context page), storage shape (separate option vs nested under Context Profile), and validation strictness (free-text section vs pick-list, URL allowlist, length caps), I decided to ship a React panel mounted as a second root on the existing Tools → Context page, posting back through the standard `register_setting` / `options.php` Settings API flow (same pattern as the Context Profile editor in AgDR-0002), backed by a separate option `agentready_llms_txt_editorial` with a constrained section pick-list (`Featured`, `Resources`, `Custom`) and free-form URLs (internal OR external), to achieve a consistent React-driven admin experience that matches the Context Profile aesthetic without inventing a second storage shape or admin destination, accepting that the React build cost is non-zero and that the section pick-list will need a follow-up if adopters want more categories.
+> In the context of `Ref34t/mokhai-agent-readiness-kit#7` Phase C — AC #2 (composition includes admin-curated editorial entries), facing the choice of UI tech (Settings API form vs React panel), location (own submenu vs section of existing Tools → Context page), storage shape (separate option vs nested under Context Profile), and validation strictness (free-text section vs pick-list, URL allowlist, length caps), I decided to ship a React panel mounted as a second root on the existing Tools → Context page, posting back through the standard `register_setting` / `options.php` Settings API flow (same pattern as the Context Profile editor in AgDR-0002), backed by a separate option `agentready_llms_txt_editorial` with a constrained section pick-list (`Featured`, `Resources`, `Custom`) and free-form URLs (internal OR external), to achieve a consistent React-driven admin experience that matches the Context Profile aesthetic without inventing a second storage shape or admin destination, accepting that the React build cost is non-zero and that the section pick-list will need a follow-up if adopters want more categories.
 
 ## Context
 
@@ -11,7 +11,7 @@ Existing admin patterns to mirror:
 - **Context Profile** (`#4` / AgDR-0002 / AgDR-0008) — Settings API option, React UI under `src/admin/context-profile/`, mounted at `tools_page_agentready-context`, submitted via `options.php`.
 - **Markdown Views** (`#5` / `#6`) — pure server-rendered admin (no React), exposes its surface as Tools → Context settings via the Context Profile schema.
 
-The editorial entries are conceptually a **child of the Context Profile** — they configure what AgentReady exposes to agents, same as `exposed_cpts` and `exposed_statuses`. Putting them on a separate admin destination would be a navigation surprise for admins who already think of "Tools → Context" as the agentready config hub.
+The editorial entries are conceptually a **child of the Context Profile** — they configure what Mokhai exposes to agents, same as `exposed_cpts` and `exposed_statuses`. Putting them on a separate admin destination would be a navigation surprise for admins who already think of "Tools → Context" as the agentready config hub.
 
 The conflict notice (`#7` Phase B / AgDR-0024) also renders on the Tools → Context page. Co-locating the editorial editor on the same page means the conflict-resolution path is one scroll away from the "I just curated entries, why aren't they showing up?" question.
 
@@ -150,7 +150,7 @@ The conflict notice (Phase B) renders at `admin_notices` priority, above the pag
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#7` (Phase C sub-scope)
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#7` (Phase C sub-scope)
 - Related AgDRs: AgDR-0002 (Context Profile storage shape — mirrors structure), AgDR-0008 (wp-scripts for React build), AgDR-0021 (serving — reads via `Service::resolve_editorial`), AgDR-0023 (regen debounce — `agentready_llms_txt_editorial_saved` triggers it), AgDR-0024 (conflict notice — co-located on same page)
 - Implementation files (planned):
   - `includes/LlmsTxt/Editorial_Settings.php` (option + sanitize + action firing)

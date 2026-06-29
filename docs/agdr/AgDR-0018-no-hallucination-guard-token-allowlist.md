@@ -1,6 +1,6 @@
 # AgDR-0018 — No-hallucination guard via source-token allowlist + named-entity recheck
 
-> In the context of `Ref34t/agentready#6` AC 5 — *"Post-processing strips any LLM-output text not present in the source HTML — no hallucinated content reaches public output (hard rule, tested)"* — facing the choice between strict whole-output rejection, sentence-level token allowlisting, semantic similarity scoring, or LLM-as-judge verification, I decided to ship a deterministic two-stage filter: (1) a **content-word allowlist** built from the source HTML's stripped text against which each output sentence is checked, and (2) a **named-entity recheck** that rejects any capitalised multi-word sequence in the output not present in the source, to achieve a tested, fast, explainable safety floor that the public route can rely on, accepting that some legitimate LLM rewordings (synonyms, paraphrases) will be stripped as false positives — we prefer a stricter false-positive bias over even a small false-negative rate, because a single hallucination on a public `.md` route is a brand-damage event for the user's site.
+> In the context of `Ref34t/mokhai-agent-readiness-kit#6` AC 5 — *"Post-processing strips any LLM-output text not present in the source HTML — no hallucinated content reaches public output (hard rule, tested)"* — facing the choice between strict whole-output rejection, sentence-level token allowlisting, semantic similarity scoring, or LLM-as-judge verification, I decided to ship a deterministic two-stage filter: (1) a **content-word allowlist** built from the source HTML's stripped text against which each output sentence is checked, and (2) a **named-entity recheck** that rejects any capitalised multi-word sequence in the output not present in the source, to achieve a tested, fast, explainable safety floor that the public route can rely on, accepting that some legitimate LLM rewordings (synonyms, paraphrases) will be stripped as false positives — we prefer a stricter false-positive bias over even a small false-negative rate, because a single hallucination on a public `.md` route is a brand-damage event for the user's site.
 
 ## Context
 
@@ -142,6 +142,6 @@ The CI test for #6 fails if any adversarial-* fixture passes through unchanged. 
 
 ## Artifacts
 
-- Ticket: `Ref34t/agentready#6`
+- Ticket: `Ref34t/mokhai-agent-readiness-kit#6`
 - Related AgDRs: AgDR-0003 (AI Client wrapper — provides the cleanup output the guard consumes), AgDR-0016 (detection), AgDR-0017 (quality score)
 - Files (planned): `includes/Markdown_Views/Cleanup_Guard.php`, `includes/Markdown_Views/Guard_Result.php`, `tests/fixtures/cleanup-guard/**`, `tests/unit/Markdown_Views/Cleanup_Guard_Test.php`, `tests/unit/Markdown_Views/Cleanup_Guard_Adversarial_Test.php`

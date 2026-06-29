@@ -34,5 +34,5 @@ Chosen: **`meta.mcp.public = true` on all five abilities**, because it's the sma
 
 ## Artifacts
 
-- Ticket: Ref34t/agentready#131 (PR B of #21)
+- Ticket: Ref34t/mokhai-agent-readiness-kit#131 (PR B of #21)
 - Builds on #130 (PR A — abilities core, AgDR-0044)
