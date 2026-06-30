@@ -146,7 +146,7 @@ final class Rule_Based_Narrative {
 				'fix' => \sprintf(
 					/* translators: %s: the comment line to paste into robots.txt, including the site /llms.txt URL. */
 					\__( 'Add this line to your static robots.txt manually: %s', 'mokhai-agent-readiness-kit' ),
-					'# AI-readable content index (agentready): ' . $llms_url
+					'# AI-readable content index (mokhai): ' . $llms_url
 				),
 			);
 		}

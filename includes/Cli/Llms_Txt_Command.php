@@ -40,7 +40,7 @@ use Mokhai\LlmsTxt\Service;
 final class Llms_Txt_Command {
 
 	/**
-	 * Register the `agentready llms-txt` command tree with WP-CLI.
+	 * Register the `mokhai llms-txt` command tree with WP-CLI.
 	 *
 	 * Called from `Main::register_hooks()` after the WP_CLI runtime guard.
 	 * No-op when WP-CLI isn't active so the regular page-load path pays

@@ -7,12 +7,12 @@
  * cleanup lists live next to the classes that define the keys, referenced via
  * their public constants. Re-typed literal lists in `uninstall.php` drifted
  * twice (#189): the central Context Profile option was never deleted while a
- * dead `agentready_settings` key was, and the #180 exclude meta plus the
+ * dead `mokhai_settings` key was, and the #180 exclude meta plus the
  * description / AI-summary meta were orphaned.
  *
  * When a feature adds a new option, post-meta, user-meta, or transient key,
  * extend the matching accessor below — the uninstall integration test seeds
- * every listed key and then asserts the whole `agentready` footprint is gone,
+ * every listed key and then asserts the whole `mokhai` footprint is gone,
  * so a missing entry fails the suite.
  *
  * @package Mokhai

@@ -310,7 +310,7 @@ final class Service {
 	 *    fresh one is scheduled. Without this, WP de-dups
 	 *    `wp_schedule_single_event` against the stale entry and the new
 	 *    schedule is silently dropped, leaving the regen never to fire.
-	 *    See Ref34t/agentready#103.
+	 *    See Ref34t/mokhai-agent-readiness-kit#103.
 	 *
 	 * `do_action()` may pass extra arguments (e.g. `save_post` passes the
 	 * post ID). They are intentionally ignored — the regen is site-level

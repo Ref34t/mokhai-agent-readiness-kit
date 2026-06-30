@@ -6,7 +6,7 @@
  * regenerate buttons and a top-level "Regenerate stale" button. Mounts
  * underneath the editorial-entries editor on Tools → Context.
  *
- * All mutations go through `ai-readiness-kit/v1/llms-txt/descriptions/*` REST
+ * All mutations go through `mokhai/v1/llms-txt/descriptions/*` REST
  * routes — the controller is the source of truth, this UI is presentation
  * only.
  */
@@ -26,7 +26,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Pill } from '../shared/Pill';
 import '../shared/admin-ui.css';
 
-const BOOTSTRAP_KEY = 'agentreadyLlmsTxtDescriptions';
+const BOOTSTRAP_KEY = 'mokhaiLlmsTxtDescriptions';
 
 // Poll cadence for rows in `pending` status. Re-fetches the whole page
 // (not a per-row GET) every PENDING_POLL_INTERVAL_MS while at least one
@@ -66,7 +66,7 @@ function readBootstrap() {
 
 function StatusBadges( { row } ) {
 	return (
-		<div className="agentready-pill-group">
+		<div className="mokhai-pill-group">
 			{ row.excluded && (
 				<Pill kind="excluded">
 					{ __( 'excluded', 'mokhai-agent-readiness-kit' ) }
@@ -198,16 +198,16 @@ function DescriptionRow( {
 						{ row.title || __( '(no title)', 'mokhai-agent-readiness-kit' ) }
 					</a>
 				</div>
-				<div className="agentready-muted--sm">{ row.post_type }</div>
+				<div className="mokhai-muted--sm">{ row.post_type }</div>
 			</td>
 			<td className="col-status">
 				<StatusBadges row={ row } />
 			</td>
 			<td>
 				{ ! editing && (
-					<div className="agentready-descriptions__resolved">
+					<div className="mokhai-descriptions__resolved">
 						{ row.resolved || (
-							<em className="agentready-muted">
+							<em className="mokhai-muted">
 								{ __( '(no description)', 'mokhai-agent-readiness-kit' ) }
 							</em>
 						) }
@@ -235,7 +235,7 @@ function DescriptionRow( {
 			</td>
 			<td className="col-actions">
 				{ ! editing && (
-					<div className="agentready-button-row agentready-button-row--end agentready-button-row--tight">
+					<div className="mokhai-button-row mokhai-button-row--end mokhai-button-row--tight">
 						<Button
 							variant="tertiary"
 							onClick={ () => setEditing( true ) }
@@ -257,7 +257,7 @@ function DescriptionRow( {
 					</div>
 				) }
 				{ editing && (
-					<div className="agentready-button-row agentready-button-row--end agentready-button-row--tight">
+					<div className="mokhai-button-row mokhai-button-row--end mokhai-button-row--tight">
 						<Button
 							variant="primary"
 							onClick={ saveManual }
@@ -489,7 +489,7 @@ export function DescriptionsTable() {
 				'LLMs Index — auto-generated descriptions',
 				'mokhai-agent-readiness-kit'
 			) }
-			className="agentready-admin-panel"
+			className="mokhai-admin-panel"
 		>
 			<PanelBody opened>
 				<p className="description">
@@ -499,7 +499,7 @@ export function DescriptionsTable() {
 					) }
 				</p>
 
-				<div className="agentready-toolbar">
+				<div className="mokhai-toolbar">
 					<SelectControl
 						label={ __( 'Post type', 'mokhai-agent-readiness-kit' ) }
 						value={ cpt }
@@ -566,13 +566,13 @@ export function DescriptionsTable() {
 
 				{ stuckPending && (
 					<Notice status="warning" isDismissible={ false }>
-						<p className="agentready-md-label--first">
+						<p className="mokhai-md-label--first">
 							{ __(
 								'Description jobs have been pending for over 60 seconds. WP cron fires on every front-end page hit — load any post in another tab, or run "wp cron event run --due-now" from the command line to drain the queue. Auto-refresh has paused.',
 								'mokhai-agent-readiness-kit'
 							) }
 						</p>
-						<p className="agentready-button-row">
+						<p className="mokhai-button-row">
 							<Button
 								variant="secondary"
 								onClick={ () => {
@@ -589,7 +589,7 @@ export function DescriptionsTable() {
 				{ loading && <Spinner /> }
 
 				{ ! loading && data.items.length === 0 && (
-					<p className="agentready-empty">
+					<p className="mokhai-empty">
 						{ __(
 							'No entries match the current filter.',
 							'mokhai-agent-readiness-kit'
@@ -598,7 +598,7 @@ export function DescriptionsTable() {
 				) }
 
 				{ ! loading && data.items.length > 0 && (
-					<table className="agentready-descriptions-table">
+					<table className="mokhai-descriptions-table">
 						<thead>
 							<tr>
 								<th>{ __( 'Post', 'mokhai-agent-readiness-kit' ) }</th>
@@ -627,7 +627,7 @@ export function DescriptionsTable() {
 				) }
 
 				{ ! loading && data.pages > 1 && (
-					<div className="agentready-pagination">
+					<div className="mokhai-pagination">
 						<Button
 							variant="tertiary"
 							disabled={ page <= 1 }
@@ -656,7 +656,7 @@ export function DescriptionsTable() {
 						>
 							{ __( 'Next →', 'mokhai-agent-readiness-kit' ) }
 						</Button>
-						<span className="agentready-muted">
+						<span className="mokhai-muted">
 							{ sprintf(
 								/* translators: %d: total entries */
 								__( '%d total', 'mokhai-agent-readiness-kit' ),

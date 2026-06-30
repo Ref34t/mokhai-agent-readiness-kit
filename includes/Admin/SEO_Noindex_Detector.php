@@ -23,7 +23,7 @@ namespace Mokhai\Admin;
 \defined( 'ABSPATH' ) || exit;
 
 /**
- * Bridges the active SEO plugin's noindex meta into agentready's exposure gate.
+ * Bridges the active SEO plugin's noindex meta into mokhai's exposure gate.
  *
  * Coordinates with {@see Schema_Coordination_Detector} for posture detection so
  * stale meta from a since-deactivated plugin can't leak a false noindex: only
@@ -58,7 +58,7 @@ final class SEO_Noindex_Detector {
 	 * Report whether the active SEO plugin marks this post noindex.
 	 *
 	 * Short-circuits to the incoming value when a higher-priority subscriber
-	 * already decided noindex — agentready never flips a true back to false.
+	 * already decided noindex — mokhai never flips a true back to false.
 	 *
 	 * @param bool     $noindexed Current verdict from prior subscribers.
 	 * @param \WP_Post $post      Post being evaluated.

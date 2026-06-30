@@ -55,7 +55,7 @@ final class Alternate_Advertiser_Test extends TestCase {
 		);
 
 		self::assertStringContainsString(
-			'# AI-readable content index (agentready): https://example.com/llms.txt',
+			'# AI-readable content index (mokhai): https://example.com/llms.txt',
 			$out
 		);
 		// Original content preserved, single trailing newline, no blank-line gap.

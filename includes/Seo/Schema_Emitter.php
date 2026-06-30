@@ -364,7 +364,7 @@ final class Schema_Emitter {
 	/**
 	 * Compare a post's `post_type` + `post_status` against the Context
 	 * Profile allowlists. Returns true when both pass — the exposure
-	 * model the rest of agentready honours (#73 AC #2).
+	 * model the rest of mokhai honours (#73 AC #2).
 	 */
 	private static function post_is_exposed( \WP_Post $post ): bool {
 		$profile  = Context_Profile_Settings::get_profile();
@@ -434,7 +434,7 @@ final class Schema_Emitter {
 	 *     value containing the literal sequence `</script>` from
 	 *     breaking out of the script tag, without entity-encoding the
 	 *     JSON's structural characters (the bug we shipped from PR #75
-	 *     through PR #112 — fixed here as Ref34t/agentready#118).
+	 *     through PR #112 — fixed here as Ref34t/mokhai-agent-readiness-kit#118).
 	 *
 	 * The JSON body is emitted RAW (no `esc_html`, no `wp_kses`). The
 	 * HTML5 spec for `<script type="application/ld+json">` requires the

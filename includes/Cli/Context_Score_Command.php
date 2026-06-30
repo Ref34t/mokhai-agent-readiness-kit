@@ -44,7 +44,7 @@ use Mokhai\Context_Score\Service;
 final class Context_Score_Command {
 
 	/**
-	 * Register the `agentready context-score` command tree with WP-CLI.
+	 * Register the `mokhai context-score` command tree with WP-CLI.
 	 *
 	 * Called from `Main::register_hooks()` after the WP_CLI runtime guard.
 	 * No-op when WP-CLI isn't active so the regular page-load path pays

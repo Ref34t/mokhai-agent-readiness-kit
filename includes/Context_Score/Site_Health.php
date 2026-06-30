@@ -214,7 +214,7 @@ final class Site_Health {
 				'<p><a href="%1$s">%2$s</a></p><p><a href="%3$s">%4$s</a></p>',
 				\esc_url( $panel_url ),
 				\esc_html__( 'View full breakdown', 'mokhai-agent-readiness-kit' ),
-				\esc_url( $panel_url . '#agentready-ai-preview-root' ),
+				\esc_url( $panel_url . '#mokhai-ai-preview-root' ),
 				\esc_html__( 'See what AI assistants read on your site', 'mokhai-agent-readiness-kit' )
 			),
 			'test'        => self::TEST_ID,

@@ -213,7 +213,7 @@ final class Entry_Source {
 	 * clean Markdown body (~4–8 KB) instead of the full HTML page
 	 * (~50–100 KB). The whole reason `/llms.txt` is the agent discovery
 	 * surface is to point at agent-shaped content — `get_permalink()`
-	 * alone defeats that. See `Ref34t/agentready#105`.
+	 * alone defeats that. See `Ref34t/mokhai-agent-readiness-kit#105`.
 	 *
 	 * When Markdown Views is disabled, returns the canonical permalink
 	 * unchanged.

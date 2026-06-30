@@ -83,7 +83,7 @@ final class Schema {
 	 * Currently registers a single `admin_init` listener for
 	 * `maybe_upgrade()` — the missing-piece counterpart to the
 	 * activation-hook create. Without this, users who upgrade
-	 * agentready from one version to a later one (any schema bump)
+	 * mokhai from one version to a later one (any schema bump)
 	 * keep running against the old columns until they manually
 	 * deactivate + reactivate. See ticket #52.
 	 */

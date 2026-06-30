@@ -6,10 +6,10 @@
  * persistent footprint: every option, post-meta, user-meta, and transient the
  * plugin writes, plus the Markdown Views cache table. The previous literal
  * lists in `uninstall.php` drifted from the real write sites — the central
- * Context Profile option survived delete while a dead `agentready_settings`
+ * Context Profile option survived delete while a dead `mokhai_settings`
  * key was "cleaned" in its place — so these tests seed from the SAME class
  * constants the production code writes with, then sweep the database for any
- * `agentready` residue. A future feature that adds a key without extending
+ * `mokhai` residue. A future feature that adds a key without extending
  * `Uninstaller`'s accessors fails the residue sweep here once its key is
  * seeded, and the accessor lists themselves are exercised end-to-end.
  *
@@ -98,7 +98,7 @@ final class Uninstaller_Test extends WP_UnitTestCase {
 		// option must be on the list, the dead legacy key must not be.
 		$this->assertContains( Context_Profile_Settings::OPTION_KEY, $keys );
 		$this->assertContains( 'mokhai_seo_posture_last_seen', $keys );
-		$this->assertNotContains( 'agentready_settings', $keys );
+		$this->assertNotContains( 'mokhai_settings', $keys );
 	}
 
 	public function test_run_removes_every_listed_key(): void {
@@ -117,7 +117,7 @@ final class Uninstaller_Test extends WP_UnitTestCase {
 		}
 	}
 
-	public function test_run_leaves_zero_agentready_residue_in_the_database(): void {
+	public function test_run_leaves_zero_mokhai_residue_in_the_database(): void {
 		global $wpdb;
 
 		$this->seed_full_footprint();
@@ -125,13 +125,13 @@ final class Uninstaller_Test extends WP_UnitTestCase {
 		Uninstaller::run();
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery -- residue sweep needs raw reads.
-		$options = $wpdb->get_col( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '%agentready%'" );
+		$options = $wpdb->get_col( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '%mokhai%'" );
 		// Cron entries are out of scope: WP forces deactivate-before-delete
 		// and on_deactivate() owns clearing scheduled hooks.
 		$options = array_values( array_diff( $options, array( 'cron' ) ) );
 
-		$post_meta = $wpdb->get_col( "SELECT DISTINCT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE '%agentready%'" );
-		$user_meta = $wpdb->get_col( "SELECT DISTINCT meta_key FROM {$wpdb->usermeta} WHERE meta_key LIKE '%agentready%'" );
+		$post_meta = $wpdb->get_col( "SELECT DISTINCT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE '%mokhai%'" );
+		$user_meta = $wpdb->get_col( "SELECT DISTINCT meta_key FROM {$wpdb->usermeta} WHERE meta_key LIKE '%mokhai%'" );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery
 
 		$this->assertSame( array(), $options, 'wp_options rows survived uninstall.' );

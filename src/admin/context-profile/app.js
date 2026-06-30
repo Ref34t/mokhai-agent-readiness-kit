@@ -2,7 +2,7 @@
  * Mokhai — Context Profile view (FR-1 keystone / #142).
  *
  * Rendered as the "Profile" tab of the Context app shell (#142 / AgDR-0048).
- * Saves the whole profile via the `ai-readiness-kit/v1/context-profile` REST
+ * Saves the whole profile via the `mokhai/v1/context-profile` REST
  * route through `apiFetch` — no page reload — instead of the legacy
  * options.php form POST. The server-side `Context_Profile_Settings::save()`
  * (whitelist via `sanitize_internal()`) remains the source of truth.
@@ -201,7 +201,7 @@ export function ContextProfileApp( { bootstrap } ) {
 
 			<Panel
 				header={ __( 'Site identity', 'mokhai-agent-readiness-kit' ) }
-				className="agentready-context-profile-panel"
+				className="mokhai-context-profile-panel"
 			>
 				<PanelBody opened>
 					<PanelRow>
@@ -242,7 +242,7 @@ export function ContextProfileApp( { bootstrap } ) {
 
 			<Panel
 				header={ __( 'Exposed content', 'mokhai-agent-readiness-kit' ) }
-				className="agentready-context-profile-panel"
+				className="mokhai-context-profile-panel"
 			>
 				<PanelBody
 					title={ __( 'Custom post types', 'mokhai-agent-readiness-kit' ) }
@@ -257,11 +257,11 @@ export function ContextProfileApp( { bootstrap } ) {
 						</p>
 					</PanelRow>
 					<fieldset
-						aria-labelledby="agentready-cpts-legend"
-						className="agentready-checkbox-fieldset"
+						aria-labelledby="mokhai-cpts-legend"
+						className="mokhai-checkbox-fieldset"
 					>
 						<legend
-							id="agentready-cpts-legend"
+							id="mokhai-cpts-legend"
 							className="screen-reader-text"
 						>
 							{ __(
@@ -313,11 +313,11 @@ export function ContextProfileApp( { bootstrap } ) {
 						</p>
 					</PanelRow>
 					<fieldset
-						aria-labelledby="agentready-statuses-legend"
-						className="agentready-checkbox-fieldset"
+						aria-labelledby="mokhai-statuses-legend"
+						className="mokhai-checkbox-fieldset"
 					>
 						<legend
-							id="agentready-statuses-legend"
+							id="mokhai-statuses-legend"
 							className="screen-reader-text"
 						>
 							{ __(
@@ -351,7 +351,7 @@ export function ContextProfileApp( { bootstrap } ) {
 
 			<Panel
 				header={ __( 'Content exclusions', 'mokhai-agent-readiness-kit' ) }
-				className="agentready-context-profile-panel"
+				className="mokhai-context-profile-panel"
 			>
 				<PanelBody opened>
 					<PanelRow>
@@ -413,7 +413,7 @@ export function ContextProfileApp( { bootstrap } ) {
 
 			<Panel
 				header={ __( 'Discovery channels', 'mokhai-agent-readiness-kit' ) }
-				className="agentready-context-profile-panel"
+				className="mokhai-context-profile-panel"
 			>
 				<PanelBody opened>
 					<PanelRow>
@@ -472,7 +472,7 @@ export function ContextProfileApp( { bootstrap } ) {
 
 			<Panel
 				header={ __( 'Schema coordination', 'mokhai-agent-readiness-kit' ) }
-				className="agentready-context-profile-panel"
+				className="mokhai-context-profile-panel"
 			>
 				<PanelBody opened>
 					<PanelRow>
@@ -491,7 +491,7 @@ export function ContextProfileApp( { bootstrap } ) {
 
 			<Panel
 				header={ __( 'Schema emission', 'mokhai-agent-readiness-kit' ) }
-				className="agentready-context-profile-panel"
+				className="mokhai-context-profile-panel"
 			>
 				<PanelBody opened>
 					<PanelRow>
@@ -516,7 +516,7 @@ export function ContextProfileApp( { bootstrap } ) {
 
 			<Panel
 				header={ __( 'LLM features', 'mokhai-agent-readiness-kit' ) }
-				className="agentready-context-profile-panel"
+				className="mokhai-context-profile-panel"
 			>
 				<PanelBody opened>
 					{ aiNotice }
@@ -540,7 +540,7 @@ export function ContextProfileApp( { bootstrap } ) {
 				</PanelBody>
 			</Panel>
 
-			<div className="agentready-button-row">
+			<div className="mokhai-button-row">
 				<Button
 					variant="primary"
 					onClick={ save }

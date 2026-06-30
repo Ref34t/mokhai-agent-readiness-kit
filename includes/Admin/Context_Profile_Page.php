@@ -3,7 +3,7 @@
  * Context Profile admin page — Tools → Context.
  *
  * Renders the React-based Profile UI built with `@wordpress/components` and
- * mounts it under the page slug `agentready-context`. Page visibility is
+ * mounts it under the page slug `mokhai-context`. Page visibility is
  * gated on `manage_options`.
  *
  * @package Mokhai
@@ -20,7 +20,7 @@ namespace Mokhai\Admin;
  *
  * Owns three responsibilities:
  *   1. Register the menu entry under Tools.
- *   2. Render the single SPA mount-point (`<div id="agentready-context-app">`)
+ *   2. Render the single SPA mount-point (`<div id="mokhai-context-app">`)
  *      plus a no-JS fallback notice.
  *   3. Enqueue the `context-app` React bundle ONLY on the plugin's screen —
  *      never globally, per the WordPress admin-asset hygiene rule.
@@ -32,7 +32,7 @@ final class Context_Profile_Page {
 	 *
 	 * @var string
 	 */
-	public const PAGE_SLUG = 'agentready-context';
+	public const PAGE_SLUG = 'mokhai-context';
 
 	/**
 	 * Suffix returned by add_management_page (`tools_page_<PAGE_SLUG>`),
@@ -107,7 +107,7 @@ final class Context_Profile_Page {
 		}
 
 		?>
-		<div class="wrap" id="agentready-context-profile-wrap">
+		<div class="wrap" id="mokhai-context-profile-wrap">
 			<h1><?php \esc_html_e( 'Context Profile', 'mokhai-agent-readiness-kit' ); ?></h1>
 			<p class="description">
 				<?php
@@ -120,7 +120,7 @@ final class Context_Profile_Page {
 
 			<?php // Single SPA mount (#142 / AgDR-0048): one card-framed app with TabPanel section nav (Profile / Editorial / Descriptions). Saves go through REST — no page reload. ?>
 			<div
-				id="agentready-context-app"
+				id="mokhai-context-app"
 				role="region"
 				aria-label="<?php \esc_attr_e( 'Mokhai Context editor', 'mokhai-agent-readiness-kit' ); ?>"
 			></div>
@@ -145,7 +145,7 @@ final class Context_Profile_Page {
 	 * Enqueue the React bundle and `@wordpress/components` styles.
 	 *
 	 * Only enqueues on the Profile screen — `$hook` matches the suffix
-	 * returned by `add_management_page` (`tools_page_agentready-context`).
+	 * returned by `add_management_page` (`tools_page_mokhai-context`).
 	 *
 	 * The bundle is built with `@wordpress/scripts`. If the build artefact
 	 * is missing (running from a source checkout without `npm run build`),
@@ -190,7 +190,7 @@ final class Context_Profile_Page {
 			);
 
 		\wp_enqueue_script(
-			'agentready-context-app',
+			'mokhai-context-app',
 			$script_url,
 			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
 			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION,
@@ -201,22 +201,22 @@ final class Context_Profile_Page {
 		// (profile / editorial / descriptions); saves then round-trip through
 		// REST (#142 / AgDR-0048). All attach to the single context-app handle.
 		\wp_add_inline_script(
-			'agentready-context-app',
-			'window.agentreadyContextProfile = ' . \wp_json_encode( self::bootstrap_data() ) . ';'
-				. 'window.agentreadyLlmsTxtEditorial = ' . \wp_json_encode( self::editorial_bootstrap_data() ) . ';'
-				. 'window.agentreadyLlmsTxtDescriptions = ' . \wp_json_encode( self::descriptions_bootstrap_data() ) . ';',
+			'mokhai-context-app',
+			'window.mokhaiContextProfile = ' . \wp_json_encode( self::bootstrap_data() ) . ';'
+				. 'window.mokhaiLlmsTxtEditorial = ' . \wp_json_encode( self::editorial_bootstrap_data() ) . ';'
+				. 'window.mokhaiLlmsTxtDescriptions = ' . \wp_json_encode( self::descriptions_bootstrap_data() ) . ';',
 			'before'
 		);
 
 		\wp_set_script_translations(
-			'agentready-context-app',
+			'mokhai-context-app',
 			'mokhai-agent-readiness-kit',
 			\MOKHAI_DIR . 'languages'
 		);
 
 		if ( \file_exists( \MOKHAI_DIR . 'build/admin/context-app.css' ) ) {
 			\wp_enqueue_style(
-				'agentready-context-app',
+				'mokhai-context-app',
 				$style_url,
 				array( 'wp-components' ),
 				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION

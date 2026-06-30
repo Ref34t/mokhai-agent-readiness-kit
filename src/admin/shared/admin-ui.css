@@ -15,14 +15,14 @@
 
 /* Card wrapper for each tab's content — gives the connector's framed-panel
    look. The tab strip sits above it; a small gap separates the two. */
-.agentready-context-card {
+.mokhai-context-card {
 	margin-top: 12px;
 }
 
 /* Let the tab content breathe inside the card without a doubled outer panel
    margin on the first child. */
-.agentready-context-card .agentready-context-profile-panel:first-child,
-.agentready-context-card .agentready-admin-panel:first-child {
+.mokhai-context-card .mokhai-context-profile-panel:first-child,
+.mokhai-context-card .mokhai-admin-panel:first-child {
 	margin-top: 0;
 }
 
@@ -30,20 +30,20 @@
 
 /* Vertical rhythm between stacked card panels — replaces the inline
    `margin-top:2em` that used to live on the PHP <h2> section headings. */
-.agentready-context-profile-panel,
-.agentready-admin-panel {
+.mokhai-context-profile-panel,
+.mokhai-admin-panel {
 	margin-bottom: 16px;
 }
 
 /* ---- Status pills ---------------------------------------------------- */
 
-.agentready-pill-group {
+.mokhai-pill-group {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
 }
 
-.agentready-pill {
+.mokhai-pill {
 	display: inline-block;
 	padding: 2px 8px;
 	border-radius: 10px;
@@ -56,44 +56,44 @@
 	color: #a94442;
 }
 
-.agentready-pill--manual {
+.mokhai-pill--manual {
 	background: #dcedc8;
 	color: #33691e;
 }
-.agentready-pill--auto {
+.mokhai-pill--auto {
 	background: #e3f2fd;
 	color: #0d47a1;
 }
-.agentready-pill--excerpt {
+.mokhai-pill--excerpt {
 	background: #f5f5f5;
 	color: #555;
 }
-.agentready-pill--none {
+.mokhai-pill--none {
 	background: #fbeaea;
 	color: #a94442;
 }
-.agentready-pill--pending,
-.agentready-pill--needs-retry {
+.mokhai-pill--pending,
+.mokhai-pill--needs-retry {
 	background: #fff8e1;
 	color: #996f00;
 }
-.agentready-pill--failed {
+.mokhai-pill--failed {
 	background: #fbeaea;
 	color: #a94442;
 }
-.agentready-pill--done {
+.mokhai-pill--done {
 	background: #e8f5e9;
 	color: #2e7d32;
 }
-.agentready-pill--stale {
+.mokhai-pill--stale {
 	background: #fff3e0;
 	color: #bf360c;
 }
-.agentready-pill--excluded {
+.mokhai-pill--excluded {
 	background: #eceff1;
 	color: #455a64;
 }
-.agentready-pill--skipped {
+.mokhai-pill--skipped {
 	background: #f3e5f5;
 	color: #6a1b9a;
 }
@@ -102,17 +102,17 @@
 
 /* Shared horizontal button cluster. The `--end` modifier right-aligns the
    cluster (table row actions); the bare class left-aligns (form actions). */
-.agentready-button-row {
+.mokhai-button-row {
 	display: flex;
 	gap: 8px;
 	flex-wrap: wrap;
 	margin-top: 12px;
 }
-.agentready-button-row--end {
+.mokhai-button-row--end {
 	justify-content: flex-end;
 	margin-top: 0;
 }
-.agentready-button-row--tight {
+.mokhai-button-row--tight {
 	gap: 4px;
 	margin-top: 0;
 }
@@ -120,15 +120,15 @@
 /* ---- Empty / muted text --------------------------------------------- */
 
 /* Replaces the bespoke inline `font-style:italic;color:#888` empty states. */
-.agentready-empty {
+.mokhai-empty {
 	font-style: italic;
 	color: #757575;
 	margin: 8px 0;
 }
-.agentready-muted {
+.mokhai-muted {
 	color: #757575;
 }
-.agentready-muted--sm {
+.mokhai-muted--sm {
 	color: #757575;
 	font-size: 11px;
 	margin-top: 2px;
@@ -136,14 +136,14 @@
 
 /* ---- Editorial repeater rows ---------------------------------------- */
 
-.agentready-editorial__row {
+.mokhai-editorial__row {
 	border: 1px solid #ccd0d4;
 	padding: 12px;
 	margin-bottom: 8px;
 	border-radius: 4px;
 	background: #fff;
 }
-.agentready-editorial__row-header {
+.mokhai-editorial__row-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -152,7 +152,7 @@
 
 /* ---- Descriptions table --------------------------------------------- */
 
-.agentready-toolbar {
+.mokhai-toolbar {
 	display: flex;
 	gap: 12px;
 	align-items: flex-end;
@@ -160,43 +160,43 @@
 	flex-wrap: wrap;
 }
 
-.agentready-descriptions-table {
+.mokhai-descriptions-table {
 	width: 100%;
 	border-collapse: collapse;
 	background: #fff;
 }
-.agentready-descriptions-table thead tr {
+.mokhai-descriptions-table thead tr {
 	background: #f8f8f8;
 	text-align: left;
 }
-.agentready-descriptions-table th {
+.mokhai-descriptions-table th {
 	padding: 8px 6px;
 }
-.agentready-descriptions-table th.col-actions {
+.mokhai-descriptions-table th.col-actions {
 	text-align: right;
 }
-.agentready-descriptions-table td {
+.mokhai-descriptions-table td {
 	padding: 8px 6px;
 	vertical-align: top;
 }
-.agentready-descriptions-table tbody tr {
+.mokhai-descriptions-table tbody tr {
 	border-bottom: 1px solid #eee;
 }
-.agentready-descriptions-table .col-post {
+.mokhai-descriptions-table .col-post {
 	width: 30%;
 }
-.agentready-descriptions-table .col-status {
+.mokhai-descriptions-table .col-status {
 	width: 15%;
 }
-.agentready-descriptions-table .col-actions {
+.mokhai-descriptions-table .col-actions {
 	width: 20%;
 	text-align: right;
 }
-.agentready-descriptions__resolved {
+.mokhai-descriptions__resolved {
 	white-space: pre-wrap;
 }
 
-.agentready-pagination {
+.mokhai-pagination {
 	display: flex;
 	gap: 8px;
 	align-items: center;
@@ -205,7 +205,7 @@
 
 /* ---- Markdown Views sidebar ----------------------------------------- */
 
-.agentready-md-pre {
+.mokhai-md-pre {
 	max-height: 240px;
 	overflow: auto;
 	padding: 8px;
@@ -216,44 +216,44 @@
 	white-space: pre-wrap;
 	margin: 0;
 }
-.agentready-md-pre--diff {
+.mokhai-md-pre--diff {
 	max-height: 180px;
 	font-size: 11px;
 }
-.agentready-md-pre--cleaned {
+.mokhai-md-pre--cleaned {
 	background: #f0f6fc;
 	border-color: #c5d9ed;
 }
-.agentready-md-meta {
+.mokhai-md-meta {
 	margin-top: 12px;
 	font-size: 11px;
 	color: #6b6b6b;
 }
-.agentready-md-hint {
+.mokhai-md-hint {
 	margin-top: 8px;
 	font-size: 11px;
 	color: #6b6b6b;
 	line-height: 1.45;
 }
-.agentready-md-line {
+.mokhai-md-line {
 	margin-top: 8px;
 	font-size: 12px;
 }
-.agentready-md-label {
+.mokhai-md-label {
 	margin: 8px 0 4px;
 	font-size: 12px;
 }
-.agentready-md-label--first {
+.mokhai-md-label--first {
 	margin: 0 0 4px;
 }
-.agentready-md-diagnostics {
+.mokhai-md-diagnostics {
 	margin-top: 12px;
 	font-size: 12px;
 }
-.agentready-md-diagnostics p {
+.mokhai-md-diagnostics p {
 	margin: 4px 0;
 }
-.agentready-md-error {
+.mokhai-md-error {
 	color: #a00;
 }
 
@@ -262,20 +262,20 @@
 /* Vertical rhythm between the panel's sections (toggle → verdict →
    preview → cache) — whitespace only, no separator lines (CEO call on
    #203: borders read as visual noise in the narrow sidebar). */
-.agentready-verdict {
+.mokhai-verdict {
 	margin: 10px 0 12px;
 }
-.agentready-agents-panel .agentready-md-meta {
+.mokhai-agents-panel .mokhai-md-meta {
 	margin-top: 10px;
 }
-.agentready-agents-panel .agentready-md-pre {
+.mokhai-agents-panel .mokhai-md-pre {
 	margin-top: 10px;
 }
 
 /* Gutenberg zeroes margin-top on every sidebar <p> via
    `.interface-complementary-area p:not(...)` at (0,2,1) specificity —
    these (0,3,0) selectors win it back for the two section lines. */
-.interface-complementary-area .agentready-agents-panel .agentready-verdict,
-.interface-complementary-area .agentready-agents-panel .agentready-md-meta {
+.interface-complementary-area .mokhai-agents-panel .mokhai-verdict,
+.interface-complementary-area .mokhai-agents-panel .mokhai-md-meta {
 	margin-top: 10px;
 }

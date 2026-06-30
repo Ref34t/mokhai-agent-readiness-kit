@@ -177,7 +177,7 @@ final class Requirements {
 		// land, this notice stays off-screen, which is the correct degrade
 		// for the scaffold-only state.
 		$screen = \function_exists( 'get_current_screen' ) ? \get_current_screen() : null;
-		if ( null === $screen || false === \strpos( (string) $screen->id, 'agentready-context' ) ) {
+		if ( null === $screen || false === \strpos( (string) $screen->id, 'mokhai-context' ) ) {
 			return;
 		}
 

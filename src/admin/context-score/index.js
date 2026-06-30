@@ -12,7 +12,7 @@
  *   3. Full breakdown — one collapsible PanelBody per sub-score with
  *      value/weight, all reasons, and the raw signals dict.
  *
- * All mutations route through `ai-readiness-kit/v1/context-score/recompute`
+ * All mutations route through `mokhai/v1/context-score/recompute`
  * (POST) so the server is the source of truth — the UI is presentation
  * only. Initial paint reuses `bootstrap.initialBreakdown` to avoid a
  * round-trip when the cache is populated.
@@ -36,8 +36,8 @@ import {
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
-const MOUNT_SELECTOR = '#agentready-context-score-root';
-const BOOTSTRAP_KEY = 'agentreadyContextScore';
+const MOUNT_SELECTOR = '#mokhai-context-score-root';
+const BOOTSTRAP_KEY = 'mokhaiContextScore';
 
 // Hide the success notice after this many ms so it doesn't dominate
 // the screenshot the operator is taking to put in their deck.
@@ -650,9 +650,9 @@ function OverallCard( {
 // button label, or returns null when there is no concrete one-click
 // path. The map is keyed by the breakdown's machine name (AgDR-0030).
 //
-// `schema_coverage` deliberately returns null: agentready does not yet
+// `schema_coverage` deliberately returns null: mokhai does not yet
 // emit JSON-LD natively (planned for v0.1.x); telling the operator to
-// install a third-party plugin is the wrong shape because agentready
+// install a third-party plugin is the wrong shape because mokhai
 // is the agent-readiness layer. The reason text already explains the
 // gap; no fix button is better than a misleading one.
 //
@@ -1171,7 +1171,7 @@ function SchemaCoordinationPanel( { coordination } ) {
 						{ ! emitting &&
 							profileOptIn &&
 							__(
-								'Suppressed by agentready_schema_emit filter',
+								'Suppressed by mokhai_schema_emit filter',
 								'mokhai-agent-readiness-kit'
 							) }
 					</div>
