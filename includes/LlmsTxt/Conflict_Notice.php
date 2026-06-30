@@ -146,15 +146,15 @@ final class Conflict_Notice {
 		}
 
 		\wp_register_script(
-			'agentready-llms-txt-dismiss',
+			'mokhai-llms-txt-dismiss',
 			'',
 			array(),
 			\MOKHAI_VERSION,
 			true
 		);
-		\wp_enqueue_script( 'agentready-llms-txt-dismiss' );
+		\wp_enqueue_script( 'mokhai-llms-txt-dismiss' );
 		\wp_add_inline_script(
-			'agentready-llms-txt-dismiss',
+			'mokhai-llms-txt-dismiss',
 			self::dismiss_inline_script()
 		);
 	}
@@ -176,13 +176,13 @@ final class Conflict_Notice {
 			'action' => self::DISMISS_ACTION,
 		);
 		return sprintf(
-			'window.agentreadyLlmsTxtDismiss = %s;'
+			'window.mokhaiLlmsTxtDismiss = %s;'
 			. 'document.addEventListener("click",function(e){'
-			. 'var btn = e.target.closest("[data-agentready-dismiss-fingerprint]");'
+			. 'var btn = e.target.closest("[data-mokhai-dismiss-fingerprint]");'
 			. 'if(!btn)return;'
 			. 'e.preventDefault();'
-			. 'var fp = btn.getAttribute("data-agentready-dismiss-fingerprint");'
-			. 'var cfg = window.agentreadyLlmsTxtDismiss;'
+			. 'var fp = btn.getAttribute("data-mokhai-dismiss-fingerprint");'
+			. 'var cfg = window.mokhaiLlmsTxtDismiss;'
 			. 'var body = new URLSearchParams({action: cfg.action, _wpnonce: cfg.nonce, fingerprint: fp});'
 			. 'fetch(cfg.url,{method:"POST",credentials:"same-origin",body:body})'
 			. '.then(function(r){if(r.ok){var n = btn.closest(".notice");if(n)n.style.display="none";}});'
@@ -275,7 +275,7 @@ final class Conflict_Notice {
 		$filesystem_conflicts = array_values( array_filter( $conflicts, static fn ( $c ) => 'filesystem' === ( $c['kind'] ?? '' ) ) );
 		$rewrite_conflicts    = array_values( array_filter( $conflicts, static fn ( $c ) => 'rewrite' === ( $c['kind'] ?? '' ) ) );
 
-		echo '<div class="notice notice-warning is-dismissible agentready-llms-txt-conflict-notice">';
+		echo '<div class="notice notice-warning is-dismissible mokhai-llms-txt-conflict-notice">';
 		echo '<p><strong>' . \esc_html__( 'Mokhai — /llms.txt conflict detected', 'mokhai-agent-readiness-kit' ) . '</strong></p>';
 
 		if ( ! empty( $plugin_conflicts ) ) {
@@ -295,7 +295,7 @@ final class Conflict_Notice {
 			\esc_html__( 'Open Plugins screen', 'mokhai-agent-readiness-kit' )
 		);
 		\printf(
-			'<button type="button" class="button" data-agentready-dismiss-fingerprint="%1$s">%2$s</button>',
+			'<button type="button" class="button" data-mokhai-dismiss-fingerprint="%1$s">%2$s</button>',
 			\esc_attr( $fingerprint ),
 			\esc_html__( 'Dismiss for this conflict', 'mokhai-agent-readiness-kit' )
 		);

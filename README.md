@@ -4,7 +4,7 @@
 
 An open-source WordPress plugin that turns your site into a first-class citizen of the AI-agent web. A single **Context Profile** (configured once under **Tools → Context**) is the source of truth for every agent-facing surface — what's exposed, how it's served, and how it's scored. Every module is independently toggleable, and no content leaves your server.
 
-**Status:** v0.4.0 — live on the [WordPress.org plugin directory](https://wordpress.org/plugins/mokhai-agent-readiness-kit).
+**Status:** v0.5.0 — live on the [WordPress.org plugin directory](https://wordpress.org/plugins/mokhai-agent-readiness-kit).
 
 ## Getting started
 

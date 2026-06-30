@@ -3,7 +3,7 @@
  *
  * Extracted from the descriptions table so every admin surface renders status
  * indicators with one consistent shape + colour vocabulary. Colours live in
- * `admin-ui.css` as `.agentready-pill--<kind>` modifiers, so this component is
+ * `admin-ui.css` as `.mokhai-pill--<kind>` modifiers, so this component is
  * markup-only — no inline styles.
  *
  * Usage:
@@ -43,7 +43,7 @@ export const PILL_KINDS = [
 export function Pill( { kind, children } ) {
 	const resolved = PILL_KINDS.includes( kind ) ? kind : 'none';
 	return (
-		<span className={ `agentready-pill agentready-pill--${ resolved }` }>
+		<span className={ `mokhai-pill mokhai-pill--${ resolved }` }>
 			{ children }
 		</span>
 	);

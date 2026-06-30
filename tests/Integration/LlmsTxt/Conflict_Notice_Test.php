@@ -421,7 +421,7 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 	 * fixture. Captures the echoed HTML via `ob_start`/`ob_get_clean` and
 	 * asserts the renderer produced: outer notice wrapper, top-level title,
 	 * plugin name + URL anchor, and the dismiss button with a 40-char-hex
-	 * `data-agentready-dismiss-fingerprint` attribute.
+	 * `data-mokhai-dismiss-fingerprint` attribute.
 	 *
 	 * The admin screen + capability are required by the gate in
 	 * `maybe_render()` (capability + `is_target_screen()`); without them the
@@ -447,13 +447,13 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 		$html = (string) ob_get_clean();
 
 		$this->assertNotSame( '', $html, 'Expected maybe_render() to echo notice HTML for a plugin conflict fixture.' );
-		$this->assertStringContainsString( 'agentready-llms-txt-conflict-notice', $html );
+		$this->assertStringContainsString( 'mokhai-llms-txt-conflict-notice', $html );
 		$this->assertStringContainsString( 'Mokhai — /llms.txt conflict detected', $html );
 		$this->assertStringContainsString( 'Website LLMs.txt', $html );
 		$this->assertStringContainsString( 'https://wordpress.org/plugins/website-llms-txt/', $html );
-		$this->assertStringContainsString( 'data-agentready-dismiss-fingerprint=', $html );
+		$this->assertStringContainsString( 'data-mokhai-dismiss-fingerprint=', $html );
 		$this->assertMatchesRegularExpression(
-			'/data-agentready-dismiss-fingerprint="[a-f0-9]{40}"/',
+			'/data-mokhai-dismiss-fingerprint="[a-f0-9]{40}"/',
 			$html,
 			'Dismiss-button fingerprint attribute must be a 40-char lowercase hex string.'
 		);
@@ -486,9 +486,9 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 		$this->assertNotSame( '', $html, 'Expected maybe_render() to echo notice HTML for a filesystem conflict fixture.' );
 		$this->assertStringContainsString( 'A static /llms.txt file exists', $html );
 		$this->assertStringContainsString( '<code>/var/www/html/llms.txt</code>', $html );
-		$this->assertStringContainsString( 'data-agentready-dismiss-fingerprint=', $html );
+		$this->assertStringContainsString( 'data-mokhai-dismiss-fingerprint=', $html );
 		$this->assertMatchesRegularExpression(
-			'/data-agentready-dismiss-fingerprint="[a-f0-9]{40}"/',
+			'/data-mokhai-dismiss-fingerprint="[a-f0-9]{40}"/',
 			$html,
 			'Dismiss-button fingerprint attribute must be a 40-char lowercase hex string.'
 		);
@@ -521,9 +521,9 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 		$this->assertNotSame( '', $html, 'Expected maybe_render() to echo notice HTML for a rewrite conflict fixture.' );
 		$this->assertStringContainsString( 'rewrite rule for /llms.txt', $html );
 		$this->assertStringContainsString( '<code>index.php?competitor_llms_txt=1</code>', $html );
-		$this->assertStringContainsString( 'data-agentready-dismiss-fingerprint=', $html );
+		$this->assertStringContainsString( 'data-mokhai-dismiss-fingerprint=', $html );
 		$this->assertMatchesRegularExpression(
-			'/data-agentready-dismiss-fingerprint="[a-f0-9]{40}"/',
+			'/data-mokhai-dismiss-fingerprint="[a-f0-9]{40}"/',
 			$html,
 			'Dismiss-button fingerprint attribute must be a 40-char lowercase hex string.'
 		);
@@ -575,7 +575,7 @@ final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 
 		// Fingerprint attribute still well-formed after the escape pipeline.
 		$this->assertMatchesRegularExpression(
-			'/data-agentready-dismiss-fingerprint="[a-f0-9]{40}"/',
+			'/data-mokhai-dismiss-fingerprint="[a-f0-9]{40}"/',
 			$html,
 			'Dismiss-button fingerprint attribute must remain 40-char lowercase hex when fixture contains HTML-special chars.'
 		);

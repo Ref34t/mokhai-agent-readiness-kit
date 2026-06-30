@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.4.0
+Stable tag: 0.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,7 +18,7 @@ Mokhai ships seven coherent modules, all driven by one Context Profile:
 
 * **Markdown Views** — deterministic HTML → Markdown rendering for any public URL, with three URL forms (`.md` path, `?format=md` query, `Accept: text/markdown` content negotiation) and uniform 404 on denial. Per-post cache with content-hash invalidation, Gutenberg sidebar preview, WP-CLI command, REST endpoint for admin tooling.
 * **LLMs Index** — `/llms.txt` generator that publishes a discovery surface for AI agents, with conflict detection against `robots.txt`, an editorial entries admin UI for site owners to add curated entries, and an optional LLM-powered pass that drafts entry descriptions from post content.
-* **Context Score** — 0–100 readiness audit across seven weighted sub-scores (discoverability, description coverage, schema coverage, exposure safety, integration health, Markdown conversion quality, multi-channel discovery), surfaced in an admin page, Site Health, and `wp ai-readiness-kit context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
+* **Context Score** — 0–100 readiness audit across seven weighted sub-scores (discoverability, description coverage, schema coverage, exposure safety, integration health, Markdown conversion quality, multi-channel discovery), surfaced in an admin page, Site Health, and `wp mokhai context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
 * **Schema Coordination** — detects whether your SEO plugin already emits JSON-LD; if not, optionally emits a native WebSite + Organization + per-content schema set so the schema sub-score is achievable without a third-party SEO plugin. Defers gracefully when an SEO plugin is already covering the surface.
 * **AI Assistant Preview** — an admin pane that shows any post exactly as an AI assistant consumes it: raw HTML, the Markdown View, and the live `/llms.txt` line side by side, plus an on-demand "sample AI summary" so you can sanity-check what an agent would say about the page.
 * **Agent Abilities + MCP** — exposes core plugin operations (audit run, profile read, exposure toggle, `/llms.txt` regenerate, Markdown preview) through the WordPress Abilities API, and surfaces them to MCP clients via the WordPress MCP adapter. Every ability is `manage_options`-gated.
@@ -47,16 +47,16 @@ A URL returns 404 with no body — never a partial content leak — when any of 
 * The post's CPT is not in the Context Profile's "Exposed CPTs" list
 * The post's status is not in the "Exposed statuses" list (defaults to `publish` only)
 * The post is password-protected
-* A subscriber to the `agentready_post_is_noindexed` filter returns true (the extension point for SEO-plugin noindex coordination — wire it from your theme / a companion plugin in v0.1; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release)
+* The `mokhai_post_is_noindexed` filter returns true (Mokhai auto-detects per-post noindex from Yoast, Rank Math, and AIOSEO and drops the post from agent surfaces; `mokhai_post_is_noindexed` is the extension point for additional sources)
 * The Markdown Views module is toggled off in the Context Profile
 
-All denial paths produce the same 404 shape — admin debugging via the REST endpoint or the `wp ai-readiness-kit md preview` command surfaces the specific reason.
+All denial paths produce the same 404 shape — admin debugging via the REST endpoint or the `wp mokhai md preview` command surfaces the specific reason.
 
 = Inspection surfaces =
 
 * **Gutenberg sidebar panel** — opens automatically in the document settings sidebar when editing a post. Shows the current MD rendering, the visibility verdict, and the cache state (cached vs miss, walker version, generated_at).
-* **WP-CLI** — `wp ai-readiness-kit md preview <post-id-or-url>`. Supports `--format=wrapped` for YAML-front-matter output suitable for piping into LLM tooling, `--show-meta` for cache diagnostics on stderr, and `--bypass-exposure` (requires manage_options) for inspecting hidden posts without serving them.
-* **REST endpoint** — `GET /wp-json/ai-readiness-kit/v1/markdown-views/preview?post=<id>`. Authentication via WP cookie / nonce; permission gated on `edit_post` for the target post. Used by the Gutenberg sidebar; available to third-party admin tooling.
+* **WP-CLI** — `wp mokhai md preview <post-id-or-url>`. Supports `--format=wrapped` for YAML-front-matter output suitable for piping into LLM tooling, `--show-meta` for cache diagnostics on stderr, and `--bypass-exposure` (requires manage_options) for inspecting hidden posts without serving them.
+* **REST endpoint** — `GET /wp-json/mokhai/v1/markdown-views/preview?post=<id>`. Authentication via WP cookie / nonce; permission gated on `edit_post` for the target post. Used by the Gutenberg sidebar; available to third-party admin tooling.
 
 == LLMs Index (/llms.txt) ==
 
@@ -70,13 +70,13 @@ Most sites have URLs that aren't WordPress posts but are valuable agent context 
 
 Optionally, an LLM pass drafts the per-entry descriptions from the post content (uses the WP AI Client provider configured at the site level). The deterministic floor — title-only, no description — runs without an AI provider.
 
-Posts whose body is below a minimum length are skipped by the LLM pass rather than padded with filler (e.g. a bare "Title is available at URL."). Such entries show a "skipped" status in the Descriptions tab and fall back to the title-only floor in `/llms.txt`. Adjust the threshold with the `agentready_description_min_content_chars` filter.
+Posts whose body is below a minimum length are skipped by the LLM pass rather than padded with filler (e.g. a bare "Title is available at URL."). Such entries show a "skipped" status in the Descriptions tab and fall back to the title-only floor in `/llms.txt`. Adjust the threshold with the `mokhai_description_min_content_chars` filter.
 
 = WP-CLI =
 
-* `wp ai-readiness-kit llms-txt status` — current generation state, conflict report, entry count
-* `wp ai-readiness-kit llms-txt regen` — force regeneration
-* `wp ai-readiness-kit llms-txt preview` — output the current `/llms.txt` content to stdout
+* `wp mokhai llms-txt status` — current generation state, conflict report, entry count
+* `wp mokhai llms-txt regen` — force regeneration
+* `wp mokhai llms-txt preview` — output the current `/llms.txt` content to stdout
 
 == Context Score ==
 
@@ -88,13 +88,13 @@ Context Score is the 0–100 readiness audit answering "how prepared is this sit
 4. **Exposure safety (weight 15)** — exposed statuses are limited to `publish` (no risky non-publish exposures) and at least one CPT is configured explicitly rather than implicitly
 5. **Integration health (weight 15)** — LLM features ↔ AI Client posture are consistent (no silent-degrade trap) and no `/llms.txt` conflicts are unresolved
 6. **Markdown conversion quality (weight 25)** — mean quality score across the Markdown Views cache and the percentage of cached posts above the cleanup threshold
-7. **Multi-channel discovery (weight 10)** — how many of the four plugin-served agent-discovery surfaces are present (`/llms.txt`, `ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`); all four = 100, so a plugin-only site can reach full marks. OpenAPI is detected and credited as a bonus channel for sites exposing an API but does not change the score. Sibling-provider plugins (e.g. AI Layer) are detected and credited via the filterable `ai_readiness_kit_multi_channel_providers` registry.
+7. **Multi-channel discovery (weight 10)** — how many of the four plugin-served agent-discovery surfaces are present (`/llms.txt`, `ai.txt`, `/.well-known/ai-layer`, `/.well-known/llms-policy.json`); all four = 100, so a plugin-only site can reach full marks. OpenAPI is detected and credited as a bonus channel for sites exposing an API but does not change the score. Sibling-provider plugins (e.g. AI Layer) are detected and credited via the filterable `mokhai_multi_channel_providers` registry.
 
 The score is surfaced in three places:
 
 * **Tools → Context → Context Score** — the full breakdown with per-sub-score detail
 * **Site Health** — the headline score and the highest-leverage area to improve
-* **WP-CLI** — `wp ai-readiness-kit context-score recompute` for scripted audits
+* **WP-CLI** — `wp mokhai context-score recompute` for scripted audits
 
 An LLM-generated narrative (uses the WP AI Client provider) explains the score in plain English and names the highest-leverage fixes. A rule-based narrative ships as a fallback for sites without an AI provider configured.
 
@@ -108,13 +108,13 @@ The AI Assistant Preview pane (Tools → Context) answers a question every site 
 
 == Agent Abilities (MCP) ==
 
-Mokhai registers an `ai-readiness-kit` ability category and five core WordPress Abilities (WP 6.9+): audit-run, profile-read, profile-set-exposure, llms-txt-regenerate, and md-view-preview. Each is a thin wrapper over an existing service, gated on `manage_options`, and exposed via the core `wp-abilities/v1` REST surface. When the WordPress MCP adapter is installed, these abilities are also reachable by MCP clients (the abilities are flagged `meta.mcp.public`), making the plugin's operations callable by agent runtimes — a step from agent-*readable* toward agent-*usable*. The MCP flag is inert when no adapter is present, so the abilities work standalone.
+Mokhai registers a `mokhai` ability category and five core WordPress Abilities (WP 6.9+): audit-run, profile-read, profile-set-exposure, llms-txt-regenerate, and md-view-preview. Each is a thin wrapper over an existing service, gated on `manage_options`, and exposed via the core `wp-abilities/v1` REST surface. When the WordPress MCP adapter is installed, these abilities are also reachable by MCP clients (the abilities are flagged `meta.mcp.public`), making the plugin's operations callable by agent runtimes — a step from agent-*readable* toward agent-*usable*. The MCP flag is inert when no adapter is present, so the abilities work standalone.
 
 == Privacy and Storage ==
 
-Mokhai stores rendered Markdown in a custom table named `{$wpdb->prefix}agentready_md_cache`, with one row per published post that has been requested at least once as Markdown — holding the Markdown body, an integrity hash of the source content, and the timestamp at which it was generated. The cache is invalidated automatically when a post is saved, trashed, or deleted.
+Mokhai stores rendered Markdown in a custom table named `{$wpdb->prefix}mokhai_md_cache`, with one row per published post that has been requested at least once as Markdown — holding the Markdown body, an integrity hash of the source content, and the timestamp at which it was generated. The cache is invalidated automatically when a post is saved, trashed, or deleted.
 
-Context Score audit results are cached in the `agentready_context_score_cache` `wp_options` entry (the most-recent breakdown only — overwritten on each recompute).
+Context Score audit results are cached in the `mokhai_context_score_cache` `wp_options` entry (the most-recent breakdown only — overwritten on each recompute).
 
 No content leaves your server. The plugin makes no external HTTP calls and ships no third-party analytics. AI providers configured via the WP AI Client (an optional dependency) are only consulted by modules that explicitly opt in; the deterministic surfaces (Markdown Views, /llms.txt, rule-based score narrative, gap-fill schema) all run fully locally without an AI provider.
 
@@ -131,7 +131,7 @@ The same screen exposes the LLM cleanup toggle (Markdown Views auto-cleanup pass
 
 To turn Markdown Views off without uninstalling:
 
-`wp eval "$p = get_option('agentready_context_profile'); $p['markdown_views_enabled'] = false; update_option('agentready_context_profile', $p);"`
+`wp eval "$p = get_option('mokhai_context_profile'); $p['markdown_views_enabled'] = false; update_option('mokhai_context_profile', $p);"`
 
 The module respects the toggle without latency — flipping back to true is instant; the cache table is preserved across toggle cycles.
 
@@ -143,7 +143,7 @@ No. Every deterministic surface (Markdown Views, /llms.txt floor, rule-based Con
 
 = How does Mokhai interact with my SEO plugin? =
 
-For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is active, Mokhai emits nothing competing — schema is theirs. When no SEO plugin is emitting JSON-LD, you can optionally enable Mokhai's native gap-fill emission from the Context Profile. For noindex: Mokhai ships an `agentready_post_is_noindexed` filter the Markdown Views handler honours; v0.1 leaves the SEO-plugin subscriber unwired (a theme or companion plugin can subscribe it today; native Yoast / Rank Math / AIOSEO subscribers ship in a follow-up release).
+For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is active, Mokhai emits nothing competing — schema is theirs. When no SEO plugin is emitting JSON-LD, you can optionally enable Mokhai's native gap-fill emission from the Context Profile. For noindex: Mokhai auto-detects per-post noindex from Yoast, Rank Math, and AIOSEO and drops the post from agent surfaces. Use the `mokhai_post_is_noindexed` filter to add support for additional sources.
 
 = How is this different from existing /llms.txt plugins? =
 
@@ -161,6 +161,14 @@ v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP in
 4. Context Score — 0–100 readiness audit with seven sub-scores and actionable fixes
 
 == Changelog ==
+
+= 0.5.0 — 2026-06-30 =
+
+**Public-launch baseline.** This is the first release where every developer-facing and end-user-facing identifier aligns under the `mokhai` scheme. No new features ship in this release.
+
+* **Identifier rename — internal scheme** — the PHP namespace (`Mokhai\`), WP-CLI root (`wp mokhai`), REST namespace (`mokhai/v1`), WordPress Abilities category (`mokhai`), option/meta/table keys (`mokhai_*`), and all hook names (`mokhai_*`) now match the plugin's public name. The previous `ai-readiness-kit`, `agentready`, and `ai_readiness_kit` identifiers are gone.
+* **NO automatic migration** — option keys, post meta, and the Markdown cache table were all stored under `agentready_*` or `ai_readiness_kit_*` names in releases prior to 0.5.0. A pre-0.5.0 install re-initialises its settings on first page-load after upgrade; re-configure the Context Profile under Tools → Context (Exposed CPTs, Exposed statuses, and toggles). The Markdown cache rebuilds on demand from the first request to each `.md` URL.
+* **Branding** — refreshed Plugin Directory icon and banner assets align with the Mokhai identity established in 0.3.2.
 
 = 0.4.0 — 2026-06-29 =
 
@@ -283,6 +291,10 @@ First public release. Four coherent modules driven by one Context Profile.
 * Translation policy documented: managed via wp.org under slug `agentable`
 
 == Upgrade Notice ==
+
+= 0.5.0 =
+
+All internal identifiers renamed to the `mokhai` scheme. NO automatic migration — re-configure the Context Profile (Tools → Context) after upgrading from a pre-0.5.0 install.
 
 = 0.4.0 =
 

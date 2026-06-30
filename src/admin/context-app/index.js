@@ -9,7 +9,7 @@
  *
  * Saves go through REST (`apiFetch`) inside each tab view; this shell only owns
  * layout + navigation. First-paint data is still server-rendered into three
- * `window.agentready*` globals so there is no loading flash.
+ * `window.mokhai*` globals so there is no loading flash.
  */
 
 import { createRoot } from '@wordpress/element';
@@ -20,7 +20,7 @@ import { EditorialApp } from '../llms-txt-editorial/app';
 import { DescriptionsTable } from '../llms-txt-descriptions/app';
 import '../shared/admin-ui.css';
 
-const MOUNT_SELECTOR = '#agentready-context-app';
+const MOUNT_SELECTOR = '#mokhai-context-app';
 
 function readGlobal( key ) {
 	if ( typeof window === 'undefined' ) {
@@ -37,17 +37,17 @@ const TABS = [
 ];
 
 function ContextApp() {
-	const profileBootstrap = readGlobal( 'agentreadyContextProfile' );
-	const editorialBootstrap = readGlobal( 'agentreadyLlmsTxtEditorial' );
+	const profileBootstrap = readGlobal( 'mokhaiContextProfile' );
+	const editorialBootstrap = readGlobal( 'mokhaiLlmsTxtEditorial' );
 
 	return (
 		<TabPanel
-			className="agentready-context-tabs"
+			className="mokhai-context-tabs"
 			tabs={ TABS }
 			initialTabName="profile"
 		>
 			{ ( tab ) => (
-				<Card className="agentready-context-card">
+				<Card className="mokhai-context-card">
 					<CardBody>
 						{ tab.name === 'profile' &&
 							( profileBootstrap ? (

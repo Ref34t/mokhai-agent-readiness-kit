@@ -47,8 +47,8 @@ foreach ( $classes as $class ) {
 }
 
 // Also verify the global helper from includes/Ai/helpers.php is loaded.
-$helper_ok = function_exists( 'agentready_has_ai_client' );
-fwrite( STDOUT, sprintf( "%-40s %s\n", 'agentready_has_ai_client()', $helper_ok ? 'ok' : 'FAIL' ) );
+$helper_ok = function_exists( 'mokhai_has_ai_client' );
+fwrite( STDOUT, sprintf( "%-40s %s\n", 'mokhai_has_ai_client()', $helper_ok ? 'ok' : 'FAIL' ) );
 if ( ! $helper_ok ) {
 	$exit = 1;
 }

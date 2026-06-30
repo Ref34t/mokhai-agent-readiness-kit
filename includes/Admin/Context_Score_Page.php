@@ -32,7 +32,7 @@ use Mokhai\Seo\Schema_Emitter;
  *
  * Owns three responsibilities:
  *   1. Register the menu entry under Tools.
- *   2. Render the page mount-point (`<div id="agentready-context-score-root">`)
+ *   2. Render the page mount-point (`<div id="mokhai-context-score-root">`)
  *      plus a no-JS fallback notice pointing at the CLI alternative.
  *   3. Enqueue the React bundle ONLY on the plugin's screen — never globally.
  */
@@ -43,7 +43,7 @@ final class Context_Score_Page {
 	 *
 	 * @var string
 	 */
-	public const PAGE_SLUG = 'agentready-context-score';
+	public const PAGE_SLUG = 'mokhai-context-score';
 
 	/**
 	 * Suffix returned by add_management_page (`tools_page_<PAGE_SLUG>`),
@@ -114,14 +114,14 @@ final class Context_Score_Page {
 		}
 
 		?>
-		<div class="wrap" id="agentready-context-score-wrap">
+		<div class="wrap" id="mokhai-context-score-wrap">
 			<h1><?php \esc_html_e( 'Context Score', 'mokhai-agent-readiness-kit' ); ?></h1>
 			<p class="description">
 				<?php echo \esc_html( self::subtitle() ); ?>
 			</p>
 
 			<div
-				id="agentready-context-score-root"
+				id="mokhai-context-score-root"
 				role="region"
 				aria-label="<?php \esc_attr_e( 'Mokhai Context Score breakdown', 'mokhai-agent-readiness-kit' ); ?>"
 			></div>
@@ -141,7 +141,7 @@ final class Context_Score_Page {
 
 			<?php // AI Assistant Preview pane mount-point (#45 / AgDR-0046). ?>
 			<div
-				id="agentready-ai-preview-root"
+				id="mokhai-ai-preview-root"
 				role="region"
 				aria-label="<?php \esc_attr_e( 'AI Assistant Preview', 'mokhai-agent-readiness-kit' ); ?>"
 			></div>
@@ -154,7 +154,7 @@ final class Context_Score_Page {
 	 *
 	 * Only enqueues on the Context Score screen — `$hook` matches the
 	 * suffix returned by `add_management_page`
-	 * (`tools_page_agentready-context-score`).
+	 * (`tools_page_mokhai-context-score`).
 	 *
 	 * The bundle is built with `@wordpress/scripts`. If the build artefact
 	 * is missing (running from a source checkout without `npm run build`),
@@ -189,7 +189,7 @@ final class Context_Score_Page {
 			);
 
 		\wp_enqueue_script(
-			'agentready-context-score',
+			'mokhai-context-score',
 			$script_url,
 			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
 			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION,
@@ -197,20 +197,20 @@ final class Context_Score_Page {
 		);
 
 		\wp_add_inline_script(
-			'agentready-context-score',
-			'window.agentreadyContextScore = ' . \wp_json_encode( self::bootstrap_data() ) . ';',
+			'mokhai-context-score',
+			'window.mokhaiContextScore = ' . \wp_json_encode( self::bootstrap_data() ) . ';',
 			'before'
 		);
 
 		\wp_set_script_translations(
-			'agentready-context-score',
+			'mokhai-context-score',
 			'mokhai-agent-readiness-kit',
 			\MOKHAI_DIR . 'languages'
 		);
 
 		if ( \file_exists( \MOKHAI_DIR . 'build/admin/context-score.css' ) ) {
 			\wp_enqueue_style(
-				'agentready-context-score',
+				'mokhai-context-score',
 				$style_url,
 				array( 'wp-components' ),
 				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION
@@ -243,7 +243,7 @@ final class Context_Score_Page {
 			);
 
 		\wp_enqueue_script(
-			'agentready-ai-preview',
+			'mokhai-ai-preview',
 			\MOKHAI_URL . 'build/admin/ai-preview.js',
 			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
 			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION,
@@ -251,20 +251,20 @@ final class Context_Score_Page {
 		);
 
 		\wp_add_inline_script(
-			'agentready-ai-preview',
-			'window.agentreadyAiPreview = ' . \wp_json_encode( self::ai_preview_bootstrap_data() ) . ';',
+			'mokhai-ai-preview',
+			'window.mokhaiAiPreview = ' . \wp_json_encode( self::ai_preview_bootstrap_data() ) . ';',
 			'before'
 		);
 
 		\wp_set_script_translations(
-			'agentready-ai-preview',
+			'mokhai-ai-preview',
 			'mokhai-agent-readiness-kit',
 			\MOKHAI_DIR . 'languages'
 		);
 
 		if ( \file_exists( \MOKHAI_DIR . 'build/admin/ai-preview.css' ) ) {
 			\wp_enqueue_style(
-				'agentready-ai-preview',
+				'mokhai-ai-preview',
 				\MOKHAI_URL . 'build/admin/ai-preview.css',
 				array( 'wp-components' ),
 				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION

@@ -5,7 +5,7 @@
  * "Markdown view" preview (Phase 5 / AgDR-0014) into one panel, ordered
  * control → consequence → detail:
  *
- *  1. Exclude toggle — binds the `_agentready_excluded` post meta
+ *  1. Exclude toggle — binds the `_mokhai_excluded` post meta
  *     (registered by WPContext\Admin\Exclude_Meta) via useEntityProp.
  *  2. Visibility verdict — reflects the unsaved toggle state immediately
  *     for the exclude case; falls back to the server reason codes from
@@ -35,7 +35,7 @@ import { __ } from '@wordpress/i18n';
 import { Pill } from '../shared/Pill';
 import '../shared/admin-ui.css';
 
-const META_KEY = '_agentready_excluded';
+const META_KEY = '_mokhai_excluded';
 
 /**
  * Convert a visibility reason code to a user-facing string.
@@ -70,7 +70,7 @@ function reasonLabel( reason ) {
 			);
 		case 'excluded':
 			return __(
-				'Post is on the agentready exclude list (per-post toggle or Context Profile exclude list).',
+				'Post is on the mokhai exclude list (per-post toggle or Context Profile exclude list).',
 				'mokhai-agent-readiness-kit'
 			);
 		case 'sample':
@@ -112,7 +112,7 @@ function verdictLabel( excluded, visibility ) {
 function AgentsPanel() {
 	const { postId, postType, moduleEnabled } = useSelect( ( select ) => {
 		const editor = select( editorStore );
-		const settings = window.agentreadyAgentsSidebar || {};
+		const settings = window.mokhaiAgentsSidebar || {};
 		return {
 			postId: editor.getCurrentPostId(),
 			postType: editor.getCurrentPostType(),
@@ -138,7 +138,7 @@ function AgentsPanel() {
 
 		try {
 			const response = await apiFetch( {
-				path: `/ai-readiness-kit/v1/markdown-views/preview?post=${ postId }`,
+				path: `/mokhai/v1/markdown-views/preview?post=${ postId }`,
 			} );
 			setData( response );
 		} catch ( err ) {
@@ -191,9 +191,9 @@ function AgentsPanel() {
 
 	return (
 		<PluginDocumentSettingPanel
-			name="agentready-agents"
+			name="mokhai-agents"
 			title={ __( 'AI Readiness', 'mokhai-agent-readiness-kit' ) }
-			className="agentready-agents-panel"
+			className="mokhai-agents-panel"
 		>
 			<ToggleControl
 				__nextHasNoMarginBottom
@@ -216,7 +216,7 @@ function AgentsPanel() {
 			/>
 
 			{ verdict && (
-				<p className="agentready-verdict">
+				<p className="mokhai-verdict">
 					<Pill kind="stale">
 						{ __( 'Hidden', 'mokhai-agent-readiness-kit' ) }
 					</Pill>{ ' ' }
@@ -238,9 +238,9 @@ function AgentsPanel() {
 
 			{ showPreview && (
 				<>
-					<pre className="agentready-md-pre">{ data.markdown }</pre>
+					<pre className="mokhai-md-pre">{ data.markdown }</pre>
 
-					<div className="agentready-button-row">
+					<div className="mokhai-button-row">
 						<Button
 							variant="secondary"
 							onClick={ onCopy }
@@ -260,7 +260,7 @@ function AgentsPanel() {
 					</div>
 
 					{ data.cache_state && (
-						<p className="agentready-md-meta">
+						<p className="mokhai-md-meta">
 							<strong>
 								{ __( 'Cache:', 'mokhai-agent-readiness-kit' ) }
 							</strong>{ ' ' }
@@ -280,7 +280,7 @@ function AgentsPanel() {
 	);
 }
 
-registerPlugin( 'agentready-agents', {
+registerPlugin( 'mokhai-agents', {
 	render: AgentsPanel,
 	icon: null,
 } );

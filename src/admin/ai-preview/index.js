@@ -13,7 +13,7 @@
  * Markdown View and cached server-side. No polling — the POST returns the
  * result (or a structured degrade hint) directly.
  *
- * All reads/writes route through the `ai-readiness-kit/v1/ai-preview` REST
+ * All reads/writes route through the `mokhai/v1/ai-preview` REST
  * surface shipped in PR A. The panel is presentation only; the server is the
  * source of truth.
  */
@@ -35,8 +35,8 @@ import {
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 
-const MOUNT_SELECTOR = '#agentready-ai-preview-root';
-const BOOTSTRAP_KEY = 'agentreadyAiPreview';
+const MOUNT_SELECTOR = '#mokhai-ai-preview-root';
+const BOOTSTRAP_KEY = 'mokhaiAiPreview';
 
 // Reasons the Markdown View pane can be empty, mapped to operator-facing copy.
 const NOT_EXPOSABLE_REASONS = {

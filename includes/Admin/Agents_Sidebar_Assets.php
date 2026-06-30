@@ -38,7 +38,7 @@ final class Agents_Sidebar_Assets {
 	 *
 	 * @var string
 	 */
-	public const SCRIPT_HANDLE = 'agentready-agents-sidebar';
+	public const SCRIPT_HANDLE = 'mokhai-agents-sidebar';
 
 	/**
 	 * Wire WordPress hooks. Called from Main::register_hooks().
@@ -76,7 +76,7 @@ final class Agents_Sidebar_Assets {
 
 		\wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'window.agentreadyAgentsSidebar = ' . \wp_json_encode( self::bootstrap_data() ) . ';',
+			'window.mokhaiAgentsSidebar = ' . \wp_json_encode( self::bootstrap_data() ) . ';',
 			'before'
 		);
 
@@ -87,7 +87,7 @@ final class Agents_Sidebar_Assets {
 		);
 
 		// Shared admin design-token stylesheet (#70). Carries the
-		// `.agentready-md-*` classes the preview markup uses in place of
+		// `.mokhai-md-*` classes the preview markup uses in place of
 		// inline styles. Guarded on existence so a source checkout without a
 		// build still loads the script (the panel degrades to unstyled <pre>).
 		if ( \file_exists( \MOKHAI_DIR . 'build/admin/agents-sidebar.css' ) ) {
@@ -102,7 +102,7 @@ final class Agents_Sidebar_Assets {
 
 	/**
 	 * Server-rendered bootstrap data exposed to the React panel via the
-	 * `window.agentreadyAgentsSidebar` global. Kept minimal: the REST nonce
+	 * `window.mokhaiAgentsSidebar` global. Kept minimal: the REST nonce
 	 * is auto-attached by `wp.apiFetch`'s nonce middleware on admin pages, so
 	 * we only need the module flag here.
 	 *

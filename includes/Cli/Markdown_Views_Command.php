@@ -105,7 +105,7 @@ final class Markdown_Views_Command {
 		if ( $bypass && ! \current_user_can( 'manage_options' ) ) {
 			\WP_CLI::error(
 				\__(
-					'--bypass-exposure requires the manage_options capability. Run with `--user=<id-or-login>` to authenticate as an administrator (e.g. `wp --user=admin agentready md preview <id> --bypass-exposure`).',
+					'--bypass-exposure requires the manage_options capability. Run with `--user=<id-or-login>` to authenticate as an administrator (e.g. `wp --user=admin mokhai md preview <id> --bypass-exposure`).',
 					'mokhai-agent-readiness-kit'
 				)
 			);

@@ -2,7 +2,7 @@
 /**
  * Advertise the plugin's agent surfaces through standard discovery channels.
  *
- * agentready generates `/llms.txt` and per-page `.md` twins, but unless they're
+ * Mokhai generates `/llms.txt` and per-page `.md` twins, but unless they're
  * announced only an agent that already knows the `llms.txt` convention (or
  * guesses that appending `.md` works) finds them (#178). This module announces
  * them through three standard channels so any agent that merely reads response
@@ -178,7 +178,7 @@ final class Alternate_Advertiser {
 	 * @return string
 	 */
 	public static function augment_robots_txt( string $output, string $llms_url ): string {
-		$line = '# AI-readable content index (agentready): ' . \esc_url_raw( $llms_url );
+		$line = '# AI-readable content index (mokhai): ' . \esc_url_raw( $llms_url );
 
 		return \rtrim( $output, "\n" ) . "\n" . $line . "\n";
 	}

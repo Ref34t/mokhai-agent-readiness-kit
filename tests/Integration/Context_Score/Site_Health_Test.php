@@ -170,7 +170,7 @@ final class Site_Health_Test extends WP_UnitTestCase {
 
 		$result = Site_Health::run_test();
 
-		self::assertStringContainsString( 'agentready-context-score', $result['actions'] );
+		self::assertStringContainsString( 'mokhai-context-score', $result['actions'] );
 	}
 
 	/**

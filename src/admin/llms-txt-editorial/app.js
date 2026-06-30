@@ -1,9 +1,9 @@
 /**
  * Mokhai — LLMs Index editorial entries view (#7 Phase C / #142).
  *
- * Repeater editor for the `agentready_llms_txt_editorial` option. Rendered as
+ * Repeater editor for the `mokhai_llms_txt_editorial` option. Rendered as
  * the "Editorial" tab of the Context app shell (#142 / AgDR-0048). Saves via
- * the `ai-readiness-kit/v1/llms-txt/editorial` REST route through `apiFetch`
+ * the `mokhai/v1/llms-txt/editorial` REST route through `apiFetch`
  * — no page reload — instead of the legacy options.php form POST. The
  * server-side `Editorial_Settings::sanitize()` remains the source of truth.
  */
@@ -44,8 +44,8 @@ function EntryRow( {
 	const isCustom = entry.section === 'Custom';
 
 	return (
-		<div className="agentready-editorial__row">
-			<div className="agentready-editorial__row-header">
+		<div className="mokhai-editorial__row">
+			<div className="mokhai-editorial__row-header">
 				<strong>
 					{ sprintf(
 						/* translators: %d: entry index */
@@ -53,7 +53,7 @@ function EntryRow( {
 						index + 1
 					) }
 				</strong>
-				<div className="agentready-button-row agentready-button-row--tight">
+				<div className="mokhai-button-row mokhai-button-row--tight">
 					<Button
 						type="button"
 						variant="tertiary"
@@ -263,7 +263,7 @@ export function EditorialApp( { bootstrap } ) {
 				/>
 			) ) }
 
-			<div className="agentready-button-row">
+			<div className="mokhai-button-row">
 				<Button
 					type="button"
 					variant="secondary"

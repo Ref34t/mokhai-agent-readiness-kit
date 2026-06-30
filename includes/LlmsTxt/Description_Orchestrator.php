@@ -353,7 +353,7 @@ PROMPT;
 	 * Queue an async description job. Idempotent — doesn't double-queue
 	 * an identical event already pending.
 	 *
-	 * Stale-event recovery (Ref34t/agentready#121, sibling of #103 / #115):
+	 * Stale-event recovery (Ref34t/mokhai-agent-readiness-kit#121, sibling of #103 / #115):
 	 * if a previously-scheduled event for this post is still sitting in the
 	 * cron queue with a past timestamp (the cron didn't fire it — common on
 	 * wp-env without traffic, or any site where the LLM call rate-limited /

@@ -46,7 +46,7 @@ final class Md_View_Ability {
 		$post = self::resolve_post( $input );
 		if ( ! $post instanceof \WP_Post ) {
 			return new \WP_Error(
-				'ai_readiness_kit_post_not_found',
+				'mokhai_post_not_found',
 				\__( 'No post resolves from the supplied url / post_id.', 'mokhai-agent-readiness-kit' ),
 				array( 'status' => 404 )
 			);
@@ -54,7 +54,7 @@ final class Md_View_Ability {
 
 		if ( ! Context_Profile_Settings::is_module_enabled( 'markdown_views' ) ) {
 			return new \WP_Error(
-				'ai_readiness_kit_module_disabled',
+				'mokhai_module_disabled',
 				\__( 'The Markdown Views module is disabled in the Context Profile.', 'mokhai-agent-readiness-kit' ),
 				array( 'status' => 403 )
 			);

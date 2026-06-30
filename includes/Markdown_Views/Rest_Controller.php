@@ -49,7 +49,7 @@ use Mokhai\Admin\Context_Profile_Settings;
 final class Rest_Controller {
 
 	/**
-	 * REST namespace shared with the rest of the agentready plugin.
+	 * REST namespace shared with the rest of the mokhai plugin.
 	 *
 	 * @var string
 	 */

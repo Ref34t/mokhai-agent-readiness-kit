@@ -165,7 +165,7 @@ final class Service {
 	 *    fire — Context Score would freeze at the previous breakdown
 	 *    until the daily backstop kicks in or someone runs
 	 *    `wp mokhai context-score recompute` manually.
-	 *    See Ref34t/agentready#115 (sibling of #103).
+	 *    See Ref34t/mokhai-agent-readiness-kit#115 (sibling of #103).
 	 *
 	 * Extra arguments passed by `do_action()` (e.g. the profile arrays
 	 * from `mokhai_context_profile_saved`) are intentionally ignored —

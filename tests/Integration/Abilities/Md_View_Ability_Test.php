@@ -104,7 +104,7 @@ final class Md_View_Ability_Test extends WP_UnitTestCase {
 		$result = $this->preview( array( 'url' => 'https://example.com/nope-does-not-exist/' ) );
 
 		self::assertWPError( $result );
-		self::assertSame( 'ai_readiness_kit_post_not_found', $result->get_error_code() );
+		self::assertSame( 'mokhai_post_not_found', $result->get_error_code() );
 	}
 
 	public function test_module_disabled_returns_error(): void {
@@ -119,7 +119,7 @@ final class Md_View_Ability_Test extends WP_UnitTestCase {
 		$result = $this->preview( array( 'post_id' => $this->make_post() ) );
 
 		self::assertWPError( $result );
-		self::assertSame( 'ai_readiness_kit_module_disabled', $result->get_error_code() );
+		self::assertSame( 'mokhai_module_disabled', $result->get_error_code() );
 	}
 
 	public function test_subscriber_is_denied(): void {

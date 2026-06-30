@@ -1,7 +1,7 @@
 {
 	"name": "mokhai-agent-readiness-kit",
 	"private": true,
-	"version": "0.4.0",
+	"version": "0.5.0",
 	"description": "AI Readiness for WordPress: context, policy, audit, analytics.",
 	"license": "GPL-2.0-or-later",
 	"repository": {
