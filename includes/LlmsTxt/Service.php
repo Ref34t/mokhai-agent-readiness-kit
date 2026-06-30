@@ -136,12 +136,12 @@ final class Service {
 		\add_action( 'before_delete_post', array( self::class, 'on_post_change' ), 10, 1 );
 		\add_action( 'wp_after_insert_post', array( self::class, 'on_post_change' ), 10, 1 );
 
-		\add_action( 'agentready_context_profile_saved', array( self::class, 'schedule_regen' ) );
-		\add_action( 'agentready_llms_txt_editorial_saved', array( self::class, 'schedule_regen' ) );
+		\add_action( 'mokhai_context_profile_saved', array( self::class, 'schedule_regen' ) );
+		\add_action( 'mokhai_llms_txt_editorial_saved', array( self::class, 'schedule_regen' ) );
 		// A per-post description change (regen / manual set-clear / invalidate)
 		// must recompose the cached document, or /llms.txt serves stale
 		// descriptions until another trigger or the daily backstop (#151).
-		\add_action( 'agentready_llms_txt_description_changed', array( self::class, 'schedule_regen' ) );
+		\add_action( 'mokhai_llms_txt_description_changed', array( self::class, 'schedule_regen' ) );
 
 		// A programmatic exclude-meta write (update_post_meta / WP-CLI / REST
 		// meta endpoints) fires none of the save_post-family hooks above, so

@@ -117,7 +117,7 @@ final class Service {
 		\add_action( self::DAILY_RECOMPUTE_ACTION, array( self::class, 'do_recompute' ) );
 		\add_action( self::NARRATIVE_ACTION, array( self::class, 'do_generate_narrative' ) );
 
-		\add_action( 'agentready_context_profile_saved', array( self::class, 'schedule_recompute' ) );
+		\add_action( 'mokhai_context_profile_saved', array( self::class, 'schedule_recompute' ) );
 	}
 
 	/**

@@ -51,7 +51,7 @@ final class SEO_Noindex_Detector {
 	 * Wire the filter subscriber. Called from Main::register_hooks().
 	 */
 	public static function register_hooks(): void {
-		\add_filter( 'agentready_post_is_noindexed', array( self::class, 'filter_is_noindexed' ), 10, 2 );
+		\add_filter( 'mokhai_post_is_noindexed', array( self::class, 'filter_is_noindexed' ), 10, 2 );
 	}
 
 	/**

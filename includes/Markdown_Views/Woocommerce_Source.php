@@ -34,7 +34,7 @@ final class Woocommerce_Source {
 	 * dependency on WooCommerce having loaded by registration time.
 	 */
 	public static function register(): void {
-		\add_filter( 'agentready_markdown_source_html', array( self::class, 'prepend_short_description' ), 10, 2 );
+		\add_filter( 'mokhai_markdown_source_html', array( self::class, 'prepend_short_description' ), 10, 2 );
 	}
 
 	/**
