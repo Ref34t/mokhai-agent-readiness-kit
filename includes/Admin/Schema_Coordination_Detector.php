@@ -8,12 +8,12 @@
  * surfaces the detected state read-only so the agency lead sees which plugin
  * Mokhai is deferring to.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 

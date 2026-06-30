@@ -3,17 +3,17 @@
  * Integration tests for the `ai-readiness-kit/md-view-preview` ability
  * (#21 / AgDR-0044).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Abilities;
+namespace Mokhai\Tests\Integration\Abilities;
 
 use WP_UnitTestCase;
-use WPContext\Abilities\Md_View_Ability;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Abilities\Md_View_Ability;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Md_View_Ability_Test extends WP_UnitTestCase {
 

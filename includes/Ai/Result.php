@@ -2,12 +2,12 @@
 /**
  * Result value object returned by Client_Wrapper::generate.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Ai;
+namespace Mokhai\Ai;
 
 \defined( 'ABSPATH' ) || exit;
 

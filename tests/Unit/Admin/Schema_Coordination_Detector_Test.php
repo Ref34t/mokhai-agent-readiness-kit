@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for WPContext\Admin\Schema_Coordination_Detector.
+ * Unit tests for Mokhai\Admin\Schema_Coordination_Detector.
  *
  * Covers:
  *   - 'none' posture when no recognised SEO plugin is loaded
@@ -13,15 +13,15 @@
  * detected-plugin test uses a different class name (Yoast, Rank Math, AIOSEO
  * are distinct).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Admin;
+namespace Mokhai\Tests\Unit\Admin;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Admin\Schema_Coordination_Detector;
+use Mokhai\Admin\Schema_Coordination_Detector;
 
 final class Schema_Coordination_Detector_Test extends TestCase {
 

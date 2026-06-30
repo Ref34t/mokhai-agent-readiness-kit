@@ -8,12 +8,12 @@
  * `excluded` gate in {@see Context_Profile_Settings::get_exposure_reason()}
  * drops the post from /llms.txt, .md views, and #178 alternate advertising.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 

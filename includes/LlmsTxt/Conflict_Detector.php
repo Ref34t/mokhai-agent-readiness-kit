@@ -18,12 +18,12 @@
  * `LlmsTxt\Conflict_Notice`; the WP-CLI surface picks up `detect()`
  * results in the Phase A `status` command.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -54,7 +54,14 @@ final class Conflict_Detector {
 	 *
 	 * @var string
 	 */
-	public const SLUG_REGISTRY_FILTER = 'agentready_llms_txt_known_plugin_slugs';
+	public const SLUG_REGISTRY_FILTER = 'mokhai_llms_txt_known_plugin_slugs';
+
+	/**
+	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_llms_txt_known_plugin_slugs`).
+	 *
+	 * @var string
+	 */
+	public const LEGACY_SLUG_REGISTRY_FILTER = 'agentready_llms_txt_known_plugin_slugs';
 
 	/**
 	 * The literal rewrite-regex key our `Router` registers under (must
@@ -195,10 +202,12 @@ final class Conflict_Detector {
 		 *
 		 * @param array<string, array{name: string, url: string, shape: string}> $slugs Map.
 		 */
-		// Hook name resolves to `agentready_llms_txt_known_plugin_slugs` —
+		// Hook name resolves to `mokhai_llms_txt_known_plugin_slugs` —
 		// the constant is prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$filtered = \apply_filters( self::SLUG_REGISTRY_FILTER, $default );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$filtered = \apply_filters_deprecated( self::LEGACY_SLUG_REGISTRY_FILTER, array( $filtered ), '0.5.0', self::SLUG_REGISTRY_FILTER );
 
 		if ( ! is_array( $filtered ) ) {
 			return $default;

@@ -15,15 +15,15 @@
  * no-hallucination guard — so the summary is bounded to source-present
  * content by construction.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Ai_Preview;
+namespace Mokhai\Ai_Preview;
 
-use WPContext\Ai\Client_Wrapper;
-use WPContext\Ai\Provider;
+use Mokhai\Ai\Client_Wrapper;
+use Mokhai\Ai\Provider;
 
 \defined( 'ABSPATH' ) || exit;
 

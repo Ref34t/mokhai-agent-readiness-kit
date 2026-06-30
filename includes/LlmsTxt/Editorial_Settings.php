@@ -23,12 +23,12 @@
  * `LlmsTxt\Service::register_hooks()` (Phase A / AgDR-0023) already subscribes
  * to — the regen schedule fires automatically.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -59,7 +59,14 @@ final class Editorial_Settings {
 	 *
 	 * @var string
 	 */
-	public const SAVED_ACTION = 'agentready_llms_txt_editorial_saved';
+	public const SAVED_ACTION = 'mokhai_llms_txt_editorial_saved';
+
+	/**
+	 * Legacy action name for back-compat (deprecated since 0.5.0, use `mokhai_llms_txt_editorial_saved`).
+	 *
+	 * @var string
+	 */
+	public const LEGACY_SAVED_ACTION = 'agentready_llms_txt_editorial_saved';
 
 	/**
 	 * Current schema version. Bumped if the stored shape changes.
@@ -240,10 +247,12 @@ final class Editorial_Settings {
 	public static function on_save( $old_value, $value ): void {
 		unset( $old_value, $value );
 
-		// Hook name resolves to `agentready_llms_txt_editorial_saved` —
+		// Hook name resolves to `mokhai_llms_txt_editorial_saved` —
 		// constant is prefixed; phpcs can't see through the const ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		\do_action( self::SAVED_ACTION );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		\do_action_deprecated( self::LEGACY_SAVED_ACTION, array(), '0.5.0', self::SAVED_ACTION );
 	}
 
 	/**

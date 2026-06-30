@@ -15,12 +15,12 @@
  * no WordPress calls. Lifting the helper into `Engine` would have broken that
  * contract — see #126.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
 \defined( 'ABSPATH' ) || exit;
 

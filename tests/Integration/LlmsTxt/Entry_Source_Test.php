@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for WPContext\LlmsTxt\Entry_Source.
+ * Integration tests for Mokhai\LlmsTxt\Entry_Source.
  *
  * Runs inside the wp-phpunit test instance so each branch of
  * `Entry_Source::get_sections()` is exercised against real `WP_Query`
@@ -10,23 +10,23 @@
  *  - `PER_CPT_CAP` truncation enforcement
  *  - `Context_Profile_Settings::is_url_exposable()` gate (password-protected
  *    posts excluded even when their CPT/status match)
- *  - `agentready_llms_txt_entry_description` filter precedence over the
+ *  - `mokhai_llms_txt_entry_description` filter precedence over the
  *    `post_excerpt` fallback
  *  - `(no title)` fallback for posts saved without a title
  *  - Custom-CPT label resolution via `get_post_type_object`
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\LlmsTxt\Entry_Source;
-use WPContext\LlmsTxt\Service;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\LlmsTxt\Entry_Source;
+use Mokhai\LlmsTxt\Service;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Entry_Source_Test extends WP_UnitTestCase {
 

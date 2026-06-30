@@ -11,12 +11,12 @@
  *
  * Full design rationale: docs/agdr/AgDR-0033-seo-defer-gap-fill-emitter.md.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Seo;
+namespace Mokhai\Seo;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -60,14 +60,28 @@ final class Plugin_Coverage {
 	 *
 	 * @var string
 	 */
-	public const FILTER_COVERAGE_MATRIX = 'agentready_schema_coverage_matrix';
+	public const FILTER_COVERAGE_MATRIX = 'mokhai_schema_coverage_matrix';
+
+	/**
+	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_schema_coverage_matrix`).
+	 *
+	 * @var string
+	 */
+	public const LEGACY_FILTER_COVERAGE_MATRIX = 'agentready_schema_coverage_matrix';
 
 	/**
 	 * Filter name applied to the baseline type list before gap computation.
 	 *
 	 * @var string
 	 */
-	public const FILTER_BASELINE_TYPES = 'agentready_schema_baseline_types';
+	public const FILTER_BASELINE_TYPES = 'mokhai_schema_baseline_types';
+
+	/**
+	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_schema_baseline_types`).
+	 *
+	 * @var string
+	 */
+	public const LEGACY_FILTER_BASELINE_TYPES = 'agentready_schema_baseline_types';
 
 	/**
 	 * Resolve the active coverage matrix, applying any filter override.
@@ -75,10 +89,12 @@ final class Plugin_Coverage {
 	 * @return array<string, array<int, string>>
 	 */
 	public static function coverage_matrix(): array {
-		// Hook name resolves to `agentready_schema_coverage_matrix` — the
+		// Hook name resolves to `mokhai_schema_coverage_matrix` — the
 		// constant is prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$filtered = \apply_filters( self::FILTER_COVERAGE_MATRIX, self::DEFAULT_COVERAGE );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$filtered = \apply_filters_deprecated( self::LEGACY_FILTER_COVERAGE_MATRIX, array( $filtered ), '0.5.0', self::FILTER_COVERAGE_MATRIX );
 		return self::sanitize_matrix( $filtered );
 	}
 
@@ -88,10 +104,12 @@ final class Plugin_Coverage {
 	 * @return array<int, string>
 	 */
 	public static function baseline_types(): array {
-		// Hook name resolves to `agentready_schema_baseline_types` — the
+		// Hook name resolves to `mokhai_schema_baseline_types` — the
 		// constant is prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$filtered = \apply_filters( self::FILTER_BASELINE_TYPES, self::DEFAULT_BASELINE );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$filtered = \apply_filters_deprecated( self::LEGACY_FILTER_BASELINE_TYPES, array( $filtered ), '0.5.0', self::FILTER_BASELINE_TYPES );
 		return self::sanitize_type_list( $filtered );
 	}
 

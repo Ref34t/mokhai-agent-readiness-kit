@@ -18,20 +18,20 @@
  * recreates the table and clears every cron hook the seeding listeners may
  * have scheduled, so sibling suites observe a clean slate.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Support;
+namespace Mokhai\Tests\Integration\Support;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Context_Score\Service as Context_Score_Service;
-use WPContext\LlmsTxt\Description_Orchestrator;
-use WPContext\LlmsTxt\Service as Llms_Txt_Service;
-use WPContext\Support\Uninstaller;
-use WPContext\Markdown_Views\Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Context_Score\Service as Context_Score_Service;
+use Mokhai\LlmsTxt\Description_Orchestrator;
+use Mokhai\LlmsTxt\Service as Llms_Txt_Service;
+use Mokhai\Support\Uninstaller;
+use Mokhai\Markdown_Views\Schema;
 
 final class Uninstaller_Test extends WP_UnitTestCase {
 

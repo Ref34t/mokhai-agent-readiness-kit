@@ -9,17 +9,17 @@
  * so the callback short-circuits; its string is covered by the unit builder test
  * and its gating shares `current_md_url()` with the `wp_head` path tested below.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Discovery;
+namespace Mokhai\Tests\Integration\Discovery;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Discovery\Alternate_Advertiser;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Discovery\Alternate_Advertiser;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Alternate_Advertiser_Test extends WP_UnitTestCase {
 
@@ -111,13 +111,13 @@ final class Alternate_Advertiser_Test extends WP_UnitTestCase {
 				'post_type'   => 'post',
 			)
 		);
-		add_filter( 'agentready_post_is_noindexed', '__return_true' );
+		add_filter( 'mokhai_post_is_noindexed', '__return_true' );
 		$this->go_to( get_permalink( $post_id ) );
 
 		try {
 			self::assertStringNotContainsString( 'type="text/markdown"', $this->capture_head() );
 		} finally {
-			remove_filter( 'agentready_post_is_noindexed', '__return_true' );
+			remove_filter( 'mokhai_post_is_noindexed', '__return_true' );
 		}
 	}
 

@@ -7,16 +7,16 @@
  * test callback's branches (null cache, good/recommended/critical
  * buckets) using the real `Service::get_breakdown()` path.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Context_Score;
+namespace Mokhai\Tests\Integration\Context_Score;
 
 use WP_UnitTestCase;
-use WPContext\Context_Score\Service;
-use WPContext\Context_Score\Site_Health;
+use Mokhai\Context_Score\Service;
+use Mokhai\Context_Score\Site_Health;
 
 final class Site_Health_Test extends WP_UnitTestCase {
 

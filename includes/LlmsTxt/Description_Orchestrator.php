@@ -7,16 +7,16 @@
  * post-meta cache. The read-side filter `Description_Filter` reads the
  * cached value at /llms.txt compose time; nothing here blocks regen.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Ai\Client_Wrapper;
-use WPContext\Support\Shortcode_Stripper;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Ai\Client_Wrapper;
+use Mokhai\Support\Shortcode_Stripper;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -83,7 +83,14 @@ final class Description_Orchestrator {
 	 *
 	 * @var string
 	 */
-	public const DESCRIPTION_CHANGED_ACTION = 'agentready_llms_txt_description_changed';
+	public const DESCRIPTION_CHANGED_ACTION = 'mokhai_llms_txt_description_changed';
+
+	/**
+	 * Legacy action name for back-compat (deprecated since 0.5.0, use `mokhai_llms_txt_description_changed`).
+	 *
+	 * @var string
+	 */
+	public const LEGACY_DESCRIPTION_CHANGED_ACTION = 'agentready_llms_txt_description_changed';
 
 	/**
 	 * LLM-generated description. Regen-overwritable. Empty key when no
@@ -708,10 +715,12 @@ PROMPT;
 	 * @param int $post_id Post whose served description changed.
 	 */
 	private static function notify_description_changed( int $post_id ): void {
-		// Hook name resolves to `agentready_llms_txt_description_changed` —
+		// Hook name resolves to `mokhai_llms_txt_description_changed` —
 		// the constant is prefixed; phpcs can't see through the const ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		\do_action( self::DESCRIPTION_CHANGED_ACTION, $post_id );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		\do_action_deprecated( self::LEGACY_DESCRIPTION_CHANGED_ACTION, array( $post_id ), '0.5.0', self::DESCRIPTION_CHANGED_ACTION );
 	}
 
 	/**
@@ -724,7 +733,10 @@ PROMPT;
 	 * `agentready_description_min_content_chars` filter (#214).
 	 */
 	public static function min_content_chars(): int {
-		$min = (int) \apply_filters( 'agentready_description_min_content_chars', self::MIN_CONTENT_CHARS );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$min = (int) \apply_filters( 'mokhai_description_min_content_chars', self::MIN_CONTENT_CHARS );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$min = (int) \apply_filters_deprecated( 'agentready_description_min_content_chars', array( $min ), '0.5.0', 'mokhai_description_min_content_chars' );
 		return \max( 0, $min );
 	}
 

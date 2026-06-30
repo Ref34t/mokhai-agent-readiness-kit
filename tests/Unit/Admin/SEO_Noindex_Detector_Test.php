@@ -7,16 +7,16 @@
  * $GLOBALS['wpctx_test_post_meta'], then asserts the filter verdict for the
  * Yoast / Rank Math meta shapes and the short-circuit contract.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Admin;
+namespace Mokhai\Tests\Unit\Admin;
 
 use PHPUnit\Framework\TestCase;
 use WP_Post;
-use WPContext\Admin\SEO_Noindex_Detector;
+use Mokhai\Admin\SEO_Noindex_Detector;
 
 final class SEO_Noindex_Detector_Test extends TestCase {
 

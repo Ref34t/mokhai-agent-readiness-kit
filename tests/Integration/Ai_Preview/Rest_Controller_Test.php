@@ -17,19 +17,19 @@
  * verified live on wp-env (PR B) rather than asserted here — these tests
  * pin only the deterministic transport behaviour.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Ai_Preview;
+namespace Mokhai\Tests\Integration\Ai_Preview;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Ai_Preview\Rest_Controller;
-use WPContext\Ai_Preview\Summary_Generator;
-use WPContext\Markdown_Views\Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Ai_Preview\Rest_Controller;
+use Mokhai\Ai_Preview\Summary_Generator;
+use Mokhai\Markdown_Views\Schema;
 
 final class Rest_Controller_Test extends WP_UnitTestCase {
 

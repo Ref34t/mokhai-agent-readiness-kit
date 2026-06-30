@@ -17,17 +17,17 @@
  *
  * Read-only and side-effect-free.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Ai_Preview;
+namespace Mokhai\Ai_Preview;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\LlmsTxt\Description_Orchestrator;
-use WPContext\LlmsTxt\Entry_Source;
-use WPContext\Markdown_Views\Service as Markdown_Service;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\LlmsTxt\Description_Orchestrator;
+use Mokhai\LlmsTxt\Entry_Source;
+use Mokhai\Markdown_Views\Service as Markdown_Service;
 
 \defined( 'ABSPATH' ) || exit;
 

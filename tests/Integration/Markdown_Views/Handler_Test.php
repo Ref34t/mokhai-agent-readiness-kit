@@ -14,18 +14,18 @@
  * PHPUnit without process isolation; covered indirectly by `build_response()`
  * tests + manual smoke during QA.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Markdown_Views;
+namespace Mokhai\Tests\Integration\Markdown_Views;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Handler;
-use WPContext\Markdown_Views\Schema;
-use WPContext\Markdown_Views\Router;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Handler;
+use Mokhai\Markdown_Views\Schema;
+use Mokhai\Markdown_Views\Router;
 
 final class Handler_Test extends WP_UnitTestCase {
 
@@ -47,7 +47,7 @@ final class Handler_Test extends WP_UnitTestCase {
 
 	protected function tearDown(): void {
 		Schema::drop();
-		remove_all_filters( 'agentready_post_is_noindexed' );
+		remove_all_filters( 'mokhai_post_is_noindexed' );
 		parent::tearDown();
 	}
 

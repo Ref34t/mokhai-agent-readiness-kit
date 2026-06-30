@@ -15,15 +15,15 @@
  *     array — testable without mocking `exit`.
  *   - `maybe_serve()` is the WordPress entry point that calls `dispatch()`.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Discovery;
+namespace Mokhai\Discovery;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Support\Output_Buffer;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Support\Output_Buffer;
 
 \defined( 'ABSPATH' ) || exit;
 

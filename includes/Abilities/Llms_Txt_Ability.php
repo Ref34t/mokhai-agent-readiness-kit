@@ -2,14 +2,14 @@
 /**
  * `ai-readiness-kit/llms-txt-regenerate` ability (#21 / AgDR-0044).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Abilities;
+namespace Mokhai\Abilities;
 
-use WPContext\LlmsTxt\Service;
+use Mokhai\LlmsTxt\Service;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -27,7 +27,8 @@ final class Llms_Txt_Ability {
 	 *
 	 * @var string
 	 */
-	public const ID = 'ai-readiness-kit/llms-txt-regenerate';
+	public const ID        = 'mokhai/llms-txt-regenerate';
+	public const LEGACY_ID = 'ai-readiness-kit/llms-txt-regenerate';
 
 	/**
 	 * Execute callback. Takes no input; returns the regenerated body.

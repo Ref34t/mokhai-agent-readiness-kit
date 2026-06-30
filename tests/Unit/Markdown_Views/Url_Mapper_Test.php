@@ -5,15 +5,15 @@
  * Pure function — no WordPress load beyond the `wp_parse_url` stub. Mirrors the
  * rewrite contract in `Markdown_Views\Router` that the `.md` route resolves.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Markdown_Views;
+namespace Mokhai\Tests\Unit\Markdown_Views;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Markdown_Views\Url_Mapper;
+use Mokhai\Markdown_Views\Url_Mapper;
 
 final class Url_Mapper_Test extends TestCase {
 

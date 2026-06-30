@@ -2,12 +2,12 @@
 /**
  * Plugin bootstrap singleton.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext;
+namespace Mokhai;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -69,14 +69,14 @@ final class Main {
 	 * slug since WP 4.6 (see AgDR-0009) — no manual loader registered here.
 	 */
 	private function register_hooks(): void {
-		\register_activation_hook( \WPCTX_FILE, array( $this, 'on_activate' ) );
-		\register_deactivation_hook( \WPCTX_FILE, array( $this, 'on_deactivate' ) );
+		\register_activation_hook( \MOKHAI_FILE, array( $this, 'on_activate' ) );
+		\register_deactivation_hook( \MOKHAI_FILE, array( $this, 'on_deactivate' ) );
 
 		// Harden the plugin's REST surfaces against upstream BOM / whitespace
 		// pollution: discard any leaked output buffer before WP echoes the
 		// JSON body, scoped to the plugin's own namespace. See #175. The
 		// /llms.txt and .md routes self-harden in their own dispatch().
-		\WPContext\Support\Output_Buffer::register_hooks();
+		\Mokhai\Support\Output_Buffer::register_hooks();
 
 		// Soft-degrade notice on plugin admin pages when WP AI Client is
 		// unconfigured. See AgDR-0003 + ticket #2.
@@ -85,29 +85,29 @@ final class Main {
 		// Wire the deferred-retry cron handler. v0.1 ships a no-op handler;
 		// #6 / #8 / #11 attach their module-scoped re-generation logic onto
 		// the same action (Client_Wrapper::RETRY_ACTION).
-		\WPContext\Ai\Client_Wrapper::register_hooks();
+		\Mokhai\Ai\Client_Wrapper::register_hooks();
 
 		// Wire the Context Profile admin screen (#4 / AgDR-0002).
 		// Registers the Settings API option, the Tools → Context menu, and
 		// the admin-only asset enqueue. Front-end requests pay no cost —
 		// admin_init / admin_menu / admin_enqueue_scripts only fire in wp-admin.
-		\WPContext\Admin\Context_Profile_Settings::register_hooks();
-		\WPContext\Admin\Context_Profile_Rest_Controller::register_hooks();
-		\WPContext\Admin\Context_Profile_Page::register_hooks();
+		\Mokhai\Admin\Context_Profile_Settings::register_hooks();
+		\Mokhai\Admin\Context_Profile_Rest_Controller::register_hooks();
+		\Mokhai\Admin\Context_Profile_Page::register_hooks();
 
 		// Content exclusions (#180). Per-post `_agentready_excluded` meta + its
 		// block-editor sidebar toggle, and the SEO-plugin noindex bridge
 		// (folds in #176 — Yoast / Rank Math). All three feed
 		// Context_Profile_Settings::get_exposure_reason(), so an exclusion
 		// applies uniformly to /llms.txt, .md views, and #178 advertising.
-		\WPContext\Admin\Exclude_Meta::register_hooks();
-		\WPContext\Admin\SEO_Noindex_Detector::register_hooks();
+		\Mokhai\Admin\Exclude_Meta::register_hooks();
+		\Mokhai\Admin\SEO_Noindex_Detector::register_hooks();
 
 		// Wire the consolidated "AI agents" Gutenberg sidebar panel (#201).
 		// One panel carries the exclude toggle (#180) and the Markdown view
 		// preview (AgDR-0014); enqueues only on block-editor screens via
 		// `enqueue_block_editor_assets`.
-		\WPContext\Admin\Agents_Sidebar_Assets::register_hooks();
+		\Mokhai\Admin\Agents_Sidebar_Assets::register_hooks();
 
 		// Wire the Markdown Views cache schema upgrade-on-admin_init
 		// (#52). Comparison is one option read on every admin
@@ -141,21 +141,21 @@ final class Main {
 		// Wire the WP-CLI command tree (#5 / AgDR-0014). No-op when not
 		// running under WP-CLI — the register() guard handles the runtime
 		// check so the regular page-load path pays zero cost.
-		\WPContext\Cli\Markdown_Views_Command::register();
+		\Mokhai\Cli\Markdown_Views_Command::register();
 
 		// Wire the LLMs Index WP-CLI command tree (#7 / AgDR-0022).
 		// Same register() guard pattern as Markdown_Views_Command above.
-		\WPContext\Cli\Llms_Txt_Command::register();
+		\Mokhai\Cli\Llms_Txt_Command::register();
 
 		// Wire the LLMs Index description-backfill WP-CLI command tree
 		// (#8 / AgDR-0027). Mounted at `wp ai-readiness-kit llms-txt descriptions`.
-		\WPContext\Cli\Llms_Txt_Descriptions_Command::register();
+		\Mokhai\Cli\Llms_Txt_Descriptions_Command::register();
 
 		// Wire the one-shot dead-cleanup-meta sweep (#159 / AgDR-0050).
 		// Mounted at `wp ai-readiness-kit cleanup-meta sweep`. Deletes the
 		// orphaned `_agentready_md_cleanup_*` post-meta left by the retired
 		// cleanup pass (#153). No-op outside WP-CLI via the register() guard.
-		\WPContext\Cli\Cleanup_Meta_Migration_Command::register();
+		\Mokhai\Cli\Cleanup_Meta_Migration_Command::register();
 
 		// Wire the LLMs Index module (#7 / AgDR-0021-0023). Router owns the
 		// `/llms.txt` rewrite + template_redirect dispatch; Service owns the
@@ -197,7 +197,7 @@ final class Main {
 		// command exposes the breakdown as JSON (`wp ai-readiness-kit
 		// context-score audit`).
 		Context_Score\Service::register_hooks();
-		\WPContext\Cli\Context_Score_Command::register();
+		\Mokhai\Cli\Context_Score_Command::register();
 
 		// Wire the Context Score admin surface (#10 / AgDR-0031). The
 		// REST controller serves the cached breakdown to the React UI
@@ -208,7 +208,7 @@ final class Main {
 		// surfaces the score without recomputing on the Site Health
 		// page itself.
 		Context_Score\Rest_Controller::register_hooks();
-		\WPContext\Admin\Context_Score_Page::register_hooks();
+		\Mokhai\Admin\Context_Score_Page::register_hooks();
 		Context_Score\Site_Health::register_hooks();
 
 		// Wire the AI Assistant Preview pane (#45 / AgDR-0046). Admin-only
@@ -269,9 +269,9 @@ final class Main {
 		Requirements::check_activation();
 
 		if ( false === \get_option( self::VERSION_OPTION ) ) {
-			\add_option( self::VERSION_OPTION, \WPCTX_VERSION, '', false );
+			\add_option( self::VERSION_OPTION, \MOKHAI_VERSION, '', false );
 		} else {
-			\update_option( self::VERSION_OPTION, \WPCTX_VERSION, false );
+			\update_option( self::VERSION_OPTION, \MOKHAI_VERSION, false );
 		}
 
 		// Markdown Views cache table (#5 / AgDR-0011). Multisite-aware:
@@ -310,7 +310,7 @@ final class Main {
 		// the first front-end request. Runtime reads stay live via
 		// `Schema_Coordination_Detector::detect()` — this is purely a
 		// post-activation snapshot.
-		$posture = \WPContext\Admin\Schema_Coordination_Detector::detect();
+		$posture = \Mokhai\Admin\Schema_Coordination_Detector::detect();
 		\update_option( self::SEO_POSTURE_OPTION, $posture, false );
 	}
 

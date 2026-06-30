@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for WPContext\LlmsTxt\Conflict_Notice — AJAX dismiss surface.
+ * Integration tests for Mokhai\LlmsTxt\Conflict_Notice — AJAX dismiss surface.
  *
  * Pins the contract of `Conflict_Notice::handle_dismiss()` (#7 Phase B /
  * AgDR-0023): capability + nonce + fingerprint-format guards plus per-user
@@ -11,17 +11,17 @@
  * appended to this class — keep the setUp / tearDown scope narrow so future
  * tests can join without restructure.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_Ajax_UnitTestCase;
 use WPAjaxDieContinueException;
 use WPAjaxDieStopException;
-use WPContext\LlmsTxt\Conflict_Notice;
+use Mokhai\LlmsTxt\Conflict_Notice;
 
 final class Conflict_Notice_Test extends WP_Ajax_UnitTestCase {
 

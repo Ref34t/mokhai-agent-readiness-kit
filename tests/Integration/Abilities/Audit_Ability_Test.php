@@ -3,17 +3,17 @@
  * Integration tests for the `ai-readiness-kit/audit-run` ability
  * (#21 / AgDR-0044).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Abilities;
+namespace Mokhai\Tests\Integration\Abilities;
 
 use WP_UnitTestCase;
-use WPContext\Abilities\Audit_Ability;
-use WPContext\Context_Score\Service;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Abilities\Audit_Ability;
+use Mokhai\Context_Score\Service;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Audit_Ability_Test extends WP_UnitTestCase {
 

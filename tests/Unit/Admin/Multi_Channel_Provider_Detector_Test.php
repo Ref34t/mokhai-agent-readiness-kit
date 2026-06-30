@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for WPContext\Admin\Multi_Channel_Provider_Detector.
+ * Unit tests for Mokhai\Admin\Multi_Channel_Provider_Detector.
  *
  * Covers:
  *   - null when no sibling provider is loaded
@@ -13,15 +13,15 @@
  * and eval-defined classes leak forward across tests within a process — which
  * is why the no-provider clean-room case runs first by name ordering.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Admin;
+namespace Mokhai\Tests\Unit\Admin;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Admin\Multi_Channel_Provider_Detector;
+use Mokhai\Admin\Multi_Channel_Provider_Detector;
 
 final class Multi_Channel_Provider_Detector_Test extends TestCase {
 
@@ -29,7 +29,7 @@ final class Multi_Channel_Provider_Detector_Test extends TestCase {
 		$GLOBALS['wpctx_test_active_plugins'] = array();
 		// Drop any filter callbacks the previous test registered. The WP
 		// filter stub treats the apply_filters hook as a process-global map.
-		unset( $GLOBALS['wpctx_test_filters'] );
+		unset( $GLOBALS['mokhai_test_filters'] );
 	}
 
 	public function test_a_returns_null_when_no_provider_active(): void {

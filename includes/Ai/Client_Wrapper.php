@@ -7,12 +7,12 @@
  * errors, deferred retry via wp_schedule_single_event on rate-limit / repeat
  * network failures.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Ai;
+namespace Mokhai\Ai;
 
 \defined( 'ABSPATH' ) || exit;
 

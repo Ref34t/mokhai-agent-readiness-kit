@@ -11,14 +11,14 @@
  * and not-exposable all produce the same 404 shape so the response carries
  * no exposure-rule information.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
-use WPContext\Support\Output_Buffer;
+use Mokhai\Support\Output_Buffer;
 
 \defined( 'ABSPATH' ) || exit;
 

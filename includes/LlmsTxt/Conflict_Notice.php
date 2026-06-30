@@ -8,14 +8,14 @@
  * is stored as user-meta so one admin's dismiss doesn't suppress the
  * notice for the rest of the team.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
-use WPContext\Admin\Context_Profile_Page;
+use Mokhai\Admin\Context_Profile_Page;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -149,7 +149,7 @@ final class Conflict_Notice {
 			'agentready-llms-txt-dismiss',
 			'',
 			array(),
-			\WPCTX_VERSION,
+			\MOKHAI_VERSION,
 			true
 		);
 		\wp_enqueue_script( 'agentready-llms-txt-dismiss' );

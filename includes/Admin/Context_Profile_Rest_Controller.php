@@ -15,12 +15,12 @@
  * so the REST surface introduces no new validation logic and the
  * `agentready_context_profile_saved` cascade fires identically.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -35,7 +35,14 @@ final class Context_Profile_Rest_Controller {
 	 *
 	 * @var string
 	 */
-	public const NAMESPACE = 'ai-readiness-kit/v1';
+	public const NAMESPACE = 'mokhai/v1';
+
+	/**
+	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
+	 *
+	 * @var string
+	 */
+	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Base path under the namespace.
@@ -52,25 +59,25 @@ final class Context_Profile_Rest_Controller {
 	}
 
 	/**
-	 * Register the read + write routes on one URL with two methods.
+	 * Register the read + write routes under the current namespace, plus legacy aliases.
 	 */
 	public static function register_routes(): void {
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE_BASE,
+		$route_args = array(
 			array(
-				array(
-					'methods'             => 'GET',
-					'callback'            => array( self::class, 'handle_get' ),
-					'permission_callback' => array( self::class, 'check_permission' ),
-				),
-				array(
-					'methods'             => 'PUT',
-					'callback'            => array( self::class, 'handle_save' ),
-					'permission_callback' => array( self::class, 'check_permission' ),
-				),
-			)
+				'methods'             => 'GET',
+				'callback'            => array( self::class, 'handle_get' ),
+				'permission_callback' => array( self::class, 'check_permission' ),
+			),
+			array(
+				'methods'             => 'PUT',
+				'callback'            => array( self::class, 'handle_save' ),
+				'permission_callback' => array( self::class, 'check_permission' ),
+			),
 		);
+
+		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
+			\register_rest_route( $ns, self::ROUTE_BASE, $route_args );
+		}
 	}
 
 	/**

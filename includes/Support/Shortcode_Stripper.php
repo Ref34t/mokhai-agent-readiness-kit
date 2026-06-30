@@ -2,12 +2,12 @@
 /**
  * Shared orphaned-shortcode stripper.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Support;
+namespace Mokhai\Support;
 
 \defined( 'ABSPATH' ) || exit;
 

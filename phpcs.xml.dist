@@ -88,15 +88,24 @@
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
+				<!--
+					Mokhai is the current prefix family (0.5.0 rebrand): the
+					Mokhai\ PHP namespace, MOKHAI_* constants, and mokhai_*
+					hooks/option keys.
+				-->
+				<element value="Mokhai"/>
+				<element value="MOKHAI"/>
+				<element value="mokhai"/>
+				<!--
+					Legacy prefixes retained through the 0.5.0 deprecation window:
+					agentready_* / wpctx_ / WPCTX still appear as deprecated hook
+					aliases (apply_filters_deprecated / do_action_deprecated), the
+					wpctx_ai_retry cron hook, and stored-data keys not yet migrated
+					(PR 2). Removed once the deprecation window closes.
+				-->
 				<element value="WPCTX"/>
 				<element value="wpctx"/>
 				<element value="WPContext"/>
-				<!--
-					agentready_* is the prefix for option keys and the global
-					agentready_has_ai_client() helper after the #18 rename.
-					Internal namespace + constants (WPCTX_*, WPContext, wpctx_*)
-					stay — they're not user-facing per wp.org policy.
-				-->
 				<element value="agentready"/>
 			</property>
 		</properties>

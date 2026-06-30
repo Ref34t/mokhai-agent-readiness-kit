@@ -12,12 +12,12 @@
  * sub-score (the same axis the React "What's missing" list uses) so
  * Site Health and the admin page tell the same story.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -99,7 +99,7 @@ final class Site_Health {
 	 * @return array<string, mixed> Site Health result payload.
 	 */
 	public static function run_test(): array {
-		$panel_url = \admin_url( 'tools.php?page=' . \WPContext\Admin\Context_Score_Page::PAGE_SLUG );
+		$panel_url = \admin_url( 'tools.php?page=' . \Mokhai\Admin\Context_Score_Page::PAGE_SLUG );
 
 		$breakdown = Service::get_breakdown();
 		if ( null === $breakdown ) {

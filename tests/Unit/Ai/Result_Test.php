@@ -1,16 +1,16 @@
 <?php
 /**
- * Unit tests for WPContext\Ai\Result.
+ * Unit tests for Mokhai\Ai\Result.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Ai;
+namespace Mokhai\Tests\Unit\Ai;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Ai\Result;
+use Mokhai\Ai\Result;
 
 final class Result_Test extends TestCase {
 

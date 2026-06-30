@@ -7,12 +7,12 @@
  * Composition itself is delegated to the pure `Engine` and the WP-bridge
  * `Signal_Collector` so this file stays focused on side effects.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -117,7 +117,7 @@ final class Service {
 		\add_action( self::DAILY_RECOMPUTE_ACTION, array( self::class, 'do_recompute' ) );
 		\add_action( self::NARRATIVE_ACTION, array( self::class, 'do_generate_narrative' ) );
 
-		\add_action( 'agentready_context_profile_saved', array( self::class, 'schedule_recompute' ) );
+		\add_action( 'mokhai_context_profile_saved', array( self::class, 'schedule_recompute' ) );
 	}
 
 	/**

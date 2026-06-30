@@ -24,15 +24,15 @@
  * assembly, unit-testable directly; the hook callbacks resolve globals and
  * echo / send headers.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Discovery;
+namespace Mokhai\Discovery;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Url_Mapper;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Url_Mapper;
 
 \defined( 'ABSPATH' ) || exit;
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * Unit tests for the pure post-processing surface of
- * `WPContext\LlmsTxt\Description_Orchestrator::normalise_output`.
+ * `Mokhai\LlmsTxt\Description_Orchestrator::normalise_output`.
  *
  * Pins every line of the AgDR-0028 normalisation pipeline — preamble
  * stripping, whitespace collapse, EMPTY sentinel, truncation — without
@@ -9,15 +9,15 @@
  * coverage lives in the integration suite, where the real post-meta
  * layer and cron queue are exercised.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\LlmsTxt;
+namespace Mokhai\Tests\Unit\LlmsTxt;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\LlmsTxt\Description_Orchestrator;
+use Mokhai\LlmsTxt\Description_Orchestrator;
 
 final class Description_Orchestrator_Test extends TestCase {
 

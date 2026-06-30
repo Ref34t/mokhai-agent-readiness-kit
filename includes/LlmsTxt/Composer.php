@@ -24,12 +24,12 @@
  * serves an identifiable — not blank — `/llms.txt`. Only when there is ALSO no
  * site name (no identity at all) does `compose()` return the empty string.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
 \defined( 'ABSPATH' ) || exit;
 

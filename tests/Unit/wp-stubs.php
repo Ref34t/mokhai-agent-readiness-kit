@@ -8,7 +8,7 @@
  *
  * Each stub is guarded by function_exists so this file is safe to re-require.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
@@ -168,6 +168,16 @@ if ( ! function_exists( 'do_action' ) ) {
 			'hook' => $hook,
 			'args' => $args,
 		);
+	}
+}
+
+if ( ! function_exists( 'do_action_deprecated' ) ) {
+	/**
+	 * Stub: forwards to do_action on the legacy hook name, preserving
+	 * test observability of deprecated actions.
+	 */
+	function do_action_deprecated( string $hook, array $args, string $version, string $replacement = '' ): void {
+		do_action( $hook, ...$args );
 	}
 }
 
@@ -379,12 +389,12 @@ if ( ! function_exists( 'wp_die' ) ) {
 
 if ( ! function_exists( 'apply_filters' ) ) {
 	/**
-	 * Stub: read from $GLOBALS['wpctx_test_filters'][$hook] (array of callables)
+	 * Stub: read from $GLOBALS['mokhai_test_filters'][$hook] (array of callables)
 	 * and return the last filter's value, or pass `$value` through if no
 	 * filters are registered.
 	 */
 	function apply_filters( string $hook, $value, ...$args ) {
-		$filters = $GLOBALS['wpctx_test_filters'][ $hook ] ?? array();
+		$filters = $GLOBALS['mokhai_test_filters'][ $hook ] ?? array();
 		foreach ( $filters as $callback ) {
 			$value = $callback( $value, ...$args );
 		}
@@ -392,13 +402,23 @@ if ( ! function_exists( 'apply_filters' ) ) {
 	}
 }
 
+if ( ! function_exists( 'apply_filters_deprecated' ) ) {
+	/**
+	 * Stub: forwards to apply_filters on the legacy hook name, preserving
+	 * test observability of deprecated filters.
+	 */
+	function apply_filters_deprecated( string $hook, array $args, string $version, string $replacement = '' ) {
+		return apply_filters( $hook, ...$args );
+	}
+}
+
 if ( ! function_exists( 'add_filter' ) ) {
 	/**
-	 * Stub: append a filter callback to $GLOBALS['wpctx_test_filters'][$hook]
+	 * Stub: append a filter callback to $GLOBALS['mokhai_test_filters'][$hook]
 	 * so a test can simulate filter behaviour without booting WP.
 	 */
 	function add_filter( string $hook, $callback, int $priority = 10, int $accepted_args = 1 ): bool {
-		$GLOBALS['wpctx_test_filters'][ $hook ][] = $callback;
+		$GLOBALS['mokhai_test_filters'][ $hook ][] = $callback;
 		return true;
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for WPContext\Cli\Cleanup_Meta_Migration_Command.
+ * Integration tests for Mokhai\Cli\Cleanup_Meta_Migration_Command.
  *
  * Exercises the static `run()` sweep against a real wp_postmeta table:
  * deletion + per-key counts, idempotency, dry-run, and that unrelated
@@ -8,19 +8,19 @@
  * `run()`'s result, so testing `run()` covers the behaviour without a
  * WP-CLI shim. See #159 / AgDR-0050.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Cli;
+namespace Mokhai\Tests\Integration\Cli;
 
 use WP_UnitTestCase;
-use WPContext\Cli\Cleanup_Meta_Migration_Command;
-use WPContext\Markdown_Views\Schema;
+use Mokhai\Cli\Cleanup_Meta_Migration_Command;
+use Mokhai\Markdown_Views\Schema;
 
 /**
- * @covers \WPContext\Cli\Cleanup_Meta_Migration_Command
+ * @covers \Mokhai\Cli\Cleanup_Meta_Migration_Command
  */
 final class Cleanup_Meta_Migration_Command_Test extends WP_UnitTestCase {
 

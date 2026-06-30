@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for WPContext\Markdown_Views\Service.
+ * Integration tests for Mokhai\Markdown_Views\Service.
  *
  * Runs inside the wp-phpunit test instance so we exercise the real `$wpdb`,
  * the real `apply_filters('the_content', ...)` pipeline, and the real
@@ -12,18 +12,18 @@
  *   - invalidate() drops the row
  *   - save_post hook auto-invalidates
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Markdown_Views;
+namespace Mokhai\Tests\Integration\Markdown_Views;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Schema;
-use WPContext\Markdown_Views\Service;
-use WPContext\Markdown_Views\Walker;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Schema;
+use Mokhai\Markdown_Views\Service;
+use Mokhai\Markdown_Views\Walker;
 
 final class Service_Test extends WP_UnitTestCase {
 
@@ -48,7 +48,7 @@ final class Service_Test extends WP_UnitTestCase {
 	protected function tearDown(): void {
 		// Reset filter state so a test that adds a noindex filter doesn't
 		// leak across tests.
-		remove_all_filters( 'agentready_post_is_noindexed' );
+		remove_all_filters( 'mokhai_post_is_noindexed' );
 		Schema::drop();
 		parent::tearDown();
 	}

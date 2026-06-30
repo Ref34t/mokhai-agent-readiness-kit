@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for `WPContext\Context_Score\Narrative_Generator`.
+ * Unit tests for `Mokhai\Context_Score\Narrative_Generator`.
  *
  * Covers the five paths defined in AgDR-0032:
  *   - LLM success (every sub-score line passes the guard → mode='llm').
@@ -15,17 +15,17 @@
  * tests pass an anonymous Provider implementation so the real WP AI
  * Client is never reached.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Context_Score;
+namespace Mokhai\Tests\Unit\Context_Score;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Ai\Permanent_Error;
-use WPContext\Ai\Provider;
-use WPContext\Context_Score\Narrative_Generator;
+use Mokhai\Ai\Permanent_Error;
+use Mokhai\Ai\Provider;
+use Mokhai\Context_Score\Narrative_Generator;
 
 final class Narrative_Generator_Test extends TestCase {
 

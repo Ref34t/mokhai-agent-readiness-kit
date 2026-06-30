@@ -9,12 +9,12 @@
  * names, product names, surface names). Both classes are catchable with a
  * token allowlist drawn from the breakdown itself.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
 \defined( 'ABSPATH' ) || exit;
 

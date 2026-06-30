@@ -7,15 +7,15 @@
  * booted WP: the slug registry, the fingerprint hash, and the filter
  * handling. Integration tests cover the WP-state-touching code paths.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\LlmsTxt;
+namespace Mokhai\Tests\Unit\LlmsTxt;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\LlmsTxt\Conflict_Detector;
+use Mokhai\LlmsTxt\Conflict_Detector;
 
 final class Conflict_Detector_Test extends TestCase {
 

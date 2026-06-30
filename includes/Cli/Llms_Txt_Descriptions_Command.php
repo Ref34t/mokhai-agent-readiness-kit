@@ -13,17 +13,17 @@
  * The orchestrator's `run()` is the actual LLM call; this surface only
  * decides scheduling.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Cli;
+namespace Mokhai\Cli;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Ai\Client_Wrapper;
-use WPContext\LlmsTxt\Description_Orchestrator;
-use WPContext\LlmsTxt\Entry_Source;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Ai\Client_Wrapper;
+use Mokhai\LlmsTxt\Description_Orchestrator;
+use Mokhai\LlmsTxt\Entry_Source;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -55,6 +55,7 @@ final class Llms_Txt_Descriptions_Command {
 			return;
 		}
 
+		\WP_CLI::add_command( 'mokhai llms-txt descriptions', self::class );
 		\WP_CLI::add_command( 'ai-readiness-kit llms-txt descriptions', self::class );
 	}
 

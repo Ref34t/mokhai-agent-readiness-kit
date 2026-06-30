@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for WPContext\Seo\Plugin_Coverage.
+ * Unit tests for Mokhai\Seo\Plugin_Coverage.
  *
  * Covers:
  *   - Default coverage matrix shape (Yoast / Rank Math / AIOSEO all cover the baseline)
@@ -11,22 +11,22 @@
  *   - Filter overrides on the matrix and baseline are honoured
  *   - Filter outputs of the wrong shape fall back to defaults / get sanitised
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Seo;
+namespace Mokhai\Tests\Unit\Seo;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Seo\Plugin_Coverage;
+use Mokhai\Seo\Plugin_Coverage;
 
 final class Plugin_Coverage_Test extends TestCase {
 
 	protected function setUp(): void {
 		// Reset the filter registry between tests so a previous test's
 		// override doesn't leak into the next assertion.
-		$GLOBALS['wpctx_test_filters'] = array();
+		$GLOBALS['mokhai_test_filters'] = array();
 	}
 
 	public function test_default_baseline_types(): void {

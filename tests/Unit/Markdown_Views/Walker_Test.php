@@ -17,16 +17,16 @@
  *
  * The walker is a pure function — these tests do not load WordPress.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Markdown_Views;
+namespace Mokhai\Tests\Unit\Markdown_Views;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Markdown_Views\Conversion_Result;
-use WPContext\Markdown_Views\Walker;
+use Mokhai\Markdown_Views\Conversion_Result;
+use Mokhai\Markdown_Views\Walker;
 
 final class Walker_Test extends TestCase {
 

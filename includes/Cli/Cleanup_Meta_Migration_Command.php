@@ -14,12 +14,12 @@
  * WP-CLI and reusable if a future release wants to fire it from a versioned
  * upgrade routine (AgDR-0050 § Options, option B).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Cli;
+namespace Mokhai\Cli;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -56,6 +56,7 @@ final class Cleanup_Meta_Migration_Command {
 			return;
 		}
 
+		\WP_CLI::add_command( 'mokhai cleanup-meta', self::class );
 		\WP_CLI::add_command( 'ai-readiness-kit cleanup-meta', self::class );
 	}
 

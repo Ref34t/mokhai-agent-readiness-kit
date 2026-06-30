@@ -12,12 +12,12 @@
  * The core renderer ({@see Service}) stays post-type-agnostic and offline;
  * WooCommerce support is this opt-in adapter, active only when WooCommerce is.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -34,7 +34,7 @@ final class Woocommerce_Source {
 	 * dependency on WooCommerce having loaded by registration time.
 	 */
 	public static function register(): void {
-		\add_filter( 'agentready_markdown_source_html', array( self::class, 'prepend_short_description' ), 10, 2 );
+		\add_filter( 'mokhai_markdown_source_html', array( self::class, 'prepend_short_description' ), 10, 2 );
 	}
 
 	/**

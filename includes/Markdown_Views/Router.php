@@ -8,12 +8,12 @@
  * `/path.md` — this class registers the rewrite; `Handler` dispatches all
  * three forms.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
 \defined( 'ABSPATH' ) || exit;
 

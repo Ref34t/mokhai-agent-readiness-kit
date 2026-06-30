@@ -9,18 +9,18 @@
  * defer-to-static skips dispatch, and the Context Score credits the served
  * channels rather than only filesystem hits.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Discovery;
+namespace Mokhai\Tests\Integration\Discovery;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Context_Score\Signal_Collector;
-use WPContext\Discovery\Channel_Content;
-use WPContext\Discovery\Channel_Router;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Context_Score\Signal_Collector;
+use Mokhai\Discovery\Channel_Content;
+use Mokhai\Discovery\Channel_Router;
 
 final class Channel_Router_Test extends WP_UnitTestCase {
 

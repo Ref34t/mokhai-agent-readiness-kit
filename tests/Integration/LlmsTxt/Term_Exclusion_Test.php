@@ -9,17 +9,17 @@
  * fires no save_post, so the listener is the only thing keeping /llms.txt
  * fresh — same trigger class as the #190 exclude-meta listeners).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\LlmsTxt\Service;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\LlmsTxt\Service;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Term_Exclusion_Test extends WP_UnitTestCase {
 

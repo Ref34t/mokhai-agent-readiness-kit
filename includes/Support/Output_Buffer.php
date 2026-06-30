@@ -19,12 +19,12 @@
  * No AI, no external calls. Deterministic; zero behaviour change on a site
  * whose output is already clean.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Support;
+namespace Mokhai\Support;
 
 \defined( 'ABSPATH' ) || exit;
 

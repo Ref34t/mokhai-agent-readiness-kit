@@ -13,12 +13,12 @@
  * it in its own `wp_aioseo_posts` table with a `robots_default` defer flag,
  * so that path is a guarded table read (#187).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -51,7 +51,7 @@ final class SEO_Noindex_Detector {
 	 * Wire the filter subscriber. Called from Main::register_hooks().
 	 */
 	public static function register_hooks(): void {
-		\add_filter( 'agentready_post_is_noindexed', array( self::class, 'filter_is_noindexed' ), 10, 2 );
+		\add_filter( 'mokhai_post_is_noindexed', array( self::class, 'filter_is_noindexed' ), 10, 2 );
 	}
 
 	/**

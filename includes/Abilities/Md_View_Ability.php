@@ -2,15 +2,15 @@
 /**
  * `ai-readiness-kit/md-view-preview` ability (#21 / AgDR-0044).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Abilities;
+namespace Mokhai\Abilities;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Service;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Service;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -30,7 +30,8 @@ final class Md_View_Ability {
 	 *
 	 * @var string
 	 */
-	public const ID = 'ai-readiness-kit/md-view-preview';
+	public const ID        = 'mokhai/md-view-preview';
+	public const LEGACY_ID = 'ai-readiness-kit/md-view-preview';
 
 	/**
 	 * Execute callback. Resolves a post by `post_id` or `url`, then returns

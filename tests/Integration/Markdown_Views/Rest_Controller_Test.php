@@ -12,19 +12,19 @@
  *   - 403 on insufficient capability (`edit_post` gate)
  *   - 404 on non-existent post
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Markdown_Views;
+namespace Mokhai\Tests\Integration\Markdown_Views;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Rest_Controller;
-use WPContext\Markdown_Views\Schema;
-use WPContext\Markdown_Views\Service;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Rest_Controller;
+use Mokhai\Markdown_Views\Schema;
+use Mokhai\Markdown_Views\Service;
 
 final class Rest_Controller_Test extends WP_UnitTestCase {
 
@@ -55,7 +55,7 @@ final class Rest_Controller_Test extends WP_UnitTestCase {
 
 	protected function tearDown(): void {
 		Schema::drop();
-		remove_all_filters( 'agentready_post_is_noindexed' );
+		remove_all_filters( 'mokhai_post_is_noindexed' );
 		wp_set_current_user( 0 );
 		parent::tearDown();
 	}
@@ -181,7 +181,7 @@ final class Rest_Controller_Test extends WP_UnitTestCase {
 	public function test_noindex_filter_returns_noindex_reason(): void {
 		$this->admin_user();
 
-		add_filter( 'agentready_post_is_noindexed', '__return_true' );
+		add_filter( 'mokhai_post_is_noindexed', '__return_true' );
 
 		$post_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
 

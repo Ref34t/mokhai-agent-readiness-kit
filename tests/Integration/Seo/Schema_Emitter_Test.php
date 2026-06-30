@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for WPContext\Seo\Schema_Emitter.
+ * Integration tests for Mokhai\Seo\Schema_Emitter.
  *
  * Drives the full wp_head pipeline end-to-end against a real WordPress
  * test instance — no stubs, no mocks. Maps 1:1 to AC #5 of #73:
@@ -18,17 +18,17 @@
  * cleanest seam for an integration test that can't load Yoast itself
  * but still wants to assert the deference branch.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Seo;
+namespace Mokhai\Tests\Integration\Seo;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
-use WPContext\Seo\Schema_Emitter;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Seo\Schema_Emitter;
 
 final class Schema_Emitter_Test extends WP_UnitTestCase {
 
@@ -220,7 +220,7 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		);
 
 		add_filter(
-			'agentready_schema_type_for_cpt',
+			'mokhai_schema_type_for_cpt',
 			static function ( $default, $cpt ) {
 				return 'lesson' === $cpt ? 'Article' : $default;
 			},
@@ -249,7 +249,7 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		self::assertNotNull( $article );
 		self::assertSame( 'Lesson 02: Embeddings', $article['headline'] );
 
-		remove_all_filters( 'agentready_schema_type_for_cpt' );
+		remove_all_filters( 'mokhai_schema_type_for_cpt' );
 		unregister_post_type( 'lesson' );
 	}
 
@@ -282,7 +282,7 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		);
 
 		add_filter(
-			'agentready_schema_type_for_cpt',
+			'mokhai_schema_type_for_cpt',
 			static function ( $default, $cpt ) {
 				return 'product' === $cpt ? null : $default;
 			},
@@ -309,7 +309,7 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		self::assertNotContains( 'WebPage', $types, 'Filter returning null must suppress WebPage.' );
 		self::assertNotContains( 'Article', $types, 'Filter returning null must suppress Article.' );
 
-		remove_all_filters( 'agentready_schema_type_for_cpt' );
+		remove_all_filters( 'mokhai_schema_type_for_cpt' );
 		unregister_post_type( 'product' );
 	}
 

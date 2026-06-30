@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for WPContext\Cli\Llms_Txt_Command.
+ * Integration tests for Mokhai\Cli\Llms_Txt_Command.
  *
  * Covers the WP-CLI surface from #7 Phase A / AgDR-0022:
  *   - `wp ai-readiness-kit llms-txt status`  (porcelain + table output)
@@ -16,20 +16,20 @@
  * `WP_CLI` *constant*; instance methods (`status`, `regen`, `preview`)
  * just call `\WP_CLI::*` and are exercised here directly.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Cli;
+namespace Mokhai\Tests\Integration\Cli;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Cli\Llms_Txt_Command;
-use WPContext\LlmsTxt\Conflict_Detector;
-use WPContext\LlmsTxt\Conflict_Notice;
-use WPContext\LlmsTxt\Service;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Cli\Llms_Txt_Command;
+use Mokhai\LlmsTxt\Conflict_Detector;
+use Mokhai\LlmsTxt\Conflict_Notice;
+use Mokhai\LlmsTxt\Service;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 /*
  * --- WP-CLI shim (minimal) -------------------------------------------------
@@ -48,7 +48,7 @@ use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
  */
 if ( ! class_exists( '\\WP_CLI' ) ) {
 	// Declared in a `namespace {}` block via eval() so the class lands in
-	// the root namespace, not WPContext\Tests\Integration\Cli.
+	// the root namespace, not Mokhai\Tests\Integration\Cli.
 	eval(
 		'namespace {
 			class WP_CLI {
@@ -90,7 +90,7 @@ if ( ! class_exists( '\\WP_CLI' ) ) {
 	);
 }
 
-if ( ! function_exists( 'WPContext\\Tests\\Integration\\Cli\\__wp_cli_utils_format_items_shim' ) ) {
+if ( ! function_exists( 'Mokhai\\Tests\\Integration\\Cli\\__wp_cli_utils_format_items_shim' ) ) {
 	/**
 	 * Internal: shim for `\WP_CLI\Utils\format_items`. Renders `$items`
 	 * as a CSV-ish "Field=Value" block on `\WP_CLI::$lines` so tests
@@ -119,7 +119,7 @@ if ( ! function_exists( 'WP_CLI\\Utils\\format_items' ) ) {
 	eval(
 		'namespace WP_CLI\\Utils;
 		function format_items( $format, $items, $fields ) {
-			\\WPContext\\Tests\\Integration\\Cli\\__wp_cli_utils_format_items_shim( $format, $items, $fields );
+			\\Mokhai\\Tests\\Integration\\Cli\\__wp_cli_utils_format_items_shim( $format, $items, $fields );
 		}'
 	);
 }

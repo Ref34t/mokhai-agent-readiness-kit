@@ -2,14 +2,14 @@
 /**
  * `ai-readiness-kit/audit-run` ability (#21 / AgDR-0044).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Abilities;
+namespace Mokhai\Abilities;
 
-use WPContext\Context_Score\Service;
+use Mokhai\Context_Score\Service;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -28,7 +28,8 @@ final class Audit_Ability {
 	 *
 	 * @var string
 	 */
-	public const ID = 'ai-readiness-kit/audit-run';
+	public const ID        = 'mokhai/audit-run';
+	public const LEGACY_ID = 'ai-readiness-kit/audit-run';
 
 	/**
 	 * Execute callback. Takes no input; returns the breakdown payload.

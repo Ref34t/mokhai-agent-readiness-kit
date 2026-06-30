@@ -3,16 +3,16 @@
  * Integration tests for the `ai-readiness-kit/profile-read` and
  * `ai-readiness-kit/profile-set-exposure` abilities (#21 / AgDR-0044).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Abilities;
+namespace Mokhai\Tests\Integration\Abilities;
 
 use WP_UnitTestCase;
-use WPContext\Abilities\Profile_Ability;
-use WPContext\Admin\Context_Profile_Settings;
+use Mokhai\Abilities\Profile_Ability;
+use Mokhai\Admin\Context_Profile_Settings;
 
 final class Profile_Ability_Test extends WP_UnitTestCase {
 
@@ -103,7 +103,7 @@ final class Profile_Ability_Test extends WP_UnitTestCase {
 
 		$fired = 0;
 		\add_action(
-			'agentready_context_profile_saved',
+			'mokhai_context_profile_saved',
 			static function () use ( &$fired ): void {
 				++$fired;
 			}

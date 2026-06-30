@@ -10,22 +10,22 @@
  * project's multi-entry webpack config (`webpack.config.js`); no
  * config change is required to pick it up.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 
-use WPContext\Ai_Preview\Rest_Controller as Ai_Preview_Rest_Controller;
-use WPContext\Context_Score\Engine;
-use WPContext\Context_Score\Rest_Controller;
-use WPContext\Context_Score\Service;
-use WPContext\Context_Score\Sub_Score_Names;
-use WPContext\Seo\Plugin_Coverage;
-use WPContext\Seo\Schema_Emitter;
+use Mokhai\Ai_Preview\Rest_Controller as Ai_Preview_Rest_Controller;
+use Mokhai\Context_Score\Engine;
+use Mokhai\Context_Score\Rest_Controller;
+use Mokhai\Context_Score\Service;
+use Mokhai\Context_Score\Sub_Score_Names;
+use Mokhai\Seo\Plugin_Coverage;
+use Mokhai\Seo\Schema_Emitter;
 
 /**
  * Tools → Context Score page bootstrap.
@@ -168,9 +168,9 @@ final class Context_Score_Page {
 			return;
 		}
 
-		$asset_file = \WPCTX_DIR . 'build/admin/context-score.asset.php';
-		$script_url = \WPCTX_URL . 'build/admin/context-score.js';
-		$style_url  = \WPCTX_URL . 'build/admin/context-score.css';
+		$asset_file = \MOKHAI_DIR . 'build/admin/context-score.asset.php';
+		$script_url = \MOKHAI_URL . 'build/admin/context-score.js';
+		$style_url  = \MOKHAI_URL . 'build/admin/context-score.css';
 
 		if ( ! \file_exists( $asset_file ) ) {
 			\add_action( 'admin_notices', array( self::class, 'render_missing_build_notice' ) );
@@ -185,14 +185,14 @@ final class Context_Score_Page {
 			? require $resolved_asset
 			: array(
 				'dependencies' => array(),
-				'version'      => \WPCTX_VERSION,
+				'version'      => \MOKHAI_VERSION,
 			);
 
 		\wp_enqueue_script(
 			'agentready-context-score',
 			$script_url,
 			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
-			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
+			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION,
 			true
 		);
 
@@ -205,15 +205,15 @@ final class Context_Score_Page {
 		\wp_set_script_translations(
 			'agentready-context-score',
 			'mokhai-agent-readiness-kit',
-			\WPCTX_DIR . 'languages'
+			\MOKHAI_DIR . 'languages'
 		);
 
-		if ( \file_exists( \WPCTX_DIR . 'build/admin/context-score.css' ) ) {
+		if ( \file_exists( \MOKHAI_DIR . 'build/admin/context-score.css' ) ) {
 			\wp_enqueue_style(
 				'agentready-context-score',
 				$style_url,
 				array( 'wp-components' ),
-				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
+				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION
 			);
 		}
 
@@ -229,7 +229,7 @@ final class Context_Score_Page {
 	 * covers the "run npm run build" case for this screen).
 	 */
 	private static function enqueue_ai_preview(): void {
-		$asset_file = \WPCTX_DIR . 'build/admin/ai-preview.asset.php';
+		$asset_file = \MOKHAI_DIR . 'build/admin/ai-preview.asset.php';
 		if ( ! \file_exists( $asset_file ) ) {
 			return;
 		}
@@ -239,14 +239,14 @@ final class Context_Score_Page {
 			? require $resolved_asset
 			: array(
 				'dependencies' => array(),
-				'version'      => \WPCTX_VERSION,
+				'version'      => \MOKHAI_VERSION,
 			);
 
 		\wp_enqueue_script(
 			'agentready-ai-preview',
-			\WPCTX_URL . 'build/admin/ai-preview.js',
+			\MOKHAI_URL . 'build/admin/ai-preview.js',
 			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
-			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
+			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION,
 			true
 		);
 
@@ -259,15 +259,15 @@ final class Context_Score_Page {
 		\wp_set_script_translations(
 			'agentready-ai-preview',
 			'mokhai-agent-readiness-kit',
-			\WPCTX_DIR . 'languages'
+			\MOKHAI_DIR . 'languages'
 		);
 
-		if ( \file_exists( \WPCTX_DIR . 'build/admin/ai-preview.css' ) ) {
+		if ( \file_exists( \MOKHAI_DIR . 'build/admin/ai-preview.css' ) ) {
 			\wp_enqueue_style(
 				'agentready-ai-preview',
-				\WPCTX_URL . 'build/admin/ai-preview.css',
+				\MOKHAI_URL . 'build/admin/ai-preview.css',
 				array( 'wp-components' ),
-				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
+				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION
 			);
 		}
 	}

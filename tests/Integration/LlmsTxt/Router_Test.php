@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for WPContext\LlmsTxt\Router.
+ * Integration tests for Mokhai\LlmsTxt\Router.
  *
  * Verifies that `build_response()` produces a coherent response shape
  * (status 200, text/plain Content-Type, noindex header, composed body)
@@ -12,18 +12,18 @@
  * `build_response()` decoupling exists exactly so we can test the
  * decision without the side effects.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\LlmsTxt\Router;
-use WPContext\LlmsTxt\Service;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\LlmsTxt\Router;
+use Mokhai\LlmsTxt\Service;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Router_Test extends WP_UnitTestCase {
 

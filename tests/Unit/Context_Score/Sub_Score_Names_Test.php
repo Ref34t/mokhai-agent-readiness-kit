@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for `WPContext\Context_Score\Sub_Score_Names` and the
+ * Unit tests for `Mokhai\Context_Score\Sub_Score_Names` and the
  * WEIGHTS-driven copy surfaces that consume it (#126).
  *
  * The single-source-of-truth contract: the admin subtitle and the LLM
@@ -13,18 +13,18 @@
  *   - The admin subtitle enumerates every sub-score label + the live count.
  *   - The narrative `system_prompt()` schema contains every WEIGHTS key.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Context_Score;
+namespace Mokhai\Tests\Unit\Context_Score;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Admin\Context_Score_Page;
-use WPContext\Context_Score\Engine;
-use WPContext\Context_Score\Narrative_Generator;
-use WPContext\Context_Score\Sub_Score_Names;
+use Mokhai\Admin\Context_Score_Page;
+use Mokhai\Context_Score\Engine;
+use Mokhai\Context_Score\Narrative_Generator;
+use Mokhai\Context_Score\Sub_Score_Names;
 
 final class Sub_Score_Names_Test extends TestCase {
 

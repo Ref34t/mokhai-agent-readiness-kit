@@ -16,15 +16,15 @@
  * row-projection function so the UI can refresh state from a mutation
  * response without a second fetch.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Ai\Client_Wrapper;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Ai\Client_Wrapper;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -38,7 +38,14 @@ final class Descriptions_Rest_Controller {
 	 *
 	 * @var string
 	 */
-	public const NAMESPACE = 'ai-readiness-kit/v1';
+	public const NAMESPACE = 'mokhai/v1';
+
+	/**
+	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
+	 *
+	 * @var string
+	 */
+	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Base path under the namespace. Per-post routes append `/<post_id>`;
@@ -96,101 +103,100 @@ final class Descriptions_Rest_Controller {
 	}
 
 	/**
-	 * Register all five routes.
+	 * Register all five routes under the current namespace, plus legacy aliases.
 	 */
 	public static function register_routes(): void {
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE_BASE,
+		$routes = array(
 			array(
-				'methods'             => 'GET',
-				'callback'            => array( self::class, 'handle_list' ),
-				'permission_callback' => array( self::class, 'check_permission' ),
-				'args'                => array(
-					'paged'    => array(
-						'type'              => 'integer',
-						'default'           => 1,
-						'sanitize_callback' => 'absint',
-					),
-					'per_page' => array(
-						'type'              => 'integer',
-						'default'           => self::DEFAULT_PER_PAGE,
-						'sanitize_callback' => 'absint',
-					),
-					'cpt'      => array(
-						'type'              => 'string',
-						'default'           => '',
-						'sanitize_callback' => 'sanitize_key',
-					),
-					'status'   => array(
-						'type'              => 'string',
-						'default'           => 'any',
-						'sanitize_callback' => 'sanitize_key',
+				'path' => self::ROUTE_BASE,
+				'args' => array(
+					'methods'             => 'GET',
+					'callback'            => array( self::class, 'handle_list' ),
+					'permission_callback' => array( self::class, 'check_permission' ),
+					'args'                => array(
+						'paged'    => array(
+							'type'              => 'integer',
+							'default'           => 1,
+							'sanitize_callback' => 'absint',
+						),
+						'per_page' => array(
+							'type'              => 'integer',
+							'default'           => self::DEFAULT_PER_PAGE,
+							'sanitize_callback' => 'absint',
+						),
+						'cpt'      => array(
+							'type'              => 'string',
+							'default'           => '',
+							'sanitize_callback' => 'sanitize_key',
+						),
+						'status'   => array(
+							'type'              => 'string',
+							'default'           => 'any',
+							'sanitize_callback' => 'sanitize_key',
+						),
 					),
 				),
-			)
+			),
+			array(
+				'path' => self::ROUTE_BASE . '/(?P<post_id>\d+)',
+				'args' => array(
+					'methods'             => 'PATCH',
+					'callback'            => array( self::class, 'handle_patch' ),
+					'permission_callback' => array( self::class, 'check_permission' ),
+					'args'                => array(
+						'post_id' => self::post_id_arg(),
+						'manual'  => array(
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
+				),
+			),
+			array(
+				'path' => self::ROUTE_BASE . '/(?P<post_id>\d+)/manual',
+				'args' => array(
+					'methods'             => 'DELETE',
+					'callback'            => array( self::class, 'handle_clear_manual' ),
+					'permission_callback' => array( self::class, 'check_permission' ),
+					'args'                => array(
+						'post_id' => self::post_id_arg(),
+					),
+				),
+			),
+			array(
+				'path' => self::ROUTE_BASE . '/(?P<post_id>\d+)/regenerate',
+				'args' => array(
+					'methods'             => 'POST',
+					'callback'            => array( self::class, 'handle_regenerate' ),
+					'permission_callback' => array( self::class, 'check_permission' ),
+					'args'                => array(
+						'post_id' => self::post_id_arg(),
+					),
+				),
+			),
+			array(
+				'path' => self::ROUTE_BASE . '/bulk-regenerate-stale',
+				'args' => array(
+					'methods'             => 'POST',
+					'callback'            => array( self::class, 'handle_bulk_regenerate_stale' ),
+					'permission_callback' => array( self::class, 'check_permission' ),
+					'args'                => array(
+						'limit' => array(
+							'type'              => 'integer',
+							'default'           => 0,
+							'sanitize_callback' => 'absint',
+						),
+					),
+				),
+			),
 		);
 
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE_BASE . '/(?P<post_id>\d+)',
-			array(
-				'methods'             => 'PATCH',
-				'callback'            => array( self::class, 'handle_patch' ),
-				'permission_callback' => array( self::class, 'check_permission' ),
-				'args'                => array(
-					'post_id' => self::post_id_arg(),
-					'manual'  => array(
-						'type'              => 'string',
-						'required'          => true,
-						'sanitize_callback' => 'sanitize_text_field',
-					),
-				),
-			)
-		);
-
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE_BASE . '/(?P<post_id>\d+)/manual',
-			array(
-				'methods'             => 'DELETE',
-				'callback'            => array( self::class, 'handle_clear_manual' ),
-				'permission_callback' => array( self::class, 'check_permission' ),
-				'args'                => array(
-					'post_id' => self::post_id_arg(),
-				),
-			)
-		);
-
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE_BASE . '/(?P<post_id>\d+)/regenerate',
-			array(
-				'methods'             => 'POST',
-				'callback'            => array( self::class, 'handle_regenerate' ),
-				'permission_callback' => array( self::class, 'check_permission' ),
-				'args'                => array(
-					'post_id' => self::post_id_arg(),
-				),
-			)
-		);
-
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE_BASE . '/bulk-regenerate-stale',
-			array(
-				'methods'             => 'POST',
-				'callback'            => array( self::class, 'handle_bulk_regenerate_stale' ),
-				'permission_callback' => array( self::class, 'check_permission' ),
-				'args'                => array(
-					'limit' => array(
-						'type'              => 'integer',
-						'default'           => 0,
-						'sanitize_callback' => 'absint',
-					),
-				),
-			)
-		);
+		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
+			foreach ( $routes as $route ) {
+				\register_rest_route( $ns, $route['path'], $route['args'] );
+			}
+		}
 	}
 
 	/**

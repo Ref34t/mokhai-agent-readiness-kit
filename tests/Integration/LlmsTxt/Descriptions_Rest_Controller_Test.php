@@ -15,19 +15,19 @@
  * an LLM round-trip; the controller's read + mutation surfaces are what
  * this suite pins.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\LlmsTxt\Description_Orchestrator;
-use WPContext\LlmsTxt\Descriptions_Rest_Controller;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\LlmsTxt\Description_Orchestrator;
+use Mokhai\LlmsTxt\Descriptions_Rest_Controller;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Descriptions_Rest_Controller_Test extends WP_UnitTestCase {
 
@@ -265,7 +265,7 @@ final class Descriptions_Rest_Controller_Test extends WP_UnitTestCase {
 		$post_id = $this->seed_post();
 		\update_post_meta( $post_id, Description_Orchestrator::META_KEY_AUTO, 'old' );
 
-		if ( ! \WPContext\Ai\Client_Wrapper::has_ai_client() ) {
+		if ( ! \Mokhai\Ai\Client_Wrapper::has_ai_client() ) {
 			self::markTestSkipped( 'WP AI Client unavailable; regenerate returns 409 in this environment.' );
 		}
 
@@ -283,7 +283,7 @@ final class Descriptions_Rest_Controller_Test extends WP_UnitTestCase {
 		\wp_set_current_user( $this->make_admin() );
 		$post_id = $this->seed_post();
 
-		if ( \WPContext\Ai\Client_Wrapper::has_ai_client() ) {
+		if ( \Mokhai\Ai\Client_Wrapper::has_ai_client() ) {
 			self::markTestSkipped( 'WP AI Client is available here; the 409 path is not reachable.' );
 		}
 
@@ -297,7 +297,7 @@ final class Descriptions_Rest_Controller_Test extends WP_UnitTestCase {
 	public function test_bulk_regenerate_stale_schedules_missing_posts(): void {
 		\wp_set_current_user( $this->make_admin() );
 
-		if ( ! \WPContext\Ai\Client_Wrapper::has_ai_client() ) {
+		if ( ! \Mokhai\Ai\Client_Wrapper::has_ai_client() ) {
 			self::markTestSkipped( 'WP AI Client unavailable; bulk regen returns 409 here.' );
 		}
 
@@ -344,7 +344,7 @@ final class Descriptions_Rest_Controller_Test extends WP_UnitTestCase {
 
 	public function test_bulk_regenerate_stale_respects_limit(): void {
 		\wp_set_current_user( $this->make_admin() );
-		if ( ! \WPContext\Ai\Client_Wrapper::has_ai_client() ) {
+		if ( ! \Mokhai\Ai\Client_Wrapper::has_ai_client() ) {
 			self::markTestSkipped( 'WP AI Client unavailable.' );
 		}
 

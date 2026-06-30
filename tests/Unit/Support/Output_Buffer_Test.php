@@ -9,15 +9,15 @@
  * flushed — so its buffer-discarding effect is only observable in a clean
  * process. That one case runs with `@runInSeparateProcess`.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Support;
+namespace Mokhai\Tests\Unit\Support;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Support\Output_Buffer;
+use Mokhai\Support\Output_Buffer;
 
 final class Output_Buffer_Test extends TestCase {
 

@@ -1,21 +1,21 @@
 <?php
 /**
- * Unit tests for `WPContext\Context_Score\Narrative_Guard`.
+ * Unit tests for `Mokhai\Context_Score\Narrative_Guard`.
  *
  * The guard is the load-bearing safety mechanism for the LLM narrative
  * (AgDR-0032 § "Anti-hallucination guard"). Failures here mean the
  * orchestrator silently falls back to the rule-based template for that
  * sub-score — the panel never shows a hallucinated line.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Context_Score;
+namespace Mokhai\Tests\Unit\Context_Score;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Context_Score\Narrative_Guard;
+use Mokhai\Context_Score\Narrative_Guard;
 
 final class Narrative_Guard_Test extends TestCase {
 
