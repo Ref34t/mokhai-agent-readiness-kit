@@ -50,7 +50,7 @@ final class Channel_Router {
 	 * Option storing the last-flushed routes version. Listed in
 	 * `Support\Uninstaller::option_keys()` per the #189 cleanup contract.
 	 */
-	public const ROUTES_VERSION_OPTION = 'agentready_discovery_routes_version';
+	public const ROUTES_VERSION_OPTION = 'mokhai_discovery_routes_version';
 
 	/**
 	 * Channel registry: rewrite regex, query var, the static-file path the
@@ -63,19 +63,19 @@ final class Channel_Router {
 	private const CHANNELS = array(
 		'ai_txt'      => array(
 			'regex'        => '^ai\.txt/?$',
-			'query_var'    => 'agentready_ai_txt',
+			'query_var'    => 'mokhai_ai_txt',
 			'static_file'  => 'ai.txt',
 			'content_type' => 'text/plain',
 		),
 		'llms_policy' => array(
 			'regex'        => '^\.well-known/llms-policy\.json/?$',
-			'query_var'    => 'agentready_llms_policy',
+			'query_var'    => 'mokhai_llms_policy',
 			'static_file'  => '.well-known/llms-policy.json',
 			'content_type' => 'application/json',
 		),
 		'ai_layer'    => array(
 			'regex'        => '^\.well-known/ai-layer/?$',
-			'query_var'    => 'agentready_ai_layer',
+			'query_var'    => 'mokhai_ai_layer',
 			'static_file'  => '.well-known/ai-layer',
 			'content_type' => 'application/json',
 		),

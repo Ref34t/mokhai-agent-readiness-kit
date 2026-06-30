@@ -39,7 +39,7 @@ final class Service {
 	 *
 	 * @var string
 	 */
-	public const CACHE_OPTION = 'agentready_llms_txt_cache';
+	public const CACHE_OPTION = 'mokhai_llms_txt_cache';
 
 	/**
 	 * Option key holding the cached composed `/llms-full.txt` body (#179 /
@@ -52,7 +52,7 @@ final class Service {
 	 *
 	 * @var string
 	 */
-	public const FULL_CACHE_OPTION = 'agentready_llms_full_txt_cache';
+	public const FULL_CACHE_OPTION = 'mokhai_llms_full_txt_cache';
 
 	/**
 	 * Transient guarding the regen-under-lock path. Held only for the
@@ -62,21 +62,21 @@ final class Service {
 	 *
 	 * @var string
 	 */
-	public const REGEN_LOCK_TRANSIENT = 'agentready_llms_txt_regen_lock';
+	public const REGEN_LOCK_TRANSIENT = 'mokhai_llms_txt_regen_lock';
 
 	/**
 	 * Cron action fired by the debounced single event.
 	 *
 	 * @var string
 	 */
-	public const REGEN_ACTION = 'agentready_llms_txt_regen';
+	public const REGEN_ACTION = 'mokhai_llms_txt_regen';
 
 	/**
 	 * Cron action fired daily as the freshness backstop.
 	 *
 	 * @var string
 	 */
-	public const DAILY_REGEN_ACTION = 'agentready_llms_txt_daily_regen';
+	public const DAILY_REGEN_ACTION = 'mokhai_llms_txt_daily_regen';
 
 	/**
 	 * Debounce window between trigger and async regen. 5 seconds swallows a
@@ -124,7 +124,7 @@ final class Service {
 	 * the post status / type against the Context Profile so an admin saving
 	 * a draft on a draft-not-exposed site doesn't trigger a regen.
 	 *
-	 * Phase #8 may add `agentready_llms_txt_editorial_saved` subscribers;
+	 * Phase #8 may add `mokhai_llms_txt_editorial_saved` subscribers;
 	 * the action itself is wired here so Phase C only needs to fire it.
 	 */
 	public static function register_hooks(): void {
@@ -622,7 +622,7 @@ final class Service {
 	 * @return array<int, array{title: string, url: string, description?: string, section?: string}>
 	 */
 	private static function resolve_editorial(): array {
-		$stored = \get_option( 'agentready_llms_txt_editorial', array() );
+		$stored = \get_option( Editorial_Settings::OPTION_KEY, array() );
 		if ( ! is_array( $stored ) ) {
 			return array();
 		}

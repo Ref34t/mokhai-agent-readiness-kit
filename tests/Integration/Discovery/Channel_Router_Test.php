@@ -96,7 +96,7 @@ final class Channel_Router_Test extends WP_UnitTestCase {
 
 		$payload = json_decode( $response['body'], true );
 		$this->assertIsArray( $payload );
-		$this->assertSame( 'ai-readiness-kit', $payload['generator'] );
+		$this->assertSame( 'mokhai', $payload['generator'] );
 		$this->assertSame( home_url( '/llms.txt' ), $payload['channels']['llms_txt'] );
 		$this->assertSame( home_url( '/ai.txt' ), $payload['channels']['ai_txt'] );
 		$this->assertSame( home_url( '/.well-known/llms-policy.json' ), $payload['channels']['llms_policy'] );
@@ -131,18 +131,18 @@ final class Channel_Router_Test extends WP_UnitTestCase {
 	public function test_register_query_vars_appends_all_three(): void {
 		$vars = Channel_Router::register_query_vars( array( 'foo' ) );
 
-		$this->assertContains( 'agentready_ai_txt', $vars );
-		$this->assertContains( 'agentready_llms_policy', $vars );
-		$this->assertContains( 'agentready_ai_layer', $vars );
+		$this->assertContains( 'mokhai_ai_txt', $vars );
+		$this->assertContains( 'mokhai_llms_policy', $vars );
+		$this->assertContains( 'mokhai_ai_layer', $vars );
 		$this->assertContains( 'foo', $vars );
 	}
 
 	public function test_matched_channel_resolves_query_var(): void {
 		$this->assertNull( Channel_Router::matched_channel() );
 
-		set_query_var( 'agentready_llms_policy', '1' );
+		set_query_var( 'mokhai_llms_policy', '1' );
 		$this->assertSame( 'llms_policy', Channel_Router::matched_channel() );
-		set_query_var( 'agentready_llms_policy', '' );
+		set_query_var( 'mokhai_llms_policy', '' );
 	}
 
 	public function test_maybe_serve_defers_to_operator_static_file(): void {
@@ -151,7 +151,7 @@ final class Channel_Router_Test extends WP_UnitTestCase {
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- test fixture.
 		file_put_contents( $static, "operator-owned\n" );
-		set_query_var( 'agentready_ai_txt', '1' );
+		set_query_var( 'mokhai_ai_txt', '1' );
 
 		try {
 			// dispatch() would exit; deferring returns without output. Reaching
@@ -159,7 +159,7 @@ final class Channel_Router_Test extends WP_UnitTestCase {
 			Channel_Router::maybe_serve();
 			$this->assertTrue( true );
 		} finally {
-			set_query_var( 'agentready_ai_txt', '' );
+			set_query_var( 'mokhai_ai_txt', '' );
 			unlink( $static ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- test fixture cleanup.
 		}
 	}

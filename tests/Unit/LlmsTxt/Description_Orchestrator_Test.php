@@ -108,7 +108,7 @@ final class Description_Orchestrator_Test extends TestCase {
 
 	public function test_meta_key_constants_match_namespace_prefix(): void {
 		// Regression guard: the four meta keys must share the
-		// `_agentready_llms_description_` prefix so an operator searching
+		// `_mokhai_llms_description_` prefix so an operator searching
 		// post-meta finds the whole cluster.
 		$keys = array(
 			Description_Orchestrator::META_KEY_AUTO,
@@ -119,7 +119,7 @@ final class Description_Orchestrator_Test extends TestCase {
 		);
 
 		foreach ( $keys as $key ) {
-			self::assertStringStartsWith( '_agentready_llms_description_', $key );
+			self::assertStringStartsWith( '_mokhai_llms_description_', $key );
 		}
 	}
 }

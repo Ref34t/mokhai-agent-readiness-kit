@@ -31,7 +31,7 @@ final class Bootstrap_Test extends WP_UnitTestCase {
 	}
 
 	public function test_global_helper_is_available(): void {
-		self::assertTrue( function_exists( 'agentready_has_ai_client' ) );
+		self::assertTrue( function_exists( 'mokhai_has_ai_client' ) );
 	}
 
 	public function test_main_singleton_returns_consistent_instance(): void {

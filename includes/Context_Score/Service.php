@@ -2,8 +2,8 @@
 /**
  * Context Score orchestration (#9 / AgDR-0030).
  *
- * Owns the `agentready_context_score_cache` option, the cron registrations,
- * and the debounced recompute on `agentready_context_profile_saved`.
+ * Owns the `mokhai_context_score_cache` option, the cron registrations,
+ * and the debounced recompute on `mokhai_context_profile_saved`.
  * Composition itself is delegated to the pure `Engine` and the WP-bridge
  * `Signal_Collector` so this file stays focused on side effects.
  *
@@ -30,7 +30,7 @@ final class Service {
 	 *
 	 * @var string
 	 */
-	public const CACHE_OPTION = 'agentready_context_score_cache';
+	public const CACHE_OPTION = 'mokhai_context_score_cache';
 
 	/**
 	 * Cron action fired by the debounced single event after the Context
@@ -38,14 +38,14 @@ final class Service {
 	 *
 	 * @var string
 	 */
-	public const RECOMPUTE_ACTION = 'agentready_context_score_recompute';
+	public const RECOMPUTE_ACTION = 'mokhai_context_score_recompute';
 
 	/**
 	 * Cron action fired daily as the freshness backstop.
 	 *
 	 * @var string
 	 */
-	public const DAILY_RECOMPUTE_ACTION = 'agentready_context_score_daily_recompute';
+	public const DAILY_RECOMPUTE_ACTION = 'mokhai_context_score_daily_recompute';
 
 	/**
 	 * Cron action that generates the LLM narrative off the recompute critical
@@ -56,7 +56,7 @@ final class Service {
 	 *
 	 * @var string
 	 */
-	public const NARRATIVE_ACTION = 'agentready_context_score_narrative';
+	public const NARRATIVE_ACTION = 'mokhai_context_score_narrative';
 
 	/**
 	 * Debounce window between trigger and async recompute. Matches AgDR-0023's
@@ -164,11 +164,11 @@ final class Service {
 	 *    schedule is silently dropped, leaving the recompute never to
 	 *    fire — Context Score would freeze at the previous breakdown
 	 *    until the daily backstop kicks in or someone runs
-	 *    `wp ai-readiness-kit context-score recompute` manually.
+	 *    `wp mokhai context-score recompute` manually.
 	 *    See Ref34t/agentready#115 (sibling of #103).
 	 *
 	 * Extra arguments passed by `do_action()` (e.g. the profile arrays
-	 * from `agentready_context_profile_saved`) are intentionally ignored —
+	 * from `mokhai_context_profile_saved`) are intentionally ignored —
 	 * `recompute_now()` reads the current state at run time.
 	 */
 	public static function schedule_recompute(): void {

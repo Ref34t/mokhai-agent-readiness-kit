@@ -59,8 +59,8 @@
 		<exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions"/>
 
 		<!--
-			VIP-Go flags get_option for performance; AgentReady's options surface
-			is tiny (agentready_settings + agentready_version). Re-evaluate when
+			VIP-Go flags get_option for performance; Mokhai's options surface
+			is small. Re-evaluate when
 			the option count grows.
 		-->
 		<exclude name="WordPressVIPMinimum.Functions.RestrictedFunctions.cache_get_option"/>
@@ -96,17 +96,6 @@
 				<element value="Mokhai"/>
 				<element value="MOKHAI"/>
 				<element value="mokhai"/>
-				<!--
-					Legacy prefixes retained through the 0.5.0 deprecation window:
-					agentready_* / wpctx_ / WPCTX still appear as deprecated hook
-					aliases (apply_filters_deprecated / do_action_deprecated), the
-					wpctx_ai_retry cron hook, and stored-data keys not yet migrated
-					(PR 2). Removed once the deprecation window closes.
-				-->
-				<element value="WPCTX"/>
-				<element value="wpctx"/>
-				<element value="WPContext"/>
-				<element value="agentready"/>
 			</property>
 		</properties>
 	</rule>

@@ -44,7 +44,7 @@ final class Schema_Test extends WP_UnitTestCase {
 
 	public function test_table_name_uses_wpdb_prefix(): void {
 		global $wpdb;
-		self::assertSame( $wpdb->prefix . 'agentready_md_cache', Schema::table_name() );
+		self::assertSame( $wpdb->prefix . 'mokhai_md_cache', Schema::table_name() );
 	}
 
 	public function test_create_provisions_table_and_records_schema_version(): void {

@@ -42,7 +42,7 @@ final class Client_Wrapper {
 	 *
 	 * @var string
 	 */
-	public const RETRY_ACTION = 'wpctx_ai_retry';
+	public const RETRY_ACTION = 'mokhai_ai_retry';
 
 	/**
 	 * Number of attempts per generate() call (initial + 1 immediate retry).

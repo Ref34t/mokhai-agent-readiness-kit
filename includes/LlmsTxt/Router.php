@@ -34,14 +34,14 @@ final class Router {
 	 *
 	 * @var string
 	 */
-	public const REWRITE_VAR = 'agentready_llms_txt';
+	public const REWRITE_VAR = 'mokhai_llms_txt';
 
 	/**
 	 * Query var for the consolidated `/llms-full.txt` route (#179).
 	 *
 	 * @var string
 	 */
-	public const FULL_REWRITE_VAR = 'agentready_llms_full_txt';
+	public const FULL_REWRITE_VAR = 'mokhai_llms_full_txt';
 
 	/**
 	 * Module key consumed by `Context_Profile_Settings::is_module_enabled()`
@@ -68,7 +68,7 @@ final class Router {
 	 *
 	 * @var string
 	 */
-	public const ROUTES_VERSION_OPTION = 'agentready_llms_txt_routes_version';
+	public const ROUTES_VERSION_OPTION = 'mokhai_llms_txt_routes_version';
 
 	/**
 	 * Wire the WordPress hooks owned by this class.

@@ -57,13 +57,6 @@ final class Conflict_Detector {
 	public const SLUG_REGISTRY_FILTER = 'mokhai_llms_txt_known_plugin_slugs';
 
 	/**
-	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_llms_txt_known_plugin_slugs`).
-	 *
-	 * @var string
-	 */
-	public const LEGACY_SLUG_REGISTRY_FILTER = 'agentready_llms_txt_known_plugin_slugs';
-
-	/**
 	 * The literal rewrite-regex key our `Router` registers under (must
 	 * mirror `Router::add_rewrite_rule` exactly).
 	 *
@@ -78,7 +71,7 @@ final class Conflict_Detector {
 	 *
 	 * @var string
 	 */
-	public const REWRITE_FINGERPRINT = 'agentready_llms_txt';
+	public const REWRITE_FINGERPRINT = 'mokhai_llms_txt';
 
 	/**
 	 * Returns the list of detected conflicts. Empty array == clean cohabitation.
@@ -206,8 +199,6 @@ final class Conflict_Detector {
 		// the constant is prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$filtered = \apply_filters( self::SLUG_REGISTRY_FILTER, $default );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$filtered = \apply_filters_deprecated( self::LEGACY_SLUG_REGISTRY_FILTER, array( $filtered ), '0.5.0', self::SLUG_REGISTRY_FILTER );
 
 		if ( ! is_array( $filtered ) ) {
 			return $default;

@@ -44,7 +44,7 @@ final class Entry_Source_Test extends WP_UnitTestCase {
 
 		// `factory()->post->create()` fires `save_post`, which the plugin's
 		// Markdown_Views\Service uses to invalidate rows in
-		// `wp_agentready_md_cache`. The wp-env bootstrap drops that table
+		// `wp_mokhai_md_cache`. The wp-env bootstrap drops that table
 		// (see tests/bootstrap.php), so we re-create it for every test that
 		// touches the post lifecycle — matches the pattern in
 		// `Service_Test::setUp()`.

@@ -1,9 +1,9 @@
 <?php
 /**
- * SEO-plugin noindex detector — subscribes to `agentready_post_is_noindexed`.
+ * SEO-plugin noindex detector — subscribes to `mokhai_post_is_noindexed`.
  *
  * Folds in #176 (closed): when a supported SEO plugin marks a post `noindex`,
- * agentready honours that signal and drops the post from every agent-facing
+ * Mokhai honours that signal and drops the post from every agent-facing
  * surface (the `noindex` gate in {@see Context_Profile_Settings::get_exposure_reason()}).
  * If a human told search engines "do not index this", agents should not ingest
  * it either.

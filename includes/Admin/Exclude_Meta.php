@@ -2,7 +2,7 @@
 /**
  * Per-post "exclude from agent output" meta registration (#180).
  *
- * Registers the `_agentready_excluded` boolean meta on every public post type
+ * Registers the `_mokhai_excluded` boolean meta on every public post type
  * and exposes it to the REST API so the block-editor sidebar toggle
  * (Exclude_Sidebar_Assets) can read/write it via `useEntityProp`. When set, the
  * `excluded` gate in {@see Context_Profile_Settings::get_exposure_reason()}

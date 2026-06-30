@@ -147,7 +147,7 @@ final class Llms_Txt_Command_Test extends WP_UnitTestCase {
 
 		Service::invalidate();
 		delete_transient( Service::REGEN_LOCK_TRANSIENT );
-		delete_option( 'agentready_llms_txt_editorial' );
+		delete_option( 'mokhai_llms_txt_editorial' );
 
 		update_option(
 			Context_Profile_Settings::OPTION_KEY,
@@ -181,7 +181,7 @@ final class Llms_Txt_Command_Test extends WP_UnitTestCase {
 		delete_transient( Service::REGEN_LOCK_TRANSIENT );
 		wp_clear_scheduled_hook( Service::REGEN_ACTION );
 		wp_clear_scheduled_hook( Service::DAILY_REGEN_ACTION );
-		delete_option( 'agentready_llms_txt_editorial' );
+		delete_option( 'mokhai_llms_txt_editorial' );
 
 		// Strip any conflict fixture so it can't leak into a sibling test.
 		Conflict_Notice::invalidate_cache();

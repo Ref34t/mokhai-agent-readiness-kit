@@ -131,7 +131,7 @@ final class Context_Score_Page {
 					<p>
 						<?php
 						\esc_html_e(
-							'The Context Score panel requires JavaScript. Enable JavaScript and reload this page, or run "wp ai-readiness-kit context-score audit" from the command line for an equivalent JSON breakdown.',
+							'The Context Score panel requires JavaScript. Enable JavaScript and reload this page, or run "wp mokhai context-score audit" from the command line for an equivalent JSON breakdown.',
 							'mokhai-agent-readiness-kit'
 						);
 						?>
@@ -341,7 +341,7 @@ final class Context_Score_Page {
 	 * deference matrix so the agency lead can see at a glance:
 	 *   - Which schema types are deferred to the active SEO plugin
 	 *   - Which schema types Mokhai fills (gap-fill, empty by default)
-	 *   - Whether emission is suppressed by the `agentready_schema_emit` filter
+	 *   - Whether emission is suppressed by the `mokhai_schema_emit` filter
 	 *
 	 * The values are computed at render time — same approach as the live
 	 * detect() call on the Profile page — so a freshly-activated SEO
@@ -357,7 +357,7 @@ final class Context_Score_Page {
 		$gap      = Plugin_Coverage::compute_gap( $slug );
 		$deferred = Plugin_Coverage::compute_deferred( $slug );
 
-		// Hook name resolves to `agentready_schema_emit` — the constant is
+		// Hook name resolves to `mokhai_schema_emit` — the constant is
 		// prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$filter_allows = false !== \apply_filters( Schema_Emitter::FILTER_EMIT_DECISION, true );

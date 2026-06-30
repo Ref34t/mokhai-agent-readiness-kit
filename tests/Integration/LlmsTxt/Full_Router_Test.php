@@ -35,7 +35,7 @@ final class Full_Router_Test extends WP_UnitTestCase {
 		delete_transient( Service::REGEN_LOCK_TRANSIENT );
 
 		$this->set_profile( array() );
-		delete_option( 'agentready_llms_txt_editorial' );
+		delete_option( 'mokhai_llms_txt_editorial' );
 
 		wp_clear_scheduled_hook( Service::REGEN_ACTION );
 	}

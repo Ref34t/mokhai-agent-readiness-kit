@@ -95,7 +95,7 @@ final class Channel_Content {
 			'version'   => self::PAYLOAD_VERSION,
 			'name'      => self::site_name(),
 			'website'   => \home_url( '/' ),
-			'generator' => 'ai-readiness-kit',
+			'generator' => 'mokhai',
 			'channels'  => array(
 				'llms_txt'       => \home_url( '/llms.txt' ),
 				'ai_txt'         => \home_url( '/ai.txt' ),

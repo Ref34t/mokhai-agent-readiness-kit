@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 \defined( 'ABSPATH' ) || exit;
 
-if ( ! \function_exists( 'agentready_has_ai_client' ) ) {
+if ( ! \function_exists( 'mokhai_has_ai_client' ) ) {
 	/**
 	 * Whether the WP AI Client (shipped with WP core 7.0) is available
 	 * and configured at runtime.
@@ -21,7 +21,7 @@ if ( ! \function_exists( 'agentready_has_ai_client' ) ) {
 	 * Mirrors `Mokhai\Ai\Client_Wrapper::has_ai_client()` for callers
 	 * that prefer the WordPress functional idiom.
 	 */
-	function agentready_has_ai_client(): bool {
+	function mokhai_has_ai_client(): bool {
 		return \Mokhai\Ai\Client_Wrapper::has_ai_client();
 	}
 }

@@ -50,8 +50,8 @@ final class Output_Buffer_Test extends TestCase {
 	}
 
 	public function test_recognises_plugin_rest_routes(): void {
-		self::assertTrue( Output_Buffer::is_plugin_rest_route( '/ai-readiness-kit/v1/context-profile' ) );
-		self::assertTrue( Output_Buffer::is_plugin_rest_route( '/ai-readiness-kit/v1/markdown' ) );
+		self::assertTrue( Output_Buffer::is_plugin_rest_route( '/mokhai/v1/context-profile' ) );
+		self::assertTrue( Output_Buffer::is_plugin_rest_route( '/mokhai/v1/markdown' ) );
 	}
 
 	public function test_rejects_foreign_and_empty_rest_routes(): void {
@@ -59,7 +59,7 @@ final class Output_Buffer_Test extends TestCase {
 		self::assertFalse( Output_Buffer::is_plugin_rest_route( '/oembed/1.0/embed' ) );
 		self::assertFalse( Output_Buffer::is_plugin_rest_route( '' ) );
 		// Substring-but-not-prefix must not match.
-		self::assertFalse( Output_Buffer::is_plugin_rest_route( '/x/ai-readiness-kit/v1/y' ) );
+		self::assertFalse( Output_Buffer::is_plugin_rest_route( '/x/mokhai/v1/y' ) );
 	}
 
 	/**

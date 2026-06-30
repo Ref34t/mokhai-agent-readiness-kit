@@ -4,15 +4,15 @@
  *
  * Replaces the legacy `options.php` form POST for the editorial repeater with a
  * no-reload REST write path. Two routes under
- * `ai-readiness-kit/v1/llms-txt/editorial`, both gated by `manage_options`:
+ * `mokhai/v1/llms-txt/editorial`, both gated by `manage_options`:
  *
- *   GET ai-readiness-kit/v1/llms-txt/editorial  → { schema_version, entries, sections }
- *   PUT ai-readiness-kit/v1/llms-txt/editorial  → { schema_version, entries, sections }
+ *   GET mokhai/v1/llms-txt/editorial  → { schema_version, entries, sections }
+ *   PUT mokhai/v1/llms-txt/editorial  → { schema_version, entries, sections }
  *
  * The write delegates to `Editorial_Settings::save()`, which routes the payload
  * through the same `sanitize()` source-of-truth the form path used — so the
  * REST surface adds no new validation, and the
- * `agentready_llms_txt_editorial_saved` cascade fires identically.
+ * `mokhai_llms_txt_editorial_saved` cascade fires identically.
  *
  * @package Mokhai
  */
@@ -30,18 +30,11 @@ namespace Mokhai\LlmsTxt;
 final class Editorial_Rest_Controller {
 
 	/**
-	 * REST namespace shared with the rest of agentready.
+	 * REST namespace shared with the rest of mokhai.
 	 *
 	 * @var string
 	 */
 	public const NAMESPACE = 'mokhai/v1';
-
-	/**
-	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
-	 *
-	 * @var string
-	 */
-	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Base path under the namespace.
@@ -58,7 +51,7 @@ final class Editorial_Rest_Controller {
 	}
 
 	/**
-	 * Register the read + write routes under the current namespace, plus legacy aliases.
+	 * Register the read + write routes under the current namespace.
 	 */
 	public static function register_routes(): void {
 		$route_args = array(
@@ -74,9 +67,7 @@ final class Editorial_Rest_Controller {
 			),
 		);
 
-		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
-			\register_rest_route( $ns, self::ROUTE_BASE, $route_args );
-		}
+		\register_rest_route( self::NAMESPACE, self::ROUTE_BASE, $route_args );
 	}
 
 	/**

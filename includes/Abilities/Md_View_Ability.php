@@ -1,6 +1,6 @@
 <?php
 /**
- * `ai-readiness-kit/md-view-preview` ability (#21 / AgDR-0044).
+ * `mokhai/md-view-preview` ability (#21 / AgDR-0044).
  *
  * @package Mokhai
  */
@@ -30,8 +30,7 @@ final class Md_View_Ability {
 	 *
 	 * @var string
 	 */
-	public const ID        = 'mokhai/md-view-preview';
-	public const LEGACY_ID = 'ai-readiness-kit/md-view-preview';
+	public const ID = 'mokhai/md-view-preview';
 
 	/**
 	 * Execute callback. Resolves a post by `post_id` or `url`, then returns
