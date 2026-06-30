@@ -116,17 +116,21 @@ final class Messy_Site_Fixture {
 		// KSES would otherwise strip the `<script>` tags on insert and leave the
 		// init JS as a bare text node, changing the shape under test. Drop the
 		// content filters around the insert so the markup is stored verbatim,
-		// exactly as a builder would store it.
+		// exactly as a builder would store it. The `finally` guarantees the
+		// global filter state is restored even if the insert path throws.
 		\kses_remove_filters();
-		$id = (int) \wp_insert_post(
-			array(
-				'post_type'    => 'page',
-				'post_status'  => 'publish',
-				'post_title'   => 'Builder Page',
-				'post_content' => $content,
-			)
-		);
-		\kses_init_filters();
+		try {
+			$id = (int) \wp_insert_post(
+				array(
+					'post_type'    => 'page',
+					'post_status'  => 'publish',
+					'post_title'   => 'Builder Page',
+					'post_content' => $content,
+				)
+			);
+		} finally {
+			\kses_init_filters();
+		}
 
 		return $id;
 	}
