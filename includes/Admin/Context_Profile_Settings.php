@@ -2,7 +2,7 @@
 /**
  * Context Profile settings — storage, sanitisation, and reader.
  *
- * Owns the `agentready_context_profile` option per AgDR-0002.
+ * Owns the `mokhai_context_profile` option per AgDR-0002.
  *
  * @package Mokhai
  */
@@ -40,7 +40,7 @@ final class Context_Profile_Settings {
 	 *
 	 * @var string
 	 */
-	public const OPTION_KEY = 'agentready_context_profile';
+	public const OPTION_KEY = 'mokhai_context_profile';
 
 	/**
 	 * Settings API option group — passed to register_setting() and the
@@ -48,7 +48,7 @@ final class Context_Profile_Settings {
 	 *
 	 * @var string
 	 */
-	public const OPTION_GROUP = 'agentready_context_profile_group';
+	public const OPTION_GROUP = 'mokhai_context_profile_group';
 
 	/**
 	 * Current schema version. Bump when adding fields with non-trivial
@@ -77,7 +77,7 @@ final class Context_Profile_Settings {
 	 *
 	 * @var string
 	 */
-	public const EXCLUDE_META_KEY = '_agentready_excluded';
+	public const EXCLUDE_META_KEY = '_mokhai_excluded';
 
 	/**
 	 * Slugs WordPress seeds on a fresh install. Dropped from agent output by
@@ -93,7 +93,7 @@ final class Context_Profile_Settings {
 	 *
 	 * Called once from Main::register_hooks (added in #4's Main wiring).
 	 *
-	 * The post-save action (`agentready_context_profile_saved`) is dispatched
+	 * The post-save action (`mokhai_context_profile_saved`) is dispatched
 	 * via `update_option_<key>` / `add_option_<key>` rather than from inside
 	 * `sanitize()`. The Settings API runs `sanitize_callback` BEFORE
 	 * `update_option()` writes the new value, so listeners that re-read via
@@ -317,14 +317,12 @@ final class Context_Profile_Settings {
 		 */
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$value = (bool) \apply_filters( 'mokhai_post_is_noindexed', false, $post );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$value = (bool) \apply_filters_deprecated( 'agentready_post_is_noindexed', array( $value, $post ), '0.5.0', 'mokhai_post_is_noindexed' );
 		return $value;
 	}
 
 	/**
 	 * Whether the post sits on an operator-curated exclude list — the per-post
-	 * `_agentready_excluded` meta toggle, the site-level `excluded_ids` /
+	 * `_mokhai_excluded` meta toggle, the site-level `excluded_ids` /
 	 * `excluded_slugs` deny-lists (#180), a category / tag on the
 	 * `excluded_term_ids` / `excluded_term_slugs` term deny-lists (#188), or a
 	 * WooCommerce functional page (Cart / Checkout / My-account) detected via
@@ -369,7 +367,7 @@ final class Context_Profile_Settings {
 	 * content an agent may legitimately want, unlike the session/transactional
 	 * Cart / Checkout / My-account pages.
 	 *
-	 * Overridable via the `agentready_woocommerce_excluded_page_options` filter
+	 * Overridable via the `mokhai_woocommerce_excluded_page_options` filter
 	 * — return an empty array to disable, or add option keys (e.g. the Shop
 	 * page) to extend.
 	 *
@@ -385,7 +383,6 @@ final class Context_Profile_Settings {
 				'woocommerce_myaccount_page_id',
 			)
 		);
-		$option_keys = \apply_filters_deprecated( 'agentready_woocommerce_excluded_page_options', array( $option_keys ), '0.5.0', 'mokhai_woocommerce_excluded_page_options' );
 		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
 		foreach ( (array) $option_keys as $option_key ) {
@@ -475,7 +472,7 @@ final class Context_Profile_Settings {
 	 * invalid CPT / status from a programmatic caller can never persist.
 	 *
 	 * The `update_option()` write fires `update_option_<key>` /
-	 * `add_option_<key>`, which dispatch `agentready_context_profile_saved` —
+	 * `add_option_<key>`, which dispatch `mokhai_context_profile_saved` —
 	 * so Context Score recompute and /llms.txt regen cascade exactly as they
 	 * do on an admin save.
 	 *
@@ -514,7 +511,7 @@ final class Context_Profile_Settings {
 	 * (`manage_options`) gates the caller before this runs, matching
 	 * `set_exposure()`. The `update_option()` write fires
 	 * `update_option_<key>` / `add_option_<key>`, so the
-	 * `agentready_context_profile_saved` cascade (Context Score recompute,
+	 * `mokhai_context_profile_saved` cascade (Context Score recompute,
 	 * /llms.txt regen) runs exactly as on an admin form save.
 	 *
 	 * @param array<int|string, mixed> $raw Raw profile payload from the SPA.
@@ -568,7 +565,7 @@ final class Context_Profile_Settings {
 	 * sanitiser with a capability check so a forged nonce / direct call from
 	 * a non-admin user cannot persist the option.
 	 *
-	 * NOTE: this method does NOT dispatch `agentready_context_profile_saved`.
+	 * NOTE: this method does NOT dispatch `mokhai_context_profile_saved`.
 	 * The Settings API runs `sanitize_callback` BEFORE the write, so dispatching
 	 * here would expose listeners to the stale value via `get_profile()`. The
 	 * action fires from `on_profile_updated()` / `on_profile_added()`, which
@@ -597,7 +594,7 @@ final class Context_Profile_Settings {
 	/**
 	 * Fires the post-save action after WP has written an updated option.
 	 *
-	 * Hooked to `update_option_agentready_context_profile`. Re-runs the
+	 * Hooked to `update_option_mokhai_context_profile`. Re-runs the
 	 * stored value through `migrate()` so the action payload matches what
 	 * downstream readers (via `get_profile()`) will observe — listeners
 	 * never see a half-migrated array.
@@ -623,20 +620,18 @@ final class Context_Profile_Settings {
 		 */
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		\do_action( 'mokhai_context_profile_saved', $new, $old );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		\do_action_deprecated( 'agentready_context_profile_saved', array( $new, $old ), '0.5.0', 'mokhai_context_profile_saved' );
 	}
 
 	/**
 	 * Fires the post-save action on the first write of the option.
 	 *
-	 * Hooked to `add_option_agentready_context_profile`. WP fires
+	 * Hooked to `add_option_mokhai_context_profile`. WP fires
 	 * `add_option_<key>` (not `update_option_<key>`) the very first time the
 	 * option is written, so without this hook the inaugural save would skip
 	 * the listener chain. Payload uses `get_defaults()` for the old value —
 	 * "old" is "what the system was implicitly showing pre-save."
 	 *
-	 * @param string $option Option name (`agentready_context_profile`).
+	 * @param string $option Option name (`mokhai_context_profile`).
 	 * @param mixed  $value  New option value (raw, just-written).
 	 */
 	public static function on_profile_added( $option, $value ): void {
@@ -648,8 +643,6 @@ final class Context_Profile_Settings {
 		/** This action is documented in Context_Profile_Settings::on_profile_updated() */
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		\do_action( 'mokhai_context_profile_saved', $new, $old );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		\do_action_deprecated( 'agentready_context_profile_saved', array( $new, $old ), '0.5.0', 'mokhai_context_profile_saved' );
 	}
 
 	/**

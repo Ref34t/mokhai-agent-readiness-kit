@@ -10,7 +10,7 @@
  *   - Article node is emitted on a singular post (AC #5 — content-type half).
  *   - WebPage node is emitted on the front page and on a singular page.
  *   - Non-singular requests (e.g. archives) emit site identity only.
- *   - `agentready_schema_emit` filter returning false suppresses all output.
+ *   - `mokhai_schema_emit` filter returning false suppresses all output.
  *   - `register_hooks()` wires wp_head at priority 10.
  *
  * Tests drive `render_for_posture()` with explicit slugs rather than the
@@ -55,7 +55,7 @@ final class Schema_Emitter_Test extends TestCase {
 		// + `publish` status — the unit tests assert the gating logic, not
 		// the safe-by-default behaviour, which is covered by the explicit
 		// "profile off" / "post not exposed" tests below.
-		$GLOBALS['wpctx_test_options']['agentready_context_profile'] = array(
+		$GLOBALS['wpctx_test_options']['mokhai_context_profile'] = array(
 			'schema_version'      => 1,
 			'schema_emit_enabled' => true,
 			'exposed_cpts'        => array( 'post', 'page' ),
@@ -107,7 +107,7 @@ final class Schema_Emitter_Test extends TestCase {
 		$output = $this->capture_render( 'none' );
 
 		self::assertNotSame( '', $output );
-		self::assertStringContainsString( '<script type="application/ld+json" data-emitted-by="agentready">', $output );
+		self::assertStringContainsString( '<script type="application/ld+json" data-emitted-by="mokhai">', $output );
 
 		$json = $this->extract_json( $output );
 		self::assertNotNull( $json );
@@ -188,11 +188,11 @@ final class Schema_Emitter_Test extends TestCase {
 
 		$output = $this->capture_render( 'none' );
 
-		self::assertSame( '', $output, 'agentready_schema_emit=false should suppress emission.' );
+		self::assertSame( '', $output, 'mokhai_schema_emit=false should suppress emission.' );
 	}
 
 	public function test_render_emits_nothing_when_profile_toggle_is_off(): void {
-		$GLOBALS['wpctx_test_options']['agentready_context_profile']['schema_emit_enabled'] = false;
+		$GLOBALS['wpctx_test_options']['mokhai_context_profile']['schema_emit_enabled'] = false;
 
 		$output = $this->capture_render( 'none' );
 
@@ -202,7 +202,7 @@ final class Schema_Emitter_Test extends TestCase {
 	public function test_render_omits_article_node_when_post_type_not_exposed(): void {
 		// Profile only exposes 'page' — a singular post should not get its
 		// Article node, but the site-identity nodes still render.
-		$GLOBALS['wpctx_test_options']['agentready_context_profile']['exposed_cpts'] = array( 'page' );
+		$GLOBALS['wpctx_test_options']['mokhai_context_profile']['exposed_cpts'] = array( 'page' );
 
 		$post                = new WP_Post();
 		$post->ID            = 42;
@@ -301,7 +301,7 @@ final class Schema_Emitter_Test extends TestCase {
 		self::assertNotSame( '', $output );
 
 		$match = preg_match(
-			'#<script type="application/ld\+json" data-emitted-by="agentready">\s*(.+?)\s*</script>#s',
+			'#<script type="application/ld\+json" data-emitted-by="mokhai">\s*(.+?)\s*</script>#s',
 			$output,
 			$m
 		);
@@ -406,7 +406,7 @@ final class Schema_Emitter_Test extends TestCase {
 		if ( '' === $output ) {
 			return null;
 		}
-		if ( ! preg_match( '#<script type="application/ld\+json" data-emitted-by="agentready">\s*(.+?)\s*</script>#s', $output, $m ) ) {
+		if ( ! preg_match( '#<script type="application/ld\+json" data-emitted-by="mokhai">\s*(.+?)\s*</script>#s', $output, $m ) ) {
 			return null;
 		}
 		// Body must be raw JSON (AgDR-0041) — `json_decode` directly,

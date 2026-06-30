@@ -4,16 +4,16 @@
  *
  * Replaces the legacy `options.php` form POST with a no-reload REST write path
  * so the rebuilt Tools → Context screen saves via `apiFetch` instead of a full
- * page navigation. Two routes under `ai-readiness-kit/v1/context-profile`, both
+ * page navigation. Two routes under `mokhai/v1/context-profile`, both
  * gated by `manage_options`:
  *
- *   GET ai-readiness-kit/v1/context-profile  → { profile }
- *   PUT ai-readiness-kit/v1/context-profile  → { profile }   (persists, then returns)
+ *   GET mokhai/v1/context-profile  → { profile }
+ *   PUT mokhai/v1/context-profile  → { profile }   (persists, then returns)
  *
  * The write delegates to `Context_Profile_Settings::save()`, which routes the
  * payload through the same `sanitize_internal()` whitelist the form path used —
  * so the REST surface introduces no new validation logic and the
- * `agentready_context_profile_saved` cascade fires identically.
+ * `mokhai_context_profile_saved` cascade fires identically.
  *
  * @package Mokhai
  */
@@ -31,18 +31,11 @@ namespace Mokhai\Admin;
 final class Context_Profile_Rest_Controller {
 
 	/**
-	 * REST namespace shared with the rest of agentready.
+	 * REST namespace shared with the rest of mokhai.
 	 *
 	 * @var string
 	 */
 	public const NAMESPACE = 'mokhai/v1';
-
-	/**
-	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
-	 *
-	 * @var string
-	 */
-	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Base path under the namespace.
@@ -59,7 +52,7 @@ final class Context_Profile_Rest_Controller {
 	}
 
 	/**
-	 * Register the read + write routes under the current namespace, plus legacy aliases.
+	 * Register the read + write routes under the current namespace.
 	 */
 	public static function register_routes(): void {
 		$route_args = array(
@@ -75,9 +68,7 @@ final class Context_Profile_Rest_Controller {
 			),
 		);
 
-		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
-			\register_rest_route( $ns, self::ROUTE_BASE, $route_args );
-		}
+		\register_rest_route( self::NAMESPACE, self::ROUTE_BASE, $route_args );
 	}
 
 	/**

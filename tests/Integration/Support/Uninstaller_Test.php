@@ -97,7 +97,7 @@ final class Uninstaller_Test extends WP_UnitTestCase {
 		// The two regressions #189 was filed about: the central profile
 		// option must be on the list, the dead legacy key must not be.
 		$this->assertContains( Context_Profile_Settings::OPTION_KEY, $keys );
-		$this->assertContains( 'agentready_seo_posture_last_seen', $keys );
+		$this->assertContains( 'mokhai_seo_posture_last_seen', $keys );
 		$this->assertNotContains( 'agentready_settings', $keys );
 	}
 
@@ -142,7 +142,7 @@ final class Uninstaller_Test extends WP_UnitTestCase {
 	public function test_run_drops_the_md_cache_table(): void {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'agentready_md_cache';
+		$table = $wpdb->prefix . 'mokhai_md_cache';
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery -- table existence probe.
 		$this->assertSame( $table, $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) );

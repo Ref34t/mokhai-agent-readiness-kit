@@ -48,7 +48,7 @@ if ( $tests_dir && file_exists( $tests_dir . '/includes/functions.php' ) ) {
 	 * `lifecycleScripts.afterStart` activation in .wp-env.json, #195 —
 	 * previously the auto-activated `plugins: ["."]` entry). That activation runs
 	 * `Main::on_activate()` → `Schema::create_for_all_sites()` → emits
-	 * `CREATE TABLE wp_agentready_md_cache (...)` against the test database
+	 * `CREATE TABLE wp_mokhai_md_cache (...)` against the test database
 	 * WITHOUT the per-test query filter active. The result is a REGULAR
 	 * (non-temporary) table that persists across test classes.
 	 *
@@ -74,8 +74,8 @@ if ( $tests_dir && file_exists( $tests_dir . '/includes/functions.php' ) ) {
 	 */
 	if ( isset( $GLOBALS['wpdb'] ) ) {
 		$wpdb_pre_test = $GLOBALS['wpdb'];
-		$wpdb_pre_test->query( 'DROP TABLE IF EXISTS ' . $wpdb_pre_test->prefix . 'agentready_md_cache' );
-		\delete_option( 'agentready_md_cache_schema_version' );
+		$wpdb_pre_test->query( 'DROP TABLE IF EXISTS ' . $wpdb_pre_test->prefix . 'mokhai_md_cache' );
+		\delete_option( 'mokhai_md_cache_schema_version' );
 		unset( $wpdb_pre_test );
 	}
 } else {

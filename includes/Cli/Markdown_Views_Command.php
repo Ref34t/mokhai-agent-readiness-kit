@@ -2,7 +2,7 @@
 /**
  * WP-CLI command surface for Markdown Views.
  *
- * Registers `wp ai-readiness-kit md preview <target> [...]` as a power-user and
+ * Registers `wp mokhai md preview <target> [...]` as a power-user and
  * scripted-workflow path that bypasses the wp-admin UI per AgDR-0014.
  * Same backend as the public route + REST endpoint — every surface
  * funnels into `Service::get_markdown_for_post()`.
@@ -25,23 +25,23 @@ use Mokhai\Markdown_Views\Service;
  * ## EXAMPLES
  *
  *     # Preview the MD for a post by ID, raw output to stdout.
- *     $ wp ai-readiness-kit md preview 42
+ *     $ wp mokhai md preview 42
  *
  *     # Preview by permalink instead of ID.
- *     $ wp ai-readiness-kit md preview https://example.com/about-us/
+ *     $ wp mokhai md preview https://example.com/about-us/
  *
  *     # Wrap the MD with a YAML-ish header (title, canonical URL,
  *     # generated_at). Useful for piping into LLM tooling that wants
  *     # source metadata.
- *     $ wp ai-readiness-kit md preview 42 --format=wrapped
+ *     $ wp mokhai md preview 42 --format=wrapped
  *
  *     # Print cache-state diagnostics to stderr alongside the MD body.
- *     $ wp ai-readiness-kit md preview 42 --show-meta
+ *     $ wp mokhai md preview 42 --show-meta
  *
  *     # Force preview a hidden post (draft, password-protected, etc.).
  *     # Requires manage_options capability. The output is NOT served
  *     # publicly — this flag only affects CLI introspection.
- *     $ wp ai-readiness-kit md preview 42 --bypass-exposure
+ *     $ wp mokhai md preview 42 --bypass-exposure
  */
 final class Markdown_Views_Command {
 
@@ -55,7 +55,6 @@ final class Markdown_Views_Command {
 		}
 
 		\WP_CLI::add_command( 'mokhai md', self::class );
-		\WP_CLI::add_command( 'ai-readiness-kit md', self::class );
 	}
 
 	/**
@@ -86,9 +85,9 @@ final class Markdown_Views_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp ai-readiness-kit md preview 42
-	 *     wp ai-readiness-kit md preview /about-us/ --format=wrapped
-	 *     wp ai-readiness-kit md preview 42 --show-meta
+	 *     wp mokhai md preview 42
+	 *     wp mokhai md preview /about-us/ --format=wrapped
+	 *     wp mokhai md preview 42 --show-meta
 	 *
 	 * @param array<int, string>      $args       Positional arguments.
 	 * @param array<string, string|bool> $assoc_args Associative arguments.

@@ -111,7 +111,7 @@ final class Service {
 	 *
 	 * The base is `the_content` over `post_content` — the canonical render
 	 * path through every registered formatter. The result then passes through
-	 * the `agentready_markdown_source_html` filter, which is the extension
+	 * the `mokhai_markdown_source_html` filter, which is the extension
 	 * point post types whose canonical copy lives elsewhere hook into. The
 	 * bundled WooCommerce adapter ({@see Woocommerce_Source}) uses it to
 	 * prepend a product's short description, which is otherwise absent from
@@ -136,7 +136,7 @@ final class Service {
 		 * copy is not in `post_content` (e.g. WooCommerce products, whose
 		 * description is the short description / `post_excerpt`). Anything a
 		 * callback reads to build the body MUST also be reflected in the cache
-		 * key — see the `agentready_markdown_content_hash` filter on
+		 * key — see the `mokhai_markdown_content_hash` filter on
 		 * {@see self::content_hash()}.
 		 *
 		 * @param string   $html The `the_content`-rendered HTML.
@@ -144,8 +144,6 @@ final class Service {
 		 */
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$html = (string) \apply_filters( 'mokhai_markdown_source_html', $html, $post );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$html = (string) \apply_filters_deprecated( 'agentready_markdown_source_html', array( $html, $post ), '0.5.0', 'mokhai_markdown_source_html' );
 		return $html;
 	}
 
@@ -203,7 +201,7 @@ final class Service {
 	 * covered by the walker-version bump path.
 	 *
 	 * Integrations that source the body from fields beyond post_content /
-	 * post_excerpt extend the key via the `agentready_markdown_content_hash`
+	 * post_excerpt extend the key via the `mokhai_markdown_content_hash`
 	 * filter so their edits invalidate too.
 	 */
 	private static function content_hash( \WP_Post $post ): string {
@@ -221,8 +219,6 @@ final class Service {
 		 */
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$base = (string) \apply_filters( 'mokhai_markdown_content_hash', $base, $post );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$base = (string) \apply_filters_deprecated( 'agentready_markdown_content_hash', array( $base, $post ), '0.5.0', 'mokhai_markdown_content_hash' );
 
 		return \sha1( $base );
 	}

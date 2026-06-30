@@ -2,7 +2,7 @@
 /**
  * WooCommerce source adapter for Markdown Views.
  *
- * Bundled adapter (AgDR-0061) that hooks the `agentready_markdown_source_html`
+ * Bundled adapter (AgDR-0061) that hooks the `mokhai_markdown_source_html`
  * filter so WooCommerce products render their short description in the
  * Markdown View. A product's descriptive copy is frequently the short
  * description (`post_excerpt`, rendered via `woocommerce_short_description`),

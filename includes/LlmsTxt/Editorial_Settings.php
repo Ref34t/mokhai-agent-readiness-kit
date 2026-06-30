@@ -3,7 +3,7 @@
  * Editorial entries: option registration + sanitisation + save-action firing.
  *
  * Per AgDR-0025, editorial entries are stored in a single versioned `wp_options`
- * entry (`agentready_llms_txt_editorial`) with the shape:
+ * entry (`mokhai_llms_txt_editorial`) with the shape:
  *
  *     [
  *       'schema_version' => 1,
@@ -19,7 +19,7 @@
  *       ],
  *     ]
  *
- * Save dispatches the `agentready_llms_txt_editorial_saved` action, which
+ * Save dispatches the `mokhai_llms_txt_editorial_saved` action, which
  * `LlmsTxt\Service::register_hooks()` (Phase A / AgDR-0023) already subscribes
  * to — the regen schedule fires automatically.
  *
@@ -42,7 +42,7 @@ final class Editorial_Settings {
 	 *
 	 * @var string
 	 */
-	public const OPTION_KEY = 'agentready_llms_txt_editorial';
+	public const OPTION_KEY = 'mokhai_llms_txt_editorial';
 
 	/**
 	 * Settings API option group — passed to register_setting() and the
@@ -50,7 +50,7 @@ final class Editorial_Settings {
 	 *
 	 * @var string
 	 */
-	public const OPTION_GROUP = 'agentready_llms_txt_editorial_group';
+	public const OPTION_GROUP = 'mokhai_llms_txt_editorial_group';
 
 	/**
 	 * Action fired after the option is updated. `Service::register_hooks`
@@ -60,13 +60,6 @@ final class Editorial_Settings {
 	 * @var string
 	 */
 	public const SAVED_ACTION = 'mokhai_llms_txt_editorial_saved';
-
-	/**
-	 * Legacy action name for back-compat (deprecated since 0.5.0, use `mokhai_llms_txt_editorial_saved`).
-	 *
-	 * @var string
-	 */
-	public const LEGACY_SAVED_ACTION = 'agentready_llms_txt_editorial_saved';
 
 	/**
 	 * Current schema version. Bumped if the stored shape changes.
@@ -151,7 +144,7 @@ final class Editorial_Settings {
 	 * The Settings API form posts to options.php; the SPA posts here via
 	 * `Editorial_Rest_Controller`. Routes through the same `sanitize()` source
 	 * of truth, then `update_option()` — which fires `update_option_<key>` /
-	 * `add_option_<key>`, dispatching `agentready_llms_txt_editorial_saved`
+	 * `add_option_<key>`, dispatching `mokhai_llms_txt_editorial_saved`
 	 * exactly as the form save does (so /llms.txt regen cascades identically).
 	 *
 	 * Auth is the REST controller's `permission_callback` (`manage_options`).
@@ -238,7 +231,7 @@ final class Editorial_Settings {
 
 	/**
 	 * Action callback fired after `update_option` / `add_option` succeeds.
-	 * Dispatches the public `agentready_llms_txt_editorial_saved` action
+	 * Dispatches the public `mokhai_llms_txt_editorial_saved` action
 	 * (AgDR-0025 § "Hook firing").
 	 *
 	 * @param mixed $old_value Previous value (unused).
@@ -251,8 +244,6 @@ final class Editorial_Settings {
 		// constant is prefixed; phpcs can't see through the const ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		\do_action( self::SAVED_ACTION );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		\do_action_deprecated( self::LEGACY_SAVED_ACTION, array(), '0.5.0', self::SAVED_ACTION );
 	}
 
 	/**

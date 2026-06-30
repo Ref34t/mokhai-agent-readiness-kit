@@ -465,7 +465,7 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		if ( '' === $output ) {
 			return null;
 		}
-		if ( ! preg_match( '#<script type="application/ld\+json" data-emitted-by="agentready">\s*(.+?)\s*</script>#s', $output, $m ) ) {
+		if ( ! preg_match( '#<script type="application/ld\+json" data-emitted-by="mokhai">\s*(.+?)\s*</script>#s', $output, $m ) ) {
 			return null;
 		}
 		// Body must be raw JSON (AgDR-0041) — `json_decode` directly,

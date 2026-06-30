@@ -71,7 +71,7 @@ final class Description_Orchestrator {
 	 *
 	 * @var string
 	 */
-	public const SCHEDULE_ACTION = 'agentready_llms_description_run';
+	public const SCHEDULE_ACTION = 'mokhai_llms_description_run';
 
 	/**
 	 * Action fired whenever a post's *served* /llms.txt description changes
@@ -86,19 +86,12 @@ final class Description_Orchestrator {
 	public const DESCRIPTION_CHANGED_ACTION = 'mokhai_llms_txt_description_changed';
 
 	/**
-	 * Legacy action name for back-compat (deprecated since 0.5.0, use `mokhai_llms_txt_description_changed`).
-	 *
-	 * @var string
-	 */
-	public const LEGACY_DESCRIPTION_CHANGED_ACTION = 'agentready_llms_txt_description_changed';
-
-	/**
 	 * LLM-generated description. Regen-overwritable. Empty key when no
 	 * successful LLM run has produced an output for this post.
 	 *
 	 * @var string
 	 */
-	public const META_KEY_AUTO = '_agentready_llms_description_auto';
+	public const META_KEY_AUTO = '_mokhai_llms_description_auto';
 
 	/**
 	 * Admin-set description. Sticky — never overwritten by the
@@ -107,7 +100,7 @@ final class Description_Orchestrator {
 	 *
 	 * @var string
 	 */
-	public const META_KEY_MANUAL = '_agentready_llms_description_manual';
+	public const META_KEY_MANUAL = '_mokhai_llms_description_manual';
 
 	/**
 	 * The `post_modified_gmt` value at the time the `_auto` slot was
@@ -118,14 +111,14 @@ final class Description_Orchestrator {
 	 *
 	 * @var string
 	 */
-	public const META_KEY_GENERATED_FOR_MODIFIED = '_agentready_llms_description_generated_for_modified_gmt';
+	public const META_KEY_GENERATED_FOR_MODIFIED = '_mokhai_llms_description_generated_for_modified_gmt';
 
 	/**
 	 * Status meta key — see state machine constants above.
 	 *
 	 * @var string
 	 */
-	public const META_KEY_STATUS = '_agentready_llms_description_status';
+	public const META_KEY_STATUS = '_mokhai_llms_description_status';
 
 	/**
 	 * JSON diagnostic blob from the most recent attempt: attempted_at,
@@ -133,7 +126,7 @@ final class Description_Orchestrator {
 	 *
 	 * @var string
 	 */
-	public const META_KEY_DIAGNOSTICS = '_agentready_llms_description_diagnostics';
+	public const META_KEY_DIAGNOSTICS = '_mokhai_llms_description_diagnostics';
 
 	/**
 	 * The generator version a cached `_auto` description was produced under.
@@ -141,7 +134,7 @@ final class Description_Orchestrator {
 	 *
 	 * @var string
 	 */
-	public const META_KEY_GENERATED_BY_VERSION = '_agentready_llms_description_generated_by_version';
+	public const META_KEY_GENERATED_BY_VERSION = '_mokhai_llms_description_generated_by_version';
 
 	/**
 	 * Generator version — bump on any output-affecting change to the
@@ -368,7 +361,7 @@ PROMPT;
 	 * is cleared before a fresh one is scheduled. Without this, WP de-dups
 	 * `wp_schedule_single_event` against the stale entry and the new schedule
 	 * is silently dropped — the post's description never fires, but
-	 * `wp ai-readiness-kit llms-txt descriptions status` keeps reporting
+	 * `wp mokhai llms-txt descriptions status` keeps reporting
 	 * `pending` because the meta marker is rewritten on every schedule call.
 	 */
 	public static function schedule( \WP_Post $post ): void {
@@ -719,8 +712,6 @@ PROMPT;
 		// the constant is prefixed; phpcs can't see through the const ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		\do_action( self::DESCRIPTION_CHANGED_ACTION, $post_id );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		\do_action_deprecated( self::LEGACY_DESCRIPTION_CHANGED_ACTION, array( $post_id ), '0.5.0', self::DESCRIPTION_CHANGED_ACTION );
 	}
 
 	/**
@@ -730,13 +721,11 @@ PROMPT;
 	/**
 	 * Minimum stripped-content length a post must have before the LLM
 	 * description job runs. Adopters can raise/lower the floor via the
-	 * `agentready_description_min_content_chars` filter (#214).
+	 * `mokhai_description_min_content_chars` filter (#214).
 	 */
 	public static function min_content_chars(): int {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$min = (int) \apply_filters( 'mokhai_description_min_content_chars', self::MIN_CONTENT_CHARS );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$min = (int) \apply_filters_deprecated( 'agentready_description_min_content_chars', array( $min ), '0.5.0', 'mokhai_description_min_content_chars' );
 		return \max( 0, $min );
 	}
 

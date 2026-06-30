@@ -38,7 +38,7 @@ final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 		parent::setUp();
 
 		// Markdown_Views\Service::register_hooks (wired by Main::register_hooks
-		// at bootstrap) deletes from `wp_agentready_md_cache` on save_post.
+		// at bootstrap) deletes from `wp_mokhai_md_cache` on save_post.
 		// The wp-env test bootstrap drops that table — recreate it so any
 		// factory()->post->create() call in this suite stays quiet.
 		Markdown_Views_Schema::create();
@@ -67,7 +67,7 @@ final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 		// observes the activate / deactivate transition in isolation.
 		Service::invalidate();
 		delete_transient( Service::REGEN_LOCK_TRANSIENT );
-		delete_option( 'agentready_llms_txt_editorial' );
+		delete_option( 'mokhai_llms_txt_editorial' );
 
 		// Establish a known profile FIRST so the resulting
 		// `mokhai_context_profile_saved` hook chain settles…
@@ -94,14 +94,14 @@ final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 		delete_transient( Service::REGEN_LOCK_TRANSIENT );
 		wp_clear_scheduled_hook( Service::REGEN_ACTION );
 		wp_clear_scheduled_hook( Service::DAILY_REGEN_ACTION );
-		delete_option( 'agentready_llms_txt_editorial' );
-		delete_option( 'agentready_seo_posture_last_seen' );
+		delete_option( 'mokhai_llms_txt_editorial' );
+		delete_option( 'mokhai_seo_posture_last_seen' );
 
 		// Context_Score state written by Main::on_activate(): clear the daily
 		// recompute cron and the version option so the next test boots from a
 		// clean slate.
 		Context_Score_Service::clear_scheduled_recomputes();
-		delete_option( 'agentready_version' );
+		delete_option( 'mokhai_version' );
 
 		// Belt-and-suspenders clear of Description_Orchestrator::SCHEDULE_ACTION:
 		// the on_save_post listener was detached in setUp() so factory posts
@@ -140,7 +140,7 @@ final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 			'on_activate() must register the `/llms.txt` rewrite into $wp_rewrite->extra_rules_top.'
 		);
 		$this->assertStringContainsString(
-			'agentready_llms_txt',
+			'mokhai_llms_txt',
 			$wp_rewrite->extra_rules_top[ Conflict_Detector::REWRITE_KEY ],
 			'Registered rewrite must route to the LlmsTxt query var.'
 		);

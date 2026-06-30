@@ -163,7 +163,7 @@ final class Handler_Test extends WP_UnitTestCase {
 		$rules = (array) $wp_rewrite->extra_rules_top;
 
 		self::assertArrayHasKey( '^(.+)\.md/?$', $rules );
-		self::assertStringContainsString( 'agentready_md_request', $rules['^(.+)\.md/?$'] );
+		self::assertStringContainsString( 'mokhai_md_request', $rules['^(.+)\.md/?$'] );
 	}
 
 	public function test_query_var_filter_registers_rewrite_var(): void {

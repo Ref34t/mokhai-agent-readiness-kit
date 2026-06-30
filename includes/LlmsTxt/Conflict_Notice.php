@@ -31,7 +31,7 @@ final class Conflict_Notice {
 	 *
 	 * @var string
 	 */
-	public const USER_META_KEY = 'agentready_llms_txt_dismissed_conflicts';
+	public const USER_META_KEY = 'mokhai_llms_txt_dismissed_conflicts';
 
 	/**
 	 * Transient that caches `Conflict_Detector::detect()` for 5 minutes.
@@ -40,7 +40,7 @@ final class Conflict_Notice {
 	 *
 	 * @var string
 	 */
-	public const CACHE_TRANSIENT = 'agentready_llms_txt_conflicts';
+	public const CACHE_TRANSIENT = 'mokhai_llms_txt_conflicts';
 
 	/**
 	 * Cache TTL in seconds.
@@ -54,7 +54,7 @@ final class Conflict_Notice {
 	 *
 	 * @var string
 	 */
-	public const DISMISS_ACTION = 'agentready_llms_txt_dismiss_conflict';
+	public const DISMISS_ACTION = 'mokhai_llms_txt_dismiss_conflict';
 
 	/**
 	 * Wire the WordPress hooks owned by this class. Called once from

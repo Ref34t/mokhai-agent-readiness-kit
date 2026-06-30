@@ -112,6 +112,6 @@ final class Conflict_Detector_Test extends TestCase {
 
 	public function test_rewrite_fingerprint_matches_router_query_var(): void {
 		// Same defence for the query-var name used in the rewrite target.
-		$this->assertSame( 'agentready_llms_txt', Conflict_Detector::REWRITE_FINGERPRINT );
+		$this->assertSame( 'mokhai_llms_txt', Conflict_Detector::REWRITE_FINGERPRINT );
 	}
 }

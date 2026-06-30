@@ -2,7 +2,7 @@
 /**
  * REST controller for the AI Assistant Preview pane (#45 / AgDR-0046).
  *
- * Three admin-only routes under `ai-readiness-kit/v1/ai-preview`:
+ * Three admin-only routes under `mokhai/v1/ai-preview`:
  *
  *   GET  /ai-preview/posts            — selectable posts for the URL dropdown
  *   GET  /ai-preview/preview?post=    — the three panes + cached summary
@@ -35,13 +35,6 @@ final class Rest_Controller {
 	 * @var string
 	 */
 	public const NAMESPACE = 'mokhai/v1';
-
-	/**
-	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
-	 *
-	 * @var string
-	 */
-	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Route base appended to the namespace.
@@ -127,10 +120,8 @@ final class Rest_Controller {
 			),
 		);
 
-		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
-			foreach ( $routes as $route ) {
-				\register_rest_route( $ns, $route['path'], $route['args'] );
-			}
+		foreach ( $routes as $route ) {
+			\register_rest_route( self::NAMESPACE, $route['path'], $route['args'] );
 		}
 	}
 

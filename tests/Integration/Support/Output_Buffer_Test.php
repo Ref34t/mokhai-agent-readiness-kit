@@ -26,7 +26,7 @@ use Mokhai\Support\Output_Buffer;
 final class Output_Buffer_Test extends WP_UnitTestCase {
 
 	public function test_returns_served_unchanged_for_plugin_route(): void {
-		$request = new WP_REST_Request( 'POST', '/ai-readiness-kit/v1/context-profile' );
+		$request = new WP_REST_Request( 'POST', '/mokhai/v1/context-profile' );
 
 		$this->assertFalse( Output_Buffer::clean_before_rest_serve( false, null, $request ) );
 		$this->assertTrue( Output_Buffer::clean_before_rest_serve( true, null, $request ) );

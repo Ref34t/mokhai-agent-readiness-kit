@@ -39,7 +39,7 @@ final class Site_Health {
 	 *
 	 * @var string
 	 */
-	public const TEST_ID = 'agentready_context_score';
+	public const TEST_ID = 'mokhai_context_score';
 
 	/**
 	 * Threshold for the `good` (green) badge.
@@ -92,7 +92,7 @@ final class Site_Health {
 	 *
 	 * Reads `Service::get_breakdown()` only — never recomputes here. A
 	 * null cache means the score has not been computed yet (fresh
-	 * install pre-first-cron, or invalidated by `wp ai-readiness-kit
+	 * install pre-first-cron, or invalidated by `wp mokhai
 	 * context-score reset`) and surfaces as a `recommended` prompt to
 	 * visit the admin page.
 	 *
@@ -107,7 +107,7 @@ final class Site_Health {
 				'recommended',
 				'gray',
 				\__( 'Context Score has not been computed yet.', 'mokhai-agent-readiness-kit' ),
-				\__( 'Visit the Mokhai Context Score admin page or run <code>wp ai-readiness-kit context-score recompute</code> to generate the first audit.', 'mokhai-agent-readiness-kit' ),
+				\__( 'Visit the Mokhai Context Score admin page or run <code>wp mokhai context-score recompute</code> to generate the first audit.', 'mokhai-agent-readiness-kit' ),
 				$panel_url
 			);
 		}

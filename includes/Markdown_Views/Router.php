@@ -35,7 +35,7 @@ final class Router {
 	 *
 	 * @var string
 	 */
-	public const REWRITE_VAR = 'agentready_md_request';
+	public const REWRITE_VAR = 'mokhai_md_request';
 
 	/**
 	 * Wire the WordPress hooks owned by this class. Called from
@@ -66,7 +66,7 @@ final class Router {
 
 	/**
 	 * Register the query var so WordPress's main query parser doesn't strip
-	 * `agentready_md_request` when it builds the query.
+	 * `mokhai_md_request` when it builds the query.
 	 *
 	 * @param array<int, string> $vars Existing query vars.
 	 *

@@ -1,6 +1,6 @@
 <?php
 /**
- * `ai-readiness-kit/profile-read` + `ai-readiness-kit/profile-set-exposure`
+ * `mokhai/profile-read` + `mokhai/profile-set-exposure`
  * abilities (#21 / AgDR-0044).
  *
  * @package Mokhai
@@ -20,7 +20,7 @@ use Mokhai\Admin\Context_Profile_Settings;
  * `read()` returns the full migrated + defaulted profile (the FR-1 keystone).
  * `set_exposure()` writes ONLY the two exposure keys (`exposed_cpts`,
  * `exposed_statuses`) through the canonical setter, which re-applies the
- * whitelist and fires the `agentready_context_profile_saved` cascade.
+ * whitelist and fires the `mokhai_context_profile_saved` cascade.
  */
 final class Profile_Ability {
 
@@ -29,10 +29,8 @@ final class Profile_Ability {
 	 *
 	 * @var string
 	 */
-	public const READ_ID                = 'mokhai/profile-read';
-	public const SET_EXPOSURE_ID        = 'mokhai/profile-set-exposure';
-	public const LEGACY_READ_ID         = 'ai-readiness-kit/profile-read';
-	public const LEGACY_SET_EXPOSURE_ID = 'ai-readiness-kit/profile-set-exposure';
+	public const READ_ID         = 'mokhai/profile-read';
+	public const SET_EXPOSURE_ID = 'mokhai/profile-set-exposure';
 
 	/**
 	 * Execute callback for `profile-read`. Readonly.

@@ -1,6 +1,6 @@
 <?php
 /**
- * `ai-readiness-kit/audit-run` ability (#21 / AgDR-0044).
+ * `mokhai/audit-run` ability (#21 / AgDR-0044).
  *
  * @package Mokhai
  */
@@ -28,8 +28,7 @@ final class Audit_Ability {
 	 *
 	 * @var string
 	 */
-	public const ID        = 'mokhai/audit-run';
-	public const LEGACY_ID = 'ai-readiness-kit/audit-run';
+	public const ID = 'mokhai/audit-run';
 
 	/**
 	 * Execute callback. Takes no input; returns the breakdown payload.

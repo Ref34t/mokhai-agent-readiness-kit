@@ -3,14 +3,14 @@
  * REST controller for the Phase B admin UI of #8 (LLM-powered
  * /llms.txt entry descriptions), per AgDR-0029.
  *
- * Five routes under `ai-readiness-kit/v1/llms-txt/descriptions/*`, all gated
+ * Five routes under `mokhai/v1/llms-txt/descriptions/*`, all gated
  * by `manage_options`:
  *
- *   GET    /ai-readiness-kit/v1/llms-txt/descriptions
- *   PATCH  /ai-readiness-kit/v1/llms-txt/descriptions/<post_id>
- *   DELETE /ai-readiness-kit/v1/llms-txt/descriptions/<post_id>/manual
- *   POST   /ai-readiness-kit/v1/llms-txt/descriptions/<post_id>/regenerate
- *   POST   /ai-readiness-kit/v1/llms-txt/descriptions/bulk-regenerate-stale
+ *   GET    /mokhai/v1/llms-txt/descriptions
+ *   PATCH  /mokhai/v1/llms-txt/descriptions/<post_id>
+ *   DELETE /mokhai/v1/llms-txt/descriptions/<post_id>/manual
+ *   POST   /mokhai/v1/llms-txt/descriptions/<post_id>/regenerate
+ *   POST   /mokhai/v1/llms-txt/descriptions/bulk-regenerate-stale
  *
  * Read responses (GET + every mutation's response body) share a single
  * row-projection function so the UI can refresh state from a mutation
@@ -34,18 +34,11 @@ use Mokhai\Ai\Client_Wrapper;
 final class Descriptions_Rest_Controller {
 
 	/**
-	 * REST namespace shared with the rest of agentready.
+	 * REST namespace shared with the rest of mokhai.
 	 *
 	 * @var string
 	 */
 	public const NAMESPACE = 'mokhai/v1';
-
-	/**
-	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
-	 *
-	 * @var string
-	 */
-	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Base path under the namespace. Per-post routes append `/<post_id>`;
@@ -192,10 +185,8 @@ final class Descriptions_Rest_Controller {
 			),
 		);
 
-		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
-			foreach ( $routes as $route ) {
-				\register_rest_route( $ns, $route['path'], $route['args'] );
-			}
+		foreach ( $routes as $route ) {
+			\register_rest_route( self::NAMESPACE, $route['path'], $route['args'] );
 		}
 	}
 

@@ -6,7 +6,7 @@
  * Covers:
  *   - `is_module_enabled()` reads the per-module flag, defaults true on unknown modules
  *   - `is_url_exposable()` enforces CPT whitelist, status whitelist, password gate,
- *     and the `agentready_post_is_noindexed` filter
+ *     and the `mokhai_post_is_noindexed` filter
  *
  * @package Mokhai\Tests
  */
@@ -133,7 +133,7 @@ final class Context_Profile_Exposure_Test extends TestCase {
 		$this->set_profile( array( 'exposed_cpts' => array( 'post' ) ) );
 
 		// Simulate #12's future hook: declare this post noindex.
-		$GLOBALS['mokhai_test_filters']['agentready_post_is_noindexed'][] = static function () {
+		$GLOBALS['mokhai_test_filters']['mokhai_post_is_noindexed'][] = static function () {
 			return true;
 		};
 

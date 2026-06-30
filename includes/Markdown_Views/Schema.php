@@ -3,7 +3,7 @@
  * Markdown Views cache table schema.
  *
  * Owns the lifecycle (create, drop, version tracking) of the
- * `wp_agentready_md_cache` table introduced for #5 per AgDR-0011.
+ * `wp_mokhai_md_cache` table introduced for #5 per AgDR-0011.
  *
  * Multisite-aware: `create_for_all_sites()` / `drop_for_all_sites()` iterate
  * `get_sites()` so each site has its own per-site cache table when the
@@ -53,7 +53,7 @@ final class Schema {
 	 *
 	 * @var string
 	 */
-	public const SCHEMA_VERSION_OPTION = 'agentready_md_cache_schema_version';
+	public const SCHEMA_VERSION_OPTION = 'mokhai_md_cache_schema_version';
 
 	/**
 	 * Suffix appended to `$wpdb->prefix` to form the full table name.
@@ -63,7 +63,7 @@ final class Schema {
 	 *
 	 * @var string
 	 */
-	public const TABLE_SUFFIX = 'agentready_md_cache';
+	public const TABLE_SUFFIX = 'mokhai_md_cache';
 
 	/**
 	 * Resolve the fully-prefixed table name for the current site.

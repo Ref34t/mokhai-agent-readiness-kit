@@ -47,7 +47,7 @@ final class Router_Test extends WP_UnitTestCase {
 				)
 			)
 		);
-		delete_option( 'agentready_llms_txt_editorial' );
+		delete_option( 'mokhai_llms_txt_editorial' );
 
 		// Profile-update hook may have queued a regen — clear so the
 		// rewrite-rule test below doesn't run a coalesced regen mid-assert.

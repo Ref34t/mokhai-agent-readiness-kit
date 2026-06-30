@@ -42,13 +42,6 @@ final class Schema_Emitter {
 	public const FILTER_EMIT_DECISION = 'mokhai_schema_emit';
 
 	/**
-	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_schema_emit`).
-	 *
-	 * @var string
-	 */
-	public const LEGACY_FILTER_EMIT_DECISION = 'agentready_schema_emit';
-
-	/**
 	 * Filter applied to the final JSON-LD node array before render. Allows
 	 * site-level enrichment (e.g. adding `logo` to `Organization`) without
 	 * forcing a callback to also rebuild the rest of the graph.
@@ -56,13 +49,6 @@ final class Schema_Emitter {
 	 * @var string
 	 */
 	public const FILTER_NODES = 'mokhai_schema_nodes';
-
-	/**
-	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_schema_nodes`).
-	 *
-	 * @var string
-	 */
-	public const LEGACY_FILTER_NODES = 'agentready_schema_nodes';
 
 	/**
 	 * Wire `wp_head` at priority 10 (same priority WP core uses for theme-
@@ -92,7 +78,7 @@ final class Schema_Emitter {
 	 * Render the gap-fill JSON-LD block for an explicit posture slug.
 	 *
 	 * Resolution order:
-	 *   1. Per-request opt-out filter (`agentready_schema_emit`).
+	 *   1. Per-request opt-out filter (`mokhai_schema_emit`).
 	 *   2. Compute the gap (`baseline ∖ covered`) for the supplied slug.
 	 *   3. Build a node for each type in the gap that applies to the
 	 *      current query context (`Article` only on singular post,
@@ -113,8 +99,6 @@ final class Schema_Emitter {
 		// prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$should_emit = \apply_filters( self::FILTER_EMIT_DECISION, true );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$should_emit = \apply_filters_deprecated( self::LEGACY_FILTER_EMIT_DECISION, array( $should_emit ), '0.5.0', self::FILTER_EMIT_DECISION );
 		if ( false === $should_emit ) {
 			return;
 		}
@@ -132,9 +116,6 @@ final class Schema_Emitter {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$filtered_nodes = \apply_filters( self::FILTER_NODES, $nodes, $gap, $posture_slug );
 		$nodes          = \is_array( $filtered_nodes ) ? \array_values( $filtered_nodes ) : $nodes;
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$legacy_nodes = \apply_filters_deprecated( self::LEGACY_FILTER_NODES, array( $nodes, $gap, $posture_slug ), '0.5.0', self::FILTER_NODES );
-		$nodes        = \is_array( $legacy_nodes ) ? \array_values( $legacy_nodes ) : $nodes;
 
 		if ( array() === $nodes ) {
 			return;
@@ -278,7 +259,7 @@ final class Schema_Emitter {
 	 * Build an `Article` node — applies on any singular request whose CPT
 	 * resolves to `Article` via `schema_type_for_cpt()` (the built-in
 	 * `post` CPT by default; subscribers to the
-	 * `agentready_schema_type_for_cpt` filter may map custom CPTs to
+	 * `mokhai_schema_type_for_cpt` filter may map custom CPTs to
 	 * Article too). Per-content emission is gated by Context Profile's
 	 * `exposed_cpts` + `exposed_statuses` (#73 / AgDR-0034 / #104 /
 	 * AgDR-0040). `headline`, `datePublished`, and `dateModified` are
@@ -333,7 +314,7 @@ final class Schema_Emitter {
 	 *                      gap-fill emitter; custom blog-shaped CPTs
 	 *                      can opt into Article via the filter below)
 	 *
-	 * Subscribers to the `agentready_schema_type_for_cpt` filter may
+	 * Subscribers to the `mokhai_schema_type_for_cpt` filter may
 	 * map custom CPTs to other @types (e.g. `Recipe`, `Course`,
 	 * `Product`) or return `null`/`''` to suppress per-content emission
 	 * entirely.
@@ -372,8 +353,6 @@ final class Schema_Emitter {
 		 */
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$type = \apply_filters( 'mokhai_schema_type_for_cpt', $default, $cpt, $post_id );
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-		$type = \apply_filters_deprecated( 'agentready_schema_type_for_cpt', array( $type, $cpt, $post_id ), '0.5.0', 'mokhai_schema_type_for_cpt' );
 
 		if ( ! \is_string( $type ) || '' === $type ) {
 			return null;
@@ -478,7 +457,7 @@ final class Schema_Emitter {
 			return;
 		}
 
-		echo "\n<script type=\"application/ld+json\" data-emitted-by=\"agentready\">\n";
+		echo "\n<script type=\"application/ld+json\" data-emitted-by=\"mokhai\">\n";
 		// JSON-LD body must be raw JSON per the HTML5 spec — emitting
 		// through esc_html() / wp_kses() produces invalid JSON. Script-
 		// tag-breakout safety is delegated to JSON_HEX_TAG above.

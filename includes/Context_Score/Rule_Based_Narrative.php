@@ -161,7 +161,7 @@ final class Rule_Based_Narrative {
 		if ( ! $cache_pop ) {
 			return array(
 				'why' => \__( 'The /llms.txt cache is empty, so agents have nothing to discover at the site root.', 'mokhai-agent-readiness-kit' ),
-				'fix' => \__( 'Open the Context Profile and save it to seed /llms.txt, or run wp ai-readiness-kit llms-txt regen.', 'mokhai-agent-readiness-kit' ),
+				'fix' => \__( 'Open the Context Profile and save it to seed /llms.txt, or run wp mokhai llms-txt regen.', 'mokhai-agent-readiness-kit' ),
 			);
 		}
 
@@ -175,7 +175,7 @@ final class Rule_Based_Narrative {
 		if ( $entry_count <= 0 ) {
 			return array(
 				'why' => \__( 'Exposed CPTs are configured but no published entries are reaching /llms.txt yet.', 'mokhai-agent-readiness-kit' ),
-				'fix' => \__( 'Publish at least one entry in an exposed CPT and run wp ai-readiness-kit llms-txt regen.', 'mokhai-agent-readiness-kit' ),
+				'fix' => \__( 'Publish at least one entry in an exposed CPT and run wp mokhai llms-txt regen.', 'mokhai-agent-readiness-kit' ),
 			);
 		}
 
@@ -213,7 +213,7 @@ final class Rule_Based_Narrative {
 		// (the GUI path that resolved this in the live test); if not, the first
 		// step is enabling it there. CLI stays as the alternative either way.
 		$fix = $desc_on
-			? \__( 'Open Context Profile → Descriptions and run "Regenerate stale descriptions" (or wp ai-readiness-kit llms-txt descriptions backfill).', 'mokhai-agent-readiness-kit' )
+			? \__( 'Open Context Profile → Descriptions and run "Regenerate stale descriptions" (or wp mokhai llms-txt descriptions backfill).', 'mokhai-agent-readiness-kit' )
 			: \__( 'Enable auto-descriptions in Context Profile → Descriptions, then run "Regenerate stale descriptions".', 'mokhai-agent-readiness-kit' );
 
 		if ( $value < 50 ) {

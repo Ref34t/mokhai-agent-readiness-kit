@@ -2,11 +2,11 @@
 /**
  * REST controller for the Context Score admin UI (#10 / AgDR-0031).
  *
- * Two routes under `ai-readiness-kit/v1/context-score/*`, both gated by
+ * Two routes under `mokhai/v1/context-score/*`, both gated by
  * `manage_options`:
  *
- *   GET  /ai-readiness-kit/v1/context-score            — read cached breakdown
- *   POST /ai-readiness-kit/v1/context-score/recompute  — force synchronous recompute
+ *   GET  /mokhai/v1/context-score            — read cached breakdown
+ *   POST /mokhai/v1/context-score/recompute  — force synchronous recompute
  *
  * Both routes return the same payload shape — the breakdown emitted by
  * `Context_Score\Service` (and ultimately by `Context_Score\Engine`).
@@ -30,18 +30,11 @@ namespace Mokhai\Context_Score;
 final class Rest_Controller {
 
 	/**
-	 * REST namespace shared with the rest of agentready.
+	 * REST namespace shared with the rest of mokhai.
 	 *
 	 * @var string
 	 */
 	public const NAMESPACE = 'mokhai/v1';
-
-	/**
-	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
-	 *
-	 * @var string
-	 */
-	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Base path under the namespace. The recompute endpoint appends
@@ -59,32 +52,30 @@ final class Rest_Controller {
 	}
 
 	/**
-	 * Register the two routes under the current namespace, plus legacy aliases.
+	 * Register the two routes under the current namespace.
 	 */
 	public static function register_routes(): void {
-		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
-			\register_rest_route(
-				$ns,
-				self::ROUTE_BASE,
-				array(
-					'methods'             => 'GET',
-					'callback'            => array( self::class, 'handle_read' ),
-					'permission_callback' => array( self::class, 'check_permission' ),
-					'args'                => array(),
-				)
-			);
+		\register_rest_route(
+			self::NAMESPACE,
+			self::ROUTE_BASE,
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( self::class, 'handle_read' ),
+				'permission_callback' => array( self::class, 'check_permission' ),
+				'args'                => array(),
+			)
+		);
 
-			\register_rest_route(
-				$ns,
-				self::ROUTE_BASE . '/recompute',
-				array(
-					'methods'             => 'POST',
-					'callback'            => array( self::class, 'handle_recompute' ),
-					'permission_callback' => array( self::class, 'check_permission' ),
-					'args'                => array(),
-				)
-			);
-		}
+		\register_rest_route(
+			self::NAMESPACE,
+			self::ROUTE_BASE . '/recompute',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( self::class, 'handle_recompute' ),
+				'permission_callback' => array( self::class, 'check_permission' ),
+				'args'                => array(),
+			)
+		);
 	}
 
 	/**
@@ -103,7 +94,7 @@ final class Rest_Controller {
 		}
 
 		return new \WP_Error(
-			'agentready_context_score_forbidden',
+			'mokhai_context_score_forbidden',
 			\__( 'You do not have permission to view the Context Score.', 'mokhai-agent-readiness-kit' ),
 			array( 'status' => 403 )
 		);

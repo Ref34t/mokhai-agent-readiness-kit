@@ -46,14 +46,14 @@ final class Summary_Generator {
 	 *
 	 * @var string
 	 */
-	public const META_KEY_TEXT = '_agentready_ai_preview_summary';
+	public const META_KEY_TEXT = '_mokhai_ai_preview_summary';
 
 	/**
 	 * Post-meta key holding the ISO-8601 UTC generation timestamp.
 	 *
 	 * @var string
 	 */
-	public const META_KEY_GENERATED = '_agentready_ai_preview_summary_generated_gmt';
+	public const META_KEY_GENERATED = '_mokhai_ai_preview_summary_generated_gmt';
 
 	/**
 	 * Hard wall-clock budget for the LLM round-trip, in milliseconds. A

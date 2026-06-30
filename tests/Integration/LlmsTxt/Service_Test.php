@@ -24,7 +24,7 @@ final class Service_Test extends WP_UnitTestCase {
 		parent::setUp();
 
 		// The plugin's Markdown_Views\Service hooks `save_post`/etc to its
-		// own `invalidate()` which deletes from `wp_agentready_md_cache`.
+		// own `invalidate()` which deletes from `wp_mokhai_md_cache`.
 		// The wp-env test bootstrap drops that table (see tests/bootstrap.php
 		// comment) so we re-create it for every test that touches the
 		// post lifecycle. Without this, every LlmsTxt test that calls
@@ -34,7 +34,7 @@ final class Service_Test extends WP_UnitTestCase {
 
 		Service::invalidate();
 		delete_transient( Service::REGEN_LOCK_TRANSIENT );
-		delete_option( 'agentready_llms_txt_editorial' );
+		delete_option( 'mokhai_llms_txt_editorial' );
 
 		// Reset the profile FIRST so the resulting `mokhai_context_profile_saved`
 		// action (fired by `update_option`) settles into a known state…
@@ -63,7 +63,7 @@ final class Service_Test extends WP_UnitTestCase {
 		delete_transient( Service::REGEN_LOCK_TRANSIENT );
 		wp_clear_scheduled_hook( Service::REGEN_ACTION );
 		wp_clear_scheduled_hook( Service::DAILY_REGEN_ACTION );
-		delete_option( 'agentready_llms_txt_editorial' );
+		delete_option( 'mokhai_llms_txt_editorial' );
 
 		Markdown_Views_Schema::drop();
 
@@ -303,7 +303,7 @@ final class Service_Test extends WP_UnitTestCase {
 
 	public function test_editorial_entries_appear_in_body(): void {
 		update_option(
-			'agentready_llms_txt_editorial',
+			'mokhai_llms_txt_editorial',
 			array(
 				array(
 					'title'       => 'Pinned post',

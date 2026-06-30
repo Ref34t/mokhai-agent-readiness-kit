@@ -29,10 +29,10 @@ namespace Mokhai\Cli;
  * ## EXAMPLES
  *
  *     # Delete the dead cleanup post-meta, reporting rows removed per key.
- *     $ wp ai-readiness-kit cleanup-meta sweep
+ *     $ wp mokhai cleanup-meta sweep
  *
  *     # Count what would be deleted without touching the database.
- *     $ wp ai-readiness-kit cleanup-meta sweep --dry-run
+ *     $ wp mokhai cleanup-meta sweep --dry-run
  */
 final class Cleanup_Meta_Migration_Command {
 
@@ -57,7 +57,6 @@ final class Cleanup_Meta_Migration_Command {
 		}
 
 		\WP_CLI::add_command( 'mokhai cleanup-meta', self::class );
-		\WP_CLI::add_command( 'ai-readiness-kit cleanup-meta', self::class );
 	}
 
 	/**

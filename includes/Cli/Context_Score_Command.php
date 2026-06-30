@@ -2,7 +2,7 @@
 /**
  * WP-CLI command surface for the Context Score module (#9 / AgDR-0030).
  *
- * Mounted at `wp ai-readiness-kit context-score` following AgDR-0014's CLI
+ * Mounted at `wp mokhai context-score` following AgDR-0014's CLI
  * convention. The AC ticket wording `wp context audit` is satisfied by
  * the `audit` subcommand here — JSON output by default, `--porcelain`
  * for key=value lines.
@@ -30,16 +30,16 @@ use Mokhai\Context_Score\Service;
  * ## EXAMPLES
  *
  *     # Print the cached breakdown as JSON. Recomputes if the cache is empty.
- *     $ wp ai-readiness-kit context-score audit
+ *     $ wp mokhai context-score audit
  *
  *     # Print the breakdown as key=value lines (shell-friendly).
- *     $ wp ai-readiness-kit context-score audit --porcelain
+ *     $ wp mokhai context-score audit --porcelain
  *
  *     # Force a synchronous recompute regardless of cache state.
- *     $ wp ai-readiness-kit context-score recompute
+ *     $ wp mokhai context-score recompute
  *
  *     # Drop the cached payload (next read recomputes).
- *     $ wp ai-readiness-kit context-score reset
+ *     $ wp mokhai context-score reset
  */
 final class Context_Score_Command {
 
@@ -56,7 +56,6 @@ final class Context_Score_Command {
 		}
 
 		\WP_CLI::add_command( 'mokhai context-score', self::class );
-		\WP_CLI::add_command( 'ai-readiness-kit context-score', self::class );
 	}
 
 	/**
@@ -74,10 +73,10 @@ final class Context_Score_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp ai-readiness-kit context-score audit | jq .overall
+	 *     $ wp mokhai context-score audit | jq .overall
 	 *     64
 	 *
-	 *     $ wp ai-readiness-kit context-score audit --porcelain
+	 *     $ wp mokhai context-score audit --porcelain
 	 *     overall=64
 	 *     discoverability=80
 	 *     content_readability=62
@@ -122,7 +121,7 @@ final class Context_Score_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp ai-readiness-kit context-score recompute
+	 *     $ wp mokhai context-score recompute
 	 *     Success: Context Score recomputed: 64/100 (842 ms).
 	 *
 	 * @param array<int, string>    $args       Positional args (unused).
@@ -147,7 +146,7 @@ final class Context_Score_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp ai-readiness-kit context-score reset
+	 *     $ wp mokhai context-score reset
 	 *     Success: Context Score cache cleared.
 	 *
 	 * @param array<int, string>    $args       Positional args (unused).

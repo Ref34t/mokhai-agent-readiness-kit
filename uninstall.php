@@ -25,11 +25,11 @@ declare(strict_types=1);
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
-$wpctx_autoload = __DIR__ . '/vendor/autoload.php';
-if ( is_readable( $wpctx_autoload ) ) {
-	require_once $wpctx_autoload;
+$mokhai_autoload = __DIR__ . '/vendor/autoload.php';
+if ( is_readable( $mokhai_autoload ) ) {
+	require_once $mokhai_autoload;
 }
-unset( $wpctx_autoload );
+unset( $mokhai_autoload );
 
 if ( class_exists( \Mokhai\Support\Uninstaller::class ) ) {
 	\Mokhai\Support\Uninstaller::run();

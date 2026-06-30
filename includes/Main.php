@@ -27,14 +27,14 @@ final class Main {
 	 * the uninstall cleanup list (Support\Uninstaller) can reference it
 	 * instead of re-typing the literal.
 	 */
-	public const VERSION_OPTION = 'agentready_version';
+	public const VERSION_OPTION = 'mokhai_version';
 
 	/**
 	 * Option storing the SEO-plugin posture snapshot taken at activation
 	 * (#12 AC #1). Diagnostic only — runtime reads stay live via
 	 * `Schema_Coordination_Detector::detect()`.
 	 */
-	public const SEO_POSTURE_OPTION = 'agentready_seo_posture_last_seen';
+	public const SEO_POSTURE_OPTION = 'mokhai_seo_posture_last_seen';
 
 	/**
 	 * Singleton instance.
@@ -95,7 +95,7 @@ final class Main {
 		\Mokhai\Admin\Context_Profile_Rest_Controller::register_hooks();
 		\Mokhai\Admin\Context_Profile_Page::register_hooks();
 
-		// Content exclusions (#180). Per-post `_agentready_excluded` meta + its
+		// Content exclusions (#180). Per-post `_mokhai_excluded` meta + its
 		// block-editor sidebar toggle, and the SEO-plugin noindex bridge
 		// (folds in #176 — Yoast / Rank Math). All three feed
 		// Context_Profile_Settings::get_exposure_reason(), so an exclusion
@@ -148,11 +148,11 @@ final class Main {
 		\Mokhai\Cli\Llms_Txt_Command::register();
 
 		// Wire the LLMs Index description-backfill WP-CLI command tree
-		// (#8 / AgDR-0027). Mounted at `wp ai-readiness-kit llms-txt descriptions`.
+		// (#8 / AgDR-0027). Mounted at `wp mokhai llms-txt descriptions`.
 		\Mokhai\Cli\Llms_Txt_Descriptions_Command::register();
 
 		// Wire the one-shot dead-cleanup-meta sweep (#159 / AgDR-0050).
-		// Mounted at `wp ai-readiness-kit cleanup-meta sweep`. Deletes the
+		// Mounted at `wp mokhai cleanup-meta sweep`. Deletes the
 		// orphaned `_agentready_md_cleanup_*` post-meta left by the retired
 		// cleanup pass (#153). No-op outside WP-CLI via the register() guard.
 		\Mokhai\Cli\Cleanup_Meta_Migration_Command::register();
@@ -172,8 +172,8 @@ final class Main {
 		LlmsTxt\Conflict_Notice::register_hooks();
 
 		// Wire the editorial-entries Settings API (#7 Phase C / AgDR-0025).
-		// Registers `agentready_llms_txt_editorial` and fires
-		// `agentready_llms_txt_editorial_saved` on save — Service::register_hooks
+		// Registers `mokhai_llms_txt_editorial` and fires
+		// `mokhai_llms_txt_editorial_saved` on save — Service::register_hooks
 		// above already subscribes that action to its regen-schedule path.
 		LlmsTxt\Editorial_Settings::register_hooks();
 
@@ -185,7 +185,7 @@ final class Main {
 
 		// Wire the Phase B admin REST surface for description state +
 		// inline edit + per-post regen + bulk-regen-stale (#8 / AgDR-0029).
-		// Five routes under ai-readiness-kit/v1/llms-txt/descriptions/*, all
+		// Five routes under mokhai/v1/llms-txt/descriptions/*, all
 		// gated by manage_options (same as the rest of the Context
 		// Profile screen).
 		LlmsTxt\Descriptions_Rest_Controller::register_hooks();
@@ -193,8 +193,8 @@ final class Main {
 
 		// Wire the Context Score engine (#9 / AgDR-0030). Service owns the
 		// cache option, the daily cron backstop, and the debounced
-		// recompute on `agentready_context_profile_saved`. The WP-CLI
-		// command exposes the breakdown as JSON (`wp ai-readiness-kit
+		// recompute on `mokhai_context_profile_saved`. The WP-CLI
+		// command exposes the breakdown as JSON (`wp mokhai
 		// context-score audit`).
 		Context_Score\Service::register_hooks();
 		\Mokhai\Cli\Context_Score_Command::register();
@@ -241,7 +241,7 @@ final class Main {
 		Discovery\Channel_Router::register_hooks();
 
 		// Wire the WordPress Abilities API surface (#21 / AgDR-0044). Registers
-		// the `ai-readiness-kit` ability category + five abilities (audit-run,
+		// the `mokhai` ability category + five abilities (audit-run,
 		// profile-read, profile-set-exposure, llms-txt-regenerate,
 		// md-view-preview) on the Abilities API init hooks. Self-guards on
 		// `wp_register_ability` so it's a clean no-op if the API is absent.
@@ -300,7 +300,7 @@ final class Main {
 
 		// Context Score daily cron backstop (#9 / AgDR-0030). Mirrors the
 		// LlmsTxt daily regen — fires once per day so the cached breakdown
-		// never sits stale longer than 24h, even if `agentready_context_profile_saved`
+		// never sits stale longer than 24h, even if `mokhai_context_profile_saved`
 		// never fires (which is the steady-state on a quiet site).
 		Context_Score\Service::schedule_daily_recompute();
 

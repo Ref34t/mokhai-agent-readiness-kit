@@ -39,7 +39,7 @@ final class Output_Buffer {
 	 * under the plugin's own namespace are touched — other plugins' REST
 	 * routes are left entirely alone.
 	 */
-	private const REST_ROUTE_PREFIX = '/ai-readiness-kit/';
+	private const REST_ROUTE_PREFIX = '/mokhai/';
 
 	/**
 	 * Wire the REST hardening hook.
@@ -80,7 +80,7 @@ final class Output_Buffer {
 	 * of the buffer-clean filter. Pure predicate, broken out so the scoping
 	 * decision is testable without touching the output-buffer stack.
 	 *
-	 * @param string $route The REST route, e.g. `/ai-readiness-kit/v1/...`.
+	 * @param string $route The REST route, e.g. `/mokhai/v1/...`.
 	 *
 	 * @return bool True for the plugin's own routes only.
 	 */

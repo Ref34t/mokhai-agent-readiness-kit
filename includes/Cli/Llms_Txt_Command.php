@@ -3,13 +3,13 @@
  * WP-CLI command surface for the LLMs Index module (#7 / AgDR-0022).
  *
  * Two subcommands:
- *   - `wp ai-readiness-kit llms-txt status` — diagnostic report (cache state,
+ *   - `wp mokhai llms-txt status` — diagnostic report (cache state,
  *     generated_at timestamp, entry count, next scheduled regen).
- *   - `wp ai-readiness-kit llms-txt regen`  — synchronous regen bypassing the
+ *   - `wp mokhai llms-txt regen`  — synchronous regen bypassing the
  *     cron debounce. Useful for support workflows and CI smoke tests.
  *
  * Mirrors the convention `Markdown_Views_Command` established under
- * `wp ai-readiness-kit md *`.
+ * `wp mokhai md *`.
  *
  * @package Mokhai
  */
@@ -29,13 +29,13 @@ use Mokhai\LlmsTxt\Service;
  * ## EXAMPLES
  *
  *     # Show cache state, last regen timestamp, scheduled events.
- *     $ wp ai-readiness-kit llms-txt status
+ *     $ wp mokhai llms-txt status
  *
  *     # Force a synchronous regen — bypasses the 5-second cron debounce.
- *     $ wp ai-readiness-kit llms-txt regen
+ *     $ wp mokhai llms-txt regen
  *
  *     # Print the composed body to stdout without writing the cache.
- *     $ wp ai-readiness-kit llms-txt preview
+ *     $ wp mokhai llms-txt preview
  */
 final class Llms_Txt_Command {
 
@@ -52,7 +52,6 @@ final class Llms_Txt_Command {
 		}
 
 		\WP_CLI::add_command( 'mokhai llms-txt', self::class );
-		\WP_CLI::add_command( 'ai-readiness-kit llms-txt', self::class );
 	}
 
 	/**
@@ -66,7 +65,7 @@ final class Llms_Txt_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp ai-readiness-kit llms-txt status
+	 *     $ wp mokhai llms-txt status
 	 *     +------------------------+------------------------------------+
 	 *     | Field                  | Value                              |
 	 *     +------------------------+------------------------------------+
@@ -138,7 +137,7 @@ final class Llms_Txt_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp ai-readiness-kit llms-txt regen
+	 *     $ wp mokhai llms-txt regen
 	 *     Success: Regenerated /llms.txt (11823 bytes, 142 entries).
 	 *
 	 * @param array<int, string>    $args       Positional args (unused).
@@ -171,7 +170,7 @@ final class Llms_Txt_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp ai-readiness-kit llms-txt preview | head -20
+	 *     $ wp mokhai llms-txt preview | head -20
 	 *
 	 * @param array<int, string>    $args       Positional args (unused).
 	 * @param array<string, string> $assoc_args Associative args (unused).

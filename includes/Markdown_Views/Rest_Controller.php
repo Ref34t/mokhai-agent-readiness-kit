@@ -2,7 +2,7 @@
 /**
  * REST controller for the Markdown Views admin preview endpoint.
  *
- * Registers `GET /wp-json/ai-readiness-kit/v1/markdown-views/preview?post=<id>`.
+ * Registers `GET /wp-json/mokhai/v1/markdown-views/preview?post=<id>`.
  * The Gutenberg sidebar (Phase 7) is the primary consumer; the WP-CLI
  * command (Phase 6) and any third-party admin tooling can use it too.
  *
@@ -56,13 +56,6 @@ final class Rest_Controller {
 	public const NAMESPACE = 'mokhai/v1';
 
 	/**
-	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
-	 *
-	 * @var string
-	 */
-	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
-
-	/**
 	 * Route appended to the namespace.
 	 *
 	 * @var string
@@ -78,7 +71,7 @@ final class Rest_Controller {
 	}
 
 	/**
-	 * Register the preview route under the current namespace, plus legacy alias.
+	 * Register the preview route under the current namespace.
 	 */
 	public static function register_routes(): void {
 		$route_args = array(
@@ -97,9 +90,7 @@ final class Rest_Controller {
 			),
 		);
 
-		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
-			\register_rest_route( $ns, self::ROUTE, $route_args );
-		}
+		\register_rest_route( self::NAMESPACE, self::ROUTE, $route_args );
 	}
 
 	/**
