@@ -8,7 +8,7 @@ that let three bugs ship in v0.3.1:
 |-----|-------|-------|
 | [#252](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/252) | WooCommerce-style product: copy in `post_excerpt`, empty `post_content` | `test_excerpt_only_product_renders_nonempty_md_via_source_seam` |
 | [#253](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/253) | Page-builder base64 blobs + Revolution-Slider init `<script>` | `test_builder_noise_is_stripped_from_md` |
-| [#254](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/254) | Static front page → `/llms.txt` URL | `test_static_front_page_llms_txt_url_is_valid` (skipped, see below) |
+| [#254](https://github.com/Ref34t/mokhai-agent-readiness-kit/issues/254) | Static front page → `/llms.txt` URL | `test_static_front_page_llms_txt_url_is_valid` |
 
 ## Synthetic content only — no third-party plugins
 
@@ -25,12 +25,14 @@ supplies the excerpt through that same filter. If the seam is ever removed, the
 test fails. The real WooCommerce adapter is verified manually against a live
 store.
 
-## The #254 test is skipped (on purpose)
+## #254 — already fixed, now guarded
 
-`#254` is still open. A failing assertion can't merge (red-CI block), and fixing
-the bug is out of scope for this fixture task. The test seeds the static-front-
-page scenario but calls `markTestSkipped`. **When #254 is fixed, delete the
-`markTestSkipped` line** and it becomes a blocking guard.
+`#254` was fixed by the root-URL guard in `Url_Mapper::to_md_url()` (#241): a
+front-page permalink (bare site root, no path) takes the `?format=md` query form
+instead of having `.md` glued onto the host. The test verifies that end to end
+through `/llms.txt` composition — it asserts no URL has a `.md` host *and* that
+the front page is actually advertised in the valid `?format=md` form (so the
+guard can't pass vacuously by the front page being absent).
 
 ## Run locally
 

@@ -142,27 +142,24 @@ final class Messy_Site_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * #254 — the static-front-page entry in `/llms.txt` must be a syntactically
-	 * valid URL, never `https://host.md` (`.md` glued onto the host).
+	 * #254 — a static front page's entry in `/llms.txt` must be a valid URL,
+	 * never `https://host.md` (`.md` glued straight onto the host because the
+	 * front-page permalink is the bare site root).
 	 *
-	 * SKIPPED: #254 is still open. A failing assertion cannot merge (red-CI
-	 * block), and fixing #254 is out of scope for this fixture task. The seed
-	 * below reproduces the scenario; when #254 is fixed, delete the
-	 * `markTestSkipped` line and this becomes a blocking guard.
+	 * Fixed by the root-URL guard in `Url_Mapper::to_md_url()` (#241): a permalink
+	 * with no path segment takes the `?format=md` query form instead of the `.md`
+	 * suffix. This is the regression guard verifying that holds for the
+	 * static-front-page case end to end, through `/llms.txt` composition.
 	 */
 	public function test_static_front_page_llms_txt_url_is_valid(): void {
 		Messy_Site_Fixture::set_static_front_page();
 
-		self::markTestSkipped(
-			'Reproduces still-open #254 (malformed `host.md` front-page URL). Remove this skip when #254 is fixed.'
-		);
-
-		// --- Intended assertions, active once #254 is fixed --------------------
 		$body = LlmsTxt_Service::compose_now();
 
 		\preg_match_all( '#https?://\S+#', $body, $matches );
 		self::assertNotEmpty( $matches[0], '/llms.txt should advertise at least one URL.' );
 
+		// The bug shape: a URL whose host ends in `.md` (e.g. `https://host.md`).
 		foreach ( $matches[0] as $url ) {
 			$host = (string) \wp_parse_url( $url, PHP_URL_HOST );
 			self::assertNotSame(
@@ -171,5 +168,13 @@ final class Messy_Site_Test extends WP_UnitTestCase {
 				"Malformed `.md`-TLD URL in /llms.txt: {$url} (#254)."
 			);
 		}
+
+		// Non-vacuous: the front page must actually be advertised, and in the
+		// valid query form the root-URL guard produces — not absent, not broken.
+		self::assertStringContainsString(
+			'/?format=md',
+			$body,
+			'The static front page should be advertised in the valid `?format=md` form (#254).'
+		);
 	}
 }
