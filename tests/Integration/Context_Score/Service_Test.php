@@ -3,7 +3,7 @@
  * Integration tests for Mokhai\Context_Score\Service.
  *
  * Runs inside the wp-phpunit test instance so we exercise real options,
- * cron registration, and the `agentready_context_profile_saved` action
+ * cron registration, and the `mokhai_context_profile_saved` action
  * dispatch path. Covers AgDR-0030's cache contract and recompute triggers.
  *
  * @package Mokhai\Tests
@@ -31,7 +31,7 @@ final class Service_Test extends WP_UnitTestCase {
 		Service::invalidate();
 
 		// Reset the profile to a known shape FIRST so the resulting
-		// `agentready_context_profile_saved` settles into a known state…
+		// `mokhai_context_profile_saved` settles into a known state…
 		update_option(
 			Context_Profile_Settings::OPTION_KEY,
 			array_merge(
@@ -271,7 +271,7 @@ final class Service_Test extends WP_UnitTestCase {
 	public function test_profile_saved_action_schedules_a_recompute(): void {
 		// Fire the action directly with the listener path the Main bootstrap
 		// already wired (Service::register_hooks runs at plugin boot).
-		do_action( 'agentready_context_profile_saved', array(), array() );
+		do_action( 'mokhai_context_profile_saved', array(), array() );
 
 		$scheduled = wp_next_scheduled( Service::RECOMPUTE_ACTION );
 		$this->assertNotFalse( $scheduled );

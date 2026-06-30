@@ -6,7 +6,7 @@
  * agent value. They are detected via WooCommerce's own page-ID options
  * (`woocommerce_*_page_id`) — never by title — and denied with reason
  * `excluded`. The Shop archive is deliberately NOT excluded. The behaviour is
- * overridable through the `agentready_woocommerce_excluded_page_options`
+ * overridable through the `mokhai_woocommerce_excluded_page_options`
  * filter.
  *
  * @package Mokhai\Tests
@@ -49,7 +49,7 @@ final class WooCommerce_Page_Exclusion_Test extends WP_UnitTestCase {
 		foreach ( array( 'woocommerce_cart_page_id', 'woocommerce_checkout_page_id', 'woocommerce_myaccount_page_id', 'woocommerce_shop_page_id' ) as $opt ) {
 			delete_option( $opt );
 		}
-		remove_all_filters( 'agentready_woocommerce_excluded_page_options' );
+		remove_all_filters( 'mokhai_woocommerce_excluded_page_options' );
 		Service::invalidate();
 		delete_transient( Service::REGEN_LOCK_TRANSIENT );
 		Markdown_Views_Schema::drop();
@@ -105,7 +105,7 @@ final class WooCommerce_Page_Exclusion_Test extends WP_UnitTestCase {
 		$page_id = $this->published_page();
 		update_option( 'woocommerce_cart_page_id', $page_id );
 
-		add_filter( 'agentready_woocommerce_excluded_page_options', '__return_empty_array' );
+		add_filter( 'mokhai_woocommerce_excluded_page_options', '__return_empty_array' );
 
 		// With the option list emptied, the cart page is exposable again.
 		self::assertTrue( Context_Profile_Settings::is_url_exposable( get_post( $page_id ) ) );

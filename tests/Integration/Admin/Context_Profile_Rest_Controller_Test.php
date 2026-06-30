@@ -10,7 +10,7 @@
  *   - GET returns the migrated profile
  *   - PUT persists the whole profile through the `sanitize_internal()`
  *     whitelist (drops bogus CPT/status + unknown keys) and returns it
- *   - PUT fires the same `agentready_context_profile_saved` cascade the
+ *   - PUT fires the same `mokhai_context_profile_saved` cascade the
  *     options.php form path fires (parity guarantee)
  *
  * @package Mokhai\Tests
@@ -130,7 +130,7 @@ final class Context_Profile_Rest_Controller_Test extends WP_UnitTestCase {
 
 		$fired = 0;
 		add_action(
-			'agentready_context_profile_saved',
+			'mokhai_context_profile_saved',
 			static function () use ( &$fired ): void {
 				++$fired;
 			}
@@ -146,6 +146,6 @@ final class Context_Profile_Rest_Controller_Test extends WP_UnitTestCase {
 		);
 
 		self::assertSame( 200, $response->get_status() );
-		self::assertGreaterThan( 0, $fired, 'PUT must fire agentready_context_profile_saved like the form save.' );
+		self::assertGreaterThan( 0, $fired, 'PUT must fire mokhai_context_profile_saved like the form save.' );
 	}
 }

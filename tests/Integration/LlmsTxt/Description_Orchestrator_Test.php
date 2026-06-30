@@ -598,11 +598,11 @@ final class Description_Orchestrator_Test extends WP_UnitTestCase {
 		$filter = static function () {
 			return 5;
 		};
-		add_filter( 'agentready_description_min_content_chars', $filter );
+		add_filter( 'mokhai_description_min_content_chars', $filter );
 
 		self::assertSame( 5, Description_Orchestrator::min_content_chars() );
 
-		remove_filter( 'agentready_description_min_content_chars', $filter );
+		remove_filter( 'mokhai_description_min_content_chars', $filter );
 		self::assertSame(
 			Description_Orchestrator::MIN_CONTENT_CHARS,
 			Description_Orchestrator::min_content_chars()

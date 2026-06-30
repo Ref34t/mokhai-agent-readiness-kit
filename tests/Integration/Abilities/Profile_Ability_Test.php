@@ -103,7 +103,7 @@ final class Profile_Ability_Test extends WP_UnitTestCase {
 
 		$fired = 0;
 		\add_action(
-			'agentready_context_profile_saved',
+			'mokhai_context_profile_saved',
 			static function () use ( &$fired ): void {
 				++$fired;
 			}

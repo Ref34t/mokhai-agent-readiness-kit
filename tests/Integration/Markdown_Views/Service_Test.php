@@ -48,7 +48,7 @@ final class Service_Test extends WP_UnitTestCase {
 	protected function tearDown(): void {
 		// Reset filter state so a test that adds a noindex filter doesn't
 		// leak across tests.
-		remove_all_filters( 'agentready_post_is_noindexed' );
+		remove_all_filters( 'mokhai_post_is_noindexed' );
 		Schema::drop();
 		parent::tearDown();
 	}

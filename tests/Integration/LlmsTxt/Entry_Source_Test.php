@@ -10,7 +10,7 @@
  *  - `PER_CPT_CAP` truncation enforcement
  *  - `Context_Profile_Settings::is_url_exposable()` gate (password-protected
  *    posts excluded even when their CPT/status match)
- *  - `agentready_llms_txt_entry_description` filter precedence over the
+ *  - `mokhai_llms_txt_entry_description` filter precedence over the
  *    `post_excerpt` fallback
  *  - `(no title)` fallback for posts saved without a title
  *  - Custom-CPT label resolution via `get_post_type_object`

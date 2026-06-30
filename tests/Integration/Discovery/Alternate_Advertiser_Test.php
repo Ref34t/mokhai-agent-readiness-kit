@@ -111,13 +111,13 @@ final class Alternate_Advertiser_Test extends WP_UnitTestCase {
 				'post_type'   => 'post',
 			)
 		);
-		add_filter( 'agentready_post_is_noindexed', '__return_true' );
+		add_filter( 'mokhai_post_is_noindexed', '__return_true' );
 		$this->go_to( get_permalink( $post_id ) );
 
 		try {
 			self::assertStringNotContainsString( 'type="text/markdown"', $this->capture_head() );
 		} finally {
-			remove_filter( 'agentready_post_is_noindexed', '__return_true' );
+			remove_filter( 'mokhai_post_is_noindexed', '__return_true' );
 		}
 	}
 

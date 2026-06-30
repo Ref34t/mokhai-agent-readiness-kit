@@ -220,7 +220,7 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		);
 
 		add_filter(
-			'agentready_schema_type_for_cpt',
+			'mokhai_schema_type_for_cpt',
 			static function ( $default, $cpt ) {
 				return 'lesson' === $cpt ? 'Article' : $default;
 			},
@@ -249,7 +249,7 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		self::assertNotNull( $article );
 		self::assertSame( 'Lesson 02: Embeddings', $article['headline'] );
 
-		remove_all_filters( 'agentready_schema_type_for_cpt' );
+		remove_all_filters( 'mokhai_schema_type_for_cpt' );
 		unregister_post_type( 'lesson' );
 	}
 
@@ -282,7 +282,7 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		);
 
 		add_filter(
-			'agentready_schema_type_for_cpt',
+			'mokhai_schema_type_for_cpt',
 			static function ( $default, $cpt ) {
 				return 'product' === $cpt ? null : $default;
 			},
@@ -309,7 +309,7 @@ final class Schema_Emitter_Test extends WP_UnitTestCase {
 		self::assertNotContains( 'WebPage', $types, 'Filter returning null must suppress WebPage.' );
 		self::assertNotContains( 'Article', $types, 'Filter returning null must suppress Article.' );
 
-		remove_all_filters( 'agentready_schema_type_for_cpt' );
+		remove_all_filters( 'mokhai_schema_type_for_cpt' );
 		unregister_post_type( 'product' );
 	}
 

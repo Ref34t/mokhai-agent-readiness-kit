@@ -55,7 +55,7 @@ final class Rest_Controller_Test extends WP_UnitTestCase {
 
 	protected function tearDown(): void {
 		Schema::drop();
-		remove_all_filters( 'agentready_post_is_noindexed' );
+		remove_all_filters( 'mokhai_post_is_noindexed' );
 		wp_set_current_user( 0 );
 		parent::tearDown();
 	}
@@ -181,7 +181,7 @@ final class Rest_Controller_Test extends WP_UnitTestCase {
 	public function test_noindex_filter_returns_noindex_reason(): void {
 		$this->admin_user();
 
-		add_filter( 'agentready_post_is_noindexed', '__return_true' );
+		add_filter( 'mokhai_post_is_noindexed', '__return_true' );
 
 		$post_id = self::factory()->post->create( array( 'post_status' => 'publish' ) );
 

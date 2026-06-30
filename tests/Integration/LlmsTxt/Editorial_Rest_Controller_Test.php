@@ -8,7 +8,7 @@
  *   - GET returns the versioned settings shape + the section vocabulary
  *   - PUT persists entries through the `sanitize()` source-of-truth (drops an
  *     entry missing a title/URL) and returns the saved value + sections
- *   - PUT fires the same `agentready_llms_txt_editorial_saved` cascade the
+ *   - PUT fires the same `mokhai_llms_txt_editorial_saved` cascade the
  *     options.php form path fires (parity guarantee)
  *
  * @package Mokhai\Tests

@@ -70,7 +70,7 @@ final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 		delete_option( 'agentready_llms_txt_editorial' );
 
 		// Establish a known profile FIRST so the resulting
-		// `agentready_context_profile_saved` hook chain settles…
+		// `mokhai_context_profile_saved` hook chain settles…
 		update_option(
 			Context_Profile_Settings::OPTION_KEY,
 			array_merge(

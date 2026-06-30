@@ -36,7 +36,7 @@ final class Service_Test extends WP_UnitTestCase {
 		delete_transient( Service::REGEN_LOCK_TRANSIENT );
 		delete_option( 'agentready_llms_txt_editorial' );
 
-		// Reset the profile FIRST so the resulting `agentready_context_profile_saved`
+		// Reset the profile FIRST so the resulting `mokhai_context_profile_saved`
 		// action (fired by `update_option`) settles into a known state…
 		update_option(
 			Context_Profile_Settings::OPTION_KEY,
@@ -244,7 +244,7 @@ final class Service_Test extends WP_UnitTestCase {
 	}
 
 	public function test_profile_save_triggers_regen(): void {
-		do_action( 'agentready_context_profile_saved', 'old', 'new' );
+		do_action( 'mokhai_context_profile_saved', 'old', 'new' );
 
 		$this->assertIsInt( wp_next_scheduled( Service::REGEN_ACTION ) );
 	}

@@ -47,7 +47,7 @@ final class Handler_Test extends WP_UnitTestCase {
 
 	protected function tearDown(): void {
 		Schema::drop();
-		remove_all_filters( 'agentready_post_is_noindexed' );
+		remove_all_filters( 'mokhai_post_is_noindexed' );
 		parent::tearDown();
 	}
 

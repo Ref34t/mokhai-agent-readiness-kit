@@ -96,7 +96,7 @@ final class Aioseo_Noindex_Test extends WP_UnitTestCase {
 		$post = self::factory()->post->create_and_get( array( 'post_status' => 'publish' ) );
 		$this->insert_aioseo_row( $post->ID, 0, 1 );
 
-		self::assertTrue( \apply_filters( 'agentready_post_is_noindexed', false, $post ) );
+		self::assertTrue( \apply_filters( 'mokhai_post_is_noindexed', false, $post ) );
 		self::assertSame( 'noindex', Context_Profile_Settings::get_exposure_reason( $post ) );
 	}
 
@@ -104,14 +104,14 @@ final class Aioseo_Noindex_Test extends WP_UnitTestCase {
 		$post = self::factory()->post->create_and_get( array( 'post_status' => 'publish' ) );
 		$this->insert_aioseo_row( $post->ID, 1, 1 );
 
-		self::assertFalse( \apply_filters( 'agentready_post_is_noindexed', false, $post ) );
+		self::assertFalse( \apply_filters( 'mokhai_post_is_noindexed', false, $post ) );
 		self::assertNull( Context_Profile_Settings::get_exposure_reason( $post ) );
 	}
 
 	public function test_post_without_aioseo_row_stays_exposable(): void {
 		$post = self::factory()->post->create_and_get( array( 'post_status' => 'publish' ) );
 
-		self::assertFalse( \apply_filters( 'agentready_post_is_noindexed', false, $post ) );
+		self::assertFalse( \apply_filters( 'mokhai_post_is_noindexed', false, $post ) );
 		self::assertNull( Context_Profile_Settings::get_exposure_reason( $post ) );
 	}
 
@@ -122,7 +122,7 @@ final class Aioseo_Noindex_Test extends WP_UnitTestCase {
 
 		$post = self::factory()->post->create_and_get( array( 'post_status' => 'publish' ) );
 
-		self::assertFalse( \apply_filters( 'agentready_post_is_noindexed', false, $post ) );
+		self::assertFalse( \apply_filters( 'mokhai_post_is_noindexed', false, $post ) );
 		self::assertNull( Context_Profile_Settings::get_exposure_reason( $post ) );
 	}
 }
