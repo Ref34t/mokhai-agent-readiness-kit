@@ -54,6 +54,7 @@ final class Markdown_Views_Command {
 			return;
 		}
 
+		\WP_CLI::add_command( 'mokhai md', self::class );
 		\WP_CLI::add_command( 'ai-readiness-kit md', self::class );
 	}
 

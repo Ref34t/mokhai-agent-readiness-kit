@@ -171,6 +171,16 @@ if ( ! function_exists( 'do_action' ) ) {
 	}
 }
 
+if ( ! function_exists( 'do_action_deprecated' ) ) {
+	/**
+	 * Stub: forwards to do_action on the legacy hook name, preserving
+	 * test observability of deprecated actions.
+	 */
+	function do_action_deprecated( string $hook, array $args, string $version, string $replacement = '' ): void {
+		do_action( $hook, ...$args );
+	}
+}
+
 if ( ! function_exists( 'sanitize_key' ) ) {
 	/**
 	 * Stub mirroring WP's sanitize_key: lowercased, [a-z0-9_-] only.
@@ -389,6 +399,16 @@ if ( ! function_exists( 'apply_filters' ) ) {
 			$value = $callback( $value, ...$args );
 		}
 		return $value;
+	}
+}
+
+if ( ! function_exists( 'apply_filters_deprecated' ) ) {
+	/**
+	 * Stub: forwards to apply_filters on the legacy hook name, preserving
+	 * test observability of deprecated filters.
+	 */
+	function apply_filters_deprecated( string $hook, array $args, string $version, string $replacement = '' ) {
+		return apply_filters( $hook, ...$args );
 	}
 }
 

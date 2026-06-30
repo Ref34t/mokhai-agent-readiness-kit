@@ -53,7 +53,14 @@ final class Rest_Controller {
 	 *
 	 * @var string
 	 */
-	public const NAMESPACE = 'ai-readiness-kit/v1';
+	public const NAMESPACE = 'mokhai/v1';
+
+	/**
+	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
+	 *
+	 * @var string
+	 */
+	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Route appended to the namespace.
@@ -71,28 +78,28 @@ final class Rest_Controller {
 	}
 
 	/**
-	 * Register the preview route.
+	 * Register the preview route under the current namespace, plus legacy alias.
 	 */
 	public static function register_routes(): void {
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE,
-			array(
-				'methods'             => 'GET',
-				'callback'            => array( self::class, 'handle_preview' ),
-				'permission_callback' => array( self::class, 'check_permission' ),
-				'args'                => array(
-					'post' => array(
-						'required'          => true,
-						'type'              => 'integer',
-						'sanitize_callback' => 'absint',
-						'validate_callback' => static function ( $value ): bool {
-							return \is_numeric( $value ) && (int) $value > 0;
-						},
-					),
+		$route_args = array(
+			'methods'             => 'GET',
+			'callback'            => array( self::class, 'handle_preview' ),
+			'permission_callback' => array( self::class, 'check_permission' ),
+			'args'                => array(
+				'post' => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'sanitize_callback' => 'absint',
+					'validate_callback' => static function ( $value ): bool {
+						return \is_numeric( $value ) && (int) $value > 0;
+					},
 				),
-			)
+			),
 		);
+
+		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
+			\register_rest_route( $ns, self::ROUTE, $route_args );
+		}
 	}
 
 	/**

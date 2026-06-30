@@ -30,7 +30,8 @@ final class Md_View_Ability {
 	 *
 	 * @var string
 	 */
-	public const ID = 'ai-readiness-kit/md-view-preview';
+	public const ID        = 'mokhai/md-view-preview';
+	public const LEGACY_ID = 'ai-readiness-kit/md-view-preview';
 
 	/**
 	 * Execute callback. Resolves a post by `post_id` or `url`, then returns

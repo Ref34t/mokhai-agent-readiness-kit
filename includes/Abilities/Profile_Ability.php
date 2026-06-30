@@ -29,8 +29,10 @@ final class Profile_Ability {
 	 *
 	 * @var string
 	 */
-	public const READ_ID         = 'ai-readiness-kit/profile-read';
-	public const SET_EXPOSURE_ID = 'ai-readiness-kit/profile-set-exposure';
+	public const READ_ID                = 'mokhai/profile-read';
+	public const SET_EXPOSURE_ID        = 'mokhai/profile-set-exposure';
+	public const LEGACY_READ_ID         = 'ai-readiness-kit/profile-read';
+	public const LEGACY_SET_EXPOSURE_ID = 'ai-readiness-kit/profile-set-exposure';
 
 	/**
 	 * Execute callback for `profile-read`. Readonly.

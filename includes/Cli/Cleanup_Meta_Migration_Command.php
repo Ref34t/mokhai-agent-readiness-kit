@@ -56,6 +56,7 @@ final class Cleanup_Meta_Migration_Command {
 			return;
 		}
 
+		\WP_CLI::add_command( 'mokhai cleanup-meta', self::class );
 		\WP_CLI::add_command( 'ai-readiness-kit cleanup-meta', self::class );
 	}
 

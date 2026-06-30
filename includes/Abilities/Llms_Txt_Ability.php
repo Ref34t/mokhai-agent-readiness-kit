@@ -27,7 +27,8 @@ final class Llms_Txt_Ability {
 	 *
 	 * @var string
 	 */
-	public const ID = 'ai-readiness-kit/llms-txt-regenerate';
+	public const ID        = 'mokhai/llms-txt-regenerate';
+	public const LEGACY_ID = 'ai-readiness-kit/llms-txt-regenerate';
 
 	/**
 	 * Execute callback. Takes no input; returns the regenerated body.

@@ -29,7 +29,8 @@ final class Registrar {
 	 *
 	 * @var string
 	 */
-	public const CATEGORY = 'ai-readiness-kit';
+	public const CATEGORY        = 'mokhai';
+	public const LEGACY_CATEGORY = 'ai-readiness-kit';
 
 	/**
 	 * Wire the Abilities API registration hooks. Called from
@@ -52,16 +53,19 @@ final class Registrar {
 	}
 
 	/**
-	 * Register the single `ai-readiness-kit` ability category.
+	 * Register the `mokhai` ability category, plus a legacy `ai-readiness-kit` alias.
 	 */
 	public static function register_category(): void {
-		\wp_register_ability_category(
-			self::CATEGORY,
-			array(
-				'label'       => \__( 'Mokhai', 'mokhai-agent-readiness-kit' ),
-				'description' => \__( 'Audit, profile, exposure, /llms.txt, and Markdown-view operations exposed to AI agents.', 'mokhai-agent-readiness-kit' ),
-			)
+		$category_args = array(
+			'label'       => \__( 'Mokhai', 'mokhai-agent-readiness-kit' ),
+			'description' => \__( 'Audit, profile, exposure, /llms.txt, and Markdown-view operations exposed to AI agents.', 'mokhai-agent-readiness-kit' ),
 		);
+
+		\wp_register_ability_category( self::CATEGORY, $category_args );
+
+		// Back-compat alias: register the legacy category so existing MCP clients
+		// resolving 'ai-readiness-kit' continue to find a valid category.
+		\wp_register_ability_category( self::LEGACY_CATEGORY, $category_args );
 	}
 
 	/**
@@ -239,5 +243,77 @@ final class Registrar {
 				),
 			)
 		);
+
+		// Back-compat: register legacy ai-readiness-kit/* IDs pointing at the same
+		// callbacks so existing MCP clients continue to resolve the old ability IDs.
+		$legacy_abilities = array(
+			array(
+				'id'       => Audit_Ability::LEGACY_ID,
+				'new_id'   => Audit_Ability::ID,
+				'callback' => array( Audit_Ability::class, 'run' ),
+				'readonly' => false,
+			),
+			array(
+				'id'       => Profile_Ability::LEGACY_READ_ID,
+				'new_id'   => Profile_Ability::READ_ID,
+				'callback' => array( Profile_Ability::class, 'read' ),
+				'readonly' => true,
+			),
+			array(
+				'id'       => Profile_Ability::LEGACY_SET_EXPOSURE_ID,
+				'new_id'   => Profile_Ability::SET_EXPOSURE_ID,
+				'callback' => array( Profile_Ability::class, 'set_exposure' ),
+				'readonly' => false,
+			),
+			array(
+				'id'       => Llms_Txt_Ability::LEGACY_ID,
+				'new_id'   => Llms_Txt_Ability::ID,
+				'callback' => array( Llms_Txt_Ability::class, 'regenerate' ),
+				'readonly' => false,
+			),
+			array(
+				'id'       => Md_View_Ability::LEGACY_ID,
+				'new_id'   => Md_View_Ability::ID,
+				'callback' => array( Md_View_Ability::class, 'preview' ),
+				'readonly' => true,
+			),
+		);
+
+		foreach ( $legacy_abilities as $legacy ) {
+			$meta = array(
+				'show_in_rest' => true,
+				'mcp'          => array( 'public' => true ),
+				'deprecated'   => array(
+					'since'       => '0.5.0',
+					'replacement' => $legacy['new_id'],
+				),
+			);
+
+			if ( $legacy['readonly'] ) {
+				$meta['readonly'] = true;
+			}
+
+			\wp_register_ability(
+				$legacy['id'],
+				array(
+					'label'               => \sprintf(
+						/* translators: %s: new ability ID */
+						\__( 'Deprecated — use %s', 'mokhai-agent-readiness-kit' ),
+						$legacy['new_id']
+					),
+					'description'         => \sprintf(
+						/* translators: %s: new ability ID */
+						\__( 'Back-compat alias for %s (deprecated since 0.5.0).', 'mokhai-agent-readiness-kit' ),
+						$legacy['new_id']
+					),
+					'category'            => self::LEGACY_CATEGORY,
+					'input_schema'        => $empty_input,
+					'output_schema'       => array( 'type' => 'object' ),
+					'execute_callback'    => $legacy['callback'],
+					'permission_callback' => $manage_options,
+					'meta'                => $meta,
+				)
+			);
+		}
 	}
 }

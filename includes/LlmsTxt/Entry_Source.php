@@ -50,7 +50,14 @@ final class Entry_Source {
 	 *
 	 * @var string
 	 */
-	public const DESCRIPTION_FILTER = 'agentready_llms_txt_entry_description';
+	public const DESCRIPTION_FILTER = 'mokhai_llms_txt_entry_description';
+
+	/**
+	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_llms_txt_entry_description`).
+	 *
+	 * @var string
+	 */
+	public const LEGACY_DESCRIPTION_FILTER = 'agentready_llms_txt_entry_description';
 
 	/**
 	 * Build the auto-listed sections from the current Context Profile.
@@ -304,10 +311,12 @@ final class Entry_Source {
 		 *                              short-circuits the excerpt fallback.
 		 * @param \WP_Post $post        The post being indexed.
 		 */
-		// Hook name resolves to `agentready_llms_txt_entry_description` —
+		// Hook name resolves to `mokhai_llms_txt_entry_description` —
 		// the constant is prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$filtered = \apply_filters( self::DESCRIPTION_FILTER, '', $post );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$filtered = \apply_filters_deprecated( self::LEGACY_DESCRIPTION_FILTER, array( $filtered, $post ), '0.5.0', self::DESCRIPTION_FILTER );
 		$filtered = is_string( $filtered ) ? trim( $filtered ) : '';
 		if ( '' !== $filtered ) {
 			return self::normalise_description( $filtered );

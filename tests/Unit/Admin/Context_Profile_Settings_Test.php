@@ -286,8 +286,10 @@ final class Context_Profile_Settings_Test extends TestCase {
 		Context_Profile_Settings::on_profile_updated( $old_raw, $new_raw );
 
 		$dispatched = $GLOBALS['wpctx_test_did_action'];
-		self::assertCount( 1, $dispatched );
-		self::assertSame( 'agentready_context_profile_saved', $dispatched[0]['hook'] );
+		// Two actions fire: new `mokhai_context_profile_saved` + deprecated legacy alias.
+		self::assertCount( 2, $dispatched );
+		self::assertSame( 'mokhai_context_profile_saved', $dispatched[0]['hook'] );
+		self::assertSame( 'agentready_context_profile_saved', $dispatched[1]['hook'] );
 
 		// New value (first arg) is the migrated profile — defaults merged in.
 		self::assertSame( array( 'post' ), $dispatched[0]['args'][0]['exposed_cpts'] );
@@ -307,8 +309,10 @@ final class Context_Profile_Settings_Test extends TestCase {
 		);
 
 		$dispatched = $GLOBALS['wpctx_test_did_action'];
-		self::assertCount( 1, $dispatched );
-		self::assertSame( 'agentready_context_profile_saved', $dispatched[0]['hook'] );
+		// Two actions fire: new `mokhai_context_profile_saved` + deprecated legacy alias.
+		self::assertCount( 2, $dispatched );
+		self::assertSame( 'mokhai_context_profile_saved', $dispatched[0]['hook'] );
+		self::assertSame( 'agentready_context_profile_saved', $dispatched[1]['hook'] );
 
 		self::assertSame( array( 'post' ), $dispatched[0]['args'][0]['exposed_cpts'] );
 		self::assertSame( Context_Profile_Settings::get_defaults(), $dispatched[0]['args'][1] );
@@ -319,7 +323,8 @@ final class Context_Profile_Settings_Test extends TestCase {
 		Context_Profile_Settings::on_profile_updated( 'corrupted', array( 'exposed_cpts' => array( 'post' ) ) );
 
 		$dispatched = $GLOBALS['wpctx_test_did_action'];
-		self::assertCount( 1, $dispatched );
+		// Two actions fire: new name + deprecated alias.
+		self::assertCount( 2, $dispatched );
 		self::assertSame( Context_Profile_Settings::get_defaults(), $dispatched[0]['args'][1] );
 	}
 

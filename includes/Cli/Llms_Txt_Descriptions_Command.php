@@ -55,6 +55,7 @@ final class Llms_Txt_Descriptions_Command {
 			return;
 		}
 
+		\WP_CLI::add_command( 'mokhai llms-txt descriptions', self::class );
 		\WP_CLI::add_command( 'ai-readiness-kit llms-txt descriptions', self::class );
 	}
 

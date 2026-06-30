@@ -28,7 +28,8 @@ final class Audit_Ability {
 	 *
 	 * @var string
 	 */
-	public const ID = 'ai-readiness-kit/audit-run';
+	public const ID        = 'mokhai/audit-run';
+	public const LEGACY_ID = 'ai-readiness-kit/audit-run';
 
 	/**
 	 * Execute callback. Takes no input; returns the breakdown payload.

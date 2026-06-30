@@ -55,6 +55,7 @@ final class Context_Score_Command {
 			return;
 		}
 
+		\WP_CLI::add_command( 'mokhai context-score', self::class );
 		\WP_CLI::add_command( 'ai-readiness-kit context-score', self::class );
 	}
 

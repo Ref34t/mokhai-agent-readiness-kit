@@ -315,7 +315,11 @@ final class Context_Profile_Settings {
 		 * @param bool     $noindexed Default false.
 		 * @param \WP_Post $post      Post being evaluated.
 		 */
-		return (bool) \apply_filters( 'agentready_post_is_noindexed', false, $post );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$value = (bool) \apply_filters( 'mokhai_post_is_noindexed', false, $post );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$value = (bool) \apply_filters_deprecated( 'agentready_post_is_noindexed', array( $value, $post ), '0.5.0', 'mokhai_post_is_noindexed' );
+		return $value;
 	}
 
 	/**
@@ -372,14 +376,17 @@ final class Context_Profile_Settings {
 	 * @param \WP_Post $post Post being evaluated.
 	 */
 	private static function is_woocommerce_utility_page( \WP_Post $post ): bool {
+		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$option_keys = \apply_filters(
-			'agentready_woocommerce_excluded_page_options',
+			'mokhai_woocommerce_excluded_page_options',
 			array(
 				'woocommerce_cart_page_id',
 				'woocommerce_checkout_page_id',
 				'woocommerce_myaccount_page_id',
 			)
 		);
+		$option_keys = \apply_filters_deprecated( 'agentready_woocommerce_excluded_page_options', array( $option_keys ), '0.5.0', 'mokhai_woocommerce_excluded_page_options' );
+		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 
 		foreach ( (array) $option_keys as $option_key ) {
 			$page_id = (int) \get_option( (string) $option_key, 0 );
@@ -614,7 +621,10 @@ final class Context_Profile_Settings {
 		 * @param array<string, mixed> $new The newly-saved profile.
 		 * @param array<string, mixed> $old The previous profile (defaulted on first save).
 		 */
-		\do_action( 'agentready_context_profile_saved', $new, $old );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		\do_action( 'mokhai_context_profile_saved', $new, $old );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		\do_action_deprecated( 'agentready_context_profile_saved', array( $new, $old ), '0.5.0', 'mokhai_context_profile_saved' );
 	}
 
 	/**
@@ -635,8 +645,11 @@ final class Context_Profile_Settings {
 		$new = \is_array( $value ) ? self::migrate( $value ) : self::get_defaults();
 		$old = self::get_defaults();
 
-		/** This filter is documented in Context_Profile_Settings::on_profile_updated() */
-		\do_action( 'agentready_context_profile_saved', $new, $old );
+		/** This action is documented in Context_Profile_Settings::on_profile_updated() */
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		\do_action( 'mokhai_context_profile_saved', $new, $old );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		\do_action_deprecated( 'agentready_context_profile_saved', array( $new, $old ), '0.5.0', 'mokhai_context_profile_saved' );
 	}
 
 	/**

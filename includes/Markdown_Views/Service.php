@@ -142,7 +142,11 @@ final class Service {
 		 * @param string   $html The `the_content`-rendered HTML.
 		 * @param \WP_Post $post The post being rendered.
 		 */
-		return (string) \apply_filters( 'agentready_markdown_source_html', $html, $post );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$html = (string) \apply_filters( 'mokhai_markdown_source_html', $html, $post );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$html = (string) \apply_filters_deprecated( 'agentready_markdown_source_html', array( $html, $post ), '0.5.0', 'mokhai_markdown_source_html' );
+		return $html;
 	}
 
 	/**
@@ -215,7 +219,10 @@ final class Service {
 		 * @param string   $base The default hash input.
 		 * @param \WP_Post $post The post being rendered.
 		 */
-		$base = (string) \apply_filters( 'agentready_markdown_content_hash', $base, $post );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$base = (string) \apply_filters( 'mokhai_markdown_content_hash', $base, $post );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$base = (string) \apply_filters_deprecated( 'agentready_markdown_content_hash', array( $base, $post ), '0.5.0', 'mokhai_markdown_content_hash' );
 
 		return \sha1( $base );
 	}

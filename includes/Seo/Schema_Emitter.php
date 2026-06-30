@@ -39,7 +39,14 @@ final class Schema_Emitter {
 	 *
 	 * @var string
 	 */
-	public const FILTER_EMIT_DECISION = 'agentready_schema_emit';
+	public const FILTER_EMIT_DECISION = 'mokhai_schema_emit';
+
+	/**
+	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_schema_emit`).
+	 *
+	 * @var string
+	 */
+	public const LEGACY_FILTER_EMIT_DECISION = 'agentready_schema_emit';
 
 	/**
 	 * Filter applied to the final JSON-LD node array before render. Allows
@@ -48,7 +55,14 @@ final class Schema_Emitter {
 	 *
 	 * @var string
 	 */
-	public const FILTER_NODES = 'agentready_schema_nodes';
+	public const FILTER_NODES = 'mokhai_schema_nodes';
+
+	/**
+	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_schema_nodes`).
+	 *
+	 * @var string
+	 */
+	public const LEGACY_FILTER_NODES = 'agentready_schema_nodes';
 
 	/**
 	 * Wire `wp_head` at priority 10 (same priority WP core uses for theme-
@@ -95,10 +109,12 @@ final class Schema_Emitter {
 			return;
 		}
 
-		// Hook name resolves to `agentready_schema_emit` — the constant is
+		// Hook name resolves to `mokhai_schema_emit` — the constant is
 		// prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$should_emit = \apply_filters( self::FILTER_EMIT_DECISION, true );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$should_emit = \apply_filters_deprecated( self::LEGACY_FILTER_EMIT_DECISION, array( $should_emit ), '0.5.0', self::FILTER_EMIT_DECISION );
 		if ( false === $should_emit ) {
 			return;
 		}
@@ -111,11 +127,14 @@ final class Schema_Emitter {
 
 		$nodes = self::build_nodes( $gap );
 
-		// Hook name resolves to `agentready_schema_nodes` — the constant is
+		// Hook name resolves to `mokhai_schema_nodes` — the constant is
 		// prefixed; phpcs can't see through the constant ref.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$filtered_nodes = \apply_filters( self::FILTER_NODES, $nodes, $gap, $posture_slug );
 		$nodes          = \is_array( $filtered_nodes ) ? \array_values( $filtered_nodes ) : $nodes;
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$legacy_nodes = \apply_filters_deprecated( self::LEGACY_FILTER_NODES, array( $nodes, $gap, $posture_slug ), '0.5.0', self::FILTER_NODES );
+		$nodes        = \is_array( $legacy_nodes ) ? \array_values( $legacy_nodes ) : $nodes;
 
 		if ( array() === $nodes ) {
 			return;
@@ -351,7 +370,10 @@ final class Schema_Emitter {
 		 * @param string $cpt     The post's `post_type`.
 		 * @param int    $post_id The post being rendered.
 		 */
-		$type = \apply_filters( 'agentready_schema_type_for_cpt', $default, $cpt, $post_id );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$type = \apply_filters( 'mokhai_schema_type_for_cpt', $default, $cpt, $post_id );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$type = \apply_filters_deprecated( 'agentready_schema_type_for_cpt', array( $type, $cpt, $post_id ), '0.5.0', 'mokhai_schema_type_for_cpt' );
 
 		if ( ! \is_string( $type ) || '' === $type ) {
 			return null;

@@ -34,7 +34,14 @@ final class Rest_Controller {
 	 *
 	 * @var string
 	 */
-	public const NAMESPACE = 'ai-readiness-kit/v1';
+	public const NAMESPACE = 'mokhai/v1';
+
+	/**
+	 * Legacy REST namespace kept for back-compat (deprecated since 0.5.0, use `mokhai/v1`).
+	 *
+	 * @var string
+	 */
+	private const LEGACY_NAMESPACE = 'ai-readiness-kit/v1';
 
 	/**
 	 * Route base appended to the namespace.
@@ -65,63 +72,66 @@ final class Rest_Controller {
 	}
 
 	/**
-	 * Register the three routes.
+	 * Register the three routes under the current namespace, plus legacy aliases.
 	 */
 	public static function register_routes(): void {
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE_BASE . '/posts',
+		$routes = array(
 			array(
-				'methods'             => 'GET',
-				'callback'            => array( self::class, 'handle_posts' ),
-				'permission_callback' => array( self::class, 'check_permission' ),
-				'args'                => array(
-					'search'   => array(
-						'required'          => false,
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'page'     => array(
-						'required'          => false,
-						'type'              => 'integer',
-						'default'           => 1,
-						'sanitize_callback' => 'absint',
-					),
-					'per_page' => array(
-						'required'          => false,
-						'type'              => 'integer',
-						'default'           => self::DEFAULT_PER_PAGE,
-						'sanitize_callback' => 'absint',
+				'path' => self::ROUTE_BASE . '/posts',
+				'args' => array(
+					'methods'             => 'GET',
+					'callback'            => array( self::class, 'handle_posts' ),
+					'permission_callback' => array( self::class, 'check_permission' ),
+					'args'                => array(
+						'search'   => array(
+							'required'          => false,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'page'     => array(
+							'required'          => false,
+							'type'              => 'integer',
+							'default'           => 1,
+							'sanitize_callback' => 'absint',
+						),
+						'per_page' => array(
+							'required'          => false,
+							'type'              => 'integer',
+							'default'           => self::DEFAULT_PER_PAGE,
+							'sanitize_callback' => 'absint',
+						),
 					),
 				),
-			)
+			),
+			array(
+				'path' => self::ROUTE_BASE . '/preview',
+				'args' => array(
+					'methods'             => 'GET',
+					'callback'            => array( self::class, 'handle_preview' ),
+					'permission_callback' => array( self::class, 'check_permission' ),
+					'args'                => array(
+						'post' => self::post_id_arg(),
+					),
+				),
+			),
+			array(
+				'path' => self::ROUTE_BASE . '/summary',
+				'args' => array(
+					'methods'             => 'POST',
+					'callback'            => array( self::class, 'handle_summary' ),
+					'permission_callback' => array( self::class, 'check_permission' ),
+					'args'                => array(
+						'post' => self::post_id_arg(),
+					),
+				),
+			),
 		);
 
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE_BASE . '/preview',
-			array(
-				'methods'             => 'GET',
-				'callback'            => array( self::class, 'handle_preview' ),
-				'permission_callback' => array( self::class, 'check_permission' ),
-				'args'                => array(
-					'post' => self::post_id_arg(),
-				),
-			)
-		);
-
-		\register_rest_route(
-			self::NAMESPACE,
-			self::ROUTE_BASE . '/summary',
-			array(
-				'methods'             => 'POST',
-				'callback'            => array( self::class, 'handle_summary' ),
-				'permission_callback' => array( self::class, 'check_permission' ),
-				'args'                => array(
-					'post' => self::post_id_arg(),
-				),
-			)
-		);
+		foreach ( array( self::NAMESPACE, self::LEGACY_NAMESPACE ) as $ns ) {
+			foreach ( $routes as $route ) {
+				\register_rest_route( $ns, $route['path'], $route['args'] );
+			}
+		}
 	}
 
 	/**

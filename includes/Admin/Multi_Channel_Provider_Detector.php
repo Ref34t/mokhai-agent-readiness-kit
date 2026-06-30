@@ -49,7 +49,14 @@ final class Multi_Channel_Provider_Detector {
 	 *
 	 * @var string
 	 */
-	public const PROVIDERS_FILTER = 'ai_readiness_kit_multi_channel_providers';
+	public const PROVIDERS_FILTER = 'mokhai_multi_channel_providers';
+
+	/**
+	 * Legacy filter name for back-compat (deprecated since 0.5.0, use `mokhai_multi_channel_providers`).
+	 *
+	 * @var string
+	 */
+	public const LEGACY_PROVIDERS_FILTER = 'ai_readiness_kit_multi_channel_providers';
 
 	/**
 	 * Default provider signatures shipped with the plugin.
@@ -124,6 +131,8 @@ final class Multi_Channel_Provider_Detector {
 
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
 		$filtered = \apply_filters( self::PROVIDERS_FILTER, $default );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+		$filtered = \apply_filters_deprecated( self::LEGACY_PROVIDERS_FILTER, array( $filtered ), '0.5.0', self::PROVIDERS_FILTER );
 		if ( ! \is_array( $filtered ) ) {
 			return $default;
 		}
