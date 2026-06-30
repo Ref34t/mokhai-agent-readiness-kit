@@ -9,12 +9,12 @@
  * `.md` URL the rewrite contract in `Markdown_Views\Router` actually resolves —
  * so the logic lives in one place rather than being duplicated per caller.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
 \defined( 'ABSPATH' ) || exit;
 

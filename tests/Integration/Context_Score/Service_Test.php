@@ -1,23 +1,23 @@
 <?php
 /**
- * Integration tests for WPContext\Context_Score\Service.
+ * Integration tests for Mokhai\Context_Score\Service.
  *
  * Runs inside the wp-phpunit test instance so we exercise real options,
  * cron registration, and the `agentready_context_profile_saved` action
  * dispatch path. Covers AgDR-0030's cache contract and recompute triggers.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Context_Score;
+namespace Mokhai\Tests\Integration\Context_Score;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Context_Score\Engine;
-use WPContext\Context_Score\Service;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Context_Score\Engine;
+use Mokhai\Context_Score\Service;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Service_Test extends WP_UnitTestCase {
 

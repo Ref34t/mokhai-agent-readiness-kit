@@ -6,15 +6,15 @@
  * integration suite; here we pin the exact strings the builders emit, including
  * escaping (via the `esc_url` / `esc_url_raw` stubs).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Discovery;
+namespace Mokhai\Tests\Unit\Discovery;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Discovery\Alternate_Advertiser;
+use Mokhai\Discovery\Alternate_Advertiser;
 
 final class Alternate_Advertiser_Test extends TestCase {
 

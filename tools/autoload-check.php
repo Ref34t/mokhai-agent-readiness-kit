@@ -1,13 +1,13 @@
 <?php
 /**
- * Dev-tool: verify PSR-4 autoload resolves every WPContext class.
+ * Dev-tool: verify PSR-4 autoload resolves every Mokhai class.
  *
  * Every includes/*.php opens with `\defined( 'ABSPATH' ) || exit;` for direct-
  * access protection. Outside WordPress, that exits the script silently the
  * moment the autoloader loads the first class — making the tool look like
  * it "passed" with empty output. Fix per #15: define a stub ABSPATH first.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
@@ -27,14 +27,14 @@ require __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../includes/Ai/helpers.php';
 
 $classes = array(
-	'WPContext\\Main',
-	'WPContext\\Requirements',
-	'WPContext\\Asset_Loader',
-	'WPContext\\Ai\\Client_Wrapper',
-	'WPContext\\Ai\\Result',
-	'WPContext\\Ai\\Provider',
-	'WPContext\\Ai\\Network_Error',
-	'WPContext\\Ai\\Rate_Limit_Error',
+	'Mokhai\\Main',
+	'Mokhai\\Requirements',
+	'Mokhai\\Asset_Loader',
+	'Mokhai\\Ai\\Client_Wrapper',
+	'Mokhai\\Ai\\Result',
+	'Mokhai\\Ai\\Provider',
+	'Mokhai\\Ai\\Network_Error',
+	'Mokhai\\Ai\\Rate_Limit_Error',
 );
 
 $exit = 0;

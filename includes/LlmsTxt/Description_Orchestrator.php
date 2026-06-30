@@ -7,16 +7,16 @@
  * post-meta cache. The read-side filter `Description_Filter` reads the
  * cached value at /llms.txt compose time; nothing here blocks regen.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Ai\Client_Wrapper;
-use WPContext\Support\Shortcode_Stripper;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Ai\Client_Wrapper;
+use Mokhai\Support\Shortcode_Stripper;
 
 \defined( 'ABSPATH' ) || exit;
 

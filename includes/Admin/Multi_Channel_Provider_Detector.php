@@ -16,12 +16,12 @@
  * narrative can name the sibling plugin instead of saying "something is
  * emitting it".
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 

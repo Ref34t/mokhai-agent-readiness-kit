@@ -4,12 +4,12 @@
  *
  * Owns the `agentready_context_profile` option per AgDR-0002.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 

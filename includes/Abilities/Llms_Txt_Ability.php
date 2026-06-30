@@ -2,14 +2,14 @@
 /**
  * `ai-readiness-kit/llms-txt-regenerate` ability (#21 / AgDR-0044).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Abilities;
+namespace Mokhai\Abilities;
 
-use WPContext\LlmsTxt\Service;
+use Mokhai\LlmsTxt\Service;
 
 \defined( 'ABSPATH' ) || exit;
 

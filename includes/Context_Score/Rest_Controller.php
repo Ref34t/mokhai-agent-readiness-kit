@@ -13,12 +13,12 @@
  * The UI can therefore refresh state from either response without
  * branching on which endpoint produced it.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
 \defined( 'ABSPATH' ) || exit;
 

@@ -13,17 +13,17 @@
  *   - PUT fires the same `agentready_context_profile_saved` cascade the
  *     options.php form path fires (parity guarantee)
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Admin;
+namespace Mokhai\Tests\Integration\Admin;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Rest_Controller;
-use WPContext\Admin\Context_Profile_Settings;
+use Mokhai\Admin\Context_Profile_Rest_Controller;
+use Mokhai\Admin\Context_Profile_Settings;
 
 final class Context_Profile_Rest_Controller_Test extends WP_UnitTestCase {
 

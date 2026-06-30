@@ -12,16 +12,16 @@
  * (they end in `exit`, like `Router_Test` skips) — their hardening is two calls
  * into `Output_Buffer`, whose logic the unit suite covers.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Support;
+namespace Mokhai\Tests\Integration\Support;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
-use WPContext\Support\Output_Buffer;
+use Mokhai\Support\Output_Buffer;
 
 final class Output_Buffer_Test extends WP_UnitTestCase {
 

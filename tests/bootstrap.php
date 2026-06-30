@@ -18,7 +18,7 @@
  * If we eagerly defined it here, wp-phpunit would see ABSPATH=plugin-dir
  * and the subsequent `require ABSPATH . 'wp-settings.php'` would fail.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);

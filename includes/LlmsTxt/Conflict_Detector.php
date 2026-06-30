@@ -18,12 +18,12 @@
  * `LlmsTxt\Conflict_Notice`; the WP-CLI surface picks up `detect()`
  * results in the Phase A `status` command.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
 \defined( 'ABSPATH' ) || exit;
 

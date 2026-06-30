@@ -12,14 +12,14 @@
  * edit-post capability, intentionally surfaces the reason so the editor
  * can fix the underlying Context Profile or post setting.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
-use WPContext\Admin\Context_Profile_Settings;
+use Mokhai\Admin\Context_Profile_Settings;
 
 \defined( 'ABSPATH' ) || exit;
 

@@ -8,16 +8,16 @@
  *   - `is_url_exposable()` enforces CPT whitelist, status whitelist, password gate,
  *     and the `agentready_post_is_noindexed` filter
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Admin;
+namespace Mokhai\Tests\Unit\Admin;
 
 use PHPUnit\Framework\TestCase;
 use WP_Post;
-use WPContext\Admin\Context_Profile_Settings;
+use Mokhai\Admin\Context_Profile_Settings;
 
 final class Context_Profile_Exposure_Test extends TestCase {
 
@@ -28,7 +28,7 @@ final class Context_Profile_Exposure_Test extends TestCase {
 		$GLOBALS['wpctx_test_did_action']     = array();
 		$GLOBALS['wpctx_test_active_plugins'] = array();
 		$GLOBALS['wpctx_test_added_actions']  = array();
-		$GLOBALS['wpctx_test_filters']        = array();
+		$GLOBALS['mokhai_test_filters']        = array();
 		$GLOBALS['wpctx_test_post_terms']     = array();
 	}
 
@@ -133,7 +133,7 @@ final class Context_Profile_Exposure_Test extends TestCase {
 		$this->set_profile( array( 'exposed_cpts' => array( 'post' ) ) );
 
 		// Simulate #12's future hook: declare this post noindex.
-		$GLOBALS['wpctx_test_filters']['agentready_post_is_noindexed'][] = static function () {
+		$GLOBALS['mokhai_test_filters']['agentready_post_is_noindexed'][] = static function () {
 			return true;
 		};
 

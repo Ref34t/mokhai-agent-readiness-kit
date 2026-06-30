@@ -5,19 +5,19 @@
  * Runs inside wp-phpunit so the real Abilities API registry + init hooks
  * are exercised. Asserts the category and all five abilities resolve.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Abilities;
+namespace Mokhai\Tests\Integration\Abilities;
 
 use WP_UnitTestCase;
-use WPContext\Abilities\Audit_Ability;
-use WPContext\Abilities\Llms_Txt_Ability;
-use WPContext\Abilities\Md_View_Ability;
-use WPContext\Abilities\Profile_Ability;
-use WPContext\Abilities\Registrar;
+use Mokhai\Abilities\Audit_Ability;
+use Mokhai\Abilities\Llms_Txt_Ability;
+use Mokhai\Abilities\Md_View_Ability;
+use Mokhai\Abilities\Profile_Ability;
+use Mokhai\Abilities\Registrar;
 
 final class Registrar_Test extends WP_UnitTestCase {
 

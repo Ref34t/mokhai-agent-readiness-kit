@@ -7,18 +7,18 @@
  * default MCP server. Needs no adapter installed — this is the registration
  * contract, asserted against the live Abilities API.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Abilities;
+namespace Mokhai\Tests\Integration\Abilities;
 
 use WP_UnitTestCase;
-use WPContext\Abilities\Audit_Ability;
-use WPContext\Abilities\Llms_Txt_Ability;
-use WPContext\Abilities\Md_View_Ability;
-use WPContext\Abilities\Profile_Ability;
+use Mokhai\Abilities\Audit_Ability;
+use Mokhai\Abilities\Llms_Txt_Ability;
+use Mokhai\Abilities\Md_View_Ability;
+use Mokhai\Abilities\Profile_Ability;
 
 final class Mcp_Exposure_Test extends WP_UnitTestCase {
 

@@ -13,14 +13,14 @@
  *   - `recompute` — force a synchronous recompute, bypassing the cache.
  *   - `reset`     — drop the cached payload (next read will recompute).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Cli;
+namespace Mokhai\Cli;
 
-use WPContext\Context_Score\Service;
+use Mokhai\Context_Score\Service;
 
 \defined( 'ABSPATH' ) || exit;
 

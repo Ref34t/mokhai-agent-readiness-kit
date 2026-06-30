@@ -7,16 +7,16 @@
  * noisy, and clean bodies and asserts the sampled signals (`empty_ratio`,
  * `noisy_ratio`, `worst_urls`) the Engine deductions and narrative consume.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Context_Score;
+namespace Mokhai\Tests\Integration\Context_Score;
 
 use WP_UnitTestCase;
-use WPContext\Context_Score\Signal_Collector;
-use WPContext\Markdown_Views\Schema as Md_Schema;
+use Mokhai\Context_Score\Signal_Collector;
+use Mokhai\Markdown_Views\Schema as Md_Schema;
 
 final class Signal_Collector_Test extends WP_UnitTestCase {
 

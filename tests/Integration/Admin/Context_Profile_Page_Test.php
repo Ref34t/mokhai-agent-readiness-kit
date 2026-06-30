@@ -1,17 +1,17 @@
 <?php
 /**
- * Integration tests for `WPContext\Admin\Context_Profile_Page` admin-glue
+ * Integration tests for `Mokhai\Admin\Context_Profile_Page` admin-glue
  * behaviour — specifically the Plugins-list "Settings" action link (#207).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Admin;
+namespace Mokhai\Tests\Integration\Admin;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Page;
+use Mokhai\Admin\Context_Profile_Page;
 
 final class Context_Profile_Page_Test extends WP_UnitTestCase {
 

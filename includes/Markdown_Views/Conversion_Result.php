@@ -12,12 +12,12 @@
  * Immutable. PHP 7.4 floor — no `readonly` keyword; use private +
  * getters.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
 \defined( 'ABSPATH' ) || exit;
 

@@ -16,15 +16,15 @@
  * The four fixtures below are designed to collectively exercise every branch
  * in every scorer, so the union of emitted codes covers the whole inventory.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Context_Score;
+namespace Mokhai\Tests\Unit\Context_Score;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Context_Score\Engine;
+use Mokhai\Context_Score\Engine;
 
 final class Reason_Keys_Test extends TestCase {
 

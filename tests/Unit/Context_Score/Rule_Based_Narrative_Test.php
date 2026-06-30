@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for `WPContext\Context_Score\Rule_Based_Narrative`.
+ * Unit tests for `Mokhai\Context_Score\Rule_Based_Narrative`.
  *
  * The rule-based narrative is the deterministic fallback that runs when
  * (a) the WP AI Client is unconfigured, (b) the LLM call fails / overruns
@@ -8,15 +8,15 @@
  * test pins the three buckets (working / partial / critical) for one
  * sub-score to keep regressions on one template from dragging the suite.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Context_Score;
+namespace Mokhai\Tests\Unit\Context_Score;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Context_Score\Rule_Based_Narrative;
+use Mokhai\Context_Score\Rule_Based_Narrative;
 
 final class Rule_Based_Narrative_Test extends TestCase {
 

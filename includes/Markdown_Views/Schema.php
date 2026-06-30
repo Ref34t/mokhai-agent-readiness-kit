@@ -9,12 +9,12 @@
  * `get_sites()` so each site has its own per-site cache table when the
  * plugin is network-active.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
 \defined( 'ABSPATH' ) || exit;
 

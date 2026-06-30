@@ -6,15 +6,15 @@
  * No WordPress is loaded. Each sub-score has its own focused test so a
  * regression on one sub-score doesn't drag down the rest of the suite.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Context_Score;
+namespace Mokhai\Tests\Unit\Context_Score;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Context_Score\Engine;
+use Mokhai\Context_Score\Engine;
 
 final class Engine_Test extends TestCase {
 

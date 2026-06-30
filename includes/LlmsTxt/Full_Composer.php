@@ -40,12 +40,12 @@
  * Empty state mirrors `Composer` (#244): when nothing is exposed, `compose()`
  * emits the site identity header alone; only a nameless site returns ''.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
 \defined( 'ABSPATH' ) || exit;
 

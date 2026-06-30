@@ -7,14 +7,14 @@
  * hook for handler extension). Same input always produces the same output —
  * the property that makes the cache (AgDR-0011) safe.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
-use WPContext\Support\Shortcode_Stripper;
+use Mokhai\Support\Shortcode_Stripper;
 
 \defined( 'ABSPATH' ) || exit;
 

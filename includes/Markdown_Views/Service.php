@@ -7,14 +7,14 @@
  * (AgDR-0011), enforces the Context Profile exposure verdict (AgDR-0012),
  * and respects the module-enabled toggle (AgDR-0015).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
-use WPContext\Admin\Context_Profile_Settings;
+use Mokhai\Admin\Context_Profile_Settings;
 
 \defined( 'ABSPATH' ) || exit;
 

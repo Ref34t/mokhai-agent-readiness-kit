@@ -13,12 +13,12 @@
  * matches the Context Score page's capability rather than the Markdown Views
  * preview endpoint's `edit_post`. No public-site surface (AgDR-0046).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Ai_Preview;
+namespace Mokhai\Ai_Preview;
 
 \defined( 'ABSPATH' ) || exit;
 

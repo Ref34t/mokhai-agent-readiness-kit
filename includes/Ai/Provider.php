@@ -2,12 +2,12 @@
 /**
  * Provider interface — test seam for Client_Wrapper.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Ai;
+namespace Mokhai\Ai;
 
 \defined( 'ABSPATH' ) || exit;
 

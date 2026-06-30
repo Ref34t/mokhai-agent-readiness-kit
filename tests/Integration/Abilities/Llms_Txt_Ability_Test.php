@@ -3,16 +3,16 @@
  * Integration tests for the `ai-readiness-kit/llms-txt-regenerate` ability
  * (#21 / AgDR-0044).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Abilities;
+namespace Mokhai\Tests\Integration\Abilities;
 
 use WP_UnitTestCase;
-use WPContext\Abilities\Llms_Txt_Ability;
-use WPContext\LlmsTxt\Service;
+use Mokhai\Abilities\Llms_Txt_Ability;
+use Mokhai\LlmsTxt\Service;
 
 final class Llms_Txt_Ability_Test extends WP_UnitTestCase {
 

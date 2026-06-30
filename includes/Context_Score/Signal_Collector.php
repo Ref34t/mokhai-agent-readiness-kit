@@ -7,23 +7,23 @@
  * `Engine`'s input shape. Every WP call lives here so the engine itself
  * has zero WordPress dependencies and can be unit-tested standalone.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Admin\Multi_Channel_Provider_Detector;
-use WPContext\Admin\Schema_Coordination_Detector;
-use WPContext\Ai\Client_Wrapper;
-use WPContext\Discovery\Channel_Router;
-use WPContext\LlmsTxt\Conflict_Detector;
-use WPContext\LlmsTxt\Entry_Source;
-use WPContext\LlmsTxt\Service as Llms_Txt_Service;
-use WPContext\Markdown_Views\Schema as Md_Schema;
-use WPContext\Markdown_Views\Walker;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Admin\Multi_Channel_Provider_Detector;
+use Mokhai\Admin\Schema_Coordination_Detector;
+use Mokhai\Ai\Client_Wrapper;
+use Mokhai\Discovery\Channel_Router;
+use Mokhai\LlmsTxt\Conflict_Detector;
+use Mokhai\LlmsTxt\Entry_Source;
+use Mokhai\LlmsTxt\Service as Llms_Txt_Service;
+use Mokhai\Markdown_Views\Schema as Md_Schema;
+use Mokhai\Markdown_Views\Walker;
 
 \defined( 'ABSPATH' ) || exit;
 

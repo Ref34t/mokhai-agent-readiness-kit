@@ -11,17 +11,17 @@
  *
  * Full design rationale: docs/agdr/AgDR-0033-seo-defer-gap-fill-emitter.md.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Seo;
+namespace Mokhai\Seo;
 
 \defined( 'ABSPATH' ) || exit;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Admin\Schema_Coordination_Detector;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Admin\Schema_Coordination_Detector;
 
 /**
  * Stateless emitter. Calls into `Schema_Coordination_Detector` on every

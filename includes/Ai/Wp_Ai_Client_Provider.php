@@ -12,12 +12,12 @@
  * `Client_Wrapper::generate()` works unchanged whether the caller
  * passes a mock provider (tests) or this real one (production).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Ai;
+namespace Mokhai\Ai;
 
 \defined( 'ABSPATH' ) || exit;
 

@@ -13,16 +13,16 @@
  *   - Daily cron backstop.
  *   - Cache-miss synchronous regen under a transient lock.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Service as Markdown_Views_Service;
-use WPContext\Markdown_Views\Walker;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Service as Markdown_Views_Service;
+use Mokhai\Markdown_Views\Walker;
 
 \defined( 'ABSPATH' ) || exit;
 

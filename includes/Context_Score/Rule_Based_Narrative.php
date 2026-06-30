@@ -10,12 +10,12 @@
  *   3. LLM produced a line that failed Narrative_Guard — that line is
  *      replaced from here, others survive (mixed mode).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
 \defined( 'ABSPATH' ) || exit;
 

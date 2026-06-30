@@ -7,15 +7,15 @@
  * Same backend as the public route + REST endpoint — every surface
  * funnels into `Service::get_markdown_for_post()`.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Cli;
+namespace Mokhai\Cli;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Service;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Service;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -189,7 +189,7 @@ final class Markdown_Views_Command {
 		// matches what would be served if the post were exposable.
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$html = (string) \apply_filters( 'the_content', $post->post_content );
-		return \WPContext\Markdown_Views\Walker::convert( $html )->get_markdown();
+		return \Mokhai\Markdown_Views\Walker::convert( $html )->get_markdown();
 	}
 
 	/**
@@ -249,7 +249,7 @@ final class Markdown_Views_Command {
 	private static function print_cache_meta( int $post_id ): void {
 		global $wpdb;
 
-		$table = \WPContext\Markdown_Views\Schema::table_name();
+		$table = \Mokhai\Markdown_Views\Schema::table_name();
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$row = $wpdb->get_row(

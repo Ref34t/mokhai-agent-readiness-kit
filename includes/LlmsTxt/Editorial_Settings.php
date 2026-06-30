@@ -23,12 +23,12 @@
  * `LlmsTxt\Service::register_hooks()` (Phase A / AgDR-0023) already subscribes
  * to — the regen schedule fires automatically.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
 \defined( 'ABSPATH' ) || exit;
 

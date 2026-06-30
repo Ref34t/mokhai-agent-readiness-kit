@@ -14,12 +14,12 @@
  * REST surface adds no new validation, and the
  * `agentready_llms_txt_editorial_saved` cascade fires identically.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
 \defined( 'ABSPATH' ) || exit;
 

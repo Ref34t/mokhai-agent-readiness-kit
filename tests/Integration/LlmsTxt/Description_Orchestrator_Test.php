@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for `WPContext\LlmsTxt\Description_Orchestrator`
+ * Integration tests for `Mokhai\LlmsTxt\Description_Orchestrator`
  * and `Description_Filter` per AgDR-0027.
  *
  * Runs inside wp-phpunit so we exercise real post-meta, real cron, real
@@ -10,19 +10,19 @@
  * deterministic surface (eligibility, scheduling, regen, invalidate,
  * read-side filter) is what this suite pins.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\LlmsTxt\Description_Orchestrator;
-use WPContext\LlmsTxt\Entry_Source;
-use WPContext\LlmsTxt\Service;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\LlmsTxt\Description_Orchestrator;
+use Mokhai\LlmsTxt\Entry_Source;
+use Mokhai\LlmsTxt\Service;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Description_Orchestrator_Test extends WP_UnitTestCase {
 
@@ -422,7 +422,7 @@ final class Description_Orchestrator_Test extends WP_UnitTestCase {
 		// in wp-env the WP AI Client backport is bundled so it returns true.
 		// If the test environment ever changes this, the assertion below
 		// becomes "no cron event" and that's also a valid pass.
-		if ( ! \WPContext\Ai\Client_Wrapper::has_ai_client() ) {
+		if ( ! \Mokhai\Ai\Client_Wrapper::has_ai_client() ) {
 			self::markTestSkipped( 'WP AI Client unavailable in this test instance; save_post listener short-circuits before scheduling.' );
 		}
 

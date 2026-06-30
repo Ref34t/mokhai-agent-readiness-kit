@@ -2,7 +2,7 @@
 /**
  * Integration tests for the LlmsTxt activation/deactivation lifecycle.
  *
- * Exercises `WPContext\Main::on_activate()` and `Main::on_deactivate()` as
+ * Exercises `Mokhai\Main::on_activate()` and `Main::on_deactivate()` as
  * a single unit so the contracts captured in AgDR-0021 (cache persists
  * across deactivation), AgDR-0022 (cache option shape), and AgDR-0023
  * (cron schedule + clear) are pinned end-to-end. The individual pieces
@@ -16,21 +16,21 @@
  * exercise in PHPUnit because the test plugin file isn't loaded as a
  * standalone plugin in the wp-phpunit harness.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Context_Score\Service as Context_Score_Service;
-use WPContext\LlmsTxt\Conflict_Detector;
-use WPContext\LlmsTxt\Description_Orchestrator;
-use WPContext\LlmsTxt\Service;
-use WPContext\Main;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Context_Score\Service as Context_Score_Service;
+use Mokhai\LlmsTxt\Conflict_Detector;
+use Mokhai\LlmsTxt\Description_Orchestrator;
+use Mokhai\LlmsTxt\Service;
+use Mokhai\Main;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Activation_Lifecycle_Test extends WP_UnitTestCase {
 

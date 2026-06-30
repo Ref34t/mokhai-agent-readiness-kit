@@ -11,17 +11,17 @@
  *   - PUT fires the same `agentready_llms_txt_editorial_saved` cascade the
  *     options.php form path fires (parity guarantee)
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
-use WPContext\LlmsTxt\Editorial_Rest_Controller;
-use WPContext\LlmsTxt\Editorial_Settings;
+use Mokhai\LlmsTxt\Editorial_Rest_Controller;
+use Mokhai\LlmsTxt\Editorial_Settings;
 
 final class Editorial_Rest_Controller_Test extends WP_UnitTestCase {
 

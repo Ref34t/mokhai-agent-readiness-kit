@@ -3,19 +3,19 @@
  * Environment-requirements gate.
  *
  * Activation refusal when WP or PHP falls below the floor declared via
- * WPCTX_REQUIRES_WP / WPCTX_REQUIRES_PHP, runtime degrade when the WP AI
+ * MOKHAI_REQUIRES_WP / MOKHAI_REQUIRES_PHP, runtime degrade when the WP AI
  * Client is unconfigured, and the admin notices that explain both states.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext;
+namespace Mokhai;
 
 \defined( 'ABSPATH' ) || exit;
 
-use WPContext\Ai\Client_Wrapper;
+use Mokhai\Ai\Client_Wrapper;
 
 /**
  * Checks the host environment against the plugin's hard floor.
@@ -38,14 +38,14 @@ final class Requirements {
 	public static function meets_wp_floor( ?string $current_version = null ): bool {
 		$version = $current_version ?? \get_bloginfo( 'version' );
 		$version = \preg_replace( '/[\-+].*$/', '', $version );
-		return \version_compare( $version, \WPCTX_REQUIRES_WP, '>=' );
+		return \version_compare( $version, \MOKHAI_REQUIRES_WP, '>=' );
 	}
 
 	/**
 	 * Whether the running PHP version meets the hard floor.
 	 */
 	public static function meets_php_floor(): bool {
-		return \version_compare( \PHP_VERSION, \WPCTX_REQUIRES_PHP, '>=' );
+		return \version_compare( \PHP_VERSION, \MOKHAI_REQUIRES_PHP, '>=' );
 	}
 
 	/**
@@ -69,12 +69,12 @@ final class Requirements {
 	 */
 	public static function check_activation(): void {
 		if ( ! self::meets_php_floor() ) {
-			\deactivate_plugins( \plugin_basename( \WPCTX_FILE ) );
+			\deactivate_plugins( \plugin_basename( \MOKHAI_FILE ) );
 			\wp_die(
 				\sprintf(
 					/* translators: 1: required PHP version, 2: current PHP version */
 					\esc_html__( 'Mokhai requires PHP %1$s or higher. The current PHP version is %2$s. The plugin has not been activated.', 'mokhai-agent-readiness-kit' ),
-					\esc_html( \WPCTX_REQUIRES_PHP ),
+					\esc_html( \MOKHAI_REQUIRES_PHP ),
 					\esc_html( \PHP_VERSION )
 				),
 				\esc_html__( 'Plugin activation error', 'mokhai-agent-readiness-kit' ),
@@ -83,12 +83,12 @@ final class Requirements {
 		}
 
 		if ( ! self::meets_wp_floor() ) {
-			\deactivate_plugins( \plugin_basename( \WPCTX_FILE ) );
+			\deactivate_plugins( \plugin_basename( \MOKHAI_FILE ) );
 			\wp_die(
 				\sprintf(
 					/* translators: 1: required WordPress version, 2: current WordPress version */
 					\esc_html__( 'Mokhai requires WordPress %1$s or higher. The current WordPress version is %2$s. The plugin has not been activated.', 'mokhai-agent-readiness-kit' ),
-					\esc_html( \WPCTX_REQUIRES_WP ),
+					\esc_html( \MOKHAI_REQUIRES_WP ),
 					\esc_html( \get_bloginfo( 'version' ) )
 				),
 				\esc_html__( 'Plugin activation error', 'mokhai-agent-readiness-kit' ),
@@ -129,7 +129,7 @@ final class Requirements {
 			$messages[] = \sprintf(
 				/* translators: 1: required PHP version, 2: current PHP version */
 				\esc_html__( 'PHP %1$s or higher is required. Current: %2$s.', 'mokhai-agent-readiness-kit' ),
-				\esc_html( \WPCTX_REQUIRES_PHP ),
+				\esc_html( \MOKHAI_REQUIRES_PHP ),
 				\esc_html( \PHP_VERSION )
 			);
 		}
@@ -137,7 +137,7 @@ final class Requirements {
 			$messages[] = \sprintf(
 				/* translators: 1: required WordPress version, 2: current WordPress version */
 				\esc_html__( 'WordPress %1$s or higher is required. Current: %2$s.', 'mokhai-agent-readiness-kit' ),
-				\esc_html( \WPCTX_REQUIRES_WP ),
+				\esc_html( \MOKHAI_REQUIRES_WP ),
 				\esc_html( \get_bloginfo( 'version' ) )
 			);
 		}

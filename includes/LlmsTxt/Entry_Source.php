@@ -9,15 +9,15 @@
  * stored meta when present — no Phase-A change needed beyond the
  * description-fallback hook below.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Url_Mapper;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Url_Mapper;
 
 \defined( 'ABSPATH' ) || exit;
 

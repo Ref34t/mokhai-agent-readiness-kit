@@ -14,15 +14,15 @@
  * No WordPress dependency: `wp_json_encode` is loaded from
  * tests/Unit/wp-stubs.php (same shim used elsewhere in the unit suite).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Cli;
+namespace Mokhai\Tests\Unit\Cli;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Cli\Markdown_Views_Command;
+use Mokhai\Cli\Markdown_Views_Command;
 
 require_once __DIR__ . '/../wp-stubs.php';
 

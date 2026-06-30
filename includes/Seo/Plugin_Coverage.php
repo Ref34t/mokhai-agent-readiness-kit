@@ -11,12 +11,12 @@
  *
  * Full design rationale: docs/agdr/AgDR-0033-seo-defer-gap-fill-emitter.md.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Seo;
+namespace Mokhai\Seo;
 
 \defined( 'ABSPATH' ) || exit;
 

@@ -1,23 +1,23 @@
 <?php
 /**
- * Unit tests for WPContext\Requirements.
+ * Unit tests for Mokhai\Requirements.
  *
  * Focuses on meets_wp_floor()'s pre-release-suffix handling — pre-GA builds
  * of a floor-matching WP version must count as meeting the floor (otherwise
  * CI cells running the dev branch fail every integration test).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit;
+namespace Mokhai\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Requirements;
+use Mokhai\Requirements;
 
-if ( ! defined( 'WPCTX_REQUIRES_WP' ) ) {
-	define( 'WPCTX_REQUIRES_WP', '6.9' );
+if ( ! defined( 'MOKHAI_REQUIRES_WP' ) ) {
+	define( 'MOKHAI_REQUIRES_WP', '6.9' );
 }
 
 final class Requirements_Test extends TestCase {

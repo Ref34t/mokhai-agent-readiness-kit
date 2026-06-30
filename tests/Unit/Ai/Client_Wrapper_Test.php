@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for WPContext\Ai\Client_Wrapper.
+ * Unit tests for Mokhai\Ai\Client_Wrapper.
  *
  * Ports the inline smoke test from #2's PR description into PHPUnit form.
  * Covers the 5 paths defined in AgDR-0003:
@@ -10,20 +10,20 @@
  *   - rate-limit (no in-request retry → deferred retry)
  *   - unconfigured (no provider, no WP AI Client)
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Ai;
+namespace Mokhai\Tests\Unit\Ai;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Ai\Client_Wrapper;
-use WPContext\Ai\Network_Error;
-use WPContext\Ai\Permanent_Error;
-use WPContext\Ai\Provider;
-use WPContext\Ai\Rate_Limit_Error;
-use WPContext\Ai\Result;
+use Mokhai\Ai\Client_Wrapper;
+use Mokhai\Ai\Network_Error;
+use Mokhai\Ai\Permanent_Error;
+use Mokhai\Ai\Provider;
+use Mokhai\Ai\Rate_Limit_Error;
+use Mokhai\Ai\Result;
 
 final class Client_Wrapper_Test extends TestCase {
 

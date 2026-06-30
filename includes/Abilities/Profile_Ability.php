@@ -3,14 +3,14 @@
  * `ai-readiness-kit/profile-read` + `ai-readiness-kit/profile-set-exposure`
  * abilities (#21 / AgDR-0044).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Abilities;
+namespace Mokhai\Abilities;
 
-use WPContext\Admin\Context_Profile_Settings;
+use Mokhai\Admin\Context_Profile_Settings;
 
 \defined( 'ABSPATH' ) || exit;
 

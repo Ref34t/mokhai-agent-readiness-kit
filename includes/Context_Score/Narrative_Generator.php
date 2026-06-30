@@ -8,15 +8,15 @@
  * failure — line-by-line on guard failure (mixed mode), wholesale on
  * client error / parse error / budget overrun (degraded mode).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
-use WPContext\Ai\Client_Wrapper;
-use WPContext\Ai\Provider;
+use Mokhai\Ai\Client_Wrapper;
+use Mokhai\Ai\Provider;
 
 \defined( 'ABSPATH' ) || exit;
 

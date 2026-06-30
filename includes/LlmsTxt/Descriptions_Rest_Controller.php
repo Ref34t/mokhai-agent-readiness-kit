@@ -16,15 +16,15 @@
  * row-projection function so the UI can refresh state from a mutation
  * response without a second fetch.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Ai\Client_Wrapper;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Ai\Client_Wrapper;
 
 \defined( 'ABSPATH' ) || exit;
 

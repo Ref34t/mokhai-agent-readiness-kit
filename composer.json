@@ -23,12 +23,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"WPContext\\": "includes/"
+			"Mokhai\\": "includes/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"WPContext\\Tests\\": "tests/"
+			"Mokhai\\Tests\\": "tests/"
 		}
 	},
 	"config": {

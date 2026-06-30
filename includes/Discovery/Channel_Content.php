@@ -8,14 +8,14 @@
  * metadata, which is why these channels have no cache layer (AgDR-0056
  * § Options, option C).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Discovery;
+namespace Mokhai\Discovery;
 
-use WPContext\Admin\Context_Profile_Settings;
+use Mokhai\Admin\Context_Profile_Settings;
 
 \defined( 'ABSPATH' ) || exit;
 

@@ -14,15 +14,15 @@
  * the `woocommerce_short_description` filter is a passthrough (no callback
  * registered) so the assertion is deterministic.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
 namespace {
 	// Minimal WooCommerce product double — only the method the adapter calls.
-	if ( ! class_exists( 'WPContext_Test_WC_Product' ) ) {
-		class WPContext_Test_WC_Product {
+	if ( ! class_exists( 'Mokhai_Test_WC_Product' ) ) {
+		class Mokhai_Test_WC_Product {
 			/** @var string */
 			private string $short;
 
@@ -45,10 +45,10 @@ namespace {
 	}
 }
 
-namespace WPContext\Tests\Unit\Markdown_Views {
+namespace Mokhai\Tests\Unit\Markdown_Views {
 
 	use PHPUnit\Framework\TestCase;
-	use WPContext\Markdown_Views\Woocommerce_Source;
+	use Mokhai\Markdown_Views\Woocommerce_Source;
 	use WP_Post;
 
 	final class Woocommerce_Source_Test extends TestCase {
@@ -66,7 +66,7 @@ namespace WPContext\Tests\Unit\Markdown_Views {
 		}
 
 		public function test_non_product_is_unchanged(): void {
-			$GLOBALS['wpctx_test_wc_product'] = new \WPContext_Test_WC_Product( 'Short desc' );
+			$GLOBALS['wpctx_test_wc_product'] = new \Mokhai_Test_WC_Product( 'Short desc' );
 			$html                             = '<p>Long form.</p>';
 
 			$out = Woocommerce_Source::prepend_short_description( $html, $this->make_post( 'page' ) );
@@ -75,7 +75,7 @@ namespace WPContext\Tests\Unit\Markdown_Views {
 		}
 
 		public function test_product_without_short_description_is_unchanged(): void {
-			$GLOBALS['wpctx_test_wc_product'] = new \WPContext_Test_WC_Product( '   ' );
+			$GLOBALS['wpctx_test_wc_product'] = new \Mokhai_Test_WC_Product( '   ' );
 			$html                             = '<p>Long form.</p>';
 
 			$out = Woocommerce_Source::prepend_short_description( $html, $this->make_post( 'product' ) );
@@ -93,7 +93,7 @@ namespace WPContext\Tests\Unit\Markdown_Views {
 		}
 
 		public function test_short_description_prepended_for_product(): void {
-			$GLOBALS['wpctx_test_wc_product'] = new \WPContext_Test_WC_Product( '<p>Hydrating stick, SPF 30.</p>' );
+			$GLOBALS['wpctx_test_wc_product'] = new \Mokhai_Test_WC_Product( '<p>Hydrating stick, SPF 30.</p>' );
 			$html                             = '<p>Long-form product story.</p>';
 
 			$out = Woocommerce_Source::prepend_short_description( $html, $this->make_post( 'product' ) );
@@ -108,7 +108,7 @@ namespace WPContext\Tests\Unit\Markdown_Views {
 		}
 
 		public function test_product_with_empty_long_form_still_yields_short(): void {
-			$GLOBALS['wpctx_test_wc_product'] = new \WPContext_Test_WC_Product( '<p>Only the short description.</p>' );
+			$GLOBALS['wpctx_test_wc_product'] = new \Mokhai_Test_WC_Product( '<p>Only the short description.</p>' );
 
 			$out = Woocommerce_Source::prepend_short_description( '', $this->make_post( 'product' ) );
 

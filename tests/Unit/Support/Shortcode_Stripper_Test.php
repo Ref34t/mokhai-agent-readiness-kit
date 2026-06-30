@@ -5,15 +5,15 @@
  * Pure function — no WordPress load. Mirrors the behaviour the Walker (#145)
  * and the /llms.txt description generator (#147) both rely on.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Support;
+namespace Mokhai\Tests\Unit\Support;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Support\Shortcode_Stripper;
+use Mokhai\Support\Shortcode_Stripper;
 
 final class Shortcode_Stripper_Test extends TestCase {
 

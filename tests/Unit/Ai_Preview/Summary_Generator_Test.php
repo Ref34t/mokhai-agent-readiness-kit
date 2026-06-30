@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for `WPContext\Ai_Preview\Summary_Generator`.
+ * Unit tests for `Mokhai\Ai_Preview\Summary_Generator`.
  *
  * Covers the synchronous Sample AI Summary paths (#45 / AgDR-0046):
  *   - LLM success → caches text in post-meta, source='llm'.
@@ -16,18 +16,18 @@
  * real WP AI Client is never reached. WP functions (post-meta, strip-tags)
  * come from tests/Unit/wp-stubs.php.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Ai_Preview;
+namespace Mokhai\Tests\Unit\Ai_Preview;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Ai\Network_Error;
-use WPContext\Ai\Permanent_Error;
-use WPContext\Ai\Provider;
-use WPContext\Ai_Preview\Summary_Generator;
+use Mokhai\Ai\Network_Error;
+use Mokhai\Ai\Permanent_Error;
+use Mokhai\Ai\Provider;
+use Mokhai\Ai_Preview\Summary_Generator;
 
 final class Summary_Generator_Test extends TestCase {
 

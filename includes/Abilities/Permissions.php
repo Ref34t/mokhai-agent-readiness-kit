@@ -2,12 +2,12 @@
 /**
  * Shared permission gate for the Abilities API surface (#21 / AgDR-0044).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Abilities;
+namespace Mokhai\Abilities;
 
 \defined( 'ABSPATH' ) || exit;
 

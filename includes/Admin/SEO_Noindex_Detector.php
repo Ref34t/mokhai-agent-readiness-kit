@@ -13,12 +13,12 @@
  * it in its own `wp_aioseo_posts` table with a `robots_default` defer flag,
  * so that path is a guarded table read (#187).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 

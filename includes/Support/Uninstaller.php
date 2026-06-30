@@ -15,25 +15,25 @@
  * every listed key and then asserts the whole `agentready` footprint is gone,
  * so a missing entry fails the suite.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Support;
+namespace Mokhai\Support;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Ai_Preview\Summary_Generator;
-use WPContext\Cli\Cleanup_Meta_Migration_Command;
-use WPContext\Context_Score\Service as Context_Score_Service;
-use WPContext\Discovery\Channel_Router;
-use WPContext\LlmsTxt\Conflict_Notice;
-use WPContext\LlmsTxt\Description_Orchestrator;
-use WPContext\LlmsTxt\Editorial_Settings;
-use WPContext\LlmsTxt\Router as Llms_Txt_Router;
-use WPContext\LlmsTxt\Service as Llms_Txt_Service;
-use WPContext\Main;
-use WPContext\Markdown_Views\Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Ai_Preview\Summary_Generator;
+use Mokhai\Cli\Cleanup_Meta_Migration_Command;
+use Mokhai\Context_Score\Service as Context_Score_Service;
+use Mokhai\Discovery\Channel_Router;
+use Mokhai\LlmsTxt\Conflict_Notice;
+use Mokhai\LlmsTxt\Description_Orchestrator;
+use Mokhai\LlmsTxt\Editorial_Settings;
+use Mokhai\LlmsTxt\Router as Llms_Txt_Router;
+use Mokhai\LlmsTxt\Service as Llms_Txt_Service;
+use Mokhai\Main;
+use Mokhai\Markdown_Views\Schema;
 
 \defined( 'ABSPATH' ) || exit;
 

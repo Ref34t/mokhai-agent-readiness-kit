@@ -12,12 +12,12 @@
  * The core renderer ({@see Service}) stays post-type-agnostic and offline;
  * WooCommerce support is this opt-in adapter, active only when WooCommerce is.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Markdown_Views;
+namespace Mokhai\Markdown_Views;
 
 \defined( 'ABSPATH' ) || exit;
 

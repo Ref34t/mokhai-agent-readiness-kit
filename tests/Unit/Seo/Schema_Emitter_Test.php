@@ -1,6 +1,6 @@
 <?php
 /**
- * Unit tests for WPContext\Seo\Schema_Emitter.
+ * Unit tests for Mokhai\Seo\Schema_Emitter.
  *
  * Covers (per AgDR-0033 / #12):
  *   - Emitter is silent when any of the three supported SEO plugins is detected
@@ -19,15 +19,15 @@
  * defined SEO plugin classes that may leak between unit tests
  * (`class_exists()` can't be reset once a class is defined).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Seo;
+namespace Mokhai\Tests\Unit\Seo;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Seo\Schema_Emitter;
+use Mokhai\Seo\Schema_Emitter;
 use WP_Post;
 
 final class Schema_Emitter_Test extends TestCase {
@@ -36,7 +36,7 @@ final class Schema_Emitter_Test extends TestCase {
 		// Reset every test-global the emitter / detector look at so a
 		// prior test's posture / query context can't leak forward.
 		$GLOBALS['wpctx_test_active_plugins'] = array();
-		$GLOBALS['wpctx_test_filters']        = array();
+		$GLOBALS['mokhai_test_filters']        = array();
 		$GLOBALS['wpctx_test_added_actions']  = array();
 		$GLOBALS['wpctx_test_query_context']  = array(
 			'is_singular_type'  => '',

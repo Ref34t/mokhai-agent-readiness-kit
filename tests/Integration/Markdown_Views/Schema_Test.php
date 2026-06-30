@@ -7,15 +7,15 @@
  * Verifies the round trip: create → table exists with the expected columns and
  * keys → drop → table is gone → schema-version option is gone.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Markdown_Views;
+namespace Mokhai\Tests\Integration\Markdown_Views;
 
 use WP_UnitTestCase;
-use WPContext\Markdown_Views\Schema;
+use Mokhai\Markdown_Views\Schema;
 
 final class Schema_Test extends WP_UnitTestCase {
 

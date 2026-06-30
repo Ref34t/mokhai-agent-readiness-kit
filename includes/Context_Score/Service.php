@@ -7,12 +7,12 @@
  * Composition itself is delegated to the pure `Engine` and the WP-bridge
  * `Signal_Collector` so this file stays focused on side effects.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
 \defined( 'ABSPATH' ) || exit;
 

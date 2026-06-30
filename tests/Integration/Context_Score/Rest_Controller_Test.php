@@ -10,19 +10,19 @@
  *   GET  /ai-readiness-kit/v1/context-score
  *   POST /ai-readiness-kit/v1/context-score/recompute
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Context_Score;
+namespace Mokhai\Tests\Integration\Context_Score;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Context_Score\Rest_Controller;
-use WPContext\Context_Score\Service;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Context_Score\Rest_Controller;
+use Mokhai\Context_Score\Service;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Rest_Controller_Test extends WP_UnitTestCase {
 

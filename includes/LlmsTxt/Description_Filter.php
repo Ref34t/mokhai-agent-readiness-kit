@@ -6,12 +6,12 @@
  * `/llms.txt` composer. Stateless — every call is a single
  * `get_post_meta` round-trip via `Description_Orchestrator`.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\LlmsTxt;
+namespace Mokhai\LlmsTxt;
 
 \defined( 'ABSPATH' ) || exit;
 

@@ -21,12 +21,12 @@
  * 'Agentable' as a third-party brand collision and required a distinctive
  * leading term that is clearly ours).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext;
+namespace Mokhai;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -34,20 +34,20 @@ namespace WPContext;
  * Define plugin-wide constants.
  *
  * Constants live in the global namespace by design so PHP code outside the
- * WPContext\ namespace can reference them without imports.
+ * Mokhai\ namespace can reference them without imports.
  */
 function constants(): void {
-	\define( 'WPCTX_VERSION', '0.4.0' );
-	\define( 'WPCTX_FILE', __FILE__ );
-	\define( 'WPCTX_DIR', \plugin_dir_path( __FILE__ ) );
-	\define( 'WPCTX_URL', \plugin_dir_url( __FILE__ ) );
-	\define( 'WPCTX_REQUIRES_PHP', '7.4' );
-	\define( 'WPCTX_REQUIRES_WP', '6.9' );
+	\define( 'MOKHAI_VERSION', '0.4.0' );
+	\define( 'MOKHAI_FILE', __FILE__ );
+	\define( 'MOKHAI_DIR', \plugin_dir_path( __FILE__ ) );
+	\define( 'MOKHAI_URL', \plugin_dir_url( __FILE__ ) );
+	\define( 'MOKHAI_REQUIRES_PHP', '7.4' );
+	\define( 'MOKHAI_REQUIRES_WP', '6.9' );
 }
 
 constants();
 
-require_once \WPCTX_DIR . 'vendor/autoload.php';
+require_once \MOKHAI_DIR . 'vendor/autoload.php';
 
 // Runtime version-floor gate. Activation refusal lives in Requirements::check_activation
 // (wired through Main::on_activate); this branch handles the case where WP or PHP
@@ -62,6 +62,6 @@ if ( ! Requirements::meets_wp_floor() || ! Requirements::meets_php_floor() ) {
 // 'ABSPATH' ) || exit;` guard inside the helper file before they've had a
 // chance to define ABSPATH. See #15 and the test bootstrap for the
 // non-WP loading paths.
-require_once \WPCTX_DIR . 'includes/Ai/helpers.php';
+require_once \MOKHAI_DIR . 'includes/Ai/helpers.php';
 
 Main::get_instance();

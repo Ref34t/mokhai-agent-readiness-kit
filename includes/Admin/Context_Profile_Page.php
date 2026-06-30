@@ -6,12 +6,12 @@
  * mounts it under the page slug `agentready-context`. Page visibility is
  * gated on `manage_options`.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -48,9 +48,9 @@ final class Context_Profile_Page {
 	public static function register_hooks(): void {
 		\add_action( 'admin_menu', array( self::class, 'register_menu' ) );
 		\add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
-		if ( \defined( 'WPCTX_FILE' ) ) {
+		if ( \defined( 'MOKHAI_FILE' ) ) {
 			\add_filter(
-				'plugin_action_links_' . \plugin_basename( WPCTX_FILE ),
+				'plugin_action_links_' . \plugin_basename( MOKHAI_FILE ),
 				array( self::class, 'add_settings_action_link' )
 			);
 		}
@@ -159,9 +159,9 @@ final class Context_Profile_Page {
 			return;
 		}
 
-		$asset_file = \WPCTX_DIR . 'build/admin/context-app.asset.php';
-		$script_url = \WPCTX_URL . 'build/admin/context-app.js';
-		$style_url  = \WPCTX_URL . 'build/admin/context-app.css';
+		$asset_file = \MOKHAI_DIR . 'build/admin/context-app.asset.php';
+		$script_url = \MOKHAI_URL . 'build/admin/context-app.js';
+		$style_url  = \MOKHAI_URL . 'build/admin/context-app.css';
 
 		if ( ! \file_exists( $asset_file ) ) {
 			\add_action( 'admin_notices', array( self::class, 'render_missing_build_notice' ) );
@@ -186,14 +186,14 @@ final class Context_Profile_Page {
 			? require $resolved_asset
 			: array(
 				'dependencies' => array(),
-				'version'      => \WPCTX_VERSION,
+				'version'      => \MOKHAI_VERSION,
 			);
 
 		\wp_enqueue_script(
 			'agentready-context-app',
 			$script_url,
 			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
-			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
+			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION,
 			true
 		);
 
@@ -211,15 +211,15 @@ final class Context_Profile_Page {
 		\wp_set_script_translations(
 			'agentready-context-app',
 			'mokhai-agent-readiness-kit',
-			\WPCTX_DIR . 'languages'
+			\MOKHAI_DIR . 'languages'
 		);
 
-		if ( \file_exists( \WPCTX_DIR . 'build/admin/context-app.css' ) ) {
+		if ( \file_exists( \MOKHAI_DIR . 'build/admin/context-app.css' ) ) {
 			\wp_enqueue_style(
 				'agentready-context-app',
 				$style_url,
 				array( 'wp-components' ),
-				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
+				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION
 			);
 		}
 	}
@@ -230,18 +230,18 @@ final class Context_Profile_Page {
 	 * @return array<string, mixed>
 	 */
 	private static function descriptions_bootstrap_data(): array {
-		$profile = \WPContext\Admin\Context_Profile_Settings::get_profile();
+		$profile = \Mokhai\Admin\Context_Profile_Settings::get_profile();
 		$exposed = isset( $profile['exposed_cpts'] ) && \is_array( $profile['exposed_cpts'] )
 			? \array_values( \array_filter( $profile['exposed_cpts'], 'is_string' ) )
 			: array();
 
 		return array(
-			'restNamespace' => \WPContext\LlmsTxt\Descriptions_Rest_Controller::NAMESPACE,
-			'restBase'      => \WPContext\LlmsTxt\Descriptions_Rest_Controller::ROUTE_BASE,
+			'restNamespace' => \Mokhai\LlmsTxt\Descriptions_Rest_Controller::NAMESPACE,
+			'restBase'      => \Mokhai\LlmsTxt\Descriptions_Rest_Controller::ROUTE_BASE,
 			'restNonce'     => \wp_create_nonce( 'wp_rest' ),
 			'exposedCpts'   => $exposed,
 			'enabled'       => ! empty( $profile['llm_descriptions_enabled'] ),
-			'llmAvailable'  => \WPContext\Ai\Client_Wrapper::has_ai_client(),
+			'llmAvailable'  => \Mokhai\Ai\Client_Wrapper::has_ai_client(),
 		);
 	}
 
@@ -251,15 +251,15 @@ final class Context_Profile_Page {
 	 * @return array<string, mixed>
 	 */
 	private static function editorial_bootstrap_data(): array {
-		$settings = \WPContext\LlmsTxt\Editorial_Settings::get_settings();
+		$settings = \Mokhai\LlmsTxt\Editorial_Settings::get_settings();
 
 		return array(
 			'entries'       => $settings['entries'],
-			'sections'      => \WPContext\LlmsTxt\Editorial_Settings::SECTIONS,
+			'sections'      => \Mokhai\LlmsTxt\Editorial_Settings::SECTIONS,
 			// REST write path (#142). The legacy options.php fields are dropped;
 			// the SPA saves via PUT through `apiFetch`.
-			'restNamespace' => \WPContext\LlmsTxt\Editorial_Rest_Controller::NAMESPACE,
-			'restBase'      => \WPContext\LlmsTxt\Editorial_Rest_Controller::ROUTE_BASE,
+			'restNamespace' => \Mokhai\LlmsTxt\Editorial_Rest_Controller::NAMESPACE,
+			'restBase'      => \Mokhai\LlmsTxt\Editorial_Rest_Controller::ROUTE_BASE,
 			'restNonce'     => \wp_create_nonce( 'wp_rest' ),
 		);
 	}
@@ -361,7 +361,7 @@ final class Context_Profile_Page {
 			),
 			'schemaCoordination' => Schema_Coordination_Detector::detect(),
 			'aiClient'           => array(
-				'configured' => \WPContext\Ai\Client_Wrapper::has_ai_client(),
+				'configured' => \Mokhai\Ai\Client_Wrapper::has_ai_client(),
 			),
 			// REST write path (#142 / AgDR-0048). The SPA saves the whole
 			// profile via PUT through `apiFetch`; the legacy options.php

@@ -11,15 +11,15 @@
  * Mirrors the convention `Markdown_Views_Command` established under
  * `wp ai-readiness-kit md *`.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Cli;
+namespace Mokhai\Cli;
 
-use WPContext\LlmsTxt\Conflict_Notice;
-use WPContext\LlmsTxt\Service;
+use Mokhai\LlmsTxt\Conflict_Notice;
+use Mokhai\LlmsTxt\Service;
 
 \defined( 'ABSPATH' ) || exit;
 

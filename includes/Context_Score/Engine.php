@@ -11,12 +11,12 @@
  * Sub-score weights (sum to 100) are class constants — see AgDR-0030 §
  * "Sub-scores and weights".
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Context_Score;
+namespace Mokhai\Context_Score;
 
 \defined( 'ABSPATH' ) || exit;
 

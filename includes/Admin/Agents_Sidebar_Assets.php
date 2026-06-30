@@ -9,12 +9,12 @@
  * Markdown_Views\Sidebar_Assets (AgDR-0014) pair — the exclude toggle and the
  * Markdown preview now ship as one panel, so one script bundle.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -52,9 +52,9 @@ final class Agents_Sidebar_Assets {
 	 * (currently just the module-enabled flag for the preview mount guard).
 	 */
 	public static function enqueue(): void {
-		$asset_file = \WPCTX_DIR . 'build/admin/agents-sidebar.asset.php';
-		$script_url = \WPCTX_URL . 'build/admin/agents-sidebar.js';
-		$style_url  = \WPCTX_URL . 'build/admin/agents-sidebar.css';
+		$asset_file = \MOKHAI_DIR . 'build/admin/agents-sidebar.asset.php';
+		$script_url = \MOKHAI_URL . 'build/admin/agents-sidebar.js';
+		$style_url  = \MOKHAI_URL . 'build/admin/agents-sidebar.css';
 
 		if ( ! \file_exists( $asset_file ) ) {
 			// Build artefact missing — fail silent in the editor rather than
@@ -70,7 +70,7 @@ final class Agents_Sidebar_Assets {
 			self::SCRIPT_HANDLE,
 			$script_url,
 			\is_array( $asset['dependencies'] ?? null ) ? $asset['dependencies'] : array(),
-			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION,
+			\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION,
 			true
 		);
 
@@ -83,19 +83,19 @@ final class Agents_Sidebar_Assets {
 		\wp_set_script_translations(
 			self::SCRIPT_HANDLE,
 			'mokhai-agent-readiness-kit',
-			\WPCTX_DIR . 'languages'
+			\MOKHAI_DIR . 'languages'
 		);
 
 		// Shared admin design-token stylesheet (#70). Carries the
 		// `.agentready-md-*` classes the preview markup uses in place of
 		// inline styles. Guarded on existence so a source checkout without a
 		// build still loads the script (the panel degrades to unstyled <pre>).
-		if ( \file_exists( \WPCTX_DIR . 'build/admin/agents-sidebar.css' ) ) {
+		if ( \file_exists( \MOKHAI_DIR . 'build/admin/agents-sidebar.css' ) ) {
 			\wp_enqueue_style(
 				self::SCRIPT_HANDLE,
 				$style_url,
 				array( 'wp-components' ),
-				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \WPCTX_VERSION
+				\is_string( $asset['version'] ?? null ) ? $asset['version'] : \MOKHAI_VERSION
 			);
 		}
 	}
@@ -127,7 +127,7 @@ final class Agents_Sidebar_Assets {
 		if ( ! \is_readable( $path ) ) {
 			return array(
 				'dependencies' => array(),
-				'version'      => \WPCTX_VERSION,
+				'version'      => \MOKHAI_VERSION,
 			);
 		}
 

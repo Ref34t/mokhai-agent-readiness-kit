@@ -7,12 +7,12 @@
  * a stable, agent-facing contract (REST-exposed at `wp-abilities/v1`); treat
  * renames as breaking changes.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Abilities;
+namespace Mokhai\Abilities;
 
 \defined( 'ABSPATH' ) || exit;
 

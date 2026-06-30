@@ -6,17 +6,17 @@
  * `is_plugin_active`, the filesystem ABSPATH check, and the rewrite-rule
  * scan against `$wp_rewrite->extra_rules_top`.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_UnitTestCase;
-use WPContext\LlmsTxt\Conflict_Detector;
-use WPContext\LlmsTxt\Conflict_Notice;
-use WPContext\LlmsTxt\Router;
+use Mokhai\LlmsTxt\Conflict_Detector;
+use Mokhai\LlmsTxt\Conflict_Notice;
+use Mokhai\LlmsTxt\Router;
 
 final class Conflict_Detector_Test extends WP_UnitTestCase {
 

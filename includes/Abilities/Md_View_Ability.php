@@ -2,15 +2,15 @@
 /**
  * `ai-readiness-kit/md-view-preview` ability (#21 / AgDR-0044).
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Abilities;
+namespace Mokhai\Abilities;
 
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Service;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Service;
 
 \defined( 'ABSPATH' ) || exit;
 

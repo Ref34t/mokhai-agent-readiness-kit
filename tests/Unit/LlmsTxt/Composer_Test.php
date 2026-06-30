@@ -5,15 +5,15 @@
  * The composer takes a structured input array (identity + editorial +
  * sections) and returns the body string. No WordPress is loaded.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\LlmsTxt;
+namespace Mokhai\Tests\Unit\LlmsTxt;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\LlmsTxt\Composer;
+use Mokhai\LlmsTxt\Composer;
 
 final class Composer_Test extends TestCase {
 

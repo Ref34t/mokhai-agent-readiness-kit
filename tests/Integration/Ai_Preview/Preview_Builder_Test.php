@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for `WPContext\Ai_Preview\Preview_Builder` (#45).
+ * Integration tests for `Mokhai\Ai_Preview\Preview_Builder` (#45).
  *
  * Exercises the aggregator against real WP posts, the real Markdown Views
  * service, and the real llms.txt Entry_Source:
@@ -11,17 +11,17 @@
  *   - raw_html truncates + reports full_length past the cap
  *   - opening the preview does NOT schedule cleanup (read-only)
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Ai_Preview;
+namespace Mokhai\Tests\Integration\Ai_Preview;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Ai_Preview\Preview_Builder;
-use WPContext\Markdown_Views\Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Ai_Preview\Preview_Builder;
+use Mokhai\Markdown_Views\Schema;
 
 final class Preview_Builder_Test extends WP_UnitTestCase {
 

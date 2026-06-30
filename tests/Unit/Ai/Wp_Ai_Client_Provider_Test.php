@@ -13,18 +13,18 @@
  *  - Missing `wp_ai_client_prompt()` → Network_Error
  *  - Option propagation: temperature / max_tokens / system instruction
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\Ai;
+namespace Mokhai\Tests\Unit\Ai;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\Ai\Network_Error;
-use WPContext\Ai\Permanent_Error;
-use WPContext\Ai\Rate_Limit_Error;
-use WPContext\Ai\Wp_Ai_Client_Provider;
+use Mokhai\Ai\Network_Error;
+use Mokhai\Ai\Permanent_Error;
+use Mokhai\Ai\Rate_Limit_Error;
+use Mokhai\Ai\Wp_Ai_Client_Provider;
 use WP_Error;
 
 final class Wp_Ai_Client_Provider_Test extends TestCase {

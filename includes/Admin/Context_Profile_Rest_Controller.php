@@ -15,12 +15,12 @@
  * so the REST surface introduces no new validation logic and the
  * `agentready_context_profile_saved` cascade fires identically.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Admin;
+namespace Mokhai\Admin;
 
 \defined( 'ABSPATH' ) || exit;
 

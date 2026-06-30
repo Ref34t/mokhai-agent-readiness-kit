@@ -1,20 +1,20 @@
 <?php
 /**
- * Unit tests for WPContext\LlmsTxt\Full_Composer.
+ * Unit tests for Mokhai\LlmsTxt\Full_Composer.
  *
  * Pure-function tests — `compose()` reads no WP state, so the suite runs
  * without booting WordPress (Brain Monkey provides the function shims the
  * shared `Composer` escaping helpers rely on, although none are WP calls).
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\LlmsTxt;
+namespace Mokhai\Tests\Unit\LlmsTxt;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\LlmsTxt\Full_Composer;
+use Mokhai\LlmsTxt\Full_Composer;
 
 final class Full_Composer_Test extends TestCase {
 

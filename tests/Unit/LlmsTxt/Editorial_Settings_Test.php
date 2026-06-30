@@ -6,15 +6,15 @@
  * No WordPress is loaded; sanitize_text_field / esc_url_raw are stubbed
  * in tests/Unit/wp-stubs.php.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Unit\LlmsTxt;
+namespace Mokhai\Tests\Unit\LlmsTxt;
 
 use PHPUnit\Framework\TestCase;
-use WPContext\LlmsTxt\Editorial_Settings;
+use Mokhai\LlmsTxt\Editorial_Settings;
 
 final class Editorial_Settings_Test extends TestCase {
 

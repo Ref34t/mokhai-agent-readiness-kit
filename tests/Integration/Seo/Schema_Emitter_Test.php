@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for WPContext\Seo\Schema_Emitter.
+ * Integration tests for Mokhai\Seo\Schema_Emitter.
  *
  * Drives the full wp_head pipeline end-to-end against a real WordPress
  * test instance — no stubs, no mocks. Maps 1:1 to AC #5 of #73:
@@ -18,17 +18,17 @@
  * cleanest seam for an integration test that can't load Yoast itself
  * but still wants to assert the deference branch.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\Seo;
+namespace Mokhai\Tests\Integration\Seo;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
-use WPContext\Seo\Schema_Emitter;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Seo\Schema_Emitter;
 
 final class Schema_Emitter_Test extends WP_UnitTestCase {
 

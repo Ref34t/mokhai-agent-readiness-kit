@@ -9,18 +9,18 @@
  * fallback. The `dispatch()` path (headers + exit) is not exercised — same
  * rationale as `Router_Test`.
  *
- * @package WPContext\Tests
+ * @package Mokhai\Tests
  */
 
 declare(strict_types=1);
 
-namespace WPContext\Tests\Integration\LlmsTxt;
+namespace Mokhai\Tests\Integration\LlmsTxt;
 
 use WP_UnitTestCase;
-use WPContext\Admin\Context_Profile_Settings;
-use WPContext\LlmsTxt\Router;
-use WPContext\LlmsTxt\Service;
-use WPContext\Markdown_Views\Schema as Markdown_Views_Schema;
+use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\LlmsTxt\Router;
+use Mokhai\LlmsTxt\Service;
+use Mokhai\Markdown_Views\Schema as Markdown_Views_Schema;
 
 final class Full_Router_Test extends WP_UnitTestCase {
 

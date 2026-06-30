@@ -2,12 +2,12 @@
 /**
  * Admin asset registration.
  *
- * @package WPContext
+ * @package Mokhai
  */
 
 declare(strict_types=1);
 
-namespace WPContext;
+namespace Mokhai;
 
 \defined( 'ABSPATH' ) || exit;
 
