@@ -137,6 +137,10 @@ The module respects the toggle without latency — flipping back to true is inst
 
 == Frequently Asked Questions ==
 
+= What is llms.txt and why should I care? =
+
+AI assistants like ChatGPT, Claude, and Perplexity increasingly visit websites to answer questions for their users. Most WordPress themes serve them the same heavy HTML built for humans — menus, sliders, widgets — and the actual content gets lost in the noise. `llms.txt` is a simple convention: a plain-text file at your site's root (like `robots.txt`, but for content) that tells AI assistants what your site is about and where to find your best pages. Mokhai generates and maintains it for you, alongside clean Markdown versions of your pages that agents can actually read. If AI assistants are answering questions in your topic area, this determines whether your site is the source they cite — or the one they skip.
+
 = Does Mokhai require an AI API key? =
 
 No. Every deterministic surface (Markdown Views, /llms.txt floor, rule-based Context Score narrative, gap-fill JSON-LD emission) runs fully locally with no external calls. Modules that benefit from an LLM (the Markdown cleanup pass, /llms.txt entry-description drafting, the LLM-narrated Context Score) require the optional WP AI Client to be configured, but each is independently toggleable and not load-bearing for the core agent-readiness contract.
@@ -149,16 +153,16 @@ For JSON-LD: when an SEO plugin (Yoast, Rank Math, AIOSEO, The SEO Framework) is
 
 `/llms.txt` is one surface among several. Mokhai ships the integrated reading layer (Markdown views), the discovery layer (/llms.txt with editorial entries and LLM-powered descriptions), the audit layer (Context Score across seven sub-scores), and the schema coordination layer as a single coherent unit driven by one Context Profile. Most existing plugins target one of these surfaces in isolation; Mokhai treats them as a coordinated stack.
 
-= What's on the roadmap after v0.2? =
+= What's on the roadmap? =
 
-v0.2 shipped the AI Assistant Preview pane, the WordPress Abilities API + MCP integration, and the multi-channel discovery sub-score. Looking ahead: a fuller agent-*actionable* layer (callable tools via WebMCP / `navigator.modelContext`), agent-activity analytics (per-bot counters), and a richer `/.well-known/llms-policy.json` policy-declaration surface.
+v0.5.0 is the public-launch baseline: Markdown Views, `/llms.txt`, the Context Score, the AI Assistant Preview pane, and the WordPress Abilities API + MCP integration. Looking ahead: agent-activity analytics (see which AI agents visit your site, not just optimize for them), a fuller agent-*actionable* layer (callable tools via WebMCP / `navigator.modelContext`), and a richer `/.well-known/llms-policy.json` policy-declaration surface.
 
 == Screenshots ==
 
-1. Context Profile — the single source of truth for which CPTs and statuses are exposed to agents
+1. Context Score — 0–100 readiness audit with seven sub-scores and actionable fixes
 2. AI Assistant Preview — see exactly what an agent reads: raw HTML, the clean Markdown View, and the `/llms.txt` line, side by side
 3. LLMs Index — `/llms.txt` admin UI with editorial entries and LLM-powered descriptions
-4. Context Score — 0–100 readiness audit with seven sub-scores and actionable fixes
+4. Context Profile — the single source of truth for which CPTs and statuses are exposed to agents
 
 == Changelog ==
 
