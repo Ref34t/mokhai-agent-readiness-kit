@@ -132,6 +132,14 @@ final class Main {
 		// on_activate() so the rule persists into the rewrite_rules option.
 		Markdown_Views\Router::register_hooks();
 
+		// Wire the hard-cache posture detection + the static .md mirror
+		// (#283 / AgDR-0067). Posture refreshes its loopback-probe snapshot
+		// lazily on admin_init; the mirror writes publish-time .md files to
+		// uploads only while the posture (or the operator's static_md_mode
+		// override) says a hard page cache is serving HTML without PHP.
+		Markdown_Views\Cache_Posture::register_hooks();
+		Markdown_Views\Static_Mirror::register_hooks();
+
 		// Wire the admin REST preview endpoint (#5 / AgDR-0014). Gated by
 		// edit_post capability on the specific post; surfaces the exposure
 		// reason for admin debugging (the public route stays uniformly 404
@@ -233,6 +241,14 @@ final class Main {
 		// model — noindex / excluded content is never advertised.
 		Discovery\Alternate_Advertiser::register_hooks();
 
+		// In-content markdown discovery link (#283 / AgDR-0067): the only
+		// discovery channel that survives AI fetchers' HTML→markdown
+		// stripping (head links + HTTP headers never reach the model).
+		// Stylesheet-class-hidden anchor appended to the_content on
+		// exposable singular views; gated on `content_link_enabled` + the
+		// exposure model, like the Alternate_Advertiser above.
+		Discovery\Content_Link::register_hooks();
+
 		// Serve the sibling AI-discovery channels (#172 / AgDR-0056): ai.txt
 		// + /.well-known/llms-policy.json + /.well-known/ai-layer, emitted
 		// virtually via rewrites (same model as /llms.txt). Gated on the
@@ -304,6 +320,12 @@ final class Main {
 		// never fires (which is the steady-state on a quiet site).
 		Context_Score\Service::schedule_daily_recompute();
 
+		// Static .md mirror daily backstop (#283 / AgDR-0067) + an initial
+		// cache-posture probe so the mirror's auto mode has a host-cache
+		// verdict before the first admin_init refresh.
+		Markdown_Views\Static_Mirror::schedule_daily_sync();
+		Markdown_Views\Cache_Posture::refresh_probe_snapshot();
+
 		// SEO plugin detection at activation time (#12 AC #1). Stores the
 		// detected posture in a non-autoload diagnostic option so the
 		// admin Context Score panel has a posture to render even before
@@ -342,5 +364,13 @@ final class Main {
 		// Context Score cron cleanup (#9 / AgDR-0030). Cached breakdown
 		// in wp_options is preserved per AgDR-0015 — only uninstall purges.
 		Context_Score\Service::clear_scheduled_recomputes();
+
+		// Static .md mirror teardown (#283 / AgDR-0067): clear the daily
+		// backstop and remove the mirror tree. Unlike the DB caches above,
+		// the FILES must go — a deactivated plugin's rewrites vanish, but a
+		// stale uploads file would keep serving outdated markdown forever.
+		// Regenerable on reactivation, so removal is lossless.
+		Markdown_Views\Static_Mirror::clear_scheduled_sync();
+		Markdown_Views\Static_Mirror::purge_all();
 	}
 }

@@ -195,6 +195,18 @@ final class Context_Profile_Settings {
 			// key is settable via the option, WP-CLI, or a filter — same
 			// shape as advertise_alternates_enabled (#178).
 			'llms_full_txt_enabled'        => true,
+			// In-content markdown discovery link (#283 / AgDR-0067). Default
+			// true — it's the only discovery channel that survives AI
+			// fetchers' head/header stripping, gates on the exposure model,
+			// and is invisible to humans. Same no-UI, settable-via-option
+			// shape as advertise_alternates_enabled.
+			'content_link_enabled'         => true,
+			// Static .md mirror mode (#283 / AgDR-0067): 'auto' (write files
+			// only when Cache_Posture detects a hard page cache — the
+			// default), 'on' (always write), 'off' (never write). FR-9 isn't
+			// implicated: the mirror only materialises content the exposure
+			// gates already publish via /path.md.
+			'static_md_mode'               => 'auto',
 		);
 	}
 
@@ -766,6 +778,17 @@ final class Context_Profile_Settings {
 		$out['llms_full_txt_enabled'] = ! \array_key_exists( 'llms_full_txt_enabled', $input )
 			? true
 			: ! empty( $input['llms_full_txt_enabled'] );
+
+		// In-content discovery link (#283) — "default true, explicit false
+		// to disable" convention, matching advertise_alternates_enabled.
+		$out['content_link_enabled'] = ! \array_key_exists( 'content_link_enabled', $input )
+			? true
+			: ! empty( $input['content_link_enabled'] );
+
+		// Static .md mirror mode (#283) — closed enum; anything outside the
+		// three known values (including absence) falls back to 'auto'.
+		$mode                  = isset( $input['static_md_mode'] ) ? (string) $input['static_md_mode'] : 'auto';
+		$out['static_md_mode'] = \in_array( $mode, array( 'auto', 'on', 'off' ), true ) ? $mode : 'auto';
 
 		// Unknown keys are dropped by virtue of not being copied into $out.
 
