@@ -33,7 +33,9 @@ use Mokhai\LlmsTxt\Editorial_Settings;
 use Mokhai\LlmsTxt\Router as Llms_Txt_Router;
 use Mokhai\LlmsTxt\Service as Llms_Txt_Service;
 use Mokhai\Main;
+use Mokhai\Markdown_Views\Cache_Posture;
 use Mokhai\Markdown_Views\Schema;
+use Mokhai\Markdown_Views\Static_Mirror;
 
 \defined( 'ABSPATH' ) || exit;
 
@@ -61,6 +63,7 @@ final class Uninstaller {
 			Editorial_Settings::OPTION_KEY,
 			Context_Score_Service::CACHE_OPTION,
 			Channel_Router::ROUTES_VERSION_OPTION,
+			Cache_Posture::SNAPSHOT_OPTION,
 		);
 	}
 
@@ -85,6 +88,7 @@ final class Uninstaller {
 				Description_Orchestrator::META_KEY_GENERATED_BY_VERSION,
 				Summary_Generator::META_KEY_TEXT,
 				Summary_Generator::META_KEY_GENERATED,
+				Static_Mirror::META_KEY_PATH,
 			),
 			Cleanup_Meta_Migration_Command::META_KEYS
 		);
@@ -161,6 +165,11 @@ final class Uninstaller {
 		foreach ( self::option_keys() as $option_key ) {
 			\delete_option( $option_key );
 		}
+
+		// Static .md mirror tree (#283 / AgDR-0067) — per-site because each
+		// site owns its own uploads basedir. Also clears the daily cron.
+		Static_Mirror::clear_scheduled_sync();
+		Static_Mirror::purge_all();
 
 		foreach ( self::post_meta_keys() as $meta_key ) {
 			\delete_post_meta_by_key( $meta_key );

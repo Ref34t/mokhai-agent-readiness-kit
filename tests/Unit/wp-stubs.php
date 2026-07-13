@@ -378,6 +378,30 @@ if ( ! function_exists( 'esc_html' ) ) {
 	}
 }
 
+if ( ! function_exists( 'esc_attr' ) ) {
+	/**
+	 * Stub: minimal attribute escape matching WP core behaviour.
+	 */
+	function esc_attr( string $text ): string {
+		return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' );
+	}
+}
+
+if ( ! function_exists( 'sanitize_file_name' ) ) {
+	/**
+	 * Stub: filename sanitiser covering the traversal-relevant behaviour the
+	 * Static_Mirror path mapper depends on — special characters removed,
+	 * whitespace collapsed to dashes, leading/trailing dots and dashes
+	 * trimmed (so `..` cannot survive as a path segment).
+	 */
+	function sanitize_file_name( string $filename ): string {
+		$special = array( '?', '[', ']', '/', '\\', '=', '<', '>', ':', ';', ',', "'", '"', '&', '$', '#', '*', '(', ')', '|', '~', '`', '!', '{', '}', '%', '+', chr( 0 ) );
+		$clean   = str_replace( $special, '', $filename );
+		$clean   = (string) preg_replace( '/[\r\n\t -]+/', '-', $clean );
+		return trim( $clean, '.-_' );
+	}
+}
+
 if ( ! function_exists( 'wp_die' ) ) {
 	/**
 	 * Stub: throw a WP_Die exception so tests can assert on it.
@@ -588,6 +612,10 @@ if ( ! function_exists( 'esc_url' ) ) {
 		if ( '' === $raw ) {
 			return '';
 		}
+		// Core strips characters outside its allowed set — attribute-breaking
+		// `"`, `<`, `>` and whitespace never survive esc_url. Reproduce that
+		// so attribute-context injection assertions are meaningful.
+		$raw = (string) preg_replace( '|[^a-z0-9-~+_.?#=!&;,/:%@$\'()\[\]\\x80-\\xff]|i', '', $raw );
 		return str_replace( '&', '&#038;', $raw );
 	}
 }
