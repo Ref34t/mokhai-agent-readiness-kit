@@ -182,7 +182,7 @@ v0.5.0 is the public-launch baseline: Markdown Views, `/llms.txt`, the Context S
 
 * wp.org listing copy now leads with the markdown-publishing capability — what the plugin does, stated first. (#282, #284)
 
-
+= 0.5.0 — 2026-06-30 =
 
 **Public-launch baseline.** This is the first release where every developer-facing and end-user-facing identifier aligns under the `mokhai` scheme. No new features ship in this release.
 
