@@ -8,16 +8,18 @@ Stable tag: 0.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Help AI agents read your WordPress site correctly: llms.txt, clean Markdown views, structured data, and a readiness score — from one Context Profile.
+Publish a clean Markdown version of every page for AI agents — linked from llms.txt with per-page descriptions — plus schema and a readiness score.
 
 == Description ==
 
 Mokhai is an open-source WordPress plugin that turns your site into a first-class citizen of the AI-agent web — readable today, actionable next. A single **Context Profile** (configured once under Tools → Context) is the source of truth for every agent-facing surface — what's exposed, how it's served, and how it's scored.
 
+**The core move: Mokhai publishes a Markdown version of every page on your site.** When an AI assistant fetches a typical WordPress page it receives 50–100 KB of theme markup — menus, sliders, scripts — with your actual content buried inside. Mokhai gives every public URL a clean Markdown twin (`/about-us.md`) that is 4–8 KB of pure content, and pushes those Markdown versions into your `/llms.txt` index: every entry links straight to the page's `.md` form and carries a per-page description, so an agent reading your index gets a curated map of your content AND the readable version of each page in one hop. That pipeline — content → Markdown twin → described llms.txt entry — is what the rest of the plugin audits, scores, and advertises.
+
 Mokhai ships seven coherent modules, all driven by one Context Profile:
 
-* **Markdown Views** — deterministic HTML → Markdown rendering for any public URL, with three URL forms (`.md` path, `?format=md` query, `Accept: text/markdown` content negotiation) and uniform 404 on denial. Per-post cache with content-hash invalidation, Gutenberg sidebar preview, WP-CLI command, REST endpoint for admin tooling.
-* **LLMs Index** — `/llms.txt` generator that publishes a discovery surface for AI agents, with conflict detection against `robots.txt`, an editorial entries admin UI for site owners to add curated entries, and an optional LLM-powered pass that drafts entry descriptions from post content.
+* **Markdown Views** — publishes a clean Markdown version of every public URL, with three URL forms (`.md` path, `?format=md` query, `Accept: text/markdown` content negotiation) and uniform 404 on denial. Per-post cache with content-hash invalidation, Gutenberg sidebar preview, WP-CLI command, REST endpoint for admin tooling.
+* **LLMs Index** — `/llms.txt` generator that publishes a discovery surface for AI agents, where every entry links to the page's Markdown version and carries a description — curated by you or drafted by an optional LLM-powered pass from the post content. Conflict detection against `robots.txt`, plus an editorial entries admin UI for adding non-WordPress URLs.
 * **Context Score** — 0–100 readiness audit across seven weighted sub-scores (discoverability, description coverage, schema coverage, exposure safety, integration health, Markdown conversion quality, multi-channel discovery), surfaced in an admin page, Site Health, and `wp mokhai context-score recompute`. Includes an optional LLM-generated narrative (with a rule-based fallback) explaining the score and the highest-leverage fixes.
 * **Schema Coordination** — detects whether your SEO plugin already emits JSON-LD; if not, optionally emits a native WebSite + Organization + per-content schema set so the schema sub-score is achievable without a third-party SEO plugin. Defers gracefully when an SEO plugin is already covering the surface.
 * **AI Assistant Preview** — an admin pane that shows any post exactly as an AI assistant consumes it: raw HTML, the Markdown View, and the live `/llms.txt` line side by side, plus an on-demand "sample AI summary" so you can sanity-check what an agent would say about the page.
