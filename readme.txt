@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.5.0
+Stable tag: 0.6.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -168,6 +168,20 @@ v0.5.0 is the public-launch baseline: Markdown Views, `/llms.txt`, the Context S
 
 == Changelog ==
 
+= 0.6.0 — 2026-07-13 =
+
+**Feature release: markdown that survives hard caching, and discovery that survives AI content extraction.** No migration — safe in-place upgrade; all new behaviour is driven by two new Context Profile keys with safe defaults.
+
+**New**
+
+* **Static Markdown mirror** — Mokhai can now write each exposed page's Markdown version to a real file under `wp-content/uploads/mokhai/md/`, served statically by any host with no PHP involved. This keeps agent-readable content available on sites behind hard full-page caches or static exports, where the request-time `.md` route may never reach PHP. Files follow the full content lifecycle: regenerated on save, moved on slug change, deleted on trash or exposure revoke, with a daily backstop sync and full cleanup on deactivation/uninstall. (#283)
+* **Hard-cache detection** — the mirror activates automatically only when a hard page cache is detected, across both layers: caching plugins (WP Rocket, W3TC, WP Super Cache, LiteSpeed, Cache Enabler, and more) and host/CDN caches (Kinsta, Cloudflare, Varnish) via a self-probe of the site's own response headers. Override with the `static_md_mode` profile key (`auto`/`on`/`off`, default `auto`). (#283)
+* **In-content discovery link** — an invisible, accessibility-neutral link to the page's Markdown version is added inside the content of exposable singular views. Empirical testing showed AI fetchers (Claude, ChatGPT) strip `<head>` alternate links and HTTP `Link` headers before the model sees the page — an in-content link is the only discovery signal that survives, and because it's part of the page HTML it also survives inside cached copies. Disable with the `content_link_enabled` profile key (default on). (#283)
+
+**Improved**
+
+* wp.org listing copy now leads with the markdown-publishing capability — what the plugin does, stated first. (#282, #284)
+
 = 0.5.0 — 2026-06-30 =
 
 **Public-launch baseline.** This is the first release where every developer-facing and end-user-facing identifier aligns under the `mokhai` scheme. No new features ship in this release.
@@ -297,6 +311,10 @@ First public release. Four coherent modules driven by one Context Profile.
 * Translation policy documented: managed via wp.org under slug `agentable`
 
 == Upgrade Notice ==
+
+= 0.6.0 =
+
+Adds the static Markdown mirror (auto-enabled only behind hard page caches), hard-cache detection, and the in-content discovery link. No migration — safe in-place upgrade.
 
 = 0.5.0 =
 
