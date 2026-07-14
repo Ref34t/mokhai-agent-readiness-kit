@@ -5,7 +5,8 @@
  * Exercises the pure(-ish) `build_response()` method so we can assert on the
  * response shape without dealing with `exit`. Verifies:
  *
- *   - 200 + text/markdown + body on an exposable post
+ *   - 200 + text/plain + body on an exposable post (#293: ChatGPT's fetcher
+ *     rejects text/markdown, so twins ship as text/plain + inline)
  *   - 404 + empty body on a module-disabled toggle (AgDR-0015)
  *   - 404 + empty body on a non-exposable post (draft, password, wrong CPT)
  *   - Response shape matches AgDR-0013's content-negotiation contract
@@ -61,7 +62,8 @@ final class Handler_Test extends WP_UnitTestCase {
 		$response = Handler::build_response( $post );
 
 		self::assertSame( 200, $response['status'] );
-		self::assertSame( 'text/markdown; charset=utf-8', $response['headers']['Content-Type'] );
+		self::assertSame( 'text/plain; charset=utf-8', $response['headers']['Content-Type'] );
+		self::assertSame( 'inline', $response['headers']['Content-Disposition'] );
 		self::assertStringContainsString( '## Heading', $response['body'] );
 		self::assertStringContainsString( '**strong**', $response['body'] );
 	}

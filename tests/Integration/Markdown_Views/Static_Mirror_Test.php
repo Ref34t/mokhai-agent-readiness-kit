@@ -87,6 +87,19 @@ final class Static_Mirror_Test extends WP_UnitTestCase {
 		self::assertStringContainsString( 'Body text for the mirror.', (string) file_get_contents( $file ) );
 	}
 
+	public function test_refresh_writes_htaccess_with_delivery_headers(): void {
+		$post_id = $this->create_published_post();
+
+		Static_Mirror::refresh_for_post_id( $post_id );
+
+		$htaccess = Static_Mirror::base_dir() . '/.htaccess';
+		self::assertFileExists( $htaccess );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$rules = (string) file_get_contents( $htaccess );
+		self::assertStringContainsString( 'ForceType text/plain', $rules, '#293: ChatGPT rejects text/markdown' );
+		self::assertStringContainsString( 'Content-Disposition "inline"', $rules );
+	}
+
 	public function test_slug_change_moves_the_file(): void {
 		$post_id = $this->create_published_post( array( 'post_name' => 'old-slug' ) );
 

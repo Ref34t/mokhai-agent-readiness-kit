@@ -5,7 +5,7 @@
  * Hooked to `template_redirect` by `Router::register_hooks()`. Resolves the
  * incoming request to a post, decides whether the caller asked for the
  * Markdown form (one of three signals per AgDR-0013), and either serves the
- * MD body (status 200, Content-Type text/markdown) or 404s with no body.
+ * MD body (status 200, Content-Type text/plain) or 404s with no body.
  *
  * Per AgDR-0015, a 404 never reveals *why* — module-disabled, post-not-found,
  * and not-exposable all produce the same 404 shape so the response carries
@@ -112,9 +112,13 @@ final class Handler {
 		return array(
 			'status'  => 200,
 			'headers' => array(
-				'Content-Type'  => 'text/markdown; charset=utf-8',
-				'X-Robots-Tag'  => 'noindex',
-				'Cache-Control' => 'no-store, must-revalidate',
+				// text/plain, NOT text/markdown: ChatGPT's URL fetcher rejects
+				// text/markdown responses with a 400-class error and accepts
+				// text/plain; Claude's fetcher accepts both (#293, spike #291).
+				'Content-Type'        => 'text/plain; charset=utf-8',
+				'Content-Disposition' => 'inline',
+				'X-Robots-Tag'        => 'noindex',
+				'Cache-Control'       => 'no-store, must-revalidate',
 			),
 			'body'    => $result,
 		);
@@ -185,7 +189,7 @@ final class Handler {
 			\header( $name . ': ' . $value );
 		}
 
-		// Output is raw Markdown served with `Content-Type: text/markdown` —
+		// Output is raw Markdown served with `Content-Type: text/plain` —
 		// no HTML rendering context, so HTML-escape semantics do not apply.
 		// Strip a leading BOM in case the body itself begins with one (#175).
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
