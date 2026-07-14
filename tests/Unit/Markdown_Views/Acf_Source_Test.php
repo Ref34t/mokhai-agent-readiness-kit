@@ -123,6 +123,33 @@ namespace Mokhai\Tests\Unit\Markdown_Views {
 			self::assertStringNotContainsString( '999', $html );
 		}
 
+		public function test_group_display_clone_recursed(): void {
+			// A clone field in group-display mode presents like a group: one
+			// row keyed by sub-field name.
+			$objects = array(
+				'cta' => array(
+					'type'       => 'clone',
+					'sub_fields' => array(
+						array( 'name' => 'label', 'type' => 'text' ),
+						array( 'name' => 'blurb', 'type' => 'textarea' ),
+						array( 'name' => 'target', 'type' => 'link' ),
+					),
+					'value'      => array(
+						'label'  => 'Cloned label.',
+						'blurb'  => 'Cloned blurb.',
+						'target' => array( 'url' => 'https://example.com' ),
+					),
+				),
+			);
+
+			$html = Acf_Source::extract_text_html( $objects );
+
+			self::assertStringContainsString( 'Cloned label.', $html );
+			self::assertStringContainsString( 'Cloned blurb.', $html );
+			// Non-text sub-field (link) contributes nothing.
+			self::assertStringNotContainsString( 'example.com', $html );
+		}
+
 		public function test_repeater_rows_recursed_in_order(): void {
 			$objects = array(
 				'faqs' => array(

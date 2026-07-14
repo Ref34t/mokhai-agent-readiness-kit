@@ -171,10 +171,12 @@ final class Rest_Controller {
 		$result = Service::get_markdown_for_post( $post );
 
 		if ( \is_wp_error( $result ) ) {
-			// Defence-in-depth: Service should not return WP_Error here since
-			// we already gated on `is_module_enabled` and `get_exposure_reason`.
-			// If it does (e.g. a race condition where the toggle flipped between
-			// our check and Service's check), surface the structured error.
+			// Two shapes reach here: (1) `empty_content` — an exposable post
+			// whose conversion is empty (AgDR-0068 / #292); it carries
+			// `status => 404` so the REST response 404s like the public route.
+			// (2) `module_disabled` / `not_exposable` — not expected after the
+			// gates above, but surfaced defensively (e.g. a toggle flipped
+			// between our check and Service's).
 			return $result;
 		}
 

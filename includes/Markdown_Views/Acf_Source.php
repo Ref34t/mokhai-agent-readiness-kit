@@ -219,7 +219,11 @@ final class Acf_Source {
 		$parts = array();
 
 		if ( 'group' === $type || 'clone' === $type ) {
-			// One associative row keyed by sub-field name.
+			// One associative row keyed by sub-field name. This is the
+			// group-display clone shape; a *seamless* clone hoists its
+			// sub-fields to the parent level (their values then surface through
+			// the top-level walk, or key-mismatch here yields nothing) — safe
+			// either way, never a fatal.
 			$parts = self::collect_row( $field['sub_fields'] ?? array(), $value );
 		} elseif ( 'repeater' === $type ) {
 			// A list of rows, each keyed by sub-field name.
