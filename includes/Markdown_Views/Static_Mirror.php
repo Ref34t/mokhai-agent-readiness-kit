@@ -420,9 +420,40 @@ final class Static_Mirror {
 			return false;
 		}
 
+		self::ensure_htaccess();
+
 		global $wp_filesystem;
 
 		return (bool) $wp_filesystem->put_contents( $target, $markdown, \FS_CHMOD_FILE );
+	}
+
+	/**
+	 * Write the mirror root's `.htaccess` so Apache serves the static `.md`
+	 * files with the same delivery headers as the request-time route:
+	 * `text/plain` (ChatGPT's fetcher 400s on `text/markdown` — #293, spike
+	 * #291) and `Content-Disposition: inline`. nginx ignores `.htaccess`;
+	 * without an `md` entry in its mime map it falls back to the configured
+	 * default type, so nginx guidance lives in the plugin docs instead.
+	 *
+	 * Best-effort and idempotent: existing file with current content is left
+	 * untouched; an unwritable dir degrades to the host's default headers.
+	 */
+	private static function ensure_htaccess(): void {
+		$rules = 'ForceType text/plain' . "\n"
+			. 'AddDefaultCharset utf-8' . "\n"
+			. '<IfModule mod_headers.c>' . "\n"
+			. "\t" . 'Header set Content-Disposition "inline"' . "\n"
+			. '</IfModule>' . "\n";
+
+		$target = self::base_dir() . '/.htaccess';
+
+		global $wp_filesystem;
+
+		if ( $wp_filesystem->exists( $target ) && $wp_filesystem->get_contents( $target ) === $rules ) {
+			return;
+		}
+
+		$wp_filesystem->put_contents( $target, $rules, \FS_CHMOD_FILE );
 	}
 
 	/**
