@@ -127,6 +127,12 @@ final class Main {
 		// WooCommerce is inactive or the post is not a product.
 		Markdown_Views\Woocommerce_Source::register();
 
+		// Bundled ACF source adapter (#292 / AgDR-0068): sources page-builder /
+		// ACF field text into the Markdown body when `the_content` is empty, and
+		// folds the field payload into the cache key. No-ops when ACF is
+		// inactive or `the_content` already produced content.
+		Markdown_Views\Acf_Source::register();
+
 		// Wire the public route (#5 / AgDR-0013): registers the rewrite rule
 		// + query var + template_redirect handler. Flush happens in
 		// on_activate() so the rule persists into the rewrite_rules option.

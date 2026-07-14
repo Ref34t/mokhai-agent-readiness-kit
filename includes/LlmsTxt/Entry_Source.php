@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Mokhai\LlmsTxt;
 
 use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Service as Markdown_Service;
 use Mokhai\Markdown_Views\Url_Mapper;
 
 \defined( 'ABSPATH' ) || exit;
@@ -162,6 +163,16 @@ final class Entry_Source {
 	 */
 	public static function entry_for_post( \WP_Post $post ): ?array {
 		if ( ! Context_Profile_Settings::is_url_exposable( $post ) ) {
+			return null;
+		}
+
+		// AgDR-0068 / #292: when the entry links the `.md` twin, don't advertise
+		// a page whose twin is empty — an empty twin is worse than no entry
+		// because agents trust the index. The `.md` route 404s the same page,
+		// so listing it would point at a 404. Skipped when Markdown Views is
+		// disabled (entries then link the HTML permalink, where the empty-twin
+		// concern does not apply).
+		if ( self::markdown_views_enabled() && Markdown_Service::is_empty_for_post( $post ) ) {
 			return null;
 		}
 
