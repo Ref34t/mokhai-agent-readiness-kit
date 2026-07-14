@@ -44,6 +44,19 @@ final class Service {
 	public const ERROR_NOT_EXPOSABLE = 'not_exposable';
 
 	/**
+	 * Error code: the post is exposable, but the conversion produced no
+	 * content — an empty Markdown twin (AgDR-0068). Returned so the public
+	 * route 404s (via the existing `is_wp_error` branch, preserving AgDR-0015's
+	 * uniform-404 contract) rather than serving a 0-byte `200`, and so
+	 * `/llms.txt` can drop the entry instead of advertising an empty document
+	 * (#292). This is the single empty-detection point; {@see is_empty_for_post()}
+	 * exposes it as a queryable state for consumers that must not be blinded.
+	 *
+	 * @var string
+	 */
+	public const ERROR_EMPTY_CONTENT = 'empty_content';
+
+	/**
 	 * Wire the cache-invalidation hooks. Called from `Main::register_hooks()`.
 	 *
 	 * Per AgDR-0011, invalidation is eager (hook-driven on the four post
@@ -91,15 +104,54 @@ final class Service {
 		$cached = self::read_cache( $post_id, $hash );
 
 		if ( null !== $cached ) {
-			return $cached;
+			$md = $cached;
+		} else {
+			$conversion = Walker::convert( self::render_source_html( $post ) );
+			$md         = $conversion->get_markdown();
+
+			self::write_cache( $post_id, $hash, $conversion );
 		}
 
-		$conversion = Walker::convert( self::render_source_html( $post ) );
-		$md         = $conversion->get_markdown();
-
-		self::write_cache( $post_id, $hash, $conversion );
+		// Empty-twin guard (AgDR-0068): an exposable post whose conversion is
+		// empty — even after every source adapter ran — must not be served as a
+		// 0-byte `200` (#292). Return the error so the public route 404s and
+		// `/llms.txt` drops the entry. The empty conversion is still cached
+		// above, so the Context Score body-quality sampler (#255) continues to
+		// count it — the guard changes what is SERVED, not what is measured.
+		if ( self::is_markdown_empty( $md ) ) {
+			return new \WP_Error(
+				self::ERROR_EMPTY_CONTENT,
+				\__( 'This post has no extractable content for a Markdown twin.', 'mokhai-agent-readiness-kit' ),
+				array( 'status' => 404 )
+			);
+		}
 
 		return $md;
+	}
+
+	/**
+	 * The single empty-detection point (AgDR-0068). A conversion is empty when
+	 * its trimmed Markdown is the empty string. Kept as one private helper so
+	 * the served-response guard and {@see is_empty_for_post()} can never diverge.
+	 */
+	private static function is_markdown_empty( string $md ): bool {
+		return '' === \trim( $md );
+	}
+
+	/**
+	 * Whether an exposable post yields an empty Markdown twin.
+	 *
+	 * Queryable form of the empty-content guard, consumed by the `/llms.txt`
+	 * entry source so it drops empty twins from the index (#292). Returns
+	 * `false` for posts denied for any other reason (module disabled, not
+	 * exposable) — callers that need those verdicts read
+	 * {@see get_markdown_for_post()} directly.
+	 *
+	 * @param \WP_Post $post Post to test.
+	 */
+	public static function is_empty_for_post( \WP_Post $post ): bool {
+		$result = self::get_markdown_for_post( $post );
+		return \is_wp_error( $result ) && self::ERROR_EMPTY_CONTENT === $result->get_error_code();
 	}
 
 	/**

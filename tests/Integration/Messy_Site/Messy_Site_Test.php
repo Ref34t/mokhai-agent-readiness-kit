@@ -70,14 +70,14 @@ final class Messy_Site_Test extends WP_UnitTestCase {
 		self::assertInstanceOf( WP_Post::class, $product );
 
 		// Root cause: with no source adapter, the excerpt copy never reaches the
-		// MD body (the empty-render that shipped as #252).
+		// MD body (the empty-render that shipped as #252). Post-#292 the
+		// empty-twin guard (AgDR-0068) no longer serves that as a 0-byte `200` —
+		// it returns WP_Error(empty_content) so the public route 404s and
+		// `/llms.txt` drops the entry. The copy still never appears (root cause
+		// intact); it is now guarded rather than served blank.
 		$bare = Service::get_markdown_for_post( $product );
-		self::assertNotInstanceOf( WP_Error::class, $bare );
-		self::assertStringNotContainsString(
-			'40-hour burn time',
-			(string) $bare,
-			'Without a source adapter the excerpt copy must not appear — this is the #252 root cause.'
-		);
+		self::assertInstanceOf( WP_Error::class, $bare );
+		self::assertSame( Service::ERROR_EMPTY_CONTENT, $bare->get_error_code() );
 
 		// Stand-in for any source adapter (e.g. the bundled WooCommerce one):
 		// inject the excerpt when post_content rendered empty.
