@@ -147,11 +147,71 @@ final class Service {
 	 * exposable) — callers that need those verdicts read
 	 * {@see get_markdown_for_post()} directly.
 	 *
+	 * NOTE: this RENDERS on a cache miss (and, post-AgDR-0069, a render can fire
+	 * a loopback HTTP fetch). Do not call it on a hot path such as an HTML page
+	 * render — use {@see is_known_empty_twin()} there, which is render-free.
+	 *
 	 * @param \WP_Post $post Post to test.
 	 */
 	public static function is_empty_for_post( \WP_Post $post ): bool {
 		$result = self::get_markdown_for_post( $post );
 		return \is_wp_error( $result ) && self::ERROR_EMPTY_CONTENT === $result->get_error_code();
+	}
+
+	/**
+	 * Whether the post's already-cached Markdown twin is known to be empty —
+	 * a render-free, hot-path-safe query for the alternate advertiser (#296 /
+	 * AgDR-0070).
+	 *
+	 * A single indexed PK lookup. Returns `true` ONLY when a cache row exists
+	 * for the post AND its stored markdown is empty; `false` when no row has
+	 * been written yet (unknown → advertise optimistically) or the twin is
+	 * non-empty. Because `get_markdown_for_post()` writes the (possibly empty)
+	 * conversion to cache BEFORE the empty guard returns, a page's emptiness is
+	 * recorded the first time it is rendered (static mirror, sync cron, or first
+	 * `.md` fetch), and the advertiser self-corrects from then on.
+	 *
+	 * Deliberately content-hash-AGNOSTIC: it reads the last cached render
+	 * regardless of the current hash. Advertising tolerates a stale verdict
+	 * (both stale directions self-correct on the next render), and skipping the
+	 * hash keeps this off the AgDR-0068 F3 per-call ACF-read cost. The
+	 * hash-exact path stays in {@see get_markdown_for_post()}, where the served
+	 * `.md` must be correct.
+	 *
+	 * @param \WP_Post $post Post to test.
+	 */
+	public static function is_known_empty_twin( \WP_Post $post ): bool {
+		global $wpdb;
+
+		$post_id = (int) $post->ID;
+		if ( $post_id <= 0 ) {
+			return false;
+		}
+
+		$table = Schema::table_name();
+
+		// Table name comes from Schema::table_name() ($wpdb->prefix + a hardcoded
+		// suffix — trusted, not user input). Single indexed PK lookup; no caching
+		// wrapper because the cache row IS the cache. `get_row` (not `get_var`):
+		// `get_var` returns NULL for an empty-string column, which is
+		// indistinguishable from "no row" — exactly the case we must tell apart.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT markdown FROM {$table} WHERE post_id = %d",
+				$post_id
+			),
+			\ARRAY_A
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		// No row = unknown = not known-empty. A row whose stored markdown is
+		// empty = a known-empty twin.
+		if ( ! \is_array( $row ) ) {
+			return false;
+		}
+
+		return self::is_markdown_empty( (string) ( $row['markdown'] ?? '' ) );
 	}
 
 	/**

@@ -16,8 +16,10 @@
  *
  * Everything is gated on the `advertise_alternates_enabled` Context Profile flag
  * and the existing exposure model, so noindex / excluded content is never
- * advertised and an advertised `.md` URL always resolves (no 404). No AI, no
- * external calls.
+ * advertised. A `.md` known to be an empty twin is also suppressed (#296 /
+ * AgDR-0070), so the advertiser never announces a twin it knows to be empty; a
+ * not-yet-rendered genuinely-empty page may 404 once on first fetch, then
+ * self-suppresses once its empty row is cached. No AI, no external calls.
  *
  * Behaviour-vs-side-effects split (mirrors `LlmsTxt\Router` / `Markdown_Views\
  * Handler`): the `build_*` / `augment_robots_txt` methods are pure string
@@ -32,6 +34,7 @@ declare(strict_types=1);
 namespace Mokhai\Discovery;
 
 use Mokhai\Admin\Context_Profile_Settings;
+use Mokhai\Markdown_Views\Service;
 use Mokhai\Markdown_Views\Url_Mapper;
 
 \defined( 'ABSPATH' ) || exit;
@@ -202,9 +205,10 @@ final class Alternate_Advertiser {
 	 *
 	 * Gates on EXACTLY what `Markdown_Views\Service::get_markdown_for_post()`
 	 * serves on — `is_module_enabled('markdown_views')` + `is_url_exposable()`
-	 * (the latter denies cpt / status / password-protected / noindexed posts).
-	 * Using the route's own predicate is what guarantees an advertised `.md`
-	 * always resolves (no 404 / soft-404). See AgDR-0053.
+	 * (the latter denies cpt / status / password-protected / noindexed posts) —
+	 * plus a render-free known-empty-twin check (#296 / AgDR-0070) so a page
+	 * whose cached twin is empty (and therefore 404s per AgDR-0068) is not
+	 * advertised. See AgDR-0053.
 	 */
 	private static function current_md_url(): string {
 		if ( ! \function_exists( 'is_singular' ) || ! \is_singular() ) {
@@ -221,6 +225,15 @@ final class Alternate_Advertiser {
 		}
 
 		if ( ! Context_Profile_Settings::is_url_exposable( $post ) ) {
+			return '';
+		}
+
+		// Don't advertise a twin known to be empty — AgDR-0068's guard makes that
+		// `.md` route 404 (#296 / AgDR-0070). This is a render-free cache read, so
+		// it adds no render / loopback cost to the page view. A not-yet-rendered
+		// genuinely-empty page may still 404 once on first fetch, then
+		// self-suppresses once its empty row is cached.
+		if ( Service::is_known_empty_twin( $post ) ) {
 			return '';
 		}
 
