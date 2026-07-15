@@ -133,6 +133,15 @@ final class Main {
 		// inactive or `the_content` already produced content.
 		Markdown_Views\Acf_Source::register();
 
+		// Rendered-HTML source of last resort (#297 / AgDR-0069): when every
+		// earlier source came back empty (ACF-in-templates, Sage/Acorn, any
+		// theme-template builder), loopback-fetches the post's own rendered
+		// front-end HTML, isolates the main-content region, and feeds it through
+		// the same seam. Priority 20 (after ACF@10) so it only fires when the
+		// cheaper, no-HTTP adapters produced nothing. Guarded by a cross-process
+		// render lock + a 200-only fetch gate.
+		Markdown_Views\Rendered_Html_Source::register();
+
 		// Wire the public route (#5 / AgDR-0013): registers the rewrite rule
 		// + query var + template_redirect handler. Flush happens in
 		// on_activate() so the rule persists into the rewrite_rules option.
