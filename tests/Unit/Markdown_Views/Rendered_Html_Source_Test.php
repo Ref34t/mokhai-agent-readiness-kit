@@ -142,9 +142,9 @@ final class Rendered_Html_Source_Test extends TestCase {
 	public function test_malformed_html_does_not_throw(): void {
 		$html = '<body><main><p>Unclosed paragraph<div>and a stray div</main>';
 
+		// The assertion is that malformed input neither throws nor drops content.
 		$out = Rendered_Html_Source::extract_main_html( $html );
 
-		self::assertIsString( $out );
 		self::assertStringContainsString( 'Unclosed paragraph', $out );
 	}
 }
