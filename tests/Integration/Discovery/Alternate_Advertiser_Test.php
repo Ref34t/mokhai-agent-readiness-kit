@@ -59,6 +59,27 @@ final class Alternate_Advertiser_Test extends WP_UnitTestCase {
 		return (string) ob_get_clean();
 	}
 
+	/**
+	 * Seed a cache row directly so the advertiser's render-free known-empty
+	 * check has something to read, without triggering a render/loopback.
+	 */
+	private function seed_cache_row( int $post_id, string $markdown ): void {
+		global $wpdb;
+		$wpdb->replace(
+			Markdown_Views_Schema::table_name(),
+			array(
+				'post_id'        => $post_id,
+				'content_hash'   => str_repeat( 'a', 40 ),
+				'markdown'       => $markdown,
+				'generated_at'   => current_time( 'mysql', true ),
+				'walker_version' => '5',
+				'quality_score'  => 0,
+				'signals'        => '{}',
+			),
+			array( '%d', '%s', '%s', '%s', '%s', '%d', '%s' )
+		);
+	}
+
 	public function test_exposable_singular_advertises_md_alternate(): void {
 		$post_id = $this->factory->post->create(
 			array(
@@ -72,6 +93,48 @@ final class Alternate_Advertiser_Test extends WP_UnitTestCase {
 
 		self::assertStringContainsString( 'rel="alternate"', $out );
 		self::assertStringContainsString( 'type="text/markdown"', $out );
+	}
+
+	public function test_known_empty_twin_suppresses_md_alternate(): void {
+		// A page whose cached twin is empty 404s on its .md route (AgDR-0068),
+		// so it must not be advertised (#296 / AgDR-0070).
+		$post_id = $this->factory->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+		$this->seed_cache_row( $post_id, '' );
+		$this->go_to( get_permalink( $post_id ) );
+
+		self::assertStringNotContainsString( 'type="text/markdown"', $this->capture_head() );
+	}
+
+	public function test_known_nonempty_twin_still_advertises(): void {
+		$post_id = $this->factory->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+		$this->seed_cache_row( $post_id, "# Real content\n\nBody." );
+		$this->go_to( get_permalink( $post_id ) );
+
+		self::assertStringContainsString( 'type="text/markdown"', $this->capture_head() );
+	}
+
+	public function test_unknown_twin_advertises_optimistically(): void {
+		// No cache row yet (never rendered) → advertise; the .md renders on first
+		// fetch. Optimistic-when-unknown preserves advertising for content pages.
+		$post_id = $this->factory->post->create(
+			array(
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+		$this->go_to( get_permalink( $post_id ) );
+
+		self::assertStringContainsString( 'type="text/markdown"', $this->capture_head() );
 	}
 
 	public function test_non_exposable_post_advertises_nothing(): void {

@@ -230,4 +230,46 @@ final class Service_Test extends WP_UnitTestCase {
 			'Stale walker version should be overwritten on next read'
 		);
 	}
+
+	// --- is_known_empty_twin (#296 / AgDR-0070) --------------------------
+
+	public function test_is_known_empty_twin_false_when_no_row(): void {
+		$post = self::factory()->post->create_and_get(
+			array( 'post_content' => '<p>Hi.</p>' )
+		);
+
+		// Never rendered → no cache row → unknown → false (advertise optimistically).
+		self::assertFalse( Service::is_known_empty_twin( $post ) );
+	}
+
+	public function test_is_known_empty_twin_true_for_cached_empty(): void {
+		$post = self::factory()->post->create_and_get(
+			array( 'post_content' => '' )
+		);
+
+		// Keep the twin deterministically empty: disable the AgDR-0069 loopback
+		// fallback so rendering an empty page can't recover content off a real
+		// loopback fetch in the test instance.
+		add_filter( 'mokhai_markdown_loopback_enabled', '__return_false' );
+		try {
+			// Render an empty-content page → writes an empty row, returns the guard error.
+			$result = Service::get_markdown_for_post( $post );
+			self::assertTrue( is_wp_error( $result ) );
+			self::assertSame( Service::ERROR_EMPTY_CONTENT, $result->get_error_code() );
+
+			self::assertTrue( Service::is_known_empty_twin( $post ) );
+		} finally {
+			remove_filter( 'mokhai_markdown_loopback_enabled', '__return_false' );
+		}
+	}
+
+	public function test_is_known_empty_twin_false_for_cached_nonempty(): void {
+		$post = self::factory()->post->create_and_get(
+			array( 'post_content' => '<p>Real body content.</p>' )
+		);
+
+		Service::get_markdown_for_post( $post );
+
+		self::assertFalse( Service::is_known_empty_twin( $post ) );
+	}
 }
