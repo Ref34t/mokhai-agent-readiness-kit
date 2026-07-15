@@ -33,7 +33,7 @@ Reading the cache row directly — instead of `is_empty_for_post()` — also **s
 ## Consequences
 
 - Known-empty pages stop advertising a dead `.md`; content pages (the common case) are unaffected.
-- One new indexed PK `SELECT` per exposable singular HTML view — cheap, render-free, loopback-free, object-cache-friendly. No `content_hash`/ACF read on this path.
+- **Up to two** render-free indexed PK `SELECT`s per exposable singular HTML view — both discovery hooks (`wp_head` via `render_head_links` and `send_headers` via `send_link_header`) resolve through `current_md_url()`, so `is_known_empty_twin()` runs once per hook. Each is a cheap indexed PK lookup, render-free and loopback-free, with no `content_hash`/ACF read on this path. The read intentionally does **not** use the object cache (the DB row *is* the cache); a per-request memo or a `wp_cache_get`/`set` wrapper keyed on `post_id` — busted in `invalidate()` / `write_cache()` — is a straightforward future optimization that would collapse the double-read to one and serve persistent-object-cache sites without a DB round-trip. Deferred as unnecessary for a LOW-severity path; noted rather than claimed as done.
 - A not-yet-rendered genuinely-empty page can 404 once on first agent fetch (documented; self-corrects). Acceptable for a LOW-severity agent-UX polish.
 - The advertiser now depends on `Markdown_Views\Service` (it already depended on `Url_Mapper`). Reading the cache directly, it does not risk recursion with the AgDR-0069 loopback.
 
