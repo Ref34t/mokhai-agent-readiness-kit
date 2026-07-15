@@ -98,11 +98,39 @@ final class Rendered_Html_Source {
 	private const LOCK_TTL = 30;
 
 	/**
-	 * Loopback request timeout in seconds.
+	 * Loopback request timeout in seconds on a normal front-end request.
 	 *
 	 * @var int
 	 */
 	private const REQUEST_TIMEOUT = 5;
+
+	/**
+	 * Shorter loopback timeout in a cron / background context. A single
+	 * `Static_Mirror::run_daily_sync()` tick can render up to `SYNC_BATCH_CAP`
+	 * (50) posts; a tighter per-fetch budget bounds the worst-case tick time
+	 * (AgDR-0069 S2).
+	 *
+	 * @var int
+	 */
+	private const CRON_REQUEST_TIMEOUT = 2;
+
+	/**
+	 * Hard cap on loopback fetches per PHP request. A front-end request only
+	 * ever renders one `.md`, so this only bites the cron/bulk path, where it
+	 * caps loopbacks-per-tick; the remainder is picked up on later ticks. Static
+	 * because a cron tick is a single PHP process, so the counter naturally
+	 * scopes to the tick and needs no reset (AgDR-0069 S2).
+	 *
+	 * @var int
+	 */
+	private const MAX_FETCHES_PER_REQUEST = 10;
+
+	/**
+	 * Loopback fetches performed so far in this PHP request.
+	 *
+	 * @var int
+	 */
+	private static $fetches_this_request = 0;
 
 	/**
 	 * Response-size ceiling in bytes. Bounds memory on a pathological page;
@@ -180,6 +208,13 @@ final class Rendered_Html_Source {
 
 		// Secondary guard: never fetch while handling our own loopback request.
 		if ( self::is_self_fetch() ) {
+			return $html;
+		}
+
+		// Bound the cron/bulk path: once this request has hit the per-tick fetch
+		// cap, stop fetching — later cron ticks pick up the remainder (S2). A
+		// front-end request renders a single `.md`, so this never bites there.
+		if ( \wp_doing_cron() && self::$fetches_this_request >= self::MAX_FETCHES_PER_REQUEST ) {
 			return $html;
 		}
 
@@ -267,10 +302,14 @@ final class Rendered_Html_Source {
 	private static function fetch_rendered_html( string $permalink ): ?string {
 		$url = \add_query_arg( self::MARKER, '1', $permalink );
 
+		++self::$fetches_this_request;
+
+		$timeout = \wp_doing_cron() ? self::CRON_REQUEST_TIMEOUT : self::REQUEST_TIMEOUT;
+
 		$response = \wp_remote_get(
 			$url,
 			array(
-				'timeout'             => self::REQUEST_TIMEOUT,
+				'timeout'             => $timeout,
 				'redirection'         => 2,
 				'limit_response_size' => self::MAX_RESPONSE_BYTES,
 				'reject_unsafe_urls'  => true,
