@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.6.0
+Stable tag: 0.7.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -168,6 +168,20 @@ v0.5.0 is the public-launch baseline: Markdown Views, `/llms.txt`, the Context S
 
 == Changelog ==
 
+= 0.7.0 — 2026-07-15 =
+
+**Feature release: agent-readable Markdown that reaches more agents, and covers more pages.** No migration — safe in-place upgrade.
+
+**New**
+
+* **Rendered-HTML fallback for template-built pages** — pages whose content is rendered by the theme (ACF Pro flexible-content, Sage/Acorn, and other builders that render in templates rather than through the editor) previously produced an empty Markdown twin, because the content lived only in the front-end render. Mokhai now recovers that content by reading the page's own rendered HTML and extracting the main region, so these pages get a real Markdown twin. Theme- and builder-agnostic; runs only as a last resort when no content was found otherwise, and never on the normal page-view path. (#297)
+* **ACF field-content adapter + empty-twin guard** — ACF field text is sourced into the Markdown body when the editor content is empty, and a page whose twin is genuinely empty now returns a 404 (and is dropped from `/llms.txt`) instead of serving a 0-byte body. (#292)
+
+**Improved**
+
+* **Markdown twins served as `text/plain`** — the `.md` route now responds with `Content-Type: text/plain` and an inline disposition. Some AI fetchers reject `text/markdown` outright; `text/plain` is accepted across the board while remaining human- and agent-readable. (#293)
+* **No more dead alternate links** — the `<link rel="alternate">` / `Link:` header advertising a page's `.md` twin is now suppressed for pages whose twin is empty (and would 404), so agents following the advertised alternate always reach real content. (#296)
+
 = 0.6.0 — 2026-07-13 =
 
 **Feature release: markdown that survives hard caching, and discovery that survives AI content extraction.** No migration — safe in-place upgrade; all new behaviour is driven by two new Context Profile keys with safe defaults.
@@ -311,6 +325,10 @@ First public release. Four coherent modules driven by one Context Profile.
 * Translation policy documented: managed via wp.org under slug `agentable`
 
 == Upgrade Notice ==
+
+= 0.7.0 =
+
+Recovers Markdown twins for theme/ACF-rendered pages, serves `.md` as text/plain so more AI fetchers accept it, and stops advertising empty twins. No migration — safe in-place upgrade.
 
 = 0.6.0 =
 
