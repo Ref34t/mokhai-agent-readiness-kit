@@ -219,6 +219,15 @@ function LlmsEntryPane( { llmsEntry } ) {
 				{ DESCRIPTION_SOURCE_LABELS[ llmsEntry.description_source ] ||
 					'' }
 			</p>
+			{ llmsEntry.advisory && (
+				<Notice
+					status="warning"
+					isDismissible={ false }
+					className="mokhai-instruction-advisory"
+				>
+					{ llmsEntry.advisory.message }
+				</Notice>
+			) }
 		</>
 	) : (
 		<Notice status="info" isDismissible={ false }>
