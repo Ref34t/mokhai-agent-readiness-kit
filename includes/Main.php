@@ -95,6 +95,14 @@ final class Main {
 		\Mokhai\Admin\Context_Profile_Rest_Controller::register_hooks();
 		\Mokhai\Admin\Context_Profile_Page::register_hooks();
 
+		// First-run onboarding nudge (#251 / AgDR-0071). Renders on
+		// Dashboard / Plugins / Tools → Context while nothing is exposed and
+		// the admin hasn't dismissed it; offers a confirm-gated one-click
+		// expose (posts + pages at publish) through set_exposure() so the
+		// saved cascade fires. Secondary actions are filterable via
+		// `mokhai_first_run_actions` — the 1.0 agent-setup seam.
+		\Mokhai\Admin\First_Run_Notice::register_hooks();
+
 		// Content exclusions (#180). Per-post `_mokhai_excluded` meta + its
 		// block-editor sidebar toggle, and the SEO-plugin noindex bridge
 		// (folds in #176 — Yoast / Rank Math). All three feed
