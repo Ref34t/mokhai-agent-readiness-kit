@@ -339,6 +339,10 @@ First public release. Four coherent modules driven by one Context Profile.
 
 == Upgrade Notice ==
 
+= 0.8.0 =
+
+Adds a first-run onboarding nudge with one-click expose (nothing is exposed without your explicit confirmation) and an advisory that flags instruction-shaped `/llms.txt` descriptions. No migration — safe in-place upgrade.
+
 = 0.7.0 =
 
 Recovers Markdown twins for theme/ACF-rendered pages, serves `.md` as text/plain so more AI fetchers accept it, and stops advertising empty twins. No migration — safe in-place upgrade.
