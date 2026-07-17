@@ -166,7 +166,7 @@ final class Preview_Builder {
 	 * `Entry_Source` so it matches the published file. `present` is false
 	 * when the post is not exposable (no line in the file).
 	 *
-	 * @return array{present: bool, line: string, description_source: string}
+	 * @return array{present: bool, line: string, description_source: string, advisory: array{codes: array<int, string>, message: string}|null}
 	 */
 	private static function llms_entry( \WP_Post $post ): array {
 		$entry = Entry_Source::entry_for_post( $post );
@@ -176,6 +176,7 @@ final class Preview_Builder {
 				'present'            => false,
 				'line'               => '',
 				'description_source' => 'none',
+				'advisory'           => null,
 			);
 		}
 
@@ -183,6 +184,37 @@ final class Preview_Builder {
 			'present'            => true,
 			'line'               => self::format_entry_line( $entry ),
 			'description_source' => self::classify_description_source( $post, $entry ),
+			'advisory'           => self::description_advisory( $entry ),
+		);
+	}
+
+	/**
+	 * Non-blocking instruction-shape advisory for the entry description
+	 * (#238). Runs on whatever description the live entry carries —
+	 * curated editorial, excerpt, or LLM-generated — because agents read
+	 * them all identically. Never mutates, never blocks, never scores.
+	 *
+	 * @param array{title: string, url: string, description?: string} $entry
+	 *
+	 * @return array{codes: array<int, string>, message: string}|null Null when clean.
+	 */
+	private static function description_advisory( array $entry ): ?array {
+		$description = isset( $entry['description'] ) ? (string) $entry['description'] : '';
+		if ( '' === $description ) {
+			return null;
+		}
+
+		$codes = \Mokhai\LlmsTxt\Instruction_Shape_Detector::detect( $description );
+		if ( array() === $codes ) {
+			return null;
+		}
+
+		return array(
+			'codes'   => $codes,
+			'message' => \__(
+				'This description reads like an instruction to AI agents rather than a summary of the page. Agents are built to trust /llms.txt, so instruction-shaped wording can look like prompt injection. Nothing is blocked or changed — consider rephrasing it descriptively.',
+				'mokhai-agent-readiness-kit'
+			),
 		);
 	}
 
