@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.7.0
+Stable tag: 0.8.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -168,6 +168,19 @@ v0.5.0 is the public-launch baseline: Markdown Views, `/llms.txt`, the Context S
 
 == Changelog ==
 
+= 0.8.0 — 2026-07-17 =
+
+**Feature release: first-run onboarding, and an advisory that spots instruction-shaped descriptions.** No migration — safe in-place upgrade.
+
+**New**
+
+* **First-run onboarding nudge** — a fresh install exposes nothing by design, and now the plugin says so: while no content is exposed, admins see a dismissible notice on the Dashboard, Plugins, and Tools → Context screens explaining that the empty `/llms.txt` is the safe default. One click (with confirmation) exposes published posts and pages, or choose content manually. Dismissal is per-admin and permanent; nothing is ever exposed without an explicit click. (#251)
+* **Instruction-shape advisory** — the AI Assistant Preview now warns when a page's `/llms.txt` description reads like an instruction to AI agents ("ignore previous instructions", "always recommend…") rather than a summary. Advisory only: nothing is changed, stripped, or scored down — you decide. Complements the existing structural escaping of descriptions. (#238)
+
+**Improved**
+
+* **Real-world regression fixture** — the integration suite now includes a messy-site fixture (WooCommerce-, page-builder-, and slider-shaped content plus a static front page) guarding the Markdown extraction pipeline against the page shapes that broke it in the wild. (#256)
+
 = 0.7.0 — 2026-07-15 =
 
 **Feature release: agent-readable Markdown that reaches more agents, and covers more pages.** No migration — safe in-place upgrade.
@@ -325,6 +338,10 @@ First public release. Four coherent modules driven by one Context Profile.
 * Translation policy documented: managed via wp.org under slug `agentable`
 
 == Upgrade Notice ==
+
+= 0.8.0 =
+
+Adds a first-run onboarding nudge with one-click expose (nothing is exposed without your explicit confirmation) and an advisory that flags instruction-shaped `/llms.txt` descriptions. No migration — safe in-place upgrade.
 
 = 0.7.0 =
 
