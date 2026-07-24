@@ -3,7 +3,7 @@
  * Plugin Name:       Mokhai - Agent Readiness Kit
  * Plugin URI:        https://github.com/Ref34t/mokhai-agent-readiness-kit
  * Description:       Help AI agents read your WordPress site correctly: llms.txt, clean Markdown views, structured data, and a readiness score — from one Context Profile.
- * Version:           0.8.0
+ * Version:           0.8.1
  * Requires at least: 6.9
  * Requires PHP:      7.4
  * Author:            Mohamed Khaled
@@ -37,7 +37,7 @@ namespace Mokhai;
  * Mokhai\ namespace can reference them without imports.
  */
 function constants(): void {
-	\define( 'MOKHAI_VERSION', '0.8.0' );
+	\define( 'MOKHAI_VERSION', '0.8.1' );
 	\define( 'MOKHAI_FILE', __FILE__ );
 	\define( 'MOKHAI_DIR', \plugin_dir_path( __FILE__ ) );
 	\define( 'MOKHAI_URL', \plugin_dir_url( __FILE__ ) );
