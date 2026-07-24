@@ -352,9 +352,9 @@ final class Engine {
 	 *   - `exposed_statuses` ⊆ `[publish]`              (safe baseline, 60 pts)
 	 *   - At least one CPT exposed                       (40 pts)
 	 *
-	 * Penalty applied per non-publish status — `private` and `password` are
-	 * higher penalty than `pending` / `draft` because they imply intent to
-	 * hide.
+	 * Penalty applied per non-publish status — a flat -15 per risky status,
+	 * capped at the 60-point baseline (`min( 60, count * 15 )`). Exposing four
+	 * or more non-publish statuses zeroes out the safety credit.
 	 *
 	 * @param array<string, mixed> $signals
 	 *
@@ -604,18 +604,23 @@ final class Engine {
 	 * site publish, across Mokhai's own channels and complementary
 	 * sibling plugins (#22 / AgDR-0043)?
 	 *
-	 * Five surfaces, each worth 20 points (sum 100):
+	 * Four plugin-served channels, each worth 25 points (sum 100):
 	 *   - `/llms.txt` cache populated         (re-credits the existing signal)
 	 *   - `ai.txt` at the WordPress install root
 	 *   - `/.well-known/ai-layer` (file probe OR registered sibling provider)
 	 *   - `/.well-known/llms-policy.json`
-	 *   - OpenAPI / Swagger spec at `ABSPATH/{openapi.json,openapi.yaml,swagger.json}`
+	 *
+	 * An OpenAPI / Swagger spec at `ABSPATH/{openapi.json,openapi.yaml,swagger.json}`
+	 * is a non-scoring bonus channel (AgDR-0058 / #212): detected and credited
+	 * in the narrative for API-exposing sites, but it does not change the score
+	 * — the plugin can't generate an OpenAPI spec for a REST surface it doesn't
+	 * own, so gating the score on it created a dead-end gauge.
 	 *
 	 * When a registered sibling provider (e.g. AI Layer) is detected, an
 	 * extra reason string names the plugin and points at its admin page so
 	 * the narrative can render a one-click "Configure at X" affordance. The
 	 * /llms.txt re-credit is intentional — the AC lists it as one of the
-	 * five surfaces; double-credit with `discoverability` is the cost of
+	 * scoring surfaces; double-credit with `discoverability` is the cost of
 	 * giving sites a coherent "how many channels" reading.
 	 *
 	 * Conflict warnings for competing /llms.txt plugins stay in
