@@ -4,7 +4,7 @@ Tags: ai, agents, llms.txt, markdown, schema
 Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.8.0
+Stable tag: 0.8.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -167,6 +167,15 @@ v0.5.0 is the public-launch baseline: Markdown Views, `/llms.txt`, the Context S
 4. Context Profile — the single source of truth for which CPTs and statuses are exposed to agents
 
 == Changelog ==
+
+= 0.8.1 — 2026-07-24 =
+
+**Maintenance release: documentation and internal accuracy only.** No functional changes — safe in-place upgrade.
+
+**Improved**
+
+* **Context Score reference and `/llms.txt` curation guide** — the repository now documents the seven weighted sub-scores that make up the readiness score (and how to raise each), plus the editorial `/llms.txt` workflow. Repository documentation only; no change to the plugin's behaviour. (#306)
+* **Corrected scoring docblocks** — two source comments in the Context Score engine that disagreed with the code (the multi-channel-discovery channel count and the exposure-safety penalty shape) were brought back into agreement with the implementation. Comment-only; the score is computed exactly as before. (#308)
 
 = 0.8.0 — 2026-07-17 =
 
@@ -338,6 +347,10 @@ First public release. Four coherent modules driven by one Context Profile.
 * Translation policy documented: managed via wp.org under slug `agentable`
 
 == Upgrade Notice ==
+
+= 0.8.1 =
+
+Documentation and internal comment accuracy only — no functional changes. Safe in-place upgrade.
 
 = 0.8.0 =
 
