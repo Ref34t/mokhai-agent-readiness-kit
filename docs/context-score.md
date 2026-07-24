@@ -44,7 +44,7 @@ How clean is the deterministic walker output for the cached pages?
 Two deductions protect against pages that are technically cached but useless to an agent, each applied proportionally to how much of the sample is affected:
 
 - **Empty or near-empty bodies** — up to **−40**. A site whose Markdown twins are 0-byte bodies loses the full 40.
-- **Noise-dominated bodies** (base64 page-builder blobs, leaked script) — up to **−40**.
+- **Noise-dominated bodies** (base64 page-builder blobs, leaked script) — up to **−30**.
 
 A site with zero cached Markdown rows scores **0** here — there is nothing to evaluate yet. The fix is cheap: visit a few `.md` URLs so the cache populates, then recompute.
 
@@ -61,7 +61,7 @@ Does the site avoid leaking unpublished or sensitive content to agents?
 - Exposed statuses limited to `publish` — the safe baseline, **60 points**.
 - At least one CPT exposed — **40 points** (a site exposing nothing is "safe" but not useful, so safety credit requires actually participating).
 
-Penalties apply per non-publish status you expose. `private` and `password` cost more than `pending` or `draft`, because they imply an intent to hide that the exposure contradicts.
+Penalties apply per non-publish status you expose: a flat **−15** per risky status, capped at the 60-point baseline. Exposing four or more non-publish statuses zeroes out the safety credit entirely.
 
 ### Integration health (weight 15)
 
@@ -93,13 +93,14 @@ The floor is 60, not 0: missing schema makes a site poorer for agents, not broke
 
 ### Multi-channel discovery (weight 10)
 
-`/llms.txt` is the de-facto front door, but it is not the only discovery surface agents check. Five surfaces, **20 points each**:
+`/llms.txt` is the de-facto front door, but it is not the only discovery surface agents check. Four plugin-served channels score, **25 points each**:
 
 - `/llms.txt` cache populated (re-credits the discoverability signal — intentional)
 - `ai.txt` at the WordPress install root
 - `/.well-known/ai-layer` (a file, or a registered sibling plugin providing it)
 - `/.well-known/llms-policy.json`
-- An OpenAPI/Swagger spec at the install root (`openapi.json`, `openapi.yaml`, or `swagger.json`)
+
+A fifth surface — an OpenAPI/Swagger spec at the install root (`openapi.json`, `openapi.yaml`, or `swagger.json`) — is detected and credited in the narrative as a **bonus** channel for API-exposing sites, but it does **not** change the score (AgDR-0058 / #212). The plugin can't generate an OpenAPI spec for a REST surface it doesn't own, so gating the score on it would be a dead-end gauge.
 
 When a sibling plugin provides a surface, the reason names the plugin and points at its admin page, so the fix is one click away rather than a scavenger hunt.
 
